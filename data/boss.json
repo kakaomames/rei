@@ -1,0 +1,72 @@
+[
+  {
+    "rebel": 1,
+    "name": "スライム",
+    "color": "green",
+    "note": "一般的なスライム。",
+    "stats": {
+      "speed": 1,
+      "defense": 1,
+      "magic": 1
+    },
+    "base_hp": 100,
+    "trait": "none"
+  },
+  {
+    "rebel": 2,
+    "name": "シルバーフィッシュ",
+    "color": "gray",
+    "note": "素早さが高い。体力がわからない。",
+    "stats": {
+      "speed": 11,
+      "defense": 1,
+      "magic": 1
+    },
+    "base_hp": 100,
+    "trait": "unknown_hp"
+  },
+  {
+    "rebel": 3,
+    "name": "エンダーマイト",
+    "color": "magenta",
+    "note": "魔法攻撃に弱い。",
+    "stats": {
+      "speed": 1,
+      "defense": 1,
+      "magic": 11
+    },
+    "base_hp": 100,
+    "trait": "magic_vulnerability"
+  },
+  {
+    "rebel": 4,
+    "name": "ゾンビ",
+    "color": "darkgreen",
+    "note": "夜間に仲間を呼ぶ。昼間に燃焼ダメージ。",
+    "stats": {
+      "speed": 1,
+      "defense": 2,
+      "magic": 5
+    },
+    "base_hp": 150,
+    "trait": "zombie_time",
+    "trait_data": {
+      "sun_damage": 5,
+      "summon_interval": 120,
+      "summon_amount": [1, 5]
+    }
+  },
+  {
+    "rebel": 5,
+    "name": "ハスク",
+    "color": "yellowgreen",
+    "note": "昼間でも燃えないゾンビ。",
+    "stats": {
+      "speed": 1,
+      "defense": 2,
+      "magic": 5
+    },
+    "base_hp": 150,
+    "trait": "no_sun_damage"
+  }
+]
