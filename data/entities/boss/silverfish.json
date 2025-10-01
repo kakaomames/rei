@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "shooter:silverfish_boss",
+      "is_spawnable": false
+    },
+    "components": {
+      "shooter_data:rebel_level": 2,
+      "minecraft:type_name": "巨大変異シルバーフィッシュ",
+      "shooter_data:note": "雑魚召喚と分裂",
+      "shooter_data:visuals": {
+        "color": "silver"
+      },
+      "minecraft:health": {
+        "value": 800,
+        "max": 800
+      },
+      "shooter_data:stats": {
+        "speed": 3,
+        "attack_interval_frames": 120,
+        "bullet_speed": 5,
+        "magic": 0
+      },
+      "shooter_data:trait": {
+        "type": "silverfish",
+        "data": {
+          "spawn_interval_frames": 240,
+          "score_reward": 800,
+          "coin_reward": 80
+        }
+      }
+    }
+  }
+}
