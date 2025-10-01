@@ -1,0 +1,30 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "shooter:zombie_mob",
+      "is_spawnable": true,
+      "is_summonable": true
+    },
+    "components": {
+      "shooter_data:rebel_level": 4,
+      "minecraft:type_name": "ゾンビ",
+      "shooter_data:visuals": {
+        "color": "darkolivegreen",
+        "width": 30,
+        "height": 30
+      },
+      "minecraft:health": {
+        "value": 50,
+        "max": 50
+      },
+      "minecraft:physics": {
+        "speed": 1.8
+      },
+      "shooter_data:reward": {
+        "score": 25,
+        "coin_drop": 4
+      }
+    }
+  }
+}
