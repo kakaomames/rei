@@ -1,0 +1,16 @@
+[
+  {
+    "id": "healing_potion",
+    "name": "回復のポーション",
+    "type": "heal",
+    "effect_value": 30,
+    "inventory_max": 1
+  },
+  {
+    "id": "shielding_potion",
+    "name": "耐性ポーション",
+    "type": "shield",
+    "effect_value": 300, 
+    "inventory_max": 1
+  }
+]
