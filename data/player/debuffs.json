@@ -1,0 +1,20 @@
+[
+  {
+    "type": "burning",
+    "name": "炎上",
+    "damage_per_sec": 3,
+    "effect": "継続ダメージ"
+  },
+  {
+    "type": "poison",
+    "name": "毒",
+    "damage_per_sec": 1,
+    "effect": "継続ダメージ"
+  },
+  {
+    "type": "frozen",
+    "name": "凍結",
+    "damage_per_sec": 2,
+    "effect": "移動速度大幅低下"
+  }
+]
