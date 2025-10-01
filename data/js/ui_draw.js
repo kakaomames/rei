@@ -307,6 +307,62 @@ function drawGameClear() {
     ctx.fillText(`TOTAL COINS: ${player.coins}`, WIDTH / 2, HEIGHT / 2 + 50);
 }
 
+// ./data/js/ui_draw.js (ファイルのどこかに追記)
+
+let messageTimeout;
+
+/**
+ * 画面上部にポップアップメッセージを表示する
+ * @param {string} message - 表示するテキスト
+ * @param {number} duration - 表示するミリ秒 (デフォルト: 4000ms = 4秒)
+ * @param {string} type - 'error', 'warning', 'info'
+ */
+function showPopupMessage(message, duration = 4000, type = 'error') {
+    const overlay = document.getElementById('messageOverlay');
+    if (!overlay) {
+        // コンテナがない場合はコンソールにログを出して終了
+        console.warn("messageOverlay DOM要素が見つかりません。");
+        return;
+    }
+
+    // 以前のタイマーをクリア
+    clearTimeout(messageTimeout);
+
+    // タイプに応じて背景色を設定
+    let bgColor = '';
+    switch (type) {
+        case 'warning':
+            bgColor = 'rgba(255, 165, 0, 0.9)'; // オレンジ
+            break;
+        case 'info':
+            bgColor = 'rgba(0, 123, 255, 0.9)'; // 青
+            break;
+        case 'error':
+        default:
+            bgColor = 'rgba(220, 53, 69, 0.9)'; // 赤
+            break;
+    }
+    
+    overlay.style.backgroundColor = bgColor;
+    overlay.textContent = message;
+    overlay.style.opacity = '1';
+    overlay.style.display = 'block';
+
+    // 指定時間後にメッセージを非表示にする
+    messageTimeout = setTimeout(() => {
+        overlay.style.opacity = '0';
+        // 完全に非表示になった後に display: none に
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 500); // transitionの時間と合わせる
+    }, duration);
+    
+    // ログにも追加
+    if (typeof addLog === 'function') {
+        addLog(`POPUP(${type}): ${message}`);
+    }
+}
+
 // ----------------------------------------------------
 // 🐞 デバッグログオーバーレイの描画
 // ----------------------------------------------------
