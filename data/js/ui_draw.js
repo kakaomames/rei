@@ -366,24 +366,42 @@ function showPopupMessage(message, duration = 4000, type = 'error') {
 // ----------------------------------------------------
 // 🐞 デバッグログオーバーレイの描画
 // ----------------------------------------------------
+// ui_draw.js の drawDebugLogOverlay 関数内 (描画位置の調整)
+// ./data/js/ui_draw.js の drawDebugLogOverlay 関数全体
+
+/**
+ * デバッグログとクリエイターモード情報をキャンバスに描画する
+ * (設定で show_log が true の場合のみ gameLoop から呼ばれる)
+ */
 function drawDebugLogOverlay() {
-    // settings.jsで定義されたsettingsとdebugLogを使用
-    if (!window.settings || !window.settings.show_log) return; 
+    // ログが空の場合は描画しない
+    if (window.debugLog.length === 0) return;
 
-    // 背景
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-    ctx.fillRect(0, HEIGHT - 150, WIDTH, 150); 
+    const ctx = canvas.getContext('2d');
+    const lineHeight = 15;
+    
+    // 画面下部に描画するための基準Y座標を設定
+    // HEIGHT (キャンバスの高さ) からログ行数分を引いて、少し余白(5px)を空ける
+    const startY = HEIGHT - (window.debugLog.length * lineHeight) - 5; 
+    
+    // 背景ボックスの描画（ログが見やすいように）
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'; // 半透明の黒
+    // Y座標を startY - 15 あたりから始める (タイトルと上側の余白)
+    ctx.fillRect(5, startY - 15, WIDTH - 10, (window.debugLog.length * lineHeight) + 20); 
 
-    // ヘッダー
-    ctx.fillStyle = 'red';
-    ctx.font = '12px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText("DEBUG LOG (Creator Mode)", 10, HEIGHT - 135);
-
-    // ログを表示
-    ctx.fillStyle = 'white';
+    // ログタイトルの描画
+    ctx.fillStyle = 'red'; 
+    ctx.font = 'bold 12px Arial';
+    ctx.fillText("DEBUG LOG (Creator Mode)", 10, startY - 2); // タイトルを少し上に配置
+    
+    // 各ログメッセージの描画
     window.debugLog.forEach((log, index) => {
-        const y = HEIGHT - 120 + (index * 15);
-        ctx.fillText(log, 10, y);
+        // Y座標を startY + (index * lineHeight) に設定
+        ctx.fillStyle = '#eee'; // 白っぽい色
+        ctx.font = '11px Arial';
+        ctx.fillText(log, 10, startY + (index * lineHeight) + 12); 
     });
 }
+
+// showPopupMessage など、他の ui_draw.js の関数も省略せず含めてください
+// ... (他の ui_draw.js の関数: drawGame, drawControls, showPopupMessage, etc.) ...
