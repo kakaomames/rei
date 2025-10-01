@@ -1,0 +1,10 @@
+{
+  "id": "iron",
+  "name": "鉄",
+  "color": "lightgray",
+  "level": 4,
+  "damage": 200,
+  "duration": 120,
+  "drop_from": 4,
+  "drop_chance": 0.5
+}
