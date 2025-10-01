@@ -1,0 +1,9 @@
+[
+  {
+    "id": "show_log",
+    "type": "creator",
+    "name": "ログを表示",
+    "description": "ゲーム内のデバッグログオーバーレイを表示します。",
+    "default_value": false
+  }
+]
