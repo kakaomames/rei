@@ -1,0 +1,34 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "shooter:slime_boss",
+      "is_spawnable": false
+    },
+    "components": {
+      "shooter_data:rebel_level": 1,
+      "minecraft:type_name": "巨大スライム",
+      "shooter_data:note": "シンプルな弾幕攻撃",
+      "shooter_data:visuals": {
+        "color": "green"
+      },
+      "minecraft:health": {
+        "value": 500,
+        "max": 500
+      },
+      "shooter_data:stats": {
+        "speed": 2,
+        "attack_interval_frames": 90,
+        "bullet_speed": 4,
+        "magic": 0
+      },
+      "shooter_data:trait": {
+        "type": "slime",
+        "data": {
+          "score_reward": 500,
+          "coin_reward": 50
+        }
+      }
+    }
+  }
+}
