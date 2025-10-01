@@ -53,6 +53,7 @@ let level = 1;
 let currentRebel = 1; // Level 1 (スライムレベル) からスタート
 let isGameOver = false; 
 let enemySpawnTimer = 0;
+let isGameLoopRunning = false; // 🌟 修正ポイント: ゲームループの状態管理フラグ
 
 // --- NEW: レベル固有の変数 ---
 let requiredKills = 0;   // ボス出現に必要な討伐数
@@ -258,8 +259,11 @@ async function loadGameData() {
         goToHome(); 
 
     } catch (error) {
+        // 🚨 修正ポイント：ロード失敗してもコンソールにエラーを出力し、ホーム画面へ強制遷移
         console.error("データの取得中にエラーが発生しました:", error);
         alert("ゲームの初期データをロードできませんでした。コンソールを確認してください。");
+        setupEventListeners();
+        goToHome(); 
     }
 }
 
@@ -274,7 +278,15 @@ function gameLoop() {
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
     }
     
-    if (isGameOver && currentRebel > MAX_REBEL) { drawGameClear(); return; } else if (isGameOver) { return; }
+    // 🌟 修正ポイント: isGameLoopRunningの制御
+    if (isGameOver && currentRebel > MAX_REBEL) { 
+        drawGameClear(); 
+        isGameLoopRunning = false; 
+        return; 
+    } else if (isGameOver) { 
+        isGameLoopRunning = false; 
+        return; 
+    }
 
     updateTimeOfDay();  // enemy.js
     updateDebuffs();    // player.js
@@ -295,8 +307,12 @@ function gameLoop() {
     drawBoss();         // ui_draw.js
     drawGolem();        // ui_draw.js
     drawScore();        // ui_draw.js
+    drawMessageOverlay(); // ui_draw.js
 
-    requestAnimationFrame(gameLoop);
+    // 🌟 修正ポイント: ループの継続
+    if (!isGameOver && isGameLoopRunning) {
+        requestAnimationFrame(gameLoop);
+    }
 }
 
 // --- ゲームのリセット (ui_draw.js, collision.jsにも依存) ---
@@ -320,11 +336,11 @@ function resetGame() {
     requiredKills = 0;
     currentKills = 0;
     isMobPhase = false; 
-
-    gameData.potions.forEach(p => {
-         // ポーション在庫はリセットしない
-         // player.inventory[p.id] = 0; 
-    });
+    
+    // ポーション在庫はリセットしない
+    // gameData.potions.forEach(p => {
+    //      player.inventory[p.id] = 0; 
+    // });
 
     updateGolemButtonVisibility(); // ui_draw.js
     updatePotionButton(); // ui_draw.js
@@ -495,7 +511,11 @@ function startLevel(rebelNum) {
     isMobPhase = false; 
     isBossPhase = false;
     
-    // ゲームループは既に動いているため、次のフレームで checkLevelUp() が呼ばれ、initLevelPhase() が実行されます
+    // 🌟 修正ポイント：ゲームループがまだ開始されていない場合に開始する 🌟
+    if (!isGameLoopRunning) {
+        isGameLoopRunning = true;
+        gameLoop(); 
+    }
 }
 
 
