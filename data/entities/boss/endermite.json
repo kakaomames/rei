@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "shooter:endermite_boss",
+      "is_spawnable": false
+    },
+    "components": {
+      "shooter_data:rebel_level": 3,
+      "minecraft:type_name": "エンダーマイトの群れ",
+      "shooter_data:note": "テレポートと全方位攻撃",
+      "shooter_data:visuals": {
+        "color": "darkorchid"
+      },
+      "minecraft:health": {
+        "value": 1200,
+        "max": 1200
+      },
+      "shooter_data:stats": {
+        "speed": 4,
+        "attack_interval_frames": 60,
+        "bullet_speed": 6,
+        "magic": 0
+      },
+      "shooter_data:trait": {
+        "type": "endermite",
+        "data": {
+          "teleport_interval_frames": 300,
+          "score_reward": 1200,
+          "coin_reward": 120
+        }
+      }
+    }
+  }
+}
