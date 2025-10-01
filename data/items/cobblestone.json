@@ -1,0 +1,10 @@
+{
+  "id": "cobblestone",
+  "name": "丸石",
+  "color": "gray",
+  "level": 2,
+  "damage": 100,
+  "duration": 90,
+  "drop_from": 2,
+  "drop_chance": 0.5
+}
