@@ -1,0 +1,10 @@
+{
+  "id": "oak_log",
+  "name": "オークの原木",
+  "color": "peru",
+  "level": 1,
+  "damage": 50,
+  "duration": 60,
+  "drop_from": 1,
+  "drop_chance": 0.5
+}
