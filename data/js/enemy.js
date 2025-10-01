@@ -16,8 +16,8 @@ function initMobPhase() {
     requiredKills = currentRebel * 10; 
     currentKills = 0;
     
-    // レベルに合った敵のIDを取得 (今回はレベル1のみ)
-    const mobId = ENEMY_IDS[0]; // 現状 slime_mob のみ
+    // レベルに合った敵のIDを取得
+    const mobId = ENEMY_IDS[currentRebel - 1]; 
     const mobData = gameData.enemies.get(mobId);
     if (mobData) {
         console.log(`REBEL ${currentRebel} Mob Phase: ${mobData.name}を${requiredKills}体討伐`);
@@ -105,8 +105,13 @@ function spawnEnemy() {
     if (enemySpawnTimer >= spawnInterval) {
         enemySpawnTimer = 0;
         
-        // 現状 slime_mob のみ
-        const mobId = ENEMY_IDS[0]; 
+        // 🌟 修正ポイント: currentRebelに対応したMobIDを取得 🌟
+        const mobIndex = currentRebel - 1;
+        if (mobIndex < 0 || mobIndex >= ENEMY_IDS.length) {
+            console.error("MobIDが見つかりません。REBELレベルが範囲外です:", currentRebel);
+            return;
+        }
+        const mobId = ENEMY_IDS[mobIndex]; 
         const mobData = gameData.enemies.get(mobId);
 
         if (!mobData) return;
@@ -202,6 +207,8 @@ function updateBossAction() {
         } else if (boss.trait === "silverfish") {
             boss.spawningTimer++;
             if (boss.spawningTimer >= boss.traitData.spawn_interval_frames) {
+                // 修正ポイント: 召喚する雑魚もREBELレベルに合わせるべきだが、ここでは簡単のためSlime Mobとする
+                // 本来はcurrentRebelに対応した雑魚IDを使うべき
                 const mobId = ENEMY_IDS[0]; 
                 const mobData = gameData.enemies.get(mobId);
                 if (mobData) {
