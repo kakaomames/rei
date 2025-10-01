@@ -1,0 +1,30 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "shooter:silverfish_mob",
+      "is_spawnable": true,
+      "is_summonable": true
+    },
+    "components": {
+      "shooter_data:rebel_level": 2,
+      "minecraft:type_name": "シルバーフィッシュ",
+      "shooter_data:visuals": {
+        "color": "lightgray",
+        "width": 15,
+        "height": 15
+      },
+      "minecraft:health": {
+        "value": 30,
+        "max": 30
+      },
+      "minecraft:physics": {
+        "speed": 2.0
+      },
+      "shooter_data:reward": {
+        "score": 15,
+        "coin_drop": 2
+      }
+    }
+  }
+}
