@@ -1,0 +1,10 @@
+{
+  "id": "gold",
+  "name": "金",
+  "color": "gold",
+  "level": 5,
+  "damage": 300,
+  "duration": 150,
+  "drop_from": 5,
+  "drop_chance": 0.5
+}
