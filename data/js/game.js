@@ -66,7 +66,7 @@ let isDay = true;
 
 // --- ロードするJSONのIDリスト ---
 // Level 1 の雑魚キャラのみ
-const ENEMY_IDS = ["slime_mob"]; 
+const ENEMY_IDS = ["slime_mob", "silverfish_mob", "endermite_mob", "zombie_mob", "husk_mob"]; 
 const BOSS_IDS = ["slime", "silverfish", "endermite", "zombie", "husk"];
 const GOLEM_MATERIAL_IDS = ["oak_log", "cobblestone", "copper", "iron", "gold", "diamond", "netherite"];
 // NEW: coinは特殊なアイテムとしてロード
