@@ -1,0 +1,30 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "shooter:endermite_mob",
+      "is_spawnable": true,
+      "is_summonable": true
+    },
+    "components": {
+      "shooter_data:rebel_level": 3,
+      "minecraft:type_name": "エンダーマイト",
+      "shooter_data:visuals": {
+        "color": "purple",
+        "width": 18,
+        "height": 18
+      },
+      "minecraft:health": {
+        "value": 40,
+        "max": 40
+      },
+      "minecraft:physics": {
+        "speed": 2.5
+      },
+      "shooter_data:reward": {
+        "score": 20,
+        "coin_drop": 3
+      }
+    }
+  }
+}
