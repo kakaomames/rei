@@ -1,0 +1,10 @@
+{
+  "id": "diamond",
+  "name": "ダイヤモンド",
+  "color": "aqua",
+  "level": 6,
+  "damage": 500,
+  "duration": 180,
+  "drop_from": 5,
+  "drop_chance": 0.1
+}
