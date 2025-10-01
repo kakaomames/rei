@@ -6,70 +6,91 @@
     <title>マイクラ・アドベンチャーシューター</title>
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #111;
-            font-family: Arial, sans-serif;
-            color: white;
-        }
-
-        #gameCanvas {
-            border: 5px solid #444;
-            background-color: black;
-            display: block;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: space-around;
-            width: 400px;
-            max-width: 100%;
-            margin-top: 20px;
-        }
-
-        .control-button {
-            padding: 10px 15px;
-            font-size: 14px;
-            cursor: pointer;
             background-color: #333;
             color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* スマホでのスクロールを防止 */
+        }
+        
+        /* 🌟 ルーティング対応: 初期状態で全て非表示 🌟 */
+        #homeScreen,
+        #gameCanvas,
+        .controls {
+            display: none; 
+        }
+
+        /* ゲームキャンバスのスタイル */
+        #gameCanvas {
             border: 2px solid #555;
+            background-color: black;
+            display: block; /* ルーターで制御 */
+            margin: 0 auto;
+        }
+
+        /* コントロールボタンのコンテナ */
+        .controls {
+            display: flex; /* ルーターで制御 */
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            background-color: #222;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        /* 個別のコントロールボタン */
+        .control-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
             border-radius: 5px;
-            user-select: none;
-            transition: background-color 0.1s;
+            user-select: none; /* テキスト選択を無効化 */
+            flex-grow: 1;
+            margin: 0 5px;
             text-align: center;
         }
 
         .control-button:active {
-            background-color: #555;
+            background-color: #0056b3;
         }
-        
-        .control-button.hidden {
-            visibility: hidden;
+
+        /* 左右ボタンは小さく */
+        #leftButton, #rightButton {
+            flex-grow: 0;
+            padding: 10px 20px;
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
-
-    <div class="controls">
-        <div id="leftButton" class="control-button">⬅️ LEFT</div>
-        <div id="rightButton" class="control-button">RIGHT ➡️</div>
-        <div id="shootButton" class="control-button">SHOOT 💥</div>
-        <div id="magicButton" class="control-button">MAGIC: L1</div>
-        <div id="golemButton" class="control-button hidden">GOLEM: L1</div>
+    <div id="gameContainer">
+        <div id="homeScreen">
+            <h2>Loading...</h2>
         </div>
+
+        <canvas id="gameCanvas" width="300" height="480"></canvas>
+
+        <div class="controls">
+            <div id="leftButton" class="control-button">◀️</div>
+            <div id="rightButton" class="control-button">▶️</div>
+            <div id="shootButton" class="control-button">SHOOT</div>
+            <div id="magicButton" class="control-button">MAGIC</div>
+            <div id="golemButton" class="control-button" style="display: none;">GOLEM</div>
+            </div>
+    </div>
 
     <script src="./data/js/game.js"></script>
     <script src="./data/js/player.js"></script>
     <script src="./data/js/enemy.js"></script>
     <script src="./data/js/collision.js"></script>
     <script src="./data/js/ui_draw.js"></script>
-    <script src="./data/js/settings.js"></script>
-    <script src="./data/js/router.js"></script>
-</body>
+    <script src="./data/js/settings.js"></script> <script src="./data/js/router.js"></script>   </body>
 </html>
