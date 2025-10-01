@@ -1,141 +1,106 @@
-// game.jsで定義されたグローバル変数を使用: gameData, gameContainer, goToHome
+// game.jsで定義された gameData.settings を使用します
 
-// --- グローバル変数 ---
-let debugLog = [];
-const MAX_LOG_COUNT = 10;
-let settings = {};
+// --- グローバルデバッグ・設定変数 ---
+window.debugLog = [];
+window.settings = {}; // 現在有効な設定をキーと値のペアで保持
 
-// ----------------------------------------------------
-// 💾 設定のロード・保存
-// ----------------------------------------------------
-
-function loadSettings() {
-    try {
-        const storedSettings = localStorage.getItem('shooterSettings');
-        if (storedSettings) {
-            settings = JSON.parse(storedSettings);
-            console.log("設定をロードしました。", settings);
-        } else {
-            // デフォルト設定を適用
-            gameData.settings.forEach(item => {
-                settings[item.id] = item.default_value;
-            });
-        }
-    } catch (e) {
-        console.error("設定のロード中にエラーが発生しました:", e);
-        // ロード失敗時もデフォルトを設定
-        gameData.settings.forEach(item => {
-            settings[item.id] = item.default_value;
-        });
-    }
-}
-
-function saveSettings() {
-    try {
-        localStorage.setItem('shooterSettings', JSON.stringify(settings));
-        console.log("設定を保存しました。");
-    } catch (e) {
-        console.error("設定の保存中にエラーが発生しました:", e);
-    }
-}
-
-
-// ----------------------------------------------------
-// 💬 ログ管理
-// ----------------------------------------------------
+const MAX_LOG_LINES = 8; // ログに残す最大行数
 
 /**
- * デバッグログにメッセージを追加し、コンソールにも出力
- * @param {string} msg - ログメッセージ
+ * ログメッセージを追加し、最大行数を超えたら古い行を削除する。
+ * @param {string} message - 追加するログメッセージ
  */
-function addLog(msg) {
+function addLog(message) {
     const timestamp = new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const logEntry = `[${timestamp}] ${msg}`;
-    debugLog.unshift(logEntry); // 配列の先頭に追加
+    const logMessage = `[${timestamp}] ${message}`;
     
-    // 最大ログ数を超えたら古いものを削除
-    if (debugLog.length > MAX_LOG_COUNT) {
-        debugLog.pop();
+    window.debugLog.push(logMessage);
+    
+    // ログが多すぎるとパフォーマンスに影響するため、古いログを削除
+    if (window.debugLog.length > MAX_LOG_LINES) {
+        window.debugLog.shift(); // 配列の先頭（最も古いログ）を削除
     }
     
-    // コンソールには常にログを出力
-    console.log(logEntry);
+    // 開発者コンソールにも出力
+    console.log(logMessage);
+}
+
+/**
+ * gameData.settings に基づいて、現在の設定状態を初期化する。
+ * (game.js の loadGameData() 成功後に呼ばれる)
+ */
+function loadSettings() {
+    gameData.settings.forEach(item => {
+        // デフォルト値または保存された値があればそれを設定
+        window.settings[item.id] = item.default_value;
+        // 🚨 NEW: ここでローカルストレージから設定を読み込むロジックを追加予定
+    });
+    
+    addLog("設定システムをロードしました。");
+}
+
+/**
+ * 設定値をトグル（反転）する
+ * @param {string} settingId - 設定のID
+ */
+function toggleSetting(settingId) {
+    if (window.settings.hasOwnProperty(settingId)) {
+        window.settings[settingId] = !window.settings[settingId];
+        
+        // 🚨 NEW: 設定をローカルストレージに保存するロジックを追加予定
+        
+        addLog(`設定 [${settingId}] を ${window.settings[settingId] ? 'ON' : 'OFF'} に切り替えました。`);
+        
+        // UIを再描画
+        goToSettings();
+    }
 }
 
 // ----------------------------------------------------
-// ⚙️ 設定画面の描画
+// ⚙️ 設定画面表示関数 (router.jsから呼ばれる)
 // ----------------------------------------------------
-
 function goToSettings() {
-    const homeScreen = document.getElementById('homeScreen');
-    homeScreen.innerHTML = `
-        <h2>設定 ⚙️</h2>
-        <hr style="border-color: #555; width: 80%;">
-        
-        <h3 id="creatorButton" style="cursor: pointer; color: orange;">開発者・クリエイタータブ 💻</h3>
-        
-        <hr style="border-color: #555; width: 80%;">
-        <button onclick="goToHome()" style="padding: 10px 20px; font-size: 18px; cursor: pointer;">🏠 ホームに戻る</button>
-    `;
+    // ハッシュ変更が目的の場合
+    if (window.location.hash !== '#settings') {
+        // router.js の navigate 関数を介して呼び出すため、ハッシュ変更を行う
+        window.location.hash = '#settings';
+        return; 
+    }
     
-    document.getElementById('creatorButton').addEventListener('click', goToCreatorTab);
-}
+    // ハッシュが#settingsの場合（ルーターから呼ばれた場合）
+    const homeScreen = document.getElementById('homeScreen');
+    
+    // 設定アイテムのリストを生成
+    const settingsList = gameData.settings.map(item => {
+        const currentValue = window.settings[item.id];
+        const buttonColor = currentValue ? '#28a745' : '#dc3545';
+        const buttonText = currentValue ? 'ON' : 'OFF';
 
-function goToCreatorTab() {
-    const homeScreen = document.getElementById('homeScreen');
-    
-    const creatorItems = gameData.settings.filter(item => item.type === 'creator');
-    
+        return `
+            <div style="border: 1px solid #444; padding: 10px; margin: 10px auto; width: 90%; max-width: 400px; background-color: #222; text-align: left;">
+                <h4 style="margin-top: 0;">${item.name}</h4>
+                <p style="font-size: 14px; color: #aaa; margin-bottom: 10px;">${item.description}</p>
+                <button 
+                    onclick="toggleSetting('${item.id}')"
+                    style="padding: 8px 15px; font-size: 16px; cursor: pointer; background-color: ${buttonColor}; color: white; border: none; border-radius: 4px;"
+                >
+                    ${buttonText}
+                </button>
+            </div>
+        `;
+    }).join('');
+
     homeScreen.innerHTML = `
-        <h2>クリエイタータブ 💻</h2>
-        <p style="color: red;">ここではデバッグ・開発用設定を変更します。</p>
+        <h2>⚙️ ゲーム設定</h2>
         <hr style="border-color: #555; width: 80%;">
         
-        <div id="settingsItems" style="text-align: center; margin-top: 20px;">
-            ${creatorItems.map(item => `
-                <div style="border: 1px solid #444; padding: 10px; margin: 10px auto; width: 90%; max-width: 400px; background-color: #222;">
-                    <h4>${item.name}</h4>
-                    <p style="font-size: 14px; color: #aaa;">${item.description}</p>
-                    <label style="font-size: 16px;">
-                        <input 
-                            type="checkbox" 
-                            id="${item.id}Checkbox" 
-                            onchange="toggleSetting('${item.id}', this.checked); goToCreatorTab();"
-                            ${settings[item.id] ? 'checked' : ''}
-                        >
-                        ${settings[item.id] ? 'ON' : 'OFF'}
-                    </label>
-                    
-                    ${item.id === 'show_log' && settings[item.id] ? 
-                        `<div style="margin-top: 10px;">
-                            <button onclick="copyLog();" style="padding: 5px 10px; margin-right: 10px;">ログをコピー</button>
-                            <button onclick="clearLog(); goToCreatorTab();" style="padding: 5px 10px;">ログをクリア</button>
-                        </div>` : ''}
-                </div>
-            `).join('')}
+        <div id="settingsList" style="text-align: center; margin-top: 20px;">
+            ${settingsList}
         </div>
         
         <hr style="border-color: #555; width: 80%;">
-        <button onclick="goToSettings()" style="padding: 10px 20px; font-size: 18px; cursor: pointer;">← 設定に戻る</button>
+        <button onclick="window.location.hash = '#home'" style="padding: 10px 20px; font-size: 18px; cursor: pointer;">🏠 ホームに戻る</button>
     `;
-}
-
-function toggleSetting(id, value) {
-    settings[id] = value;
-    saveSettings();
-}
-
-function copyLog() {
-    const logText = debugLog.join('\n');
-    navigator.clipboard.writeText(logText).then(() => {
-        alert('ログをクリップボードにコピーしました。');
-    }).catch(err => {
-        console.error('ログのコピーに失敗:', err);
-        alert('ログのコピーに失敗しました。コンソールを確認してください。');
-    });
-}
-
-function clearLog() {
-    debugLog = [];
-    addLog("ログをクリアしました。");
+    
+    addLog("設定画面に遷移しました。"); 
 }
