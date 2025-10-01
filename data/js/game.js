@@ -33,8 +33,8 @@ const player = {
     isShielded: false, 
     shieldDuration: 0,
     // --- NEW: 進行と通貨 ---
-    coins: 0,              // コイン (初期値0)
-    highestClearLevel: 0   // 最高クリアレベル (初期値0)
+    coins: 0,              
+    highestClearLevel: 0   
 };
 
 // --- 弾、敵、ボス、ゴーレム ---
@@ -50,15 +50,15 @@ let golemMaterialLevel = 1;
 // --- ゲーム状態とレベル ---
 let score = 0;
 let level = 1; 
-let currentRebel = 1; // Level 1 (スライムレベル) からスタート
+let currentRebel = 1; 
 let isGameOver = false; 
 let enemySpawnTimer = 0;
-let isGameLoopRunning = false; // ゲームループの状態管理フラグ
+let isGameLoopRunning = false; 
 
 // --- NEW: レベル固有の変数 ---
-let requiredKills = 0;   // ボス出現に必要な討伐数
-let currentKills = 0;    // 現在の討伐数
-let isMobPhase = false;  // Mob討伐フェーズフラグ
+let requiredKills = 0;   
+let currentKills = 0;    
+let isMobPhase = false;  
 
 // --- 時間帯管理 ---
 const TIME_CYCLE_DURATION = 600;
@@ -80,7 +80,7 @@ let gameData = {
      store: [], 
      debuffs: [],
      potions: [],
-     settings: [] // 🌟 NEW: 設定アイテム用配列
+     settings: [] 
 };
 
 // --- 防具データ ---
@@ -113,7 +113,7 @@ potionButton.textContent = 'POTION (0)';
 
 // --- イベントリスナーの設定 ---
 function setupEventListeners() {
-    // 既に存在するボタンのリスナーを再設定 (DOM再構築後に必要)
+    // 既に存在するボタンのリスナーを再設定
     leftButton.addEventListener('mousedown', () => { keys.ArrowLeft = true; });
     leftButton.addEventListener('mouseup', () => { keys.ArrowLeft = false; });
     leftButton.addEventListener('touchstart', (e) => { keys.ArrowLeft = true; e.preventDefault(); });
@@ -167,21 +167,42 @@ function setupEventListeners() {
 async function loadGameData() {
     try {
         // 1. 固定ファイル (プレイヤー関連/設定)
-        const [potionRes, debuffRes, storeRes, settingsRes] = await Promise.all([ 
-            fetch('./data/player/potions.json'), 
-            fetch('./data/player/debuffs.json'),
-            fetch('./data/store/store.json'),  
-            fetch('./data/store/settings.json') // 🌟 settings.jsonをロード
-        ]);
+        let loadedSettings = [];
+        let loadedStore = [];
+        let loadedPotions = [];
+        let loadedDebuffs = [];
         
-        if (!potionRes.ok || !debuffRes.ok || !storeRes.ok || !settingsRes.ok) { 
-             throw new Error('初期固定データの読み込みに失敗');
+        try {
+             // Promise.allで並行ロード
+             const [potionRes, debuffRes, storeRes, settingsRes] = await Promise.all([ 
+                 fetch('./data/player/potions.json'), 
+                 fetch('./data/player/debuffs.json'),
+                 fetch('./data/store/store.json'),  
+                 fetch('./data/store/settings.json') 
+             ]);
+             
+             // 成功したデータのみロード（失敗しても処理は継続）
+             if (potionRes.ok) loadedPotions = await potionRes.json();
+             else console.warn("Potions.jsonのロードに失敗しました。");
+             
+             if (debuffRes.ok) loadedDebuffs = await debuffRes.json();
+             else console.warn("Debuffs.jsonのロードに失敗しました。");
+             
+             if (storeRes.ok) loadedStore = await storeRes.json();
+             else console.warn("Store.jsonのロードに失敗しました。");
+             
+             if (settingsRes.ok) loadedSettings = await settingsRes.json();
+             else console.warn("Settings.jsonのロードに失敗しました。");
+             
+        } catch (e) {
+             // ネットワークエラーなど
+             console.error("Fetch中に深刻なネットワークエラー:", e);
         }
 
-        gameData.potions = await potionRes.json();
-        gameData.debuffs = await debuffRes.json();
-        gameData.store = await storeRes.json();
-        gameData.settings = await settingsRes.json(); // 🌟 settingsをロード
+        gameData.potions = loadedPotions;
+        gameData.debuffs = loadedDebuffs;
+        gameData.store = loadedStore;
+        gameData.settings = loadedSettings; 
 
         gameData.potions.forEach(p => { player.inventory[p.id] = 0; });
         
@@ -232,7 +253,7 @@ async function loadGameData() {
                 height: components["shooter_data:visuals"].height,
                 base_speed: components["minecraft:physics"].speed,
                 hp: components["minecraft:health"].value,
-                maxHp: components["minecraft:health"].max, // MaxHPも取得
+                maxHp: components["minecraft:health"].max, 
                 score: components["shooter_data:reward"].score,
                 coin_drop: components["shooter_data:reward"].coin_drop
             });
@@ -246,85 +267,87 @@ async function loadGameData() {
         loadedSpecialItems.forEach(data => gameData.specialItems.set(data.id, data));
         
         // --- 実行順序の調整 ---
-        loadSettings(); // 🌟 NEW: 設定のロード (settings.js)
+        loadSettings(); // settings.js
         setupEventListeners();
         updateGolemButtonVisibility(); 
         updatePotionButton(); 
         
-        // 初期状態はホーム画面へ遷移
-        goToHome(); 
+        console.log("✅ データロードが完了しました (一部失敗の可能性あり)。");
 
     } catch (error) {
-        // 🚨 エラーをログに記録 (settings.jsのaddLog関数はここではまだ使えない可能性があるので直接console.error)
-        console.error("データの取得中にエラーが発生しました:", error);
-        alert("ゲームの初期データをロードできませんでした。コンソールを確認してください。");
-        setupEventListeners();
-        goToHome(); 
+        // Promise.all 外のJSON解析エラーなどが発生した場合
+        console.error("JSON解析またはその他の致命的なエラー:", error);
+        alert("データのロード中にエラーが発生しました。コンソールを確認してください。");
+        // エラーが発生しても、Promiseは解決済みとして扱う
     }
 }
 
 
 // --- メインゲームループ ---
 function gameLoop() {
-    // 🌟 NEW: エラーハンドリングを追加
+    // 致命的なエラーが発生した場合、ログに追加し、ループを停止
     try {
         ctx.clearRect(0, 0, WIDTH, HEIGHT);
         
-        // ゾンビ/ハスク戦ではない場合、背景は黒 (ui_draw.jsのdrawBossに依存)
-        if (!isBossPhase || (boss && boss.trait !== "zombie_time" && boss.trait !== "no_sun_damage")) {
-            ctx.fillStyle = 'black';
-            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        // ... (背景、ゲームオーバーチェックのロジックはそのまま) ...
+        if (!isGameOver && isGameLoopRunning) {
+            
+            // ゾンビ/ハスク戦ではない場合、背景は黒 (ui_draw.jsのdrawBossに依存)
+            if (!isBossPhase || (boss && boss.trait !== "zombie_time" && boss.trait !== "no_sun_damage")) {
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            }
+            
+            if (isGameOver && currentRebel > MAX_REBEL) { 
+                drawGameClear(); 
+                isGameLoopRunning = false; 
+                return; 
+            } else if (isGameOver) { 
+                drawGameOver(); // ui_draw.js
+                isGameLoopRunning = false; 
+                return; 
+            }
+    
+            updateTimeOfDay();  // enemy.js
+            updateDebuffs();    // player.js
+            updateShield();     // player.js
+            usePotion();        // player.js
+            updatePlayer();     // player.js
+            updateBullets();    // player.js
+            updateEnemies();    // enemy.js
+            updateBossAction(); // enemy.js
+            updateGolem();      // collision.js
+    
+            checkCollisions();  // collision.js
+            checkLevelUp();     // collision.js
+    
+            drawPlayer();       // ui_draw.js
+            drawBullets();      // ui_draw.js
+            drawEnemies();      // ui_draw.js
+            drawBoss();         // ui_draw.js
+            drawGolem();        // ui_draw.js
+            drawScore();        // ui_draw.js
+            drawMessageOverlay(); // ui_draw.js
+            
+            // 🐞 デバッグログの描画
+            drawDebugLogOverlay(); // ui_draw.js
+    
+            requestAnimationFrame(gameLoop);
         }
-        
-        if (isGameOver && currentRebel > MAX_REBEL) { 
-            drawGameClear(); 
-            isGameLoopRunning = false; 
-            return; 
-        } else if (isGameOver) { 
-            isGameLoopRunning = false; 
-            return; 
-        }
-
-        updateTimeOfDay();  // enemy.js
-        updateDebuffs();    // player.js
-        updateShield();     // player.js
-        usePotion();        // player.js
-        updatePlayer();     // player.js
-        updateBullets();    // player.js
-        updateEnemies();    // enemy.js
-        updateBossAction(); // enemy.js
-        updateGolem();      // collision.js
-
-        checkCollisions();  // collision.js
-        checkLevelUp();     // collision.js
-
-        drawPlayer();       // ui_draw.js
-        drawBullets();      // ui_draw.js
-        drawEnemies();      // ui_draw.js
-        drawBoss();         // ui_draw.js
-        drawGolem();        // ui_draw.js
-        drawScore();        // ui_draw.js
-        drawMessageOverlay(); // ui_draw.js
-        
-        // 🐞 NEW: デバッグログの描画
-        drawDebugLogOverlay(); // ui_draw.js
-
     } catch (e) {
         // 致命的なエラーが発生した場合、ログに追加し、ループを停止
-        addLog(`FATAL ERROR: ${e.message}`); // settings.js
+        if (typeof addLog === 'function') {
+            addLog(`FATAL ERROR: ${e.message}`); 
+        }
         console.error("FATAL GAME LOOP ERROR:", e);
         isGameLoopRunning = false;
         isGameOver = true; 
         alert(`致命的なゲームエラーが発生しました: ${e.message}。ログを確認してください。`);
         return;
     }
-
-    if (!isGameOver && isGameLoopRunning) {
-        requestAnimationFrame(gameLoop);
-    }
 }
 
-// --- ゲームのリセット (ui_draw.js, collision.jsにも依存) ---
+// --- ゲームのリセット ---
 function resetGame() {
     player.x = WIDTH / 2 - 20; player.y = HEIGHT - 40; bullets.length = 0; enemies.length = 0;
     score = 0; level = 1; 
@@ -341,7 +364,7 @@ function resetGame() {
     player.isShielded = false; 
     player.shieldDuration = 0; 
     
-    // NEW: Mob討伐フェーズ変数
+    // Mob討伐フェーズ変数
     requiredKills = 0;
     currentKills = 0;
     isMobPhase = false; 
@@ -351,23 +374,22 @@ function resetGame() {
     const firstMaterial = Array.from(gameData.items.values()).find(i => i.level === 1);
     magicButton.textContent = `MAGIC: ${firstMaterial ? firstMaterial.name : 'L1'}`;
 
-    // 🌟 NEW: デバッグログに追加
-    addLog(`REBEL ${currentRebel} ゲームをリセットしました。`); // settings.js
+    if (typeof addLog === 'function') {
+        addLog(`REBEL ${currentRebel} ゲームをリセットしました。`); // settings.js
+    }
 }
 
 // ----------------------------------------------------
-// 🏠 ホーム画面切り替え関数
+// 🏠 ホーム画面切り替え関数 (ハッシュルーティング対応)
 // ----------------------------------------------------
 function goToHome() {
-    // Canvasとコントロールを画面から一時的に削除し、ホーム画面に切り替える
-    const existingCanvas = document.getElementById('gameCanvas');
-    const existingControls = document.querySelector('.controls');
-    
-    if (existingCanvas && existingControls) {
-         existingCanvas.style.display = 'none';
-         existingControls.style.display = 'none';
+    // ハッシュ変更が目的の場合
+    if (window.location.hash !== '#home') {
+        window.location.hash = '#home';
+        return; 
     }
-
+    
+    // ハッシュが#homeの場合（ルーターから呼ばれた場合）
     let homeScreen = document.getElementById('homeScreen');
     if (!homeScreen) {
         homeScreen = document.createElement('div');
@@ -376,21 +398,21 @@ function goToHome() {
         gameContainer.appendChild(homeScreen);
     }
     
-    homeScreen.style.display = 'block';
-
+    // コンテンツを描画
     homeScreen.innerHTML = `
         <h2>マイクラ・アドベンチャーホーム 🏡</h2>
         <p>所持コイン: 💰 ${player.coins}</p>
         <p>最高クリアレベル: ${player.highestClearLevel}</p>
         <hr style="border-color: #555; width: 80%;">
         
-        <h3 id="treasureButton" style="cursor: pointer; color: gold;">💰 商人との取引 (#treasure)</h3>
-        <h3 id="settingsButton" style="cursor: pointer; color: white;">⚙️ 設定 (#settings)</h3> <hr style="border-color: #555; width: 80%;">
+        <h3 id="treasureButton" style="cursor: pointer; color: gold;">💰 商人との取引 (#store)</h3>
+        <h3 id="settingsButton" style="cursor: pointer; color: white;">⚙️ 設定 (#settings)</h3>
+        <hr style="border-color: #555; width: 80%;">
         
         <h3>レベル選択 (REBEL)</h3>
         ${Array.from({ length: MAX_REBEL }, (_, i) => i + 1).map(r => `
             <button 
-                onclick="startLevel(${r})" 
+                onclick="window.location.hash = '#level${r}'" 
                 style="padding: 10px 20px; margin: 5px; font-size: 18px; cursor: pointer; background-color: ${r <= player.highestClearLevel + 1 ? '#28a745' : '#555'}; color: white;"
                 ${r > player.highestClearLevel + 1 ? 'disabled' : ''}
             >
@@ -399,18 +421,28 @@ function goToHome() {
         `).join('')}
     `;
     
-    // NEW: 商人ボタンと設定ボタンのイベントリスナーを追加
-    document.getElementById('treasureButton').addEventListener('click', goToStore);
-    document.getElementById('settingsButton').addEventListener('click', goToSettings); // 🌟 NEW: 設定ボタン (settings.js)
+    // イベントリスナーはハッシュ変更に置き換え
+    document.getElementById('treasureButton').addEventListener('click', () => { window.location.hash = '#store'; });
+    document.getElementById('settingsButton').addEventListener('click', () => { window.location.hash = '#settings'; }); 
     
-    addLog("ホーム画面に遷移しました。"); // settings.js
+    if (typeof addLog === 'function') {
+        addLog("ホーム画面に遷移しました。"); 
+    }
 }
 
 // ----------------------------------------------------
-// 🛒 ストア画面表示関数
+// 🛒 ストア画面表示関数 (ハッシュルーティング対応)
 // ----------------------------------------------------
 function goToStore() {
+    // ハッシュ変更が目的の場合
+    if (window.location.hash !== '#store') {
+        window.location.hash = '#store';
+        return; 
+    }
+    
+    // ハッシュが#storeの場合（ルーターから呼ばれた場合）
     const homeScreen = document.getElementById('homeScreen');
+    
     homeScreen.innerHTML = `
         <h2>商人との取引 🛒</h2>
         <p>所持コイン: 💰 ${player.coins}</p>
@@ -447,9 +479,12 @@ function goToStore() {
         </div>
         
         <hr style="border-color: #555; width: 80%;">
-        <button onclick="goToHome()" style="padding: 10px 20px; font-size: 18px; cursor: pointer;">🏠 ホームに戻る</button>
+        <button onclick="window.location.hash = '#home'" style="padding: 10px 20px; font-size: 18px; cursor: pointer;">🏠 ホームに戻る</button>
     `;
-    addLog("ストア画面に遷移しました。"); // settings.js
+    
+    if (typeof addLog === 'function') {
+        addLog("ストア画面に遷移しました。"); 
+    }
 }
 
 // ----------------------------------------------------
@@ -465,7 +500,9 @@ function purchaseItem(itemId) {
 
     if (!item || item.current_purchases >= item.max_purchases || player.coins < item.cost || isAlreadyOwned) {
         alert("購入できません。");
-        addLog(`購入失敗: ${item.name} (${isAlreadyOwned ? 'Owned' : 'Cost/Max'})`); // settings.js
+        if (typeof addLog === 'function') {
+            addLog(`購入失敗: ${item.name} (${isAlreadyOwned ? 'Owned' : 'Cost/Max'})`);
+        }
         return;
     }
     
@@ -476,51 +513,48 @@ function purchaseItem(itemId) {
     
     // タイプに応じた効果の適用
     if (item.type === 'upgrade') {
-        // ポーション容量アップグレード
         const targetPotion = gameData.potions.find(p => p.id === item.target_id);
         if (targetPotion) {
             targetPotion.inventory_max += item.effect;
             message += ` (${targetPotion.name}の最大所持数が${targetPotion.inventory_max}になりました)`;
         }
     } else if (item.type === 'golem_unlock') {
-        // ゴーレムレベルアンロック
         player.unlockedGolemLevel = Math.max(player.unlockedGolemLevel, item.target_level);
-        updateGolemButtonVisibility(); // UI更新 (ui_draw.js)
+        updateGolemButtonVisibility(); 
         message += ` (ゴーレムLV.${item.target_level}が使用可能になりました)`;
     } else if (item.type === 'defense_upgrade') {
-        // 防具アップグレード
         player.defenseLevel = Math.max(player.defenseLevel, item.target_level);
-        // speedの再計算 (player.jsに依存)
         player.speed = player.baseSpeed - DEFENSE_STATS[player.defenseLevel].speedPenalty; 
         message += ` (防御レベルが${item.target_level}になりました)`;
     }
     
     alert(message);
-    addLog(`購入成功: ${message}`); // settings.js
+    if (typeof addLog === 'function') {
+        addLog(`購入成功: ${message}`); 
+    }
     
     // UIを更新
-    goToStore(); 
+    goToStore(); // ハッシュ変更により、ルーター経由で画面を再描画
 }
 
 
 // ----------------------------------------------------
-// 🚀 レベルスタート関数
+// 🚀 レベルスタート関数 (ハッシュルーティング対応)
 // ----------------------------------------------------
 function startLevel(rebelNum) {
-    const homeScreen = document.getElementById('homeScreen');
-    if (homeScreen) homeScreen.style.display = 'none';
+    const targetHash = `#level${rebelNum}`;
     
-    const existingCanvas = document.getElementById('gameCanvas');
-    const existingControls = document.querySelector('.controls');
-    if (existingCanvas && existingControls) {
-         existingCanvas.style.display = 'block';
-         existingControls.style.display = 'flex'; // flexに戻す
+    // ハッシュ変更が目的の場合
+    if (window.location.hash !== targetHash) {
+        window.location.hash = targetHash;
+        return; 
     }
     
+    // ハッシュが#levelXの場合（ルーターから呼ばれた場合）
     currentRebel = rebelNum;
     resetGame();
     
-    // Mobフェーズの初期化をトリガー（checkLevelUpが次フレームで実行）
+    // Mobフェーズの初期化をトリガー
     isMobPhase = false; 
     isBossPhase = false;
     
@@ -529,9 +563,22 @@ function startLevel(rebelNum) {
         isGameLoopRunning = true;
         gameLoop(); 
     }
-    addLog(`REBEL ${currentRebel}を開始しました。`); // settings.js
+    
+    if (typeof addLog === 'function') {
+        addLog(`REBEL ${currentRebel}を開始しました。`);
+    }
 }
 
 
 // ゲーム開始はJSONのロードから
-loadGameData();
+loadGameData().then(() => {
+    // loadGameDataが成功しても失敗しても、最後に必ず実行される
+    // router.jsのnavigate関数（settings.jsの後にロードされている想定）が画面を決定する
+    if (typeof navigate === 'function') {
+        navigate(window.location.hash);
+    } else {
+        // router.jsのロードに失敗した場合の最終フォールバック
+        console.error("Router.js がロードされていません。ハッシュルーティングなしで起動します。");
+        goToHome();
+    }
+});
