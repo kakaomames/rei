@@ -1,0 +1,30 @@
+{
+  "format_version": "1.20.50",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "shooter:slime_mob",
+      "is_spawnable": true,
+      "is_summonable": true
+    },
+    "components": {
+      "shooter_data:rebel_level": 1,
+      "minecraft:type_name": "スライム",
+      "shooter_data:visuals": {
+        "color": "lime",
+        "width": 20,
+        "height": 20
+      },
+      "minecraft:health": {
+        "value": 20,
+        "max": 20
+      },
+      "minecraft:physics": {
+        "speed": 1.5
+      },
+      "shooter_data:reward": {
+        "score": 10,
+        "coin_drop": 1
+      }
+    }
+  }
+}
