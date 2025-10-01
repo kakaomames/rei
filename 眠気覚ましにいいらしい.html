@@ -3,94 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>マイクラ・ボス戦・シューティングゲーム</title>
+    <title>マイクラ・アドベンチャーシューター</title>
     <style>
-        /* 🎨 全体スタイル */
         body {
-            background-color: #222;
             display: flex;
-            flex-direction: column; 
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
+            justify-content: center;
+            min-height: 100vh;
             margin: 0;
-            overflow: hidden;
-            font-family: 'PixelMplus10', 'Arial', sans-serif;
+            background-color: #111;
+            font-family: Arial, sans-serif;
+            color: white;
         }
-        /* 🕹️ ゲーム画面 */
-        canvas {
-            border: 2px solid #fff;
-            background-color: #000;
-            touch-action: none; 
+
+        #gameCanvas {
+            border: 5px solid #444;
+            background-color: black;
+            display: block;
         }
-        /* 🕹️ コントローラー部分 */
+
         .controls {
-            margin-top: 10px;
-            width: 600px; 
             display: flex;
             justify-content: space-around;
+            width: 400px;
+            max-width: 100%;
+            margin-top: 20px;
         }
+
         .control-button {
-            padding: 10px 20px;
-            font-size: 24px;
-            font-weight: bold;
-            color: #fff;
-            background-color: #444;
-            border: 2px solid #fff;
-            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 14px;
             cursor: pointer;
-            user-select: none; 
+            background-color: #333;
+            color: white;
+            border: 2px solid #555;
+            border-radius: 5px;
+            user-select: none;
             transition: background-color 0.1s;
-            line-height: 1; 
-            min-width: 80px; 
             text-align: center;
         }
+
         .control-button:active {
-            background-color: #777; 
+            background-color: #555;
         }
-        .move-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        #shootButton {
-            background-color: #d9534f; 
-        }
-        #shootButton:active {
-            background-color: #c9302c;
-        }
-        #magicButton {
-            background-color: #007bff; 
-        }
-        #magicButton:active {
-            background-color: #0056b3;
-        }
-        #golemButton {
-            background-color: #28a745;
-        }
-        #golemButton:active {
-            background-color: #1e7e34;
-        }
-        .hidden {
-            display: none !important;
+        
+        .control-button.hidden {
+            visibility: hidden;
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="600" height="400"></canvas>
-    
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+
     <div class="controls">
-        <div class="move-buttons">
-            <div id="leftButton" class="control-button">⬅️</div>
-            <div id="rightButton" class="control-button">➡️</div>
+        <div id="leftButton" class="control-button">⬅️ LEFT</div>
+        <div id="rightButton" class="control-button">RIGHT ➡️</div>
+        <div id="shootButton" class="control-button">SHOOT 💥</div>
+        <div id="magicButton" class="control-button">MAGIC: L1</div>
+        <div id="golemButton" class="control-button hidden">GOLEM: L1</div>
         </div>
-        
-        <div id="shootButton" class="control-button">FIRE</div>
 
-        <div id="magicButton" class="control-button">MAGIC</div>
-
-        <div id="golemButton" class="control-button hidden">GOLEM: L1</div> 
-    </div>
-
-    <script src="./data/script.js"></script>
+    <script src="./data/js/game.js"></script>
+    <script src="./data/js/player.js"></script>
+    <script src="./data/js/enemy.js"></script>
+    <script src="./data/js/collision.js"></script>
+    <script src="./data/js/ui_draw.js"></script>
 </body>
 </html>
