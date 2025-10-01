@@ -1,0 +1,10 @@
+{
+  "id": "netherite",
+  "name": "ネザライト",
+  "color": "black",
+  "level": 7,
+  "damage": 800,
+  "duration": 240,
+  "drop_from": 5,
+  "drop_chance": 0.05
+}
