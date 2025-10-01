@@ -570,15 +570,29 @@ function startLevel(rebelNum) {
 }
 
 
+// ./data/js/game.js の末尾全体
+
 // ゲーム開始はJSONのロードから
-loadGameData().then(() => {
-    // loadGameDataが成功しても失敗しても、最後に必ず実行される
-    // router.jsのnavigate関数（settings.jsの後にロードされている想定）が画面を決定する
-    if (typeof navigate === 'function') {
-        navigate(window.location.hash);
-    } else {
-        // router.jsのロードに失敗した場合の最終フォールバック
-        console.error("Router.js がロードされていません。ハッシュルーティングなしで起動します。");
-        goToHome();
+(async function() {
+    try {
+        await loadGameData();
+        
+    } catch (error) {
+        // 致命的なエラーが発生した場合 (JSON解析失敗など)
+        console.error("致命的な初期ロードエラーが発生しましたが、続行を試みます:", error);
+        
+        // 🌟 NEW: ポップアップでユーザーに通知 🌟
+        if (typeof showPopupMessage === 'function') {
+            showPopupMessage("データのロードに失敗しました。コンソールを確認してください。", 8000, 'error');
+        }
+        
+    } finally {
+        // 成功しても失敗しても、最後に必ず実行され画面遷移を試みる
+        if (typeof navigate === 'function') {
+            navigate(window.location.hash);
+        } else {
+            console.error("Router.js がロードされていません。ハッシュルーティングなしで起動します。");
+            goToHome();
+        }
     }
-});
+})();
