@@ -1,0 +1,33 @@
+[
+  {
+    "id": "potion_upgrade_1",
+    "name": "ポーション容量アップグレードI",
+    "description": "回復ポーションの最大所持数を1増加させます。",
+    "type": "upgrade",
+    "target_id": 1, 
+    "cost": 50,
+    "effect": 1,
+    "max_purchases": 2,
+    "current_purchases": 0 
+  },
+  {
+    "id": "unlock_golem_level_2",
+    "name": "ゴーレム素材LV.2アンロック",
+    "description": "レベル2のゴーレム素材（丸石）の使用をアンロックします。",
+    "type": "golem_unlock",
+    "target_level": 2,
+    "cost": 100,
+    "max_purchases": 1,
+    "current_purchases": 0
+  },
+  {
+    "id": "player_defense_4",
+    "name": "鉄防具の購入",
+    "description": "プレイヤーの防御力を鉄レベルにアップグレードし、被ダメージを軽減します。",
+    "type": "defense_upgrade",
+    "target_level": 4,
+    "cost": 200,
+    "max_purchases": 1,
+    "current_purchases": 0
+  }
+]
