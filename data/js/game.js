@@ -53,7 +53,7 @@ let level = 1;
 let currentRebel = 1; // Level 1 (スライムレベル) からスタート
 let isGameOver = false; 
 let enemySpawnTimer = 0;
-let isGameLoopRunning = false; // 🌟 修正ポイント: ゲームループの状態管理フラグ
+let isGameLoopRunning = false; // ゲームループの状態管理フラグ
 
 // --- NEW: レベル固有の変数 ---
 let requiredKills = 0;   // ボス出現に必要な討伐数
@@ -66,11 +66,9 @@ let timeOfDayTimer = 0;
 let isDay = true; 
 
 // --- ロードするJSONのIDリスト ---
-// Level 1 の雑魚キャラのみ
 const ENEMY_IDS = ["slime_mob", "silverfish_mob", "endermite_mob", "zombie_mob", "husk_mob"]; 
 const BOSS_IDS = ["slime", "silverfish", "endermite", "zombie", "husk"];
 const GOLEM_MATERIAL_IDS = ["oak_log", "cobblestone", "copper", "iron", "gold", "diamond", "netherite"];
-// NEW: coinは特殊なアイテムとしてロード
 const SPECIAL_ITEM_IDS = ["coin"]; 
 
 // --- ロードされたJSONデータ (MapでIDをキーに保持) ---
@@ -78,10 +76,11 @@ let gameData = {
      enemies: new Map(), 
      bosses: new Map(), 
      items: new Map(),  
-     specialItems: new Map(), // NEW: コインなどの特殊アイテム用
-     store: [], // NEW: ストアアイテムをArrayで保持
+     specialItems: new Map(), 
+     store: [], 
      debuffs: [],
-     potions: [] 
+     potions: [],
+     settings: [] // 🌟 NEW: 設定アイテム用配列
 };
 
 // --- 防具データ ---
@@ -167,20 +166,23 @@ function setupEventListeners() {
 // ----------------------------------------------------
 async function loadGameData() {
     try {
-        // 1. 固定ファイル (プレイヤー関連 - 分割した新しいパス)
-        const [potionRes, debuffRes] = await Promise.all([
+        // 1. 固定ファイル (プレイヤー関連/設定)
+        const [potionRes, debuffRes, storeRes, settingsRes] = await Promise.all([ 
             fetch('./data/player/potions.json'), 
-            fetch('./data/player/debuffs.json')  
+            fetch('./data/player/debuffs.json'),
+            fetch('./data/store/store.json'),  
+            fetch('./data/store/settings.json') // 🌟 settings.jsonをロード
         ]);
+        
+        if (!potionRes.ok || !debuffRes.ok || !storeRes.ok || !settingsRes.ok) { 
+             throw new Error('初期固定データの読み込みに失敗');
+        }
 
-        if (!potionRes.ok || !debuffRes.ok) throw new Error('プレイヤーデータの読み込みに失敗');
-        
-        const loadedPotions = await potionRes.json();
-        const loadedDebuffs = await debuffRes.json();
-        
-        gameData.potions = loadedPotions;
-        gameData.debuffs = loadedDebuffs; 
-        
+        gameData.potions = await potionRes.json();
+        gameData.debuffs = await debuffRes.json();
+        gameData.store = await storeRes.json();
+        gameData.settings = await settingsRes.json(); // 🌟 settingsをロード
+
         gameData.potions.forEach(p => { player.inventory[p.id] = 0; });
         
         // 2. ボスファイルの動的ロード (entities/boss/)
@@ -243,23 +245,17 @@ async function loadGameData() {
         const loadedSpecialItems = await Promise.all(specialItemPromises);
         loadedSpecialItems.forEach(data => gameData.specialItems.set(data.id, data));
         
-        // 6. ストアデータのロード
-        const storeRes = await fetch('./data/store/store.json');
-        if (!storeRes.ok) throw new Error('store.jsonの読み込みに失敗');
-        gameData.store = await storeRes.json();
-
-
-        console.log("✅ ゲームデータの読み込みに成功しました。");
-        
+        // --- 実行順序の調整 ---
+        loadSettings(); // 🌟 NEW: 設定のロード (settings.js)
         setupEventListeners();
-        updateGolemButtonVisibility(); // ui_draw.js
-        updatePotionButton(); // ui_draw.js
+        updateGolemButtonVisibility(); 
+        updatePotionButton(); 
         
         // 初期状態はホーム画面へ遷移
         goToHome(); 
 
     } catch (error) {
-        // 🚨 修正ポイント：ロード失敗してもコンソールにエラーを出力し、ホーム画面へ強制遷移
+        // 🚨 エラーをログに記録 (settings.jsのaddLog関数はここではまだ使えない可能性があるので直接console.error)
         console.error("データの取得中にエラーが発生しました:", error);
         alert("ゲームの初期データをロードできませんでした。コンソールを確認してください。");
         setupEventListeners();
@@ -270,46 +266,59 @@ async function loadGameData() {
 
 // --- メインゲームループ ---
 function gameLoop() {
-    ctx.clearRect(0, 0, WIDTH, HEIGHT);
-    
-    // ゾンビ/ハスク戦ではない場合、背景は黒 (ui_draw.jsのdrawBossに依存)
-    if (!isBossPhase || (boss && boss.trait !== "zombie_time" && boss.trait !== "no_sun_damage")) {
-        ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    // 🌟 NEW: エラーハンドリングを追加
+    try {
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+        
+        // ゾンビ/ハスク戦ではない場合、背景は黒 (ui_draw.jsのdrawBossに依存)
+        if (!isBossPhase || (boss && boss.trait !== "zombie_time" && boss.trait !== "no_sun_damage")) {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        }
+        
+        if (isGameOver && currentRebel > MAX_REBEL) { 
+            drawGameClear(); 
+            isGameLoopRunning = false; 
+            return; 
+        } else if (isGameOver) { 
+            isGameLoopRunning = false; 
+            return; 
+        }
+
+        updateTimeOfDay();  // enemy.js
+        updateDebuffs();    // player.js
+        updateShield();     // player.js
+        usePotion();        // player.js
+        updatePlayer();     // player.js
+        updateBullets();    // player.js
+        updateEnemies();    // enemy.js
+        updateBossAction(); // enemy.js
+        updateGolem();      // collision.js
+
+        checkCollisions();  // collision.js
+        checkLevelUp();     // collision.js
+
+        drawPlayer();       // ui_draw.js
+        drawBullets();      // ui_draw.js
+        drawEnemies();      // ui_draw.js
+        drawBoss();         // ui_draw.js
+        drawGolem();        // ui_draw.js
+        drawScore();        // ui_draw.js
+        drawMessageOverlay(); // ui_draw.js
+        
+        // 🐞 NEW: デバッグログの描画
+        drawDebugLogOverlay(); // ui_draw.js
+
+    } catch (e) {
+        // 致命的なエラーが発生した場合、ログに追加し、ループを停止
+        addLog(`FATAL ERROR: ${e.message}`); // settings.js
+        console.error("FATAL GAME LOOP ERROR:", e);
+        isGameLoopRunning = false;
+        isGameOver = true; 
+        alert(`致命的なゲームエラーが発生しました: ${e.message}。ログを確認してください。`);
+        return;
     }
-    
-    // 🌟 修正ポイント: isGameLoopRunningの制御
-    if (isGameOver && currentRebel > MAX_REBEL) { 
-        drawGameClear(); 
-        isGameLoopRunning = false; 
-        return; 
-    } else if (isGameOver) { 
-        isGameLoopRunning = false; 
-        return; 
-    }
 
-    updateTimeOfDay();  // enemy.js
-    updateDebuffs();    // player.js
-    updateShield();     // player.js
-    usePotion();        // player.js
-    updatePlayer();     // player.js
-    updateBullets();    // player.js
-    updateEnemies();    // enemy.js
-    updateBossAction(); // enemy.js
-    updateGolem();      // collision.js
-
-    checkCollisions();  // collision.js
-    checkLevelUp();     // collision.js
-
-    drawPlayer();       // ui_draw.js
-    drawBullets();      // ui_draw.js
-    drawEnemies();      // ui_draw.js
-    drawBoss();         // ui_draw.js
-    drawGolem();        // ui_draw.js
-    drawScore();        // ui_draw.js
-    drawMessageOverlay(); // ui_draw.js
-
-    // 🌟 修正ポイント: ループの継続
     if (!isGameOver && isGameLoopRunning) {
         requestAnimationFrame(gameLoop);
     }
@@ -337,15 +346,13 @@ function resetGame() {
     currentKills = 0;
     isMobPhase = false; 
     
-    // ポーション在庫はリセットしない
-    // gameData.potions.forEach(p => {
-    //      player.inventory[p.id] = 0; 
-    // });
-
     updateGolemButtonVisibility(); // ui_draw.js
     updatePotionButton(); // ui_draw.js
     const firstMaterial = Array.from(gameData.items.values()).find(i => i.level === 1);
     magicButton.textContent = `MAGIC: ${firstMaterial ? firstMaterial.name : 'L1'}`;
+
+    // 🌟 NEW: デバッグログに追加
+    addLog(`REBEL ${currentRebel} ゲームをリセットしました。`); // settings.js
 }
 
 // ----------------------------------------------------
@@ -378,7 +385,7 @@ function goToHome() {
         <hr style="border-color: #555; width: 80%;">
         
         <h3 id="treasureButton" style="cursor: pointer; color: gold;">💰 商人との取引 (#treasure)</h3>
-        <hr style="border-color: #555; width: 80%;">
+        <h3 id="settingsButton" style="cursor: pointer; color: white;">⚙️ 設定 (#settings)</h3> <hr style="border-color: #555; width: 80%;">
         
         <h3>レベル選択 (REBEL)</h3>
         ${Array.from({ length: MAX_REBEL }, (_, i) => i + 1).map(r => `
@@ -392,8 +399,11 @@ function goToHome() {
         `).join('')}
     `;
     
-    // NEW: 商人ボタンのイベントリスナーを追加
+    // NEW: 商人ボタンと設定ボタンのイベントリスナーを追加
     document.getElementById('treasureButton').addEventListener('click', goToStore);
+    document.getElementById('settingsButton').addEventListener('click', goToSettings); // 🌟 NEW: 設定ボタン (settings.js)
+    
+    addLog("ホーム画面に遷移しました。"); // settings.js
 }
 
 // ----------------------------------------------------
@@ -439,6 +449,7 @@ function goToStore() {
         <hr style="border-color: #555; width: 80%;">
         <button onclick="goToHome()" style="padding: 10px 20px; font-size: 18px; cursor: pointer;">🏠 ホームに戻る</button>
     `;
+    addLog("ストア画面に遷移しました。"); // settings.js
 }
 
 // ----------------------------------------------------
@@ -454,6 +465,7 @@ function purchaseItem(itemId) {
 
     if (!item || item.current_purchases >= item.max_purchases || player.coins < item.cost || isAlreadyOwned) {
         alert("購入できません。");
+        addLog(`購入失敗: ${item.name} (${isAlreadyOwned ? 'Owned' : 'Cost/Max'})`); // settings.js
         return;
     }
     
@@ -484,6 +496,7 @@ function purchaseItem(itemId) {
     }
     
     alert(message);
+    addLog(`購入成功: ${message}`); // settings.js
     
     // UIを更新
     goToStore(); 
@@ -511,11 +524,12 @@ function startLevel(rebelNum) {
     isMobPhase = false; 
     isBossPhase = false;
     
-    // 🌟 修正ポイント：ゲームループがまだ開始されていない場合に開始する 🌟
+    // ゲームループがまだ開始されていない場合に開始する
     if (!isGameLoopRunning) {
         isGameLoopRunning = true;
         gameLoop(); 
     }
+    addLog(`REBEL ${currentRebel}を開始しました。`); // settings.js
 }
 
 
