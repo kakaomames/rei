@@ -71,6 +71,22 @@
     </style>
 </head>
 <body>
+    <div id="messageOverlay" style="
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        background-color: rgba(255, 0, 0, 0.9); /* 赤系で目立たせる */
+        color: white;
+        border-radius: 5px;
+        z-index: 9999;
+        font-weight: bold;
+        display: none; /* 初期状態は非表示 */
+        transition: opacity 0.5s;
+    ">
+        </div>
+    
     <div id="gameContainer">
         <div id="homeScreen">
             <h2>Loading...</h2>
