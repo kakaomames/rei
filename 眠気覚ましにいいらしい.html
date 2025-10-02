@@ -2,108 +2,175 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>マイクラ・アドベンチャーシューター</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>REBEL WARFARE</title>
     <style>
         body {
-            background-color: #333;
-            color: white;
+            background-color: #111;
+            color: #eee;
             font-family: Arial, sans-serif;
-            text-align: center;
             margin: 0;
             padding: 0;
-            overflow: hidden; /* スマホでのスクロールを防止 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
         
-        /* 🌟 ルーティング対応: 初期状態で全て非表示 🌟 */
-        #homeScreen,
-        #gameCanvas,
-        .controls {
-            display: none; 
-        }
-
-        /* ゲームキャンバスのスタイル */
-        #gameCanvas {
-            border: 2px solid #555;
-            background-color: black;
-            display: block; /* ルーターで制御 */
-            margin: 0 auto;
-        }
-
-        /* コントロールボタンのコンテナ */
-        .controls {
-            display: flex; /* ルーターで制御 */
-            justify-content: space-around;
-            align-items: center;
-            padding: 10px 0;
-            background-color: #222;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            box-sizing: border-box;
-            z-index: 10;
-        }
-
-        /* 個別のコントロールボタン */
-        .control-button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            user-select: none; /* テキスト選択を無効化 */
-            flex-grow: 1;
-            margin: 0 5px;
+        /* 共通スタイル */
+        h2, h3, p {
             text-align: center;
         }
-
-        .control-button:active {
-            background-color: #0056b3;
+        
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #444;
+            color: #fff;
+            border: 1px solid #666;
+            border-radius: 5px;
+            transition: background-color 0.1s;
+        }
+        
+        button:hover {
+            background-color: #666;
         }
 
-        /* 左右ボタンは小さく */
-        #leftButton, #rightButton {
-            flex-grow: 0;
-            padding: 10px 20px;
+        /* ゲーム画面 */
+        #gameArea {
+            position: relative;
+            margin: 20px auto;
+            border: 2px solid #333;
+            background-color: #000;
         }
+        
+        #gameCanvas {
+            display: none; /* 初期状態では非表示 */
+        }
+
+        /* ホーム/ストア/設定画面 */
+        #homeScreen, #storeScreen, #settingsScreen {
+            display: block; /* 初期状態はホーム画面を表示 */
+            max-width: 400px;
+            padding: 20px;
+            background-color: #222;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        /* モバイルコントロール */
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 0;
+            background-color: #111;
+        }
+
+        .controls-group {
+            display: flex;
+            flex-direction: row;
+        }
+        
+        .controls button {
+            padding: 15px 15px;
+            font-size: 14px;
+        }
+        
+        /* デバッグログオーバーレイ */
+        #debugLog {
+            position: absolute;
+            bottom: 0; /* 画面下部に固定 */
+            left: 0;
+            width: 100%;
+            height: 150px; /* 高さ固定 */
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #0f0;
+            font-family: monospace;
+            font-size: 10px;
+            padding: 5px;
+            box-sizing: border-box;
+            white-space: pre-wrap;
+            pointer-events: none; /* クリックを透過させる */
+            z-index: 1000;
+        }
+        
+        /* ポップアップメッセージ */
+        #popupMessage {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            display: none;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .popup-info { background-color: #007bff; }
+        .popup-error { background-color: #dc3545; }
+        .popup-success { background-color: #28a745; }
     </style>
 </head>
 <body>
-    <div id="messageOverlay" style="
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 10px 20px;
-        background-color: rgba(255, 0, 0, 0.9); /* 赤系で目立たせる */
-        color: white;
-        border-radius: 5px;
-        z-index: 9999;
-        font-weight: bold;
-        display: none; /* 初期状態は非表示 */
-        transition: opacity 0.5s;
-    ">
-        </div>
-    
-    <div id="gameContainer">
+
+    <div id="gameArea">
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        
+        <div id="debugLog"></div>
+
         <div id="homeScreen">
-            <h2>Loading...</h2>
-        </div>
+            <h2>🛡️ マイクラ・アドベンチャーホーム 🏡</h2>
+            <p>人類最後の抵抗</p>
+            <hr>
+            
+            <button onclick="reloadGameDataAndNavigate()" style="padding: 10px 20px; margin: 10px; background-color: #333; color: #fff; border: 1px solid #ff4444;">
+                🔄 データを再読み込み
+            </button>
+            <hr>
 
-        <canvas id="gameCanvas" width="300" height="480"></canvas>
-
-        <div class="controls">
-            <div id="leftButton" class="control-button">◀️</div>
-            <div id="rightButton" class="control-button">▶️</div>
-            <div id="shootButton" class="control-button">SHOOT</div>
-            <div id="magicButton" class="control-button">MAGIC</div>
-            <div id="golemButton" class="control-button" style="display: none;">GOLEM</div>
+            <div id="levelSelect">
+                <h3>REBEL選択</h3>
+                <p>ロード中...</p>
             </div>
+            
+            <hr>
+            <button onclick="window.location.hash='#store'" style="padding: 10px 20px; margin: 10px;">🛒 ストア</button>
+            <button onclick="window.location.hash='#settings'" style="padding: 10px 20px; margin: 10px;">⚙️ 設定</button>
+            <p style="margin-top: 20px; font-size: 12px; color: #888;">バージョン 0.0.1</p>
+        </div>
+        
+        <div id="storeScreen" style="display: none;"></div>
+        
+        <div id="settingsScreen" style="display: none;"></div>
+        
+        <div id="popupMessage"></div>
     </div>
 
-   <script src="./data/js/state.js"></script>
+    <div class="controls">
+        <div class="controls-group">
+            <button id="leftButton" ontouchstart="handleInput('left')" ontouchend="handleInput('stopX')">
+                ◀️ LEFT
+            </button>
+            <button id="rightButton" ontouchstart="handleInput('right')" ontouchend="handleInput('stopX')">
+                ▶️ RIGHT
+            </button>
+        </div>
+        
+        <div class="controls-group">
+            <button id="fireButton">SHOOT</button>
+            <button id="shieldButton">SHIELD</button>
+            <button id="potionButton">POTION (0)</button>
+            </div>
+    </div>
+    
+    <script src="./data/js/state.js"></script>
 
     <script src="./data/js/player_core.js"></script> 
     
@@ -116,5 +183,57 @@
     <script src="./data/js/ui_draw.js"></script>
     <script src="./data/js/settings.js"></script>
     <script src="./data/js/router.js"></script>
+    
+    <script>
+        /**
+         * データを再ロードし、現在のハッシュに強制的に再遷移する
+         */
+        async function reloadGameDataAndNavigate() {
+            // ログ関数が存在するか確認（settings.jsに依存）
+            const logFn = typeof addLog === 'function' ? addLog : console.log;
+            
+            // game.js / router.js のコア機能の存在を確認
+            if (typeof loadGameData !== 'function' || typeof navigate !== 'function') {
+                logFn("致命的エラー: game.jsまたはrouter.jsがロードされていません。");
+                alert("致命的なエラー: ゲームのコア機能がロードされていません！");
+                return;
+            }
+            
+            logFn("データの再取得を開始します...");
+
+            // UIにメッセージを表示する関数（ui_draw.jsに依存）
+            if (typeof showPopupMessage === 'function') {
+                 showPopupMessage("データを再取得中です...", 2000, 'info');
+            }
+
+            try {
+                // game.js のデータロード関数を呼び出す
+                await loadGameData();
+                
+                // 成功
+                logFn("データの再読み込みに成功しました！🎉");
+                
+                // 現在の画面に再遷移してUIを更新
+                navigate(window.location.hash || '#home');
+                
+                if (typeof showPopupMessage === 'function') {
+                    showPopupMessage("データの再読み込みに成功しました！🎉", 3000, 'info');
+                }
+                
+            } catch (error) {
+                // 失敗
+                const errorMessage = `データの再読み込みに失敗しました。詳細: ${error.message}`;
+                logFn(`致命的エラー: ${errorMessage}`);
+                console.error("手動ロード失敗:", error);
+                
+                // ユーザーへの通知（alertと画面上の両方）
+                alert(errorMessage + " コンソールを確認してください。");
+                
+                if (typeof showPopupMessage === 'function') {
+                    showPopupMessage("データの再読み込みに失敗しました。コンソールを確認してください。", 5000, 'error');
+                }
+            }
+        }
+    </script>
 </body>
 </html>
