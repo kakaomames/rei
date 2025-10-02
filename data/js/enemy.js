@@ -1,341 +1,214 @@
 // game.jsで定義されたグローバル変数を使用:
-// ctx, WIDTH, HEIGHT, enemies, boss, isBossPhase, currentRebel, level, 
-// BOSS_TRIGGER_LEVEL, enemySpawnTimer, INITIAL_ENEMY_SPAWN_INTERVAL, 
-// INITIAL_ENEMY_BASE_SPEED, requiredKills, currentKills, isMobPhase, 
-// timeOfDayTimer, TIME_CYCLE_DURATION, isDay, gameData, player, resetGame, goToHome, 
-// ENEMY_IDS, MAX_REBEL, applyDebuff (player.js), calculateDamage (player.js)
+// WIDTH, HEIGHT, gameData, currentRebel, isBossPhase, MAX_REBEL, score, player
+// addLog (settings.js), startBossPhase (game.js), gameLoop (game.js)
 
-// --- Mobフェーズの初期化 ---
-function initMobPhase() {
-    isMobPhase = true;
-    isBossPhase = false;
-    enemies.length = 0;
-    boss = null;
-    
-    // Mobフェーズでは、Rebelレベルに応じて必要な討伐数を設定
-    requiredKills = currentRebel * 10; 
-    currentKills = 0;
-    
-    // レベルに合った敵のIDを取得
-    const mobId = ENEMY_IDS[currentRebel - 1]; 
-    const mobData = gameData.enemies.get(mobId);
-    if (mobData) {
-        console.log(`REBEL ${currentRebel} Mob Phase: ${mobData.name}を${requiredKills}体討伐`);
-    } else {
-        console.error("Mobデータが見つかりません:", mobId);
-    }
-}
+// --- グローバル状態変数 ---
+let enemies = [];
+let enemySpawnTimer = 0;
+const INITIAL_ENEMY_SPAWN_INTERVAL = 90; // 30FPSで3秒ごと (スポーン間隔)
+let currentKills = 0; // 現在のレベルで倒したMob数
+let requiredKills = 0; // ボス出現に必要なMob数
+let isMobPhase = false; // Mob出現中かどうか
 
-// --- ボスフェーズの初期化 ---
-function initBossPhase() {
-    isBossPhase = true;
-    isMobPhase = false;
-    enemies.length = 0;
-    
-    // currentRebel に対応するボスを探す
-    const bossData = Array.from(gameData.bosses.values()).find(b => b.rebel === currentRebel);
+// 敵のステータス定義 (JSONデータの代替として簡易定義)
+// ※ 実際は gameData.enemies から読み込むことを想定
+const ENEMY_STATUS = new Map([
+    // Mobフェーズの敵
+    [1, { id: 'zombie', name: 'ゾンビ', hp: 10, speed: 2, damage: 5, color: 'green', width: 30, height: 30, spawnChance: 0.8 }],
+    [2, { id: 'skeleton', name: 'スケルトン', hp: 8, speed: 3, damage: 4, color: 'white', width: 25, height: 35, spawnChance: 0.2 }],
+    // ... レベルが上がれば他の敵も増える
+]);
 
-    if (bossData) {
-        boss = {
-            id: bossData.id,
-            x: WIDTH / 2 - 50,
-            y: 50,
-            width: 100,
-            height: 100,
-            color: bossData.color,
-            hp: bossData.base_hp,
-            maxHp: bossData.base_hp,
-            speed: bossData.stats.speed,
-            attackInterval: bossData.stats.attack_interval_frames,
-            attackTimer: 0,
-            bulletSpeed: bossData.stats.bullet_speed,
-            trait: bossData.trait,
-            traitData: bossData.trait_data,
-            // 固有のボス状態
-            phase: 1, 
-            teleportTimer: 0,
-            spawningTimer: 0 
-        };
-        console.log(`REBEL ${currentRebel} Boss Phase: ${bossData.name}出現!`);
-        document.getElementById('golemButton').classList.remove('hidden'); // ゴーレムボタンを表示
-    } else {
-        // ボスデータが見つからない場合はレベルクリア
-        console.warn(`REBEL ${currentRebel}のボスデータが見つかりません。`);
-        levelClear(); // レベルクリア
-    }
-}
-
-// --- レベルの進行チェック (gameLoop内で毎フレーム実行) ---
+/**
+ * 現在のレベルに基づいて、ボス出現に必要なキル数を設定し、Mobフェーズを開始する準備をする。
+ */
 function checkLevelUp() {
-    if (isGameOver) return;
-
-    // Mobフェーズの開始
-    if (!isMobPhase && !isBossPhase) {
-        initMobPhase();
-        return;
-    }
-
-    // Mob討伐完了
-    if (isMobPhase && currentKills >= requiredKills) {
-        initBossPhase();
-        return;
-    }
+    // 敵スポーンの目標を設定（例：レベル * 5体の敵）
+    requiredKills = currentRebel * 5;
+    currentKills = 0; // キル数をリセット
     
-    // ボス討伐完了
-    if (isBossPhase && boss === null) {
-        levelClear();
-        return;
-    }
-
-    // Mobフェーズ中の敵出現処理
-    if (isMobPhase) {
-        spawnEnemy();
+    if (typeof addLog === 'function') {
+        addLog(`REBEL ${currentRebel} Mobフェーズ目標: 敵 ${requiredKills} 体キル`);
     }
 }
 
-// --- 敵の出現 (Mobフェーズ時のみ) ---
-function spawnEnemy() {
-    if (!isMobPhase) return;
-    
-    enemySpawnTimer++;
-    
-    // レベルが上がるほど出現頻度が上がる（最低10フレーム間隔）
-    const spawnInterval = Math.max(10, INITIAL_ENEMY_SPAWN_INTERVAL - currentRebel * 10);
-    
-    if (enemySpawnTimer >= spawnInterval) {
-        enemySpawnTimer = 0;
-        
-        // 🌟 修正ポイント: currentRebelに対応したMobIDを取得 🌟
-        const mobIndex = currentRebel - 1;
-        if (mobIndex < 0 || mobIndex >= ENEMY_IDS.length) {
-            console.error("MobIDが見つかりません。REBELレベルが範囲外です:", currentRebel);
-            return;
+/**
+ * 敵を生成し、enemies配列に追加する
+ * (game.js の startLevel から呼ばれる可能性がある)
+ * @param {number} level - 現在のREBELレベル
+ * @param {number} currentEnemyCount - 現在画面上の敵の数
+ */
+function spawnEnemy(level, currentEnemyCount) {
+    // スポーン可能な敵のリストからランダムに選択（レベルに応じたロジックを後で追加）
+    const enemyType = ENEMY_STATUS.get(1); // とりあえずゾンビをスポーン
+
+    if (!enemyType) return;
+
+    // 画面上部のランダムなX座標
+    const x = Math.random() * (WIDTH - enemyType.width);
+    const y = -enemyType.height; // 画面外からスタート
+
+    const newEnemy = {
+        x: x,
+        y: y,
+        width: enemyType.width,
+        height: enemyType.height,
+        color: enemyType.color,
+        hp: enemyType.hp + (level - 1) * 5, // レベルに応じてHP増加
+        maxHp: enemyType.hp + (level - 1) * 5,
+        speed: enemyType.speed,
+        damage: enemyType.damage,
+        id: enemyType.id,
+        isBoss: false,
+        debuff: { // デバフの初期化
+            burning: 0,
+            frozen: 0
         }
-        const mobId = ENEMY_IDS[mobIndex]; 
-        const mobData = gameData.enemies.get(mobId);
+    };
 
-        if (!mobData) return;
-        
-        const enemy = {
-            x: Math.random() * (WIDTH - mobData.width),
-            y: -mobData.height,
-            width: mobData.width,
-            height: mobData.height,
-            color: mobData.color,
-            hp: mobData.hp,
-            maxHp: mobData.maxHp,
-            speed: INITIAL_ENEMY_BASE_SPEED * (1 + currentRebel * 0.2), // レベルごとに加速
-            score: mobData.score,
-            coin_drop: mobData.coin_drop,
-            type: mobId,
-            attackInterval: 120 + Math.random() * 60, // 2-3秒に1回
-            attackTimer: 0
-        };
-        enemies.push(enemy);
+    enemies.push(newEnemy);
+}
+
+/**
+ * 敵が倒された時の処理
+ * (collision.js の handleCollision などから呼ばれる)
+ * @param {object} enemy - 倒された敵のオブジェクト
+ */
+function handleEnemyDefeat(enemy) {
+    if (enemy.isBoss) {
+        // ボス撃破処理は game.js の handleBossDefeat で行う
+        return;
+    }
+    
+    // Mob撃破時の処理
+    currentKills++; // キル数をインクリメント
+    player.coins += 1; // コイン付与（暫定）
+    score += 100; // スコア加算
+    
+    if (typeof addLog === 'function') {
+        addLog(`敵(${enemy.id})を撃破。キル数: ${currentKills}/${requiredKills}`);
     }
 }
 
-// --- 敵の動作更新 ---
+/**
+ * 敵の移動、更新、スポーンを管理するメイン関数
+ * (game.js の gameLoop から呼ばれる)
+ */
 function updateEnemies() {
-    for (let i = enemies.length - 1; i >= 0; i--) {
-        const enemy = enemies[i];
+    // 敵の移動と生存確認
+    enemies = enemies.filter(enemy => {
+        // 敵の移動ロジック
         enemy.y += enemy.speed;
-        
-        // 画面外に出た敵を削除
-        if (enemy.y > HEIGHT) {
-            enemies.splice(i, 1);
-            continue;
+
+        // 画面外に出た敵は排除 (画面外に出た敵は game.js/collision.js でHP減少処理を行う想定)
+        // 画面の高さ（HEIGHT）を超えたら false を返し、配列から除外
+        if (enemy.y >= HEIGHT) {
+            // プレイヤーのライフを減らす処理を game.js または collision.js で行う想定
+            return false;
         }
-
-        // 敵の攻撃ロジック (敵がプレイヤーのY座標よりも下に来たら攻撃)
-        enemy.attackTimer++;
-        if (enemy.attackTimer >= enemy.attackInterval) {
-            if (enemy.y > player.y) {
-                 // 敵の弾はここでは実装せず、接触のみとする
-            } else {
-                 // 弾発射 (敵の弾はbulletsとは別の配列に入れるのが望ましいが、今回は簡略化)
-                 // ボスの攻撃ロジックを参照
-            }
-            enemy.attackTimer = 0;
-        }
-    }
-}
-
-// --- ボスの動作更新 ---
-function updateBossAction() {
-    if (!boss) return;
-
-    // 基本的な移動ロジック（左右移動）
-    if (boss.x + boss.width > WIDTH || boss.x < 0) {
-        boss.speed *= -1; // 反転
-    }
-    boss.x += boss.speed;
-
-    // 攻撃ロジック
-    boss.attackTimer++;
-    if (boss.attackTimer >= boss.attackInterval) {
         
-        // Boss Trait: slime (通常弾)
-        if (boss.trait === "slime") {
-            // 単発弾
-            bullets.push(createBossBullet(boss.x + boss.width / 2, boss.y + boss.height, boss.color, boss.bulletSpeed, 5));
-            
-        // Boss Trait: endermite (テレポート)
-        } else if (boss.trait === "endermite") {
-            boss.teleportTimer++;
-            if (boss.teleportTimer >= boss.traitData.teleport_interval_frames) {
-                // ランダムな位置にテレポート
-                boss.x = Math.random() * (WIDTH - boss.width);
-                boss.y = Math.random() * (HEIGHT * 0.4); 
-                boss.teleportTimer = 0;
-                drawMessage("Endermite Teleported!");
-            }
-            // テレポート後、全方位に弾発射
-            for (let i = 0; i < 8; i++) {
-                const angle = (i / 8) * 2 * Math.PI;
-                bullets.push(createBossBullet(
-                    boss.x + boss.width / 2, 
-                    boss.y + boss.height / 2, 
-                    boss.color, 
-                    boss.bulletSpeed, 
-                    5,
-                    { vx: Math.cos(angle) * boss.bulletSpeed, vy: Math.sin(angle) * boss.bulletSpeed }
-                ));
-            }
+        return true; 
+    });
 
-        // Boss Trait: silverfish (雑魚召喚)
-        } else if (boss.trait === "silverfish") {
-            boss.spawningTimer++;
-            if (boss.spawningTimer >= boss.traitData.spawn_interval_frames) {
-                // 修正ポイント: 召喚する雑魚もREBELレベルに合わせるべきだが、ここでは簡単のためSlime Mobとする
-                // 本来はcurrentRebelに対応した雑魚IDを使うべき
-                const mobId = ENEMY_IDS[0]; 
-                const mobData = gameData.enemies.get(mobId);
-                if (mobData) {
-                    enemies.push(createSilverfishMob(mobData, boss));
-                }
-                boss.spawningTimer = 0;
-            }
-            
-        // Boss Trait: zombie_time / husk (時間帯変化・サンダメージ無効)
-        } else if (boss.trait === "zombie_time" || boss.trait === "no_sun_damage") {
-             if (boss.attackTimer % 30 === 0) {
-                 // プレイヤーに向かって弾
-                 const dx = player.x + player.width / 2 - (boss.x + boss.width / 2);
-                 const dy = player.y + player.height / 2 - (boss.y + boss.height / 2);
-                 const angle = Math.atan2(dy, dx);
-                 bullets.push(createBossBullet(
-                    boss.x + boss.width / 2, 
-                    boss.y + boss.height, 
-                    boss.color, 
-                    boss.bulletSpeed, 
-                    7,
-                    { vx: Math.cos(angle) * boss.bulletSpeed, vy: Math.sin(angle) * boss.bulletSpeed }
-                 ));
+    // ----------------------------------------
+    // 敵のスポーン管理
+    // ----------------------------------------
+    if (!isBossPhase) {
+        enemySpawnTimer++;
+        
+        // 🚨 Mobフェーズが始まっていない場合は、強制的に開始させる (startLevel()で呼び出し漏れ対策)
+        if (!isMobPhase) {
+             checkLevelUp(); // Mobフェーズ開始に必要なキル数を設定
+             isMobPhase = true; // Mobフェーズ開始フラグを立てる
+             
+             if (typeof addLog === 'function') {
+                 addLog("Mobフェーズを開始しました。");
              }
         }
 
-        boss.attackTimer = 0;
-    }
-    
-    // ボスのHPが半分を切ったらフェーズ2へ
-    if (boss.hp < boss.maxHp / 2 && boss.phase === 1) {
-        boss.phase = 2;
-        boss.attackInterval = Math.max(30, Math.floor(boss.attackInterval * 0.6)); // 攻撃頻度アップ
-        drawMessage("BOSS PHASE 2 ACTIVATED!"); 
-    }
-    
-    // ボスが死亡した場合
-    if (boss.hp <= 0) {
-        score += boss.traitData.score_reward || 1000;
-        player.coins += boss.traitData.coin_reward || 100;
-        boss = null;
-        document.getElementById('golemButton').classList.add('hidden');
-    }
-}
-
-// --- ボス弾の作成ヘルパー関数 ---
-function createBossBullet(x, y, color, speed, size, vector = { vx: 0, vy: 0 }) {
-    if (vector.vx === 0 && vector.vy === 0) {
-        // デフォルトは下向き
-        vector.vy = speed;
-    }
-    return {
-        x: x - size / 2, y: y, width: size, height: size, 
-        color: color, isBoss: true, 
-        vx: vector.vx, vy: vector.vy,
-        damage: 10 + currentRebel * 2 // レベルに応じたダメージ
-    };
-}
-
-// --- Silverfish Mobの作成ヘルパー関数 ---
-function createSilverfishMob(mobData, boss) {
-    const enemy = {
-        x: boss.x + boss.width / 2 - mobData.width / 2,
-        y: boss.y + boss.height,
-        width: mobData.width,
-        height: mobData.height,
-        color: mobData.color,
-        hp: mobData.hp * 0.5, // HP半減
-        maxHp: mobData.maxHp * 0.5, 
-        speed: 3 + currentRebel * 0.5, 
-        score: 0, // 雑魚召喚によるスコアなし
-        coin_drop: 0,
-        type: mobData.id,
-        attackInterval: 10000,
-        attackTimer: 0
-    };
-    return enemy;
-}
-
-
-// --- レベルクリア処理 ---
-function levelClear() {
-    player.highestClearLevel = Math.max(player.highestClearLevel, currentRebel);
-    
-    if (currentRebel < MAX_REBEL) {
-        alert(`REBEL ${currentRebel}クリア！🎉 報酬: 💰 ${player.coins}コイン`);
-        
-    } else {
-        alert("全レベルクリア！おめでとうございます！🏆");
-    }
-    
-    // ホーム画面に戻る
-    resetGame();
-    goToHome();
-}
-
-
-// --- 時間帯の更新 (ZOMBIE/HUSK戦に必要) ---
-function updateTimeOfDay() {
-    if (!isBossPhase || (boss.trait !== "zombie_time" && boss.trait !== "no_sun_damage")) {
-        // 通常の戦闘では時間帯変化なし
-        isDay = true; 
-        timeOfDayTimer = 0;
-        return;
-    }
-
-    timeOfDayTimer++;
-    
-    if (timeOfDayTimer >= TIME_CYCLE_DURATION) {
-        isDay = !isDay;
-        timeOfDayTimer = 0;
-        drawMessage(isDay ? "DAYTIME ☀️" : "NIGHTTIME 🌙");
-    }
-
-    // プレイヤーへのサンダメージ処理
-    if (isBossPhase && boss.trait === "zombie_time" && !player.isShielded) {
-        if (isDay && player.debuff.frozen <= 0) { // 凍結中はサンダメージを受けないという設定
-            if (timeOfDayTimer % 60 === 0) {
-                const sunDamage = calculateDamage(5); // 5ダメージ
-                player.hp -= sunDamage;
-                if (player.hp <= 0) {
-                    isGameOver = true;
-                    alert(`ゲームオーバー！日中の太陽による死亡 スコア: ${score}`);
-                    resetGame(); // game.js
-                    goToHome(); // game.js
+        // スポーン条件: スポーン間隔が経過し、かつ必要なキル数に達していない場合
+        if (enemySpawnTimer >= INITIAL_ENEMY_SPAWN_INTERVAL && currentKills < requiredKills) {
+            
+            // 敵をスポーンさせる
+            if (typeof spawnEnemy === 'function') {
+                spawnEnemy(currentRebel, enemies.length);
+                
+                // ログに出す（デバッグ用）
+                if (typeof addLog === 'function') {
+                    addLog(`敵をスポーン。敵数: ${enemies.length + 1} / 目標キル: ${requiredKills}`);
                 }
+            } else {
+                 console.error("spawnEnemy関数が定義されていません。");
             }
+            
+            enemySpawnTimer = 0; // タイマーリセット
         }
+    }
+    
+    // ----------------------------------------
+    // Mobフェーズの終了とボスフェーズへの移行チェック
+    // ----------------------------------------
+    if (isMobPhase && currentKills >= requiredKills) {
+        isMobPhase = false; // Mobフェーズ終了
+        
+        if (typeof addLog === 'function') {
+            addLog("目標キル数達成。ボスフェーズへ移行します！");
+        }
+        
+        // ボスフェーズ開始 (game.js の関数を呼び出し)
+        if (typeof startBossPhase === 'function') {
+            startBossPhase(currentRebel);
+        } else {
+             console.error("startBossPhase関数が定義されていません。ゲームが進行できません。");
+        }
+    }
+    
+    // ----------------------------------------
+    // 敵のデバフ処理（燃焼・凍結など）
+    // ----------------------------------------
+    enemies.forEach(enemy => {
+        // 例: 燃焼デバフによるダメージ
+        if (enemy.debuff.burning > 0) {
+            // ダメージ処理（省略）
+            // enemy.hp -= 0.1; 
+            enemy.debuff.burning--;
+        }
+        
+        // 例: 凍結デバフによる移動速度低下
+        if (enemy.debuff.frozen > 0) {
+            // speed = enemy.baseSpeed * 0.5; など
+            enemy.debuff.frozen--;
+        }
+        
+        // HPが0以下になったら撃破処理（collision.jsで処理されない場合）
+        if (enemy.hp <= 0) {
+            handleEnemyDefeat(enemy);
+        }
+    });
+}
+
+/**
+ * ボス撃破時の処理 (game.js の handleBossDefeat から呼ばれることを想定)
+ * ※ ここにはロジックは最小限に留め、スコア加算などは game.js で行う
+ */
+function handleBossDefeat(boss) {
+    if (typeof addLog === 'function') {
+        addLog(`REBEL ${currentRebel} BOSS ${boss.id} を撃破しました！`);
+    }
+}
+
+/**
+ * 外部から敵配列をクリアするための関数 (ゲームオーバー時などに使用)
+ */
+function clearEnemies() {
+    enemies = [];
+    enemySpawnTimer = 0;
+    currentKills = 0;
+    requiredKills = 0;
+    isMobPhase = false;
+    // isBossPhase のリセットは game.js の resetGame などで行う想定
+    
+    if (typeof addLog === 'function') {
+        addLog("敵システムをリセットしました。");
     }
 }
