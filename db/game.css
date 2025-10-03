@@ -1,13 +1,18 @@
 @b{bm:00;}
-html,body{	margin:0;	padding:0;	position:relative;	font-family:"Arial";	width:100%;    background-color:#000;	overflow:hidden;}
-@font-face{font-family:'mainfont';src:url('media/graphics/font/mainfont.ttf');}
+html,body{	margin:0;	padding:0;	position:relative;	font-family:"Arial";	width:100%;    background-color:#000;	
+          overflow:hidden;}
+@font-face{font-family:'mainfont';
+           src:url('font_mainfont.ttf');
+          }
 #webgl{ 
   background-color:transparent;
   background:transparent;	position:absolute;	
   left:0;	top:0;	width:100%;	height:100%;}
 #game{         background-color:transparent; 
       background:transparent;	position:absolute;	left:0;	top:0;}
-#ajaxbar{	background:url('media/graphics/loading/ajax-loader.gif') center no-repeat;}
+#ajaxbar{	
+  background:url('loading_ajax-loader.gif') center no-repeat;
+}
 #canvas{
   background-color:transparent;
   position:absolute;
@@ -51,25 +56,32 @@ html,body{	margin:0;	padding:0;	position:relative;	font-family:"Arial";	width:10
                                                                        -moz-transition:   all 0.6s ease;
                                                                        -o-transition:     all 0.6s ease;
                                                                       }
-#MobileAdInGamePreroll-Box,#MobileAdInGamePreroll2-Box,#MobileAdInGamePreroll3-Box{	z-index:10000;	position:absolute;	width:302px;	
+#MobileAdInGamePreroll-Box,#MobileAdInGamePreroll2-Box,#MobileAdInGamePreroll3-Box{	z-index:10000;
+                                                                                   position:absolute;
+                                                                                   width:302px;	
                                                                                    height:250px;} 
 #MobileAdInGamePreroll-Box-Body,#MobileAdInGamePreroll2-Box-Body,#MobileAdInGamePreroll3-Box-Body{	z-index:10000;
                                                                                                   position:relative;
                                                                                                   background:transparent;
                                                                                                  }
-#MobileAdInGamePreroll-Box-Footer,#MobileAdInGamePreroll2-Box-Footer,#MobileAdInGamePreroll3-Box-Footer{	z-index:10000;	position:relative;
+#MobileAdInGamePreroll-Box-Footer,#MobileAdInGamePreroll2-Box-Footer,#MobileAdInGamePreroll3-Box-Footer{	z-index:10000;
+                                                                                                        position:relative;
                                                                                                         font-size:11px;	height:20px;
                                                                                                         color:#fff;	background:transparent;	 } 
 #MobileAdInGamePreroll-Box-Header,#MobileAdInGamePreroll2-Box-Header,#MobileAdInGamePreroll3-Box-Header{	z-index:10000;	position:relative;
                                                                                                         margin-top:-2px;	font-size:11px;
                                                                                                         height:20px;	text-align:right;	
                                                                                                         color:#fff;	background:transparent;	 } 
-#MobileAdInGamePreroll-Box-Close,#MobileAdInGamePreroll2-Box-Close,#MobileAdInGamePreroll3-Box-Close{	position:absolute;	z-index:10005;
+#MobileAdInGamePreroll-Box-Close,#MobileAdInGamePreroll2-Box-Close,#MobileAdInGamePreroll3-Box-Close{	position:absolute;
+                                                                                                     z-index:10005;
                                                                                                      background-image:url('media/graphics/generic-ad/light/close-button.png');
                                                                                                      background-repeat:no-repeat;
-                                                                                                     width:22px;    height:22px; 
-                                                                                                     top:-4px;    margin-right:-1px;	
-                                                                                                     display:none;}
+                                                                                                     width:22px;
+                                                                                                     height:22px; 
+                                                                                                     top:-4px;
+                                                                                                     margin-right:-1px;	
+                                                                                                     display:none;
+                                                                                                    }
 #MobileAdInGameHeader,#MobileAdInGameHeader2,#MobileAdInGameHeader3{	display:none;	position:absolute;	background:transparent;	 }
 #MobileAdInGameFooter,#MobileAdInGameFooter2,#MobileAdInGameFooter3{	display:none;	position:absolute;	background:transparent;	 }
 #MobileAdInGameEnd,#MobileAdInGameEnd2,#MobileAdInGameEnd3{	position:absolute;	float:left;	min-width:320px;	z-index:10000;	left:0;	top:0;	
@@ -84,11 +96,17 @@ html,body{	margin:0;	padding:0;	position:relative;	font-family:"Arial";	width:10
 #MobileAdInGameEnd-Box-Header,#MobileAdInGameEnd2-Box-Header,#MobileAdInGameEnd3-Box-Header{	z-index:10000;	position:relative;	margin-top:-2px;
                                                                                             font-size:11px;	height:20px;	text-align:right;	
                                                                                             color:#fff;	background:transparent;	 }
-#MobileAdInGameEnd-Box-Close,#MobileAdInGameEnd2-Box-Close,#MobileAdInGameEnd3-Box-Close{	position:absolute;	z-index:10005;
+#MobileAdInGameEnd-Box-Close,#MobileAdInGameEnd2-Box-Close,#MobileAdInGameEnd3-Box-Close{	position:absolute;
+                                                                                         z-index:10005;
                                                                                          background-image:url('media/graphics/generic-ad/light/close-button.png'); 
-                                                                                         background-repeat:no-repeat;	     width:22px;    height:22px;   	top:-4px;  
-                                                                                         margin-right:-1px;	display:none;}
-.ig_debug{	position:fixed;	left:0;	bottom:0;	width:100%;	background-color:#000;	border-top:2px solid #f57401;	font-size:12px;	
+                                                                                         background-repeat:no-repeat;	
+                                                                                         width:22px; 
+                                                                                         height:22px;   
+                                                                                         top:-4px;  
+                                                                                         margin-right:-1px;	
+                                                                                         display:none;}
+.ig_debug{	position:fixed;	left:0;	bottom:0;
+          width:100%;	background-color:#000;	border-top:2px solid #f57401;	font-size:12px;	
           color:#fff;	z-index:1000;	-webkit-user-select:none;	display:none;}
 .ig_debug_panel_menu{	height:28px;	background:#222;
                      background:-webkit-gradient(linear,left bottom,left top,color-stop(0,#000000),color-stop(1,#333));
