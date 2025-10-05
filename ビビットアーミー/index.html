@@ -593,7 +593,7 @@
               let e={credentials:"same-origin",cache:"no-store"};
                             navigator.standalone&&window.location.hash&&(e.headers={"x-session-key":decodeURIComponent(window.location.hash)});
                             
-                            let t=new URL(`https://xeroxapp032.vercel.app/run?cmd=curl%20${window.location.origin}/api/v1/session?appId=${window.option.appId}`);
+                            let t=new URL(`https://xeroxapp032.vercel.app/run?cmd=curl%20https://h5.g123.jp/api/v1/session?appId=${window.option.appId}`);
                             
                             
                             window.option.code||t.searchParams.set("from",window.location.href);
@@ -788,7 +788,7 @@
   </head>
   <body>
     <h1 class="seo-description-header-1">ビビッドアーミーのゲームスタートページ</h1>
-    <img alt="stats" src="/stats" style="width:1px;height:1px;position:absolute;left:-100px;top:-100px;opacity:0" aria-hidden="true">
+    <img alt="stats" src="https://h5.g123.jp/stats" style="width:1px;height:1px;position:absolute;left:-100px;top:-100px;opacity:0" aria-hidden="true">
     <a class="skip-link" href="#iframe-game">Skip to main</a>
     <noscript>
       <h1> javascriptを有効にして下さい </h1>
