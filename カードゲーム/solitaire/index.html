@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en" class="lang-en solitaire  videoads ">
+<head>
+    <title>
+    
+        ソリティア | オンラインでプレイ
+    
+    </title>
+
+    
+
+    <meta charset="utf-8"> 
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="Description" content="Play classic Solitaire (Klondike) online for free. Simple gameplay, excellent graphics and unlimited undos!" /> 
+
+    <!-- Language -->
+    <meta name="language" content="en" />
+    
+     
+    <link rel="alternate" hreflang="de" href="https://cardgames.io/de/solitaire/" />
+    
+    
+    
+     
+    <link rel="alternate" hreflang="en" href="https://cardgames.io/solitaire/" />
+    
+    
+        <link rel="alternate" hreflang="x-default" href="https://cardgames.io/solitaire/" />
+    
+    
+     
+    <link rel="alternate" hreflang="es" href="https://cardgames.io/es/solitaire/" />
+    
+    
+    
+     
+    <link rel="alternate" hreflang="fr" href="https://cardgames.io/fr/solitaire/" />
+    
+    
+    
+    
+    
+    
+
+
+    
+    
+    <script>
+        // default Consent MUST to be set before the first gtag call
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        // 1) Global defaults: GRANTED (covers US where no banner/updates are sent)
+        gtag('consent', 'default', {
+            ad_storage: 'granted',
+            analytics_storage: 'granted',
+            ad_user_data: 'granted',
+            ad_personalization: 'granted',
+            wait_for_update: 500
+        });
+
+        gtag('consent', 'default', {
+            ad_storage: 'denied',
+            analytics_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            region: [
+            // EU/EEA members
+            "AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU",
+            "IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE",
+            // EEA non-EU
+            "IS","NO","LI",
+            // UK + CH
+            "GB","CH",
+            // European territories/microstates often aligned
+            "AX","MC","SM","GI","GF","GP","MQ","RE","YT","MF",
+            // US and Canada
+            "CA-QC","US-CA","US-CO","US-CT","US-UT","US-VA"
+            ],
+            wait_for_update: 500
+        });
+    </script>
+    
+
+    <script>
+        function OptanonWrapper() { }
+    </script>
+    
+    <!-- Removed, don't want the banner showing up where we don't want it <meta name="apple-itunes-app" content="app-id=1496007149" /> -->
+
+
+    
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!-- <script src="https://unpkg.com/i18next@23.6.0/dist/umd/i18next.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@1.3.1/i18nextHttpBackend.min.js"></script> -->
+    
+
+    
+    <meta name="apple-mobile-web-app-title" content='Solitaire' />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="apple-touch-icon" href="./images/solitaire-touch-icon.png" />
+    <link rel="manifest" href="./1.53.0/solitaire-manifest.json" />
+    
+
+    <link rel="preload" href="./shared/images/fonts/Slackey-Regular.woff" as="font" crossorigin="anonymous"/>
+
+    <link rel="icon" href="./shared/images/favicon32.png" sizes="32x32" />
+
+    
+    <link rel="icon" href="./solitaire/images/solitaire-touch-icon-192.png" sizes="192x192" />
+    
+
+
+    
+        <!--  CMP -->
+            <script type="text/javascript">
+                function OptanonWrapper() { }
+            </script>
+        <!-- End CMP -->
+    
+
+    <script src="./trans/1.53.0/translate.min.js"></script>
+    <script>
+        var adFreeCode = (document.cookie.match(/adfreecode=(\w+)/)||[])[1];
+        var category = "Solitaire";
+        var slug = 'solitaire';
+        var siteVersion = '1.53.0';
+        var showAds = 'freestar';
+        var videoAds = 'true';
+        var customChannelId = '2904251798';
+        var players = {"bottom":{"name":"You","face":"./shared/images/svg/face-0.svg","faceSad":"./shared/images/svg/face-0-sad.svg","code":"0","defaultName":"You"},"left":{"name":"Mike","face":"./shared/images/svg/face-mike.svg","faceSad":"./shared/images/svg/face-mike-sad.svg","code":"mlpge","defaultName":"Mike"},"top":{"name":"Bill","face":"./shared/images/svg/face-2.svg","faceSad":"./shared/images/svg/face-2-sad.svg","code":"2","defaultName":"Bill"},"right":{"name":"Lisa","face":"./shared/images/svg/face-3.svg","faceSad":"./shared/images/svg/face-3-sad.svg","code":"3","defaultName":"Lisa"}};
+        var STATIC_ASSET_DOMAIN = '';
+        var APP_MODE = false;
+        var languages = {};
+        var currentLanguage = 'en';
+        var siteUrl = "solitaire";
+        var i18nWindow = initTranslation('solitaire','en');
+        var htmlIsDev = window.location.origin.includes("dev.cardgames.io") || window.location.origin.includes("redace.io");
+        
+        var gameSettings = {};
+         
+        if (location.search.match(/appmode/)) {
+            APP_MODE = true;
+            document.documentElement.className += ' appmode';
+        }
+
+    
+        var defaultSettings = {"flipCardCount":{"defaultValue":1,"allowedValues":[1,3]},"autoComplete":true,"autoFlip":true,"simpleDeck":false,"speed":{"defaultValue":"normal","allowedValues":["verySlow","slow","normal","fast","veryFast"]}};
+    
+        var defaultSiteSettings = {"players":{},"playerName":"","multiplayerPublicId":"","multiplayerPrivateId":"","multiplayerIdReset":"","multiplayerPhrases":{},"blocked":{},"muted":{},"favorite":{},"alwaysUseInterstitialAds":false,"mobileBannerAds":true,"confetti":true,"gameLinks":"","playerRating":0,"quitCount":0,"connectionBan":0,"rcq":0,"multiplayerGameInProgress":false,"showAdSettingsLink":false,"spreadCards":false,"svgCards":false,"forceDesktopLook":false,"acceptCookiesId":0,"showPersonalizedAds":true,"enableGA":true,"showDesktopInterstitials":true,"hideAdblockAd":false,"useDarkTheme":false,"holidayThemes":true,"hideMultiplayerButton":false,"mandalorian":0};
+
+        function getSiteSettingBool(name, defaultVal) {
+            try {
+                var val = localStorage.getItem('site.' + name);
+                if (val === null) {
+                    return defaultVal;
+                }
+
+                return val === 'true' ? true : false;
+            } catch(ex) {
+                return defaultVal;
+            }
+        }
+
+    </script>
+
+    <script>
+        if (document.location.search.match(/alerterror/)) {
+            window.onerror = function(msg,src,line,col,error) {
+                if (error && error.stack) {
+                    alert(error.stack);
+                } else {
+                    alert(msg);
+                }
+            };
+        } 
+    </script>
+
+    <script>     
+        try {
+            //Allow people to force the desktop look.
+            //First check if we're on mobile to decide whether to display the option
+            if (localStorage['site.forceDesktopLook'] == 'true') {
+                var metas = document.getElementsByTagName('meta');
+                for (var i=0; i < metas.length; i++) {
+                    var m = metas[i];
+                    if (m.getAttribute('name') === 'viewport') {
+                        m.setAttribute('content', 'width=1050');
+                        break;
+                    }
+                }
+            }
+        } catch(ex) {
+
+        }
+    </script>
+    <link rel="stylesheet" href="./1.53.0/solitaire.min.css" />
+
+    <style id="player-faces-style">
+        .face-bottom-player {
+            background-image:url(./shared/images/svg/face-0.svg);
+        }
+        .face-left-player {
+            background-image:url(./shared/images/svg/face-mike.svg);
+        }
+        .face-top-player {
+            background-image:url(./shared/images/svg/face-2.svg);
+        }
+        .face-right-player {
+            background-image:url(./shared/images/svg/face-3.svg);
+        }
+        .face-bottom-player.sad {
+            background-image:url(./shared/images/svg/face-0-sad.svg);
+        }
+        .face-left-player.sad {
+            background-image:url(./shared/images/svg/face-mike-sad.svg);
+        }
+        .face-top-player.sad {
+            background-image:url(./shared/images/svg/face-2-sad.svg);
+        }
+        .face-right-player.sad {
+            background-image:url(./shared/images/svg/face-3-sad.svg);
+        }
+        
+    </style>
+
+    <script>
+        
+        function loadPlayerFaces() {
+            var KEY = 'site.players';
+            if (!localStorage[KEY]) {
+                localStorage[KEY] = JSON.stringify({
+                    bottom : {
+                        face : './shared/images/svg/face-0.svg',
+                        faceSad : './shared/images/svg/face-0-sad.svg',
+                        name : 'You',
+                        code : '0'
+                    }
+                });
+            }
+
+            //2. Get data and add it to css
+            var customPlayers = JSON.parse(localStorage[KEY]);
+
+            if (customPlayers.bottom.name === 'You' && localStorage['site.playerName']) {
+                customPlayers.bottom.name = localStorage['site.playerName'];
+                localStorage[KEY] = JSON.stringify(customPlayers);
+            }
+
+            if (slug === 'checkers' && document.location.search.match(/tesla/) || navigator.userAgent.match(/Tesla|QtCarBrowser|Model S/)) {
+                customPlayers.top = {
+                    name : 'Elon',
+                    type : 'custom',
+                    code: "bamoe",
+                    face: "https://cardgames.io/lambda/faces/bamoe",
+                    faceSad: "https://cardgames.io/lambda/faces/bamoe/sad"            
+                };
+            } 
+            var pdata;
+            var css = '';
+
+
+            
+
+
+            var hideNames = false;
+
+            for (var id in customPlayers) {
+                pdata = customPlayers[id];
+                css += '.face-' + id + '-player { background-image:url(' + pdata.face + '); } \n';
+                css += '.face-' + id + '-player.sad { background-image:url(' + pdata.faceSad + '); } \n';
+                //Override names and images...
+                if (pdata) {
+                    players[id].name = pdata.name;
+                    players[id].face = pdata.face;
+                    players[id].faceSad = pdata.faceSad;
+                    players[id].code = pdata.code;
+                    hideNames = true;
+                }
+            }
+
+            var style = document.createElement('style');
+            style.innerHTML = css;
+            style.id = 'player-faces-custom';
+            document.getElementsByTagName('head')[0].appendChild(style);
+
+            if (hideNames) {
+                var tmpStyle = document.createElement('style');
+                tmpStyle.innerHTML = '.top-player-name, .bottom-player-name, .left-player-name, .right-player-name { color:transparent !important; }';
+                if (tmpStyle.setAttribute) {
+                    tmpStyle.setAttribute('id', 'temphidenames');
+                } else {
+                    tmpStyle.id = 'temphidenames';
+                }
+                document.getElementsByTagName('head')[0].appendChild(tmpStyle);
+            }
+        }
+        
+        try {
+            loadPlayerFaces();
+        } catch(ex) { /*Nevermind*/}
+    
+    </script>
+    
+    
+    
+    <script>
+            //Do this before body starts rendering to avoid ugly flicker on mobile when calculating the height
+            (function() {
+            var MOBILE_HEADER_HEIGHT = 47;
+            var MAX_BOARD_HEIGHT = 689;
+            var MIN_BOARD_HEIGHT = 411;
+            var MOBILE_BREAKPOINT = 730;
+
+            if (APP_MODE) {
+                return; //Can count on calculated things here...
+            }
+            var fillMobileViewPort = true; 
+            if (innerWidth <= MOBILE_BREAKPOINT && fillMobileViewPort) {
+                //Are in the mobile look, might have to force set the height
+                var height = innerHeight - MOBILE_HEADER_HEIGHT;
+                //Bound the height
+                height = Math.min(height, MAX_BOARD_HEIGHT);
+                if (!window.matchMedia('(orientation: landscape)').matches) {
+                    height = Math.max(height, MIN_BOARD_HEIGHT);
+                }
+
+                //Some hacks here to get the iPhone app height perfect, it's surprisingly fiddly to get it right... 
+                if (APP_MODE && innerHeight <= 667) { 
+                    height -= 5;
+                }
+                
+                var el = document.createElement('style');
+                el.innerHTML = '#play-page { height:' + height + 'px; }';
+                el.id = 'viewport-height';
+                document.getElementsByTagName('head')[0].appendChild(el);
+            }
+        })();
+    </script>
+    
+    <link rel="canonical" href="https://cardgames.io/solitaire/" />
+    
+    
+    
+    
+    <!--Open Graph Protocol metadata-->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@cardgames_io" />
+    <meta name="twitter:creator" content="@einaregilsson" />
+    
+    <meta property="og:title" content="Solitaire" />
+    <meta property="og:description" content="Play classic Solitaire (Klondike) online for free." />
+    <meta property="og:type" content="game" />
+    <meta property="og:url" content="https://cardgames.io/solitaire/" />
+    <meta property="og:image" content="./solitaire/images/solitaire-logo.png" />
+    <meta property="fb:app_id" content="1824725124440462" />
+    <meta property="fb:admins" content="808179882" /> 
+    
+    
+    
+
+
+
+    
+        
+            <link rel="preconnect" href="https://a.pub.network/" crossorigin />
+            <link rel="preconnect" href="https://b.pub.network/" crossorigin />
+            <link rel="preconnect" href="https://c.pub.network/" crossorigin />
+            <link rel="preconnect" href="https://d.pub.network/" crossorigin />
+            <link rel="preconnect" href="https://c.amazon-adsystem.com" crossorigin />
+            <link rel="preconnect" href="https://s.amazon-adsystem.com" crossorigin />
+            <link rel="preconnect" href="https://secure.quantserve.com/" crossorigin />
+            <link rel="preconnect" href="https://rules.quantcount.com/" crossorigin />
+            <link rel="preconnect" href="https://pixel.quantserve.com/" crossorigin />
+            <link rel="preconnect" href="https://btloader.com/" crossorigin />
+            <link rel="preconnect" href="https://api.btloader.com/" crossorigin />
+            <link rel="preconnect" href="https://cdn.confiant-integrations.net" crossorigin />
+            <link rel="stylesheet" href="https://a.pub.network/cardgames-io/cls.css">
+
+            <script data-cfasync="false" type="text/javascript">
+                if(!APP_MODE){
+                    var freestar = freestar || {};
+                    freestar.queue = freestar.queue || [];
+                    freestar.config = freestar.config || {};
+                    freestar.config.enabled_slots = [];
+                    freestar.initCallback = function () { (freestar.config.enabled_slots.length === 0) ? freestar.initCallbackCalled = false : freestar.newAdSlots(freestar.config.enabled_slots) }
+
+                    freestar.queue.push(function() {
+                        googletag.pubads().setTargeting('page', 'Solitaire');
+                    });
+
+                    if(htmlIsDev){
+                        freestar.queue.push(function () {
+                            googletag.pubads().set('page_url', 'https://cardgames.io/');
+                        });
+                    }
+
+                    if(videoAds == "false"){
+                        window.freestar.queue.push(function(){
+                            window.freestar.newSidewall("cardgames_sidewall_right");
+                        });
+                    }
+                    window.freestar.queue.push(function(){
+                        window.freestar.newSidewall("cardgames_sidewall_left");
+                    });
+                }
+            </script>
+        
+    
+
+    <script>
+    //Check for custom links
+
+    try {
+        //Hide them before page loads to avoid flicker
+        var links = localStorage['site.gameLinks'];
+        if (links) {
+            document.documentElement.className += ' use-custom-links';
+        }
+    } catch(ex) {
+        //Don't interrupt the loading process because of this
+    }
+
+    var supportsSvg = true;
+
+    try {
+        supportsSvg = document.implementation.hasFeature('https://www.w3.org/TR/SVG11/feature#Image', '1.1');
+    } catch(ex) {}
+
+    var themes = {
+        current : '',
+        names : {halloween:'Halloween', xmas:'Christmas', easter:'Easter', thanksgiving:'Thanksgiving', valentines: 'Valentines day', newyears:'New Years'},
+        init : function() {
+            var date = new Date();
+            var MOBILE_BREAKPOINT = 730;
+
+            if (this.isEaster(date) && screen.width > MOBILE_BREAKPOINT) { //TODO: Find a better way to handle mobile look
+                this.current = 'easter';
+            } else if (this.isStarWarsDay(date)) {
+                this.current = 'starwars';
+            } else if (this.isHalloween(date)) {
+                this.current = 'halloween';
+            }  else if (this.isNewYears(date)) {
+                this.current = 'newyears';
+            }else if (this.isXmas(date)) {
+                this.current = 'xmas';
+            } else if (this.isThanksgiving(date)) {
+                this.current = 'thanksgiving';
+            } else if (this.isValentinesDay(date)) {
+                this.current = 'valentines';
+            } else if (this.isFourthOfJuly(date)) {
+                this.current = 'fourthOfJuly';
+            }
+
+            if (document.location.search.match(/\btheme=(\w+)/)) {
+                this.current = RegExp.$1;
+            }            
+
+            if (this.current == '' || this.isTurnedOff()) {
+                return;
+            } 
+          
+            document.write("<link href='/themes/1.53.0/" + this.current + ".min.css' id='theme-css' rel='stylesheet' type='text/css'>");
+            var html = document.getElementsByTagName('html');
+            if (html && html[0]) {
+                html[0].className += ' ' + this.current;
+            }
+        },
+
+        EasterSunday : function(year) {
+            var f = Math.floor,
+                // Golden Number - 1
+                G = year % 19,
+                C = f(year / 100),
+                // related to Epact
+                H = (C - f(C / 4) - f((8 * C + 13)/25) + 19 * G + 15) % 30,
+                // number of days from 21 March to the Paschal full moon
+                I = H - f(H/28) * (1 - f(29/(H + 1)) * f((21-G)/11)),
+                // weekday for the Paschal full moon
+                J = (year + f(year / 4) + I + 2 - C + f(C / 4)) % 7,
+                // number of days from 21 March to the Sunday on or before the Paschal full moon
+                L = I - J,
+                month = 3 + f((L + 40)/44),
+                day = L + 28 - 31 * f(month / 4);
+
+            return  new Date(year, month - 1, day);
+        },
+
+        isFourthOfJuly: function(date){
+            let country = document.cookie.split('; ').find(row => row.startsWith('country='));
+            if(country){
+                country = country.split('=')[1];
+                return date.getMonth() === 6 && date.getDate() === 4 && country === "US";
+            } else {
+                return false;
+            }
+        },
+
+        isEaster : function(date) {
+            var easterSunday = this.EasterSunday(date.getFullYear());
+            var timestamp = date.getTime();
+            var oneDay = 24 * 60 * 60 * 1000;
+            var minDay = easterSunday.getTime() - 7*oneDay;
+            var maxDay = easterSunday.getTime() + 2*oneDay;
+            if (timestamp >= minDay && timestamp < maxDay) {
+                return true;
+            }
+            return false;
+        },
+
+        isHalloween : function(date) {
+            return date.getDate() >= 24  && date.getDate() <= 31 && date.getMonth() == 9;
+        },
+        isValentinesDay : function(date) {
+            return date.getDate() === 14 && date.getMonth() === 1;
+        },
+        isXmas : function(date) {
+            return date.getMonth() == 11 && date.getDate() >= 6 && date.getDate() <= 26;
+        },
+        isStarWarsDay : function(date) {
+            return date.getMonth() === 4 && date.getDate() === 4 & !APP_MODE;
+        },
+
+        isNewYears : function(date) {
+            return (date.getMonth() === 11 && date.getDate() === 31) || (date.getMonth() === 0 && date.getDate() === 1);
+        },
+
+        isThanksgiving : function(date) {
+            var SUNDAY = 0;
+            var THURSDAY = 4;
+            var NOVEMBER = 10; //JavaScript's stupid 0-based month count
+            var ONE_DAY = 24*60*60*1000;
+            var d = date;
+            if (d.getDay() !== SUNDAY && d.getDay() < THURSDAY) {
+                return false;
+            }
+            for (var i = 0; i < 4; i++) {
+                if (d.getDay() === THURSDAY) {
+                    break;
+                } else {
+                    d = new Date(d - ONE_DAY);
+                }
+            }
+            return d.getDate() >= 22 && d.getDate() <= 28 && d.getMonth() === NOVEMBER; //Fourth Thursday of November
+        },
+
+        isTurnedOff : function() {
+            try {
+                return this.current == '' || localStorage['site.holidayThemes'] === 'false' || document.cookie.match(/themeoff/);
+            } catch(ex) {
+                return true;
+            }
+        },
+        
+        usesDarkTheme : function() {
+            try {
+                return localStorage['site.useDarkTheme'] === 'true';
+            } catch(ex) {
+                return false; //IF cookies are disabled, or private mode in Safari, then just accessing localStorage can throw.
+            }
+        },
+
+        turnOn : function(e) {
+            if (this.current === '') {
+                return;
+            }
+
+            $('html').addClass(this.current);
+
+            $('<link/>').attr({
+                href : './themes/1.53.0/' + this.current + '.min.css',
+                rel : 'stylesheet',
+                id : 'theme-css'
+            }).appendTo('head');
+
+            if (this.usesDarkTheme() && this.current !== 'starwars' && this.current !== 'xmas' && this.current !== 'newyears') {
+                $('html').removeClass('dark-theme');
+            }
+        },
+        turnOff : function(e) {
+            $('html').removeClass(this.current);
+            $('#theme-css').remove();
+            if (this.usesDarkTheme()) {
+                $('html').addClass('dark-theme');
+            }
+        }
+    };
+    
+    try {
+       themes.init(); 
+    } catch(ex) {}
+    
+
+
+     var mainTheme = {
+        init : function(){
+             var html = document.documentElement;
+             try {
+                 var siteTheme = localStorage['site.useDarkTheme'] === 'true' ? 'dark-theme' : 'normal';
+                if(siteTheme && (!themes.current || themes.isTurnedOff() || themes.current === 'starwars' || themes.current === 'newyears' || themes.current === 'valentines' || themes.current === 'xmas')) {
+                    html.className += ' ' + siteTheme;
+                }
+             } catch (ex){
+             }
+        }
+    };
+    mainTheme.init();
+    </script>
+
+    
+    
+    
+    
+
+</head>
+<body>
+<!--**************************************************************************
+ This code is copyright (C) Raudas Hugbunadur ehf (Red Ace Software LLC)
+ 
+ This code is NOT open source, and it is NOT permitted to use it on other
+ sites, modify it, or otherwise use it for any other purpose than playing
+ on one of our sites, (https://cardgames.io, https://iochess.com)
+ 
+ I've had to deal with multiple people stealing my work and I'm sick of it.
+ Don't be a thief, write your own game!
+***************************************************************************-->
+    <div id="draper-video" class="appmode-remove"></div>
+
+    <div id="game-link-wrapper">
+        <div id="promo-links">
+            
+            <div id="mobile-options">
+                <label>SOLITAIRE</label>
+                <a href="#newgame">New Game</a>
+                
+                <a href="#restart">Restart Game</a>
+                                
+                
+                <a href="#pause">Pause Game</a>
+                
+                
+                <a href="#rules">Rules</a>
+                <a class="appmode-remove" href="#about">About</a>
+                <a href="#options">Options</a>
+                
+                <a href="statistics/">Statistics</a>
+                
+                <a href="./avatars/">Change player</a>
+                <a id="opponents-link" href="./opponents/">Change opponents</a>
+                <a id="manage-blocklist-menu" href="./blocklist/">Blocked users</a>
+                <a id="manage-favoritelist-menu" href="./favoritelist/">Favorite users</a>
+                <a href="#ad-settings" id="ad-settings">Ads &amp; Privacy</a>
+                
+                <a href="/rei/カードゲーム/">All Games</a>
+            </div>
+            
+            
+            <div class="game-links">
+                <label>TRICK-TAKING GAMES</label>
+                <a href="./bridge/">Bridge</a>
+                <a href="./euchre/">Euchre</a>
+                <a href="//hearts/">Hearts</a>
+                <a href="./lockup/">Lockup</a>
+                <a href="./manni/">Manni</a>
+                <a href="./ohhell/">Oh Hell!</a>
+                <a href="./pinochle/">Pinochle</a>
+                <a href="./skat/" class="newest-game">Skat</a>
+                <a href="./spades/">Spades</a>
+                <a href="./whist/">Whist</a>      
+            </div>
+            <div class="game-links">
+                <label>CARD GAMES</label>
+                <a href="/canasta/">Canasta</a>
+                <a href="/crazyeights/">Crazy&nbsp;Eights</a>
+                <a href="/cribbage/">Cribbage</a>
+                <a href="/escoba/">Escoba</a>
+                <a href="/ginrummy/">Gin&nbsp;Rummy</a>
+                <a href="/gofish/">Go&nbsp;Fish</a>
+                <a href="/idiot/">Idiot</a>
+                <a href="/rummy/">Rummy</a>
+                <a href="/spit/">Spit</a>
+                <a href="/switch/">Switch</a>
+                <a href="/thirteen/">Thirteen</a>
+                <a href="/war/">War</a>
+            </div>
+            <div class="game-links">
+                <label>SOLITAIRES</label>
+                <a href="/addiction/">Addiction</a>
+                <a href="/canfieldsolitaire/">Canfield Solitaire</a>
+                <a href="/clocksolitaire/">Clock&nbsp;Solitaire</a>
+                <a href="/crescentsolitaire/">Crescent Solitaire</a>
+                <a href="/freecell/">FreeCell</a>
+                <a href="/golfsolitaire/">Golf&nbsp;Solitaire</a>
+                <a href="/kingsinthecorners/">Kings&nbsp;in&nbsp;the&nbsp;Corners</a>
+                <a href="/pyramidsolitaire/">Pyramid&nbsp;Solitaire</a>
+                <a href="/scorpionsolitaire/">Scorpion Solitaire</a>
+                <a href="/solitaire/">Solitaire</a>
+                <a href="/spidersolitaire/">Spider&nbsp;Solitaire</a>
+                <a href="/tripeakssolitaire/">Tri&nbsp;Peaks&nbsp;Solitaire</a>
+                <a href="/yukonsolitaire/">Yukon&nbsp;Solitaire</a>
+            </div>
+            <div class="game-links">
+                <label>OTHER GAMES</label>
+                <a href="/backgammon/">Backgammon</a>
+                <a href="/checkers/">Checkers</a>
+                <a href="/chess/">Chess</a>
+                <a href="/farkle/">Farkle</a>
+                <a href="/mahjong/">Mahjong</a>
+                <a href="/minesweeper/">Minesweeper</a>
+                <a href="/reversi/">Reversi</a>
+                <a href="/seabattle/">Sea Battle</a>
+                <a href="/sudoku/">Sudoku</a>
+                <a href="/triangles/">Triangles</a>
+                <a href="/yahtzee/">Yahtzee</a>
+            </div>
+            
+            <div class="mobile-options hide-desktop ">
+                <label>Change language</label>
+                    
+                    
+                        <a class="lang-selector" data-lang="de" href="/de/solitaire/">DEUTSCH</a>
+                    
+                    
+                     
+                        <a class="lang-selector" data-lang="en" style="font-weight:normal" href="/solitaire/">ENGLISH</a>
+                    
+                    
+                    
+                        <a class="lang-selector" data-lang="es" href="/es/solitaire/">ESPAÑOL</a>
+                    
+                    
+                    
+                        <a class="lang-selector" data-lang="fr" href="/fr/solitaire/">FRANÇAIS</a>
+                    
+                    
+                    
+
+                    
+                    
+            </div>
+            
+            <button id="random-game">Random game</button>
+            <div class="game-links appmode-remove">
+                <label>OUR OTHER SITES</label>
+                <a href="https://spacebugs.io" target="_blank" id="space-link">SPACEBUGS.IO</a>
+                <a href="https://sudoku.lol" target="_blank" id="sudoku-link">SUDOKU.LOL</a>
+            </div>
+            <button class="big hide-mobile appmode-remove" id="close-menu">CLOSE GAME MENU</button>
+            <a id="customize-menu" class="hide-mobile appmode-remove" href="#customize-menu">Customize...</a>
+            <a id="hide-home" class="hide-mobile appmode-remove" href="#hide-home">Hide 'Home' link</a>
+            
+        </div>    
+    </div>
+    
+    <button id="mobile-menu">
+        <span class="menu-row-1"></span>
+        <span class="menu-row-2"></span>
+        <span class="menu-row-3"></span>
+    </button>
+    
+
+    <div id="wrapper">
+    
+
+        <!-- row 1, the promo links/menu -->
+        <a id="play"></a>
+        <!-- end row 1 -->
+
+        <!-- row 2, with [ad|header-and-board|ad] -->
+        <div id="board-wrapper-and-ads">
+            <div id="board-and-header">
+                
+                
+                <div class="lang-wrapper  appmode-remove">
+                    🌎 <select class="lang-selector" onchange="location = this.value;">
+                    
+                    
+                        <option data-lang="de" value="/de/solitaire/">Deutsch</option>
+                    
+                    
+                     
+                        <option data-lang="en" value="/solitaire/" selected>English</option>
+                    
+                    
+                    
+                        <option data-lang="es" value="/es/solitaire/">Español</option>
+                    
+                    
+                    
+                        <option data-lang="fr" value="/fr/solitaire/">Français</option>
+                    
+                    
+                    
+
+                    
+                    
+                    </select>
+                    </div>
+                
+                    
+                <div id="promo-mini" class="hide-mobile appmode-remove">
+                    <span id="customizable-links">
+                        <a href="/hearts/" class="default-game-link">Hearts</a>
+                        <a href="/solitaire/" class="default-game-link">Solitaire</a>
+                        <a href="/spades/" class="default-game-link">Spades</a>
+                        <a href="/freecell/" class="default-game-link">FreeCell</a>
+                        <a href="/cribbage/" class="default-game-link">Cribbage</a>
+                        <a href="/yahtzee/" class="default-game-link">Yahtzee</a>
+                        <a href="/ginrummy/" class="default-game-link">Gin&nbsp;Rummy</a>
+                        <script>
+                            //Add custom links with document.write to avoid ugly flicker...
+                            try {
+                                var links = localStorage['site.gameLinks'];
+                                if (links) {
+                                    var names = links.split(',');
+                                    for (var i=0; i < names.length; i++) {
+                                        var name = names[i];
+                                        var url = '/' + name.replace(/\s*/g, '').replace(/&nbsp;/, '').replace(/!/g, '').toLowerCase() + '/';
+                                        var link = '<a href="' + url + '">' + name + '</a>';
+                                        document.write(link);
+                                    }
+                                }
+                            } catch(ex) {
+                                //Nevermind...
+                            }
+                        </script>
+                    </span>
+                    <a href="/skat/" class="newest-game">Skat</a>
+                    <a href="/" class="newest-game" id="home-link">Home</a>
+                    <a href="#more-games" id="more-games-link">More games...</a>
+                </div>
+                
+                
+                <!-- Tag ID: cardgames_mobile_banner -->
+                <div id="cardgames_mobile_banner_height"></div>
+                <div align="center" data-freestar-ad="__320x50" id="cardgames_mobile_banner">
+                <script data-cfasync="false" type="text/javascript">
+                if (window.matchMedia('(max-width: 730px) and (min-height: 667px)').matches) {
+                    freestar.config.enabled_slots.push({ placementName: "cardgames_mobile_banner", slotId: "cardgames_mobile_banner" });
+                    document.getElementsByTagName('html')[0].className += ' has-top-banner';
+                }
+                </script>
+                </div>
+                
+                <div id="header">
+                    <div id="title">
+                         <h1>SOLITAIRE</h1>
+                    </div>
+
+                    
+                    <div id="menucontainer" class="hide-mobile">
+                        <ul id="menu">
+                            
+<li><a title="Start a new game of Solitaire against the computer" href="#newgame">New Game</a></li>
+
+<li> | <a title="Restart the current game" href="#restart">Restart Game</a></li>
+
+
+<li> | <a title="Pause Solitaire" href="#pause">Pause Game</a></li>
+
+<li> | <a title="Rules of Solitaire" href="#rules">Rules</a></li>
+<li class="appmode-remove"> | <a title="About this version of Solitaire" href="#about">About</a></li>
+<li> | <a title="Options for Solitaire" href="#options">Options</a></li>
+
+
+<li class="stats-link"> | <a title="See your statistics" href="/solitaire/statistics/">Statistics</a></li>
+
+
+
+
+
+                        </ul>
+                    </div>
+                    
+                </div>
+                
+                
+                <div id="board" class="board solitaire growboard">
+                    <div id="draper-inline-video"></div>
+                    
+
+<div id="pause-notification" class="dialog pause-dialog">
+    <h3>The game is paused!</h3>
+    <button id = "resume-button">Resume Game!</button>
+</div>
+
+<div id="play-page" class="inner-page">
+    
+
+    <div id="messageBox"><p></p></div>
+
+    <!-- Old browser DIV. Usually hidden. -->
+    <div id="oldbrowser">
+        <p>
+            You are using a very old browser, that is no longer supported by this site. We recommend that you upgrade to one of the following browsers:
+        </p>
+        <p>
+            <a href="https://www.mozilla.org/en-US/firefox/new/" class="lefticon" target="_blank">
+                <img id="firefox-Logo" border="0" alt="Download Mozilla Firefox" src="" width="100" height="100">
+                <span class="caption"> Download Mozilla Firefox</span>
+            </a>
+            <a href="https://www.google.com/chrome/" class="righticon" target="_blank">
+                <img id = "Chrome-Logo" border="0" alt="Download Google Chrome" src="" width="100" height="100">
+                <span class="caption"> Download Google Chrome</span>
+            </a>       
+        </p>
+        <a id="hidebutton" onclick="$('#oldbrowser').hide();">(hide)</a>
+    </div>
+    <!-- End Old browser. Usually hidden. -->
+    
+    
+    
+    <div id="info-bar">	
+        <span id="time">00:00</span> | <span id="moves">0 Moves</span>
+    </div>
+    
+
+    <div id="undo" class="hide-win"><button>Undo</button></div>
+    
+    <div id="game-nr">Game: <a href="#game-nr" class="game-nr above-confetti" title="Click here to start a specific game, or see the record for the current game">#234235</a></div>   
+    
+    
+    <div id="loser-screen" class="dialog">
+        <h3>GAME FINISHED</h3>
+        <p id="solitaire-lose-text">There are no more possible moves left.</p>
+        <p id="record"></p>
+        <div class="button-container">
+            <button id="start-game-after-losing">Start new game</button>
+            <button id="let-me-keep-playing">Keep playing anyway</button>
+        </div>
+    </div>
+    
+
+    <div id="game-nr-options" class="dialog">
+        <h3>Game <span class="game-nr"></span></h3>
+        <p>
+            You are currently playing game <span class="game-nr"></span>. <span class="current-record"></span></p>
+        <p>
+            If you want to play a specific game, enter the number below (1-50000) and press the "Start numbered game" button.
+        </p>
+        <p id="api-warning">
+
+        </p>
+
+        <div class="game-nr-input">
+            Game #<input type="text" id="start-game-nr" inputmode="numeric" maxlength="5" pattern="\d*" />
+        </div>
+        <div class="button-container">
+            <button id="start-numbered-game">Start numbered game</button>
+            <button id="cancel-new-numbered-game">Cancel</button>
+        </div>
+    </div>
+    
+    
+    
+
+    
+    <div id="game-options-page" class="dialog options-page">
+        <h2>OPTIONS</h2>
+        <div id="options-version">v0.1 (12345678)</div>
+        <div id="options-pane-container">
+            <div id="game-options" class="options-pane">
+                <h3>Solitaire</h3>
+                
+<div class="option-row radiobuttons">
+    <label title="Flip one card at a time from the stock"><input name="flipCardCount" type="radio" checked="checked" value="1" /><span>Flip one card</span></label>
+    <label title="Flip three cards at a time from the stock"><input name="flipCardCount" type="radio" value="3" /><span>Flip three cards</span></label>
+</div>
+<div class="option-row checkbox">
+    <label title="Use a simple deck of cards with larger symbols.">Use simple deck<input type="checkbox" name="simpleDeck"/><span></span></label>
+</div>
+<div class="option-row checkbox">
+    <label title="When all cards are ordered and turned up, move them automatically to the foundations.">Auto finish games<input type="checkbox" name="autoComplete"/><span></span></label>
+</div>
+<div class="option-row checkbox">
+    <label title="Automatically flips over the top card of a pile if it is face down.">Auto reveal cards<input type="checkbox" name="autoFlip"/><span></span></label>
+</div>
+
+
+                
+                <div class="option-row" id="speed-option-label">
+                    <label>Game speed</label>
+                    <label id="speed-value"></label>
+                </div>
+                <div class="option-row range" id="speed-option">
+                    <label><input name="speed" type="radio" checked="checked" value="verySlow" /><span>Slow</span></label>
+                    <label><input name="speed" type="radio" value="slow" /><span>&nbsp;</span></label>
+                    <label><input name="speed" type="radio" value="normal" /><span>&nbsp;</span></label>
+                    <label><input name="speed" type="radio" value="fast" /><span>&nbsp;</span></label>
+                    <label><input name="speed" type="radio" value="veryFast" /><span>Fast</span></label>
+                    <div style="clear:both;"></div>
+                </div>
+                
+            </div>
+            <div id="site-options" class="options-pane">
+                <h3>All games</h3>
+                <div class="option-row checkbox">
+                    <label title="Spread the cards in your hand wider, making it easier to hit the right card.">Spread cards<input type="checkbox" name="spreadCards"/><span></span></label>
+                </div>
+                <div class="option-row option-desktop checkbox appmode-remove">
+                    <label title="Only show ads inbetween rounds in the games, never show ad banners on the sides.">Interstitial ads<input type="checkbox" name="alwaysUseInterstitialAds" /><span></span></label>
+                </div>
+                <div class="option-row checkbox">
+                    <label title="Use a darker theme for the site, which can be easier on the eyes.">Use dark theme<input type="checkbox" name="useDarkTheme" /><span></span></label>
+                </div>
+                <div class="option-row checkbox">
+                    <label title="Special holiday themes are active around holidays, like Christmas, Halloween and Easter.">Holiday themes<input type="checkbox" name="holidayThemes"/><span></span></label>
+                </div>
+                <div class="option-row checkbox">
+                    <label title="Show confetti for special celebrations, like getting a perfect game in Hearts.">Confetti<input type="checkbox" name="confetti" /><span></span></label>
+                </div>
+                <div class="option-row checkbox">
+                    <label title="Hide Multiplayer button when game is active.">Hide Multiplayer button<input type="checkbox" name="hideMultiplayerButton" /><span></span></label>
+                </div>
+                <div class="option-row">
+                    <label title="Customize faces and names of opponents"><a href="/opponents/">Customize opponents...</a></label>
+                </div>
+                <div class="option-row hide-mobile">
+                    <label title="Block or unblock players from Multiplayer mode"><a href="/blocklist/">Blocked users...</a></label>
+                </div>                
+                <div class="option-row hide-mobile">
+                    <label title="Manage your favorite players from Multiplayer mode"><a href="/favoritelist/">Favorite users...</a></label>
+                </div>
+            </div>
+            <div style="clear:both;"></div>
+        </div>
+        <small class="appmode-hide">Certain changes only take effect after refreshing the page.</small>
+        <button id="close-options">Close</button>
+    </div>
+    
+    
+
+    
+    <div id="win-screen">
+        <h1>YOU WIN!!!</h1>
+        <p id="win-record"></p>
+        <a href="#newgame">Start a new game</a>
+    </div>
+
+</div>
+<div id="beta-screen">
+    <!-- Hi there. Are you looking for a way to bypass the beta? Congratulations, you're such a hacker! -->
+    <p>Hi. This game is currently not ready for playing, it's in beta testing right now, we'll announce when it's ready.</p>
+    <p>If you've been given a beta-testing code by CardGames.io please enter it below and click the Enter button.</p>
+    <input type="text" id="beta-code"/>
+    <button>Enter</button>
+</div>
+
+
+                    <div id="app-prompt">
+                        <h3>We have an app now!</h3>
+                       
+                        <a id="app-icon" href="">&nbsp;</a>
+                        <p>
+                            We've created a new CardGames.io app for your <span id="app-prompt-tablet">tablet</span><span id="app-prompt-phone">phone</span>! All the games from the website, in fullscreen mode, with more characters! Would you like to get the app?
+                        </p>
+                        <div>
+                            <a id="get-app" href="">Yes, get the app!</a>
+                            <a href="#" id="no-thanks">No thanks</a>
+                        </div>
+                    </div>
+                </div>
+                <div id="matrix" class="appmode-remove">
+                    <p>Welcome to the Matrix.</p>
+                    <p>root@cardgames.io: <input type="text" id="matrix-log-filter"/></p>
+                    <textarea id="log-area"></textarea>
+                </div>
+                
+                
+
+                
+                    <div id="star-wars-day" class="underboard-message theme-hidden starwars appmode-remove">
+                        <p>Happy Star Wars Day! May the 4th be with you!</p>
+
+                        <p id="starwars-off">Don't like Star Wars? <a class="theme-off" href="#">Click here to turn the theme off</a>. Or come on over to our <a target="_blank" href="https://www.facebook.com/groups/cardgames.io.community">Facebook community group</a>
+                            and tell us all about it.
+                    </div>
+
+                    <div id="halloween-underboard" class="underboard-message theme-hidden halloween appmode-remove">
+                        Happy Halloween! Don't like the Halloween theme? <a class="theme-off" href="#">Click here to turn the theme off</a>. Or come on over to our <a target="_blank" href="https://www.facebook.com/groups/cardgames.io.community">Facebook community group</a>
+                        and tell us all about it.
+                    </div>
+
+                    <div id="fourthOfJuly-underboard" class="underboard-message theme-hidden fourthOfJuly appmode-remove">
+                        Happy Independence Day! Don't like the 4th of July theme? <a class="theme-off" href="#">Click here to turn the theme off</a>. Or come on over to our <a target="_blank" href="https://www.facebook.com/groups/cardgames.io.community">Facebook community group </a>                         and tell us all about it.. Just want to get rid of the fireworks? <a class="fireworks-off" href="#">Press here to stop them</a>
+
+                    </div>
+
+                    <div id="easter-underboard" class="underboard-message theme-hidden easter appmode-remove">
+                        Happy Easter! Don't like the Easter theme? <a class="theme-off" href="#">Click here to turn the theme off</a>. Or come on over to our <a target="_blank" href="https://www.facebook.com/groups/cardgames.io.community">Facebook community group</a>
+                        and tell us all about it.
+                    </div>
+
+                    <div id="thanksgiving-underboard" class="underboard-message theme-hidden thanksgiving appmode-remove">
+                        Happy Thanksgiving! Don't like the Thanksgiving theme? <a class="theme-off" href="#">Click here to turn the theme off</a>. Or come on over to our <a target="_blank" href="https://www.facebook.com/groups/cardgames.io.community">Facebook community group</a>
+                        and tell us all about it.
+                    </div>
+                    <div id="xmas-underboard" class="underboard-message theme-hidden xmas appmode-remove">
+                        Don't like the Christmas theme? <a class="theme-off" href="#">Click here to turn the theme off</a>. Or come on over to our <a target="_blank" href="https://www.facebook.com/groups/cardgames.io.community">Facebook community group</a>
+                        and tell us all about it.
+                    </div>
+                    <div id="newyears-underboard" class="underboard-message theme-hidden newyears appmode-remove">
+                        Don't like the New Years theme? <a class="theme-off" href="#">Click here to turn the theme off</a>. Just want to get rid of the fireworks? <a class="fireworks-off" href="#">Press here to stop them</a>.  You can also come on over to our <a target="_blank" href="https://www.facebook.com/groups/cardgames.io.community">Facebook community group</a>
+                        and tell us all about it.
+                    </div>
+                
+            </div>
+
+            <div id="draper-right" class="don-draper appmode-remove freestar">
+                <label>Advertisement</label>
+                
+                
+                
+                
+                    
+                        <div id="FreeStarVideoAdContainer">
+                            <div id="freestar-video-parent">
+                                <div id="freestar-video-child"></div>
+                            </div>
+                        </div>
+                    
+                
+                <!-- Freestar ad implementation -->
+                    <!-- Tag ID: cardgames_leaderboard_btf -->
+                    <div class="adslot_2 leaderboard-ad" align="center" data-freestar-ad="__716x250" id="cardgames_leaderboard_btf">
+                        <script data-cfasync="false" type="text/javascript">
+                            freestar.config.enabled_slots.push({ placementName: "cardgames_leaderboard_btf", slotId: "cardgames_leaderboard_btf" });
+                        </script>
+                    </div>
+                
+
+                                
+            </div>
+            
+            <div style="clear:both" class="appmode-remove"></div>
+
+        </div>
+        <!--end row 2 -->
+
+        <!-- row 3, all text content -->
+        <div id="textcontent" class="appmode-hide">
+
+        
+            
+
+
+
+
+<div id="rules">
+    
+    <h2>Solitaire Rules</h2>
+    
+    
+
+<div class="appmode-hide centered"><a href="how-to-play-solitaire/" target="_blank">Prefer learning by video? Click here.</a></div> 
+
+    <h3>The different piles</h3>
+    <p>
+        There are four different types of piles in Solitaire. They are:
+    </p>
+    <ul>
+        <li><strong>The Stock:</strong> The pile of facedown cards in the upper left corner.</li>
+        <li><strong>The Waste:</strong> The faceup pile next to the Stock in the upper left corner.</li>
+        <li><strong>The Foundations:</strong> The four piles in the upper right corner.</li>
+        <li><strong>The Tableau:</strong> The seven piles that make up the main table.</li>
+    </ul>
+
+
+    <h3>The setup</h3>
+    <p>
+        The Tableau piles are numbered from 1 to 7, pile 1 has 1 card, pile 2 has 2 cards and so on. The top card on each Tableau pile is turned face up, the cards below are turned face down. The cards that are left after setting up the Tableau are placed in the Stock, face down. The Waste and the Foundations start off empty.
+    </p>
+
+    <h3>The objective</h3>
+    <p>
+        To win Solitaire, you must get all the cards onto the Foundation piles. The Foundations are ordered by suit and rank, each Foundation has one suit and you must put the cards onto them in the order Ace 2 3 4 5 6 7 8 9 10 Jack Queen King. To get there, you can use the moves described below.
+    </p>
+
+    <h3>Allowed moves</h3>
+
+    <ul>
+        <li>
+            <strong>Flip cards from the Stock onto the Waste.</strong> You can flip either 1 or 3 cards from the Stock onto the Waste. The number can be configured in Options.
+        </li>
+        <li>
+            <strong>Move a card from the Waste onto the Foundations.</strong> If the top card of the Waste can go onto one of the Foundations then you can drag it there.
+        </li>
+        <li>
+            <strong>Move a card from the Waste onto the Tableau.</strong> You can move the top card of the Waste onto one of the Tableau piles.
+        </li>
+        <li>
+            <strong>Move a card from a Foundation back onto the Tableau.</strong> You can move the top card of a Foundation back onto the Tableau. This isn't allowed in all Solitaire versions, but we allow it here :)
+        </li>
+        <li>
+            <strong>Move one or more cards from one Tableau pile to another.</strong> You can move a face up card on the Tableau onto another Tableau pile, if that pile's top card is one higher than the moved card and in a different color. For example, you could move a red 6 onto a black 7. Or, if you have red 6, black 5, red 4 face up on one tableau, you can move all of them at the same time onto a Tableau with a black 7. If you have an empty Tableau pile then you can only place a king there.
+        </li>
+        <li>
+            <strong>You can flip a face down Tableau card.</strong> If you have moved a face up card from a Tableau pile so now the top card is face down, then you can click the face down card and it will be flipped and shown face up.
+        </li>
+        <li>
+            <strong>You can move a Tableau card onto the Foundations.</strong> You can do this manually if you need to clear some space on the Tableau. You can either drag the cards onto the Foundation, or just double click it and then it will go there by itself. When all cards on the Tableau are turned up, and all cards from the stock are finished then the game will automatically move all the Tableau cards onto the Foundations, since at that point you are guaranteed to win the game.
+        </li>
+        <li>
+            <strong>You can Undo as many times as you like.</strong> The game offers unlimited undos. Each Undo counts as a new move though, so if you're trying to win the game in as few moves as possible you should be careful about how many undos you use.
+        </li>
+    </ul>
+    <h3>Time and Moves</h3>
+
+    <p>
+        The game counts the moves you make, and measures the time it takes to finish the game, so you can compete against your previous best games if you want. Currently there is no scoring like in the Windows Solitaire, if someone is interested in this then contact me at <strong>support@cardgames.io</strong> and I'll see what I can do.
+    </p>
+ 
+    <p class="appmode-remove"><a href="#play" class="playlink">Back to game</a></p>
+</div>
+
+
+<div id="about" class="appmode-remove">
+    <h2>About Solitaire</h2>
+    
+
+<div id="authorpic"><img src="/rei/カードゲーム/shared/images/einar.jpg" alt="Author image"/></div>
+    <p>
+        Hi. My name is Einar Egilsson and I created this online version of Solitaire (or Klondike as you may know it). I've made a few card games before but this is the first Solitaire game I've done. It's been fun to make, I hope you enjoy playing it.
+    </p>
+    <p>
+        Many thanks go to <a href='https://nicubunu.ro'>Nicu Buculei</a>, who created the excellent playing card images that I use for the game.
+    </p>
+    <p>
+        If you like this game check out my other card games, and please share them on Facebook/Twitter/Google+
+    </p>
+
+    
+        <h3>私たちに連絡する必要がありますか？</h3>
+        <p>
+            コメント、苦情、バグレポート、質問、その他は、<a href="mailto:support@cardgames.io">support@cardgames.io</a>に送信してください。
+
+全員に応答することはできませんが、できるだけ多くの人に応答するようにしています。簡単な質問がある場合は、そうでないことを確認してください
+
+<a href="/rei/カードゲーム/questions">FAQ</a>でカバーされています。
+
+また、他のユーザーから助けを得ることもできます。
+
+<a href="https://www.facebook.com/groups/cardgames.io.community">Facebookコミュニティグループ、</a>
+
+多くのユーザーが集まる場所。立ち寄って挨拶してください！
+
+</p>
+
+<p>次のサイトでも見つけることができます：</p>
+            
+
+        <div id="socialGrid" class="gamelink">
+            <div><a href="https://facebook.com/cardgames.io/">Facebook</a></div>
+            <div><a href="https://twitter.com/cardgames_io"> X / 旧Twitter</a></div>
+            <div><a rel="me" href="https://mastodon.social/@cardgames_io">Mastodon</a></div>
+            <div><a href="https://youtube.com/@cardgames_io">Youtube</a></div>
+            <div><a href="https://instagram.com/cardgames_io">Instagram</a></div>
+            <div><a href="https://bsky.app/profile/cardgames-io.bsky.social">Bluesky</a></div>
+        </div>
+    
+    <p><a href="#play" class="playlink">Back to game</a></p>
+</div>
+
+
+
+
+            
+            <div class="footer-language  appmode-remove">
+                <label></label>
+                    
+                    
+                        <a class="lang-selector" data-lang="de" href="/de/solitaire/">DEUTSCH</a>
+                    
+                    
+                     
+                        <a class="lang-selector" data-lang="en" style="font-weight:normal" href="/solitaire/">ENGLISH</a>
+                    
+                    
+                    
+                        <a class="lang-selector" data-lang="es" href="/es/solitaire/">ESPAÑOL</a>
+                    
+                    
+                    
+                        <a class="lang-selector" data-lang="fr" href="/fr/solitaire/">FRANÇAIS</a>
+                    
+                    
+                    
+
+                    
+                    
+            </div>
+            
+
+            <p id="version-info" class="appmode-remove">
+            これはソリティアのバージョン1.53.0です。
+            </p>
+
+            
+            <p id="privacy" class="appmode-remove">
+                このウェブサイトは、ゲームデータ、あなたの好みを保存し、分析と広告の目的でクッキーを使用しています。詳細については、<a href="/rei/カードゲーム/privacy/">プライバシーポリシー</a>を参照してください。<a id="ot-sdk-btn" class="ot-sdk-show-settings">クッキーの設定</a>。
+            </p>
+            <p id="ownership-info" class="appmode-remove">Cardgames.ioはRauðás Games ehfによって所有および運営されています。無断複写・転載を禁じます。</p>
+
+            
+
+        </div>
+        <!-- end row 3 -->
+
+
+        <script type="text/javascript" src="/rei/カードゲーム/shared/lib/jquery-3.6.3.min.js"></script>
+        
+        <script>
+            //Only load huge polyfill file for crap browsers...
+            if (typeof Symbol === 'undefined' || !Array.prototype.find || !Array.prototype.includes) {
+                //Must load this completely before the game code, hence the document.write...
+                document.write('<scr' + 'ipt src="/rei/カードゲーム/shared/lib/polyfill.min.js"></scri' + 'pt>');
+                window.polyfilled = true;
+            }
+
+            //Polyfill for .setPrototypeOf for IE10 and below, since socket.io uses this now...
+            if (!Object.setPrototypeOf) {
+                Object.setPrototypeOf = function (obj, proto) {
+                    for (var prop in proto) {
+                        if (!Object.prototype.hasOwnProperty.call(obj, prop)) {
+                            obj[prop] = proto[prop]
+                        }
+                    }
+                    return obj
+                }
+            }
+        </script>
+
+        <script>
+            window.mainScriptLoaded = false;
+        </script>
+        
+        <script src="/rei/カードゲーム/solitaire/1.53.0/solitaire.min.js"></script>
+        
+
+        <div id="main-scripts-fail" class="dialog">
+            <h2>ゲームがロードできませんでした</h2>
+            <div>
+                <p>私たちのゲームを実行するプライマリスクリプトは、どういうわけかロードされていないようです。</p>
+
+<p>これは、他のスクリプトが問題なくロードされているように見えるという事実にもかかわらずです。</p>
+
+<p>この問題は自動的に報告され、検討中ですが、
+
+<a href="mailto:support@cardgames.io">support@cardgames.io</a> にレポートを送信し、実行しているかどうかを含め、さらに詳細を思い浮かべてください。
+
+スクリプトをブロックする拡張機能、広告ブロッカー、またはブラウザが特定のタイプのスクリプトをブロックするように設定されている場合。
+
+</p>
+                <img src="/rei/カードゲーム/shared/images/svg/face-2-sad.svg">
+            </div>
+        </div>
+        <script>
+            setTimeout(() => {
+                if(!window.mainScriptLoaded){
+                    console.log("Main script didn't load, panic! PANIC!");
+                    console.log(`Javascript loaded, but not main script. Jquery ok: ${typeof($) == 'function'}`);
+
+                    const failed = () => {
+                        const div = document.querySelector('#main-scripts-fail');
+                        div.style.display = 'block';
+                        var data = {
+                        name: "MainScriptFail",
+                        slug: "solitaire",
+                        errorMessage: `Javascript loaded, but not main script. Jquery ok: ${typeof($) == 'function'}, version=${siteVersion}`,
+                        url: location.href,
+                        userAgent: navigator.userAgent,
+                        maxMailCount: 0
+                    };
+
+                    fetch("/rei/カードゲーム/api/errors", {
+                        method: "POST",
+                        headers: {
+                        "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(data),
+                    });
+                    }
+                    //Ok, maybe this is just a versioning error. Test it?
+                    fetch(`/rei/カードゲーム/version.json?`).then(r => {
+                        if(r.status == 200){
+                            r.json().then(d => {
+                                if(d.version !== siteVersion){
+                                    console.log("Wrong version");
+                                    //We are on the wrong version. Stupid browser cache.
+                                    if($){
+                                        var s = document.createElement('script');
+                                        s.async = false;
+                                        s.src = location.href+d.version+"/rei/カードゲーム/"+slug+".min.js";
+                                        var other = document.getElementsByTagName('script')[0];
+                                        other.parentNode.insertBefore(s, other);
+                                        setTimeout(() => {
+                                            if(!window.mainScriptLoaded){
+                                                failed();
+                                            }
+                                            delete window.mainScriptLoaded;
+                                        }, 500);
+                                    }
+                                } else {
+                                    failed();
+                                    delete window.mainScriptLoaded;
+                                }
+                            })
+                        } else {
+                            failed()
+                            delete window.mainScriptLoaded;
+                        }
+                    })
+                    
+                }
+            }, 5000);
+        </script>
+        
+        <script src="/rei/カードゲーム/shared/counter/stat.min.js" defer></script>
+        
+        <noscript>
+            <div id="disabled-scripts" class="dialog">
+                <h2>Javascriptが無効になっています！</h2>
+
+<div>
+
+<p>何かがcardgames.ioがページでJavascriptファイルを実行するのをブロックしていることを検出しました。残念ながら、すべてのゲームはJavascriptでコーディングされているため、スクリプトを実行しないとサイトが機能しません。</p>
+
+<p>ブラウザのセキュリティ設定からCardgames.ioのJavascriptを有効にするか、より最新のブラウザにアップグレードしてください。</p>
+
+<p>お使いのブラウザが他のサイトでスクリプトを実行していて、cardgames.ioがコンピューターで実行されている設定、拡張機能、またはその他のアドオンによってブロックされていないことに気付いた場合
+
+詳細なレポートを <a href="mailto:support@cardgames.io">support@cardgames.io</a> に送信してください。
+
+</p>
+                    <img src="/rei/カードゲーム/shared/images/svg/face-2-sad.svg">
+                </div>
+            </div>
+        </noscript>
+    </div>
+    
+    
+    
+    
+    
+</body>
+</html>
