@@ -1306,13 +1306,13 @@
         <!-- end row 3 -->
 
 
-        <script type="text/javascript" src="/rei/カードゲーム/shared/lib/jquery-3.6.3.min.js"></script>
+        <script type="text/javascript" src="/rei/カードゲーム/solitaire/shared/lib/jquery-3.6.3.min.js"></script>
         
         <script>
             //Only load huge polyfill file for crap browsers...
             if (typeof Symbol === 'undefined' || !Array.prototype.find || !Array.prototype.includes) {
                 //Must load this completely before the game code, hence the document.write...
-                document.write('<scr' + 'ipt src="/rei/カードゲーム/shared/lib/polyfill.min.js"></scri' + 'pt>');
+                document.write('<scr' + 'ipt src="/rei/カードゲーム/solitaire/shared/lib/polyfill.min.js"></scri' + 'pt>');
                 window.polyfilled = true;
             }
 
@@ -1333,7 +1333,7 @@
             window.mainScriptLoaded = false;
         </script>
         
-        <script src="/rei/カードゲーム/solitaire/1.53.0/solitaire.min.js"></script>
+        <script src="/rei/カードゲーム/solitaire/solitaire/1.53.0/solitaire.min.js"></script>
         
 
         <div id="main-scripts-fail" class="dialog">
@@ -1350,7 +1350,7 @@
 スクリプトをブロックする拡張機能、広告ブロッカー、またはブラウザが特定のタイプのスクリプトをブロックするように設定されている場合。
 
 </p>
-                <img src="/rei/カードゲーム/shared/images/svg/face-2-sad.svg">
+                <img src="/rei/カードゲーム/solitaire/shared/images/svg/face-2-sad.svg">
             </div>
         </div>
         <script>
@@ -1371,7 +1371,7 @@
                         maxMailCount: 0
                     };
 
-                    fetch("/rei/カードゲーム/api/errors", {
+                    fetch("/rei/カードゲーム/solitaire/api/errors", {
                         method: "POST",
                         headers: {
                         "Content-Type": "application/json",
@@ -1380,7 +1380,7 @@
                     });
                     }
                     //Ok, maybe this is just a versioning error. Test it?
-                    fetch(`/rei/カードゲーム/version.json?`).then(r => {
+                    fetch(`/rei/カードゲーム/solitaire/version.json?`).then(r => {
                         if(r.status == 200){
                             r.json().then(d => {
                                 if(d.version !== siteVersion){
@@ -1389,7 +1389,7 @@
                                     if($){
                                         var s = document.createElement('script');
                                         s.async = false;
-                                        s.src = location.href+d.version+"/rei/カードゲーム/"+slug+".min.js";
+                                        s.src = location.href+d.version+"/rei/カードゲーム/solitaire/"+slug+".min.js";
                                         var other = document.getElementsByTagName('script')[0];
                                         other.parentNode.insertBefore(s, other);
                                         setTimeout(() => {
@@ -1414,7 +1414,7 @@
             }, 5000);
         </script>
         
-        <script src="/rei/カードゲーム/shared/counter/stat.min.js" defer></script>
+        <script src="/rei/カードゲーム/solitaire/shared/counter/stat.min.js" defer></script>
         
         <noscript>
             <div id="disabled-scripts" class="dialog">
@@ -1431,7 +1431,7 @@
 詳細なレポートを <a href="mailto:support@cardgames.io">support@cardgames.io</a> に送信してください。
 
 </p>
-                    <img src="/rei/カードゲーム/shared/images/svg/face-2-sad.svg">
+                    <img src="/rei/カードゲーム/solitaire/shared/images/svg/face-2-sad.svg">
                 </div>
             </div>
         </noscript>
