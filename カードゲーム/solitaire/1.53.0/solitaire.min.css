@@ -1,7 +1,7 @@
 @font-face{
   font-family:Slackey;
-  src:url(./shared/images/fonts/Slackey-Regular.eot);
-  src:url(./shared/images/fonts/Slackey-Regular.woff)format('woff'),url(./shared/images/fonts/Slackey-Regular.ttf) format('truetype'),url(./shared/images/fonts/Slackey-Regular.svg#svgFontName) format('svg')}
+  src:url(/rei/カードゲーム/solitaire/shared/images/fonts/Slackey-Regular.eot);
+  src:url(/rei/カードゲーム/solitaire/shared/images/fonts/Slackey-Regular.woff)format('woff'),url(/rei/カードゲーム/solitaire/shared/images/fonts/Slackey-Regular.ttf) format('truetype'),url(/rei/カードゲーム/solitaire/shared/images/fonts/Slackey-Regular.svg#svgFontName) format('svg')}
 #socialGrid{
   display:-webkit-box;
   display:-webkit-flex;
