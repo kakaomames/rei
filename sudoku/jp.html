@@ -80,7 +80,7 @@
             
         });
     </script>
-        <script async data-ot-ignore src="https://www.googletagmanager.com/gtag/js?id=G-LKCCSV4WGG"></script>
+
         <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){ dataLayer.push(arguments); }
@@ -648,44 +648,8 @@
                                         <div class="language">日本語</div>
                                         <div class="arrow"></div>
                                         <select class="lang-menu_select">
-                                            <option value="/" >
-                    English
-                </option><option value="./jp"  selected >
-                    日本語
-                </option><option value="./it" >
-                    Italiano
-                </option><option value="./zh" >
-                    中文
-                </option><option value="./de" >
-                    Deutsch
-                </option><option value="./fr" >
-                    Français
-                </option><option value="./es" >
-                    Español
-                </option><option value="./pt" >
-                    Português
-                </option><option value="./tr" >
-                    Türk
-                </option><option value="./pl" >
-                    Polski
-                </option><option value="./ko" >
-                    한국어
-                </option><option value="./th" >
-                    ไทย
-                </option><option value="./vi" >
-                    Tiếng Việt
-                </option><option value="./ar" >
-                    عربى
-                </option><option value="./mx" >
-                    Español (México)
-                </option><option value="./br" >
-                    Português (Brasil)
-                </option><option value="./tw" >
-                    中文（T）
-                </option><option value="./ru" >
-                    Русский
-                </option>
-                                        </select>
+                                            <option value="./" >English</option>
+											<option value="./jp"  selected >日本語</select>
                                     </div>
                                     <div class="lang-menu_dropdown">
                                         <ul>
@@ -695,23 +659,12 @@
                                                     <span>English</span>
                                                 </a>
                                             </li>
-                                            <li class="lang-menu-item"><a href="./jp" title="日本語"><div class="icon-flag flag-jp"></div><span>日本語</span></a></li>
-                                            <li class="lang-menu-item"><a href="./it" title="Italiano"><div class="icon-flag flag-it"></div><span>Italiano</span></a></li>
-                                            <li class="lang-menu-item"><a href="./zh" title="中文"><div class="icon-flag flag-zh"></div><span>中文</span></a></li>
-                                            <li class="lang-menu-item"><a href="./de" title="Deutsch"><div class="icon-flag flag-de"></div><span>Deutsch</span></a></li>
-                                            <li class="lang-menu-item"><a href="./fr" title="Français"><div class="icon-flag flag-fr"></div><span>Français</span></a></li>
-                                            <li class="lang-menu-item"><a href="./es" title="Español"><div class="icon-flag flag-es"></div><span>Español</span></a></li>
-                                            <li class="lang-menu-item"><a href="./pt" title="Português"><div class="icon-flag flag-pt"></div><span>Português</span></a></li>
-                                            <li class="lang-menu-item"><a href="./tr" title="Türk"><div class="icon-flag flag-tr"></div><span>Türk</span></a></li>
-                                            <li class="lang-menu-item"><a href="./pl" title="Polski"><div class="icon-flag flag-pl"></div><span>Polski</span></a></li>
-                                            <li class="lang-menu-item"><a href="./ko" title="한국어"><div class="icon-flag flag-ko"></div><span>한국어</span></a></li>
-                                            <li class="lang-menu-item"><a href="./th" title="ไทย"><div class="icon-flag flag-th"></div><span>ไทย</span></a></li>
-                                            <li class="lang-menu-item"><a href="./vi" title="Tiếng Việt"><div class="icon-flag flag-vi"></div><span>Tiếng Việt</span></a></li>
-                                            <li class="lang-menu-item"><a href="./ar" title="عربى"><div class="icon-flag flag-ar"></div><span>عربى</span></a></li>
-                                            <li class="lang-menu-item"><a href="./mx" title="Español (México)"><div class="icon-flag flag-mx"></div><span>Español (México)</span></a></li>
-                                            <li class="lang-menu-item"><a href="./br" title="Português (Brasil)"><div class="icon-flag flag-br"></div><span>Português (Brasil)</span></a></li>
-                                            <li class="lang-menu-item"><a href="./tw" title="中文（T）"><div class="icon-flag flag-tw"></div><span>中文（T）</span></a></li>
-                                            <li class="lang-menu-item"><a href="./ru" title="Русский"><div class="icon-flag flag-ru"></div><span>Русский</span></a></li>
+                                            <li class="lang-menu-item">
+												<a href="./jp" title="日本語">
+													<div class="icon-flag flag-jp"></div>
+													<span>日本語</span>
+												</a>
+											</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -725,7 +678,7 @@
                             トーナメント
                         </span>
                                 </a>
-                                    <a href="/jp/challenges" class="  dc">
+                                    <a href="./jp/challenges" class="  dc">
                                         <span class="info">Sep 13</span>
                                         <span>デイリーチャレンジ</span>
                                     </a>
@@ -739,7 +692,8 @@
                 プレイモードを選ぶ
             </div><div class="new-game-menu-subheader">
                 プレイ中のゲームの進行状況が失われます
-            </div><div class="new-game-menu-mode-buttons"><div class="new-game-menu-mode-button active" data-mode="classic">
+            </div><div class="new-game-menu-mode-buttons">
+				<div class="new-game-menu-mode-button active" data-mode="classic">
                     クラシック
                 </div>
                 <div class="new-game-menu-mode-button " data-mode="killer">
@@ -749,50 +703,116 @@
                         postcards
                     </div>
             </div>
-                                            </div><div class="new-game-menu-content new-game-menu-classic"><div class="new-game-menu-difficulty-block"><a href="/jp/shokyu/" id="link-easy-classic"
-                   class="new-game-menu-button active" data-difficulty="easy" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>やさしい</span></span></a><a href="/jp/chukyu/" id="link-medium-classic"
-                   class="new-game-menu-button " data-difficulty="medium" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>ふつう</span></span></a><a href="/jp/jokyu/" id="link-hard-classic"
-                   class="new-game-menu-button " data-difficulty="hard" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>むずかしい</span></span></a><a href="/jp/ekisupato/" id="link-expert-classic"
-                   class="new-game-menu-button " data-difficulty="expert" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>エキスパート</span></span></a><a href="/jp/evil/" id="link-evil-classic"
-                   class="new-game-menu-button " data-difficulty="evil" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>マスター</span></span></a><a href="/jp/extreme/" id="link-extreme-classic"
-                   class="new-game-menu-button " data-difficulty="extreme" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>エクストリーム</span></span></a><div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
+                                            </div>
+											<div class="new-game-menu-content new-game-menu-classic"><div class="new-game-menu-difficulty-block"><a href="./jp/shokyu/" id="link-easy-classic"
+                   class="new-game-menu-button active" data-difficulty="easy" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>やさしい</span></span></a><a href="./jp/chukyu/" id="link-medium-classic"
+                   class="new-game-menu-button " data-difficulty="medium" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>ふつう</span></span></a><a href="./jp/jokyu/" id="link-hard-classic"
+                   class="new-game-menu-button " data-difficulty="hard" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>むずかしい</span></span></a><a href="./jp/ekisupato/" id="link-expert-classic"
+                   class="new-game-menu-button " data-difficulty="expert" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>エキスパート</span></span></a><a href="./jp/evil/" id="link-evil-classic"
+                   class="new-game-menu-button " data-difficulty="evil" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>マスター</span></span></a><a href="./jp/extreme/" id="link-extreme-classic"
+                   class="new-game-menu-button " data-difficulty="extreme" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>エクストリーム</span></span></a>
+												<div class="new-game-menu-button new-game-menu-restart">
+													<span><span class="new-game-menu-icon icon-restart"></span><span>
                     リスタート
-                </span></span></div></div></div><div class="new-game-menu-content new-game-menu-killer"><div class="new-game-menu-difficulty-block"><a href="/jp/killer/shokyu/" id="link-easy-killer"
-                   class="new-game-menu-button " data-difficulty="easy" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>やさしい</span></span></a><a href="/jp/killer/chukyu/" id="link-medium-killer"
-                   class="new-game-menu-button " data-difficulty="medium" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>ふつう</span></span></a><a href="/jp/killer/jokyu/" id="link-hard-killer"
-                   class="new-game-menu-button " data-difficulty="hard" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>むずかしい</span></span></a><a href="/jp/killer/ekisupato/" id="link-expert-killer"
-                   class="new-game-menu-button " data-difficulty="expert" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>エキスパート</span></span></a><div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
+                </span></span></div></div></div><div class="new-game-menu-content new-game-menu-killer"><div class="new-game-menu-difficulty-block"><a href="./jp/killer/shokyu/" id="link-easy-killer"
+                   class="new-game-menu-button " data-difficulty="easy" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>やさしい</span></span></a><a href="./jp/killer/chukyu/" id="link-medium-killer"
+                   class="new-game-menu-button " data-difficulty="medium" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>ふつう</span></span></a><a href="./jp/killer/jokyu/" id="link-hard-killer"
+                   class="new-game-menu-button " data-difficulty="hard" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>むずかしい</span></span></a><a href="./jp/killer/ekisupato/" id="link-expert-killer"
+                   class="new-game-menu-button " data-difficulty="expert" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>エキスパート</span></span></a>
+					<div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
                     リスタート
                 </span></span></div></div></div><div class="new-game-menu-content new-game-menu-daily"><div class="new-game-menu-difficulty-block"><div class="new-game-menu-button new-game-menu-continue daily-continue"><span><span class="new-game-menu-icon icon-daily"></span><span>
                         続ける
                     </span></span></div><div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
                     リスタート
-                </span></span></div></div></div><div class="new-game-menu-content new-game-menu-postcards"><div class="new-game-menu-difficulty-block"><a href="/jp/postcards/event-sudoku" id="link-easy-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="easy" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>やさしい</span></span><span class="postcards-level-count"></span></a><a href="/jp/postcards/event-sudoku" id="link-medium-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="medium" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>ふつう</span></span><span class="postcards-level-count"></span></a><a href="/jp/postcards/event-sudoku" id="link-hard-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="hard" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>むずかしい</span></span><span class="postcards-level-count"></span></a><a href="/jp/postcards/event-sudoku" id="link-expert-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="expert" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>エキスパート</span></span><span class="postcards-level-count"></span></a><a href="/jp/postcards/event-sudoku" id="link-evil-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="evil" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>マスター</span></span><span class="postcards-level-count"></span></a><a href="/jp/postcards/event-sudoku" id="link-extreme-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="extreme" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>エクストリーム</span></span><span class="postcards-level-count"></span></a><div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
+                </span></span></div></div></div><div class="new-game-menu-content new-game-menu-postcards"><div class="new-game-menu-difficulty-block"><a href="./jp/postcards/event-sudoku" id="link-easy-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="easy" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>やさしい</span></span><span class="postcards-level-count"></span></a><a href="./jp/postcards/event-sudoku" id="link-medium-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="medium" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>ふつう</span></span><span class="postcards-level-count"></span></a><a href="./jp/postcards/event-sudoku" id="link-hard-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="hard" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>むずかしい</span></span><span class="postcards-level-count"></span></a><a href="./jp/postcards/event-sudoku" id="link-expert-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="expert" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>エキスパート</span></span><span class="postcards-level-count"></span></a><a href="./jp/postcards/event-sudoku" id="link-evil-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="evil" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>マスター</span></span><span class="postcards-level-count"></span></a><a href="./jp/postcards/event-sudoku" id="link-extreme-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="extreme" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>エクストリーム</span></span><span class="postcards-level-count"></span></a>
+					<div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
                     リスタート
-                </span></span></div></div></div><div class="tooltip-arrow"></div></div></div></div></div></div></header><div class="container site-content-wrapper  "><div id="primary" class="site-content" role="main"><div id="sudoku-wrapper" class="sudoku-wrapper loading  "><div id="ima-container" class="ima-container"><div id="ima-play-btn" class="ima-play-wrap"><div class="ima-play-flex-wrap"><div class="ima-play-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 70"><g fill="none" fill-rule="evenodd"><path d="M0 0h70v70H0z"/><path fill="#325aaf" d="M35 5a30 30 0 110 60 30 30 0 010-60z"/><path fill="#FFF" d="M45.07 37.05l-13.14 9.2A2.5 2.5 0 0128 44.2V25.8a2.5 2.5 0 013.93-2.05l13.14 9.2a2.5 2.5 0 010 4.1z"/><path fill="#A9CFFF" d="M57 0h3a10 10 0 110 20h-3a10 10 0 110-20z"/><path fill="#325aaf" fill-rule="nonzero" d="M52.8 14l.6-2.12h2.65l.6 2.12h1.47l-2.55-7.85h-1.64L51.38 14h1.41zm2.93-3.22h-2l.28-.96.36-1.27.33-1.32h.05l.34 1.31c.12.44.24.87.37 1.28l.27.96zM61.27 14c.58 0 1.1-.08 1.56-.25a3.1 3.1 0 001.92-2c.17-.49.26-1.06.26-1.71 0-1.3-.34-2.27-1-2.92a3.88 3.88 0 00-2.82-.97h-2.1V14h2.18zm-.17-1.13h-.61V7.28h.6c.8 0 1.41.22 1.84.66.44.44.65 1.14.65 2.1 0 .97-.21 1.68-.64 2.14-.43.46-1.04.7-1.84.7z"/></g></svg></div><div id="ima-play-heading" class="ima-play-heading">
+                </span>
+					</span>
+					</div>
+				</div>
+				</div>
+											<div class="tooltip-arrow"></div>
+										</div>
+									</div>
+								</div>
+								</div>
+			</div>
+		</header>
+		<div class="container site-content-wrapper  ">
+			<div id="primary" class="site-content" role="main">
+				<div id="sudoku-wrapper" class="sudoku-wrapper loading  ">
+					<div id="ima-container" class="ima-container">
+						<div id="ima-play-btn" class="ima-play-wrap">
+							<div class="ima-play-flex-wrap">
+								<div class="ima-play-icon">
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 70">
+										<g fill="none" fill-rule="evenodd">
+											<path d="M0 0h70v70H0z"/>
+											<path fill="#325aaf" d="M35 5a30 30 0 110 60 30 30 0 010-60z"/>
+											<path fill="#FFF" d="M45.07 37.05l-13.14 9.2A2.5 2.5 0 0128 44.2V25.8a2.5 2.5 0 013.93-2.05l13.14 9.2a2.5 2.5 0 010 4.1z"/>
+											<path fill="#A9CFFF" d="M57 0h3a10 10 0 110 20h-3a10 10 0 110-20z"/>
+											<path fill="#325aaf" fill-rule="nonzero" d="M52.8 14l.6-2.12h2.65l.6 2.12h1.47l-2.55-7.85h-1.64L51.38 14h1.41zm2.93-3.22h-2l.28-.96.36-1.27.33-1.32h.05l.34 1.31c.12.44.24.87.37 1.28l.27.96zM61.27 14c.58 0 1.1-.08 1.56-.25a3.1 3.1 0 001.92-2c.17-.49.26-1.06.26-1.71 0-1.3-.34-2.27-1-2.92a3.88 3.88 0 00-2.82-.97h-2.1V14h2.18zm-.17-1.13h-.61V7.28h.6c.8 0 1.41.22 1.84.66.44.44.65 1.14.65 2.1 0 .97-.21 1.68-.64 2.14-.43.46-1.04.7-1.84.7z"/>
+										</g>
+									</svg>
+								</div>
+								<div id="ima-play-heading" class="ima-play-heading">
                             広告を再生
-                        </div><div id="ima-play-text" class="ima-play-text">
+                        </div>
+								<div id="ima-play-text" class="ima-play-text">
                             このゲームは広告によって無料提供されています
-                        </div></div></div></div><div class="tournament_popup desktop"><div class="tournament_popup_body"><div class="tournament_popup_title">
+                        </div>
+							</div>
+						</div>
+					</div>
+					<div class="tournament_popup desktop">
+						<div class="tournament_popup_body">
+							<div class="tournament_popup_title">
 			トーナメント完了
-		</div><div class="tournament_popup_carousel"><div class="tournament_popup_item active"><img id="finish-medal" class="lazy-award-popup" data-src="/img/img-tournament-completed.png" data-srcset="/img/img-tournament-completed.png 1x, /img/img-tournament-completed@2x.png 2x" alt="medals"><div class="tournament_popup_item_text lose-text">
+		</div>
+							<div class="tournament_popup_carousel">
+								<div class="tournament_popup_item active">
+									<img id="finish-medal" class="lazy-award-popup" data-src="./img/img-tournament-completed.png" data-srcset="./img/img-tournament-completed.png 1x, ./img/img-tournament-completed@2x.png 2x" alt="medals">
+									<div class="tournament_popup_item_text lose-text">
 					トーナメントは完了したけど
 メダルは獲得できなかったよ。
 また頑張ってね！
 				</div><div class="tournament_popup_item_text win-text">
 					トーナメントを完了して
 メダルを獲得したよ！
-				</div><button class="button tournament_popup_btn" data-action="close">OK</button></div></div></div></div><div class="postcards-popup desktop"></div><div class="smart-hint local"></div><div class="lost-progress-parent"><div class="lost-progress"><div class="lost-progress_title">
+				</div><button class="button tournament_popup_btn" data-action="close">OK</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="postcards-popup desktop"></div>
+					<div class="smart-hint local"></div>
+					<div class="lost-progress-parent">
+						<div class="lost-progress">
+							<div class="lost-progress_title">
             新規ゲームを開始する
         </div><div class="lost-progress_desc">
             プレイ中のゲームの進行状況が失われます
-        </div><div class="lost-progress_buttons"><button class="button" id="lost-progress-ok">OK</button><button class="button transparent" id="lost-progress-cancel">キャンセル</button></div><div class="lost-progress_ask"><label class="checkbox"><input type="checkbox" id="dont-ask-again-progress" name="dont-ask-again-progress"><span class="checkbox-icon"></span><span class="checkbox_text">次から表示しない</span></label></div></div></div><div class="game-over "><div class="game-over_new-game additional-difficulty"><div class="new-game-menu tab-classic has-daily"><div class="new-game-menu-content"><span class="new-game-menu-close cancelMistakesClose icon-close"></span><div class="new-game-menu-header">
+        </div><div class="lost-progress_buttons">
+			<button class="button" id="lost-progress-ok">OK</button>
+			<button class="button transparent" id="lost-progress-cancel">キャンセル</button>
+		</div>
+							<div class="lost-progress_ask">
+								<label class="checkbox">
+									<input type="checkbox" id="dont-ask-again-progress" name="dont-ask-again-progress">
+									<span class="checkbox-icon"></span><span class="checkbox_text">次から表示しない</span>
+								</label>
+							</div>
+						</div>
+					</div>
+					<div class="game-over "><div class="game-over_new-game additional-difficulty"><div class="new-game-menu tab-classic has-daily"><div class="new-game-menu-content"><span class="new-game-menu-close cancelMistakesClose icon-close"></span><div class="new-game-menu-header">
                     プレイモードを選ぶ
                 </div><div class="new-game-menu-subheader">
                     プレイ中のゲームの進行状況が失われます
@@ -802,31 +822,38 @@
                         キラー
                     </div><div class="new-game-menu-mode-button postcard-default" data-mode="postcards">
                             postcards
-                        </div></div></div><div class="new-game-menu-content new-game-menu-classic"><div class="new-game-menu-difficulty-block"><a href="/jp/shokyu/" id="link-easy-classic"
-                   class="new-game-menu-button active" data-difficulty="easy" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>やさしい</span></span></a><a href="/jp/chukyu/" id="link-medium-classic"
-                   class="new-game-menu-button " data-difficulty="medium" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>ふつう</span></span></a><a href="/jp/jokyu/" id="link-hard-classic"
-                   class="new-game-menu-button " data-difficulty="hard" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>むずかしい</span></span></a><a href="/jp/ekisupato/" id="link-expert-classic"
-                   class="new-game-menu-button " data-difficulty="expert" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>エキスパート</span></span></a><a href="/jp/evil/" id="link-evil-classic"
-                   class="new-game-menu-button " data-difficulty="evil" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>マスター</span></span></a><a href="/jp/extreme/" id="link-extreme-classic"
-                   class="new-game-menu-button " data-difficulty="extreme" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>エクストリーム</span></span></a><div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
+                        </div></div></div><div class="new-game-menu-content new-game-menu-classic"><div class="new-game-menu-difficulty-block"><a href="./jp/shokyu/" id="link-easy-classic"
+                   class="new-game-menu-button active" data-difficulty="easy" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>やさしい</span></span></a><a href="./jp/chukyu/" id="link-medium-classic"
+                   class="new-game-menu-button " data-difficulty="medium" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>ふつう</span></span></a><a href="./jp/jokyu/" id="link-hard-classic"
+                   class="new-game-menu-button " data-difficulty="hard" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>むずかしい</span></span></a><a href="./jp/ekisupato/" id="link-expert-classic"
+                   class="new-game-menu-button " data-difficulty="expert" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>エキスパート</span></span></a><a href="./jp/evil/" id="link-evil-classic"
+                   class="new-game-menu-button " data-difficulty="evil" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>マスター</span></span></a><a href="./jp/extreme/" id="link-extreme-classic"
+                   class="new-game-menu-button " data-difficulty="extreme" data-mode="classic"><span><span class="new-game-menu-icon icon-classic"></span><span>エクストリーム</span></span></a>
+							<div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
                     リスタート
-                </span></span></div></div></div><div class="new-game-menu-content new-game-menu-killer"><div class="new-game-menu-difficulty-block"><a href="/jp/killer/shokyu/" id="link-easy-killer"
-                   class="new-game-menu-button " data-difficulty="easy" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>やさしい</span></span></a><a href="/jp/killer/chukyu/" id="link-medium-killer"
-                   class="new-game-menu-button " data-difficulty="medium" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>ふつう</span></span></a><a href="/jp/killer/jokyu/" id="link-hard-killer"
-                   class="new-game-menu-button " data-difficulty="hard" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>むずかしい</span></span></a><a href="/jp/killer/ekisupato/" id="link-expert-killer"
-                   class="new-game-menu-button " data-difficulty="expert" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>エキスパート</span></span></a><div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
+                </span></span></div></div></div><div class="new-game-menu-content new-game-menu-killer"><div class="new-game-menu-difficulty-block"><a href="./jp/killer/shokyu/" id="link-easy-killer"
+                   class="new-game-menu-button " data-difficulty="easy" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>やさしい</span></span></a><a href="./jp/killer/chukyu/" id="link-medium-killer"
+                   class="new-game-menu-button " data-difficulty="medium" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>ふつう</span></span></a><a href="./jp/killer/jokyu/" id="link-hard-killer"
+                   class="new-game-menu-button " data-difficulty="hard" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>むずかしい</span></span></a><a href="./jp/killer/ekisupato/" id="link-expert-killer"
+                   class="new-game-menu-button " data-difficulty="expert" data-mode="killer"><span><span class="new-game-menu-icon icon-killer"></span><span>エキスパート</span></span></a>
+					<div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
                     リスタート
-                </span></span></div></div></div><div class="new-game-menu-content new-game-menu-daily"><div class="new-game-menu-difficulty-block"><div class="new-game-menu-button new-game-menu-continue daily-continue"><span><span class="new-game-menu-icon icon-daily"></span><span>
+                </span></span>
+					</div>
+				</div>
+				</div>
+						<div class="new-game-menu-content new-game-menu-daily"><div class="new-game-menu-difficulty-block"><div class="new-game-menu-button new-game-menu-continue daily-continue"><span><span class="new-game-menu-icon icon-daily"></span><span>
                         続ける
                     </span></span></div><div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
                     リスタート
-                </span></span></div></div></div><div class="new-game-menu-content new-game-menu-postcards"><div class="new-game-menu-difficulty-block"><a href="/jp/postcards/event-sudoku" id="link-easy-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="easy" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>やさしい</span></span><span class="postcards-level-count"></span></a><a href="/jp/postcards/event-sudoku" id="link-medium-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="medium" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>ふつう</span></span><span class="postcards-level-count"></span></a><a href="/jp/postcards/event-sudoku" id="link-hard-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="hard" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>むずかしい</span></span><span class="postcards-level-count"></span></a><a href="/jp/postcards/event-sudoku" id="link-expert-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="expert" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>エキスパート</span></span><span class="postcards-level-count"></span></a><a href="/jp/postcards/event-sudoku" id="link-evil-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="evil" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>マスター</span></span><span class="postcards-level-count"></span></a><a href="/jp/postcards/event-sudoku" id="link-extreme-postcards" rel="nofollow"
-                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="extreme" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>エクストリーム</span></span><span class="postcards-level-count"></span></a><div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
+                </span></span></div></div></div><div class="new-game-menu-content new-game-menu-postcards"><div class="new-game-menu-difficulty-block"><a href="./jp/postcards/event-sudoku" id="link-easy-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="easy" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>やさしい</span></span><span class="postcards-level-count"></span></a><a href="./jp/postcards/event-sudoku" id="link-medium-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="medium" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>ふつう</span></span><span class="postcards-level-count"></span></a><a href="./jp/postcards/event-sudoku" id="link-hard-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="hard" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>むずかしい</span></span><span class="postcards-level-count"></span></a><a href="./jp/postcards/event-sudoku" id="link-expert-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="expert" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>エキスパート</span></span><span class="postcards-level-count"></span></a><a href="./jp/postcards/event-sudoku" id="link-evil-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="evil" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>マスター</span></span><span class="postcards-level-count"></span></a><a href="./jp/postcards/event-sudoku" id="link-extreme-postcards" rel="nofollow"
+                   class="new-game-menu-button new-game-menu-postcards-level" data-difficulty="extreme" data-mode="postcards"><span><span class="new-game-menu-icon icon-classic"></span><span>エクストリーム</span></span><span class="postcards-level-count"></span></a>
+					<div class="new-game-menu-button new-game-menu-restart"><span><span class="new-game-menu-icon icon-restart"></span><span>
                     リスタート
                 </span></span></div></div></div></div><button class="game-over_cancel cancelMistakesClose">キャンセル</button></div><div class="game-over_body"><div class="game-over_title">ゲームオーバー</div><div class="game-over_desc">3回間違ったためこのゲームに
 負けました</div><button class="game-over_btn mistakesSecondChance without-ads">第二のチャンス</button><a class="game-over_close mistakesCloseGame" href="#">新規ゲーム</a></div></div><div class="game-info-wrapper flex-wrapper additional-difficulty  "><div class="ref-start-game"><div class="ref-start-game_title">
