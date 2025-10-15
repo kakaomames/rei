@@ -1,439 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head data-experiment="" data-variant="">
-    <meta charset="utf-8" />
-    <meta property="og:site_name" content="Mr. Mine" />
-    <meta property="og:title" content="Mr. Mine - Idle Mining Game" />
-    <meta property="og:description" content="Get rich or die mining! Idle your way through the mines, unearth treasures, and discover what great mysteries lie in the depths below!" />
-    <meta property="og:image" content="https://cdn.mrmine.com/title_square.png" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://mrmine.com" />
-    <meta name="description" content="Get rich or die mining! Idle your way through the mines, unearth treasures, and discover what great mysteries lie in the depths below!">
-    <meta name="keywords" content="mrmine, mr.mine, mine game, mining game, idle miner, idle mining, idle mining empire, clicker mine, idle, miner, incremental, game, rpg, strategy, indie, idle crafting, free to play, tycoon, online game, free online game" />
-    <meta name="image" content="https://cdn.mrmine.com/title_square.png" />
-    <meta name="robots" content="index, follow">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="https://cdn.mrmine.com/favicon.png" type="image/x-icon">
-    <link rel="icon" href="https://cdn.mrmine.com/favicon.png" type="image/x-icon">
-
-
-    
-    <title>Mr. Mine - Idle Mining Game</title>
-  <script type="module" crossorigin src="https://cdn.mrmine.com/assets/main-CjYVcAgQ.js"></script>
-  <link rel="stylesheet" crossorigin href="https://cdn.mrmine.com/assets/main-D0Q-ZDNq.css">
-</head>
-
-<body class="bg-gray-900 text-white min-h-screen"
-    x-data="{
-        activeSlide: 0,
-        mobileMenuOpen: false,
-        slides: [
-            { type: 'video', src: './images/home/videoThumb.webp', videoId: 'ciC3sPu_cSw', alt: 'Mr.Mine Video Thumbnail' },
-            { type: 'image', src: './images/home/mine1.webp', alt: 'MrMine Top level screenshot' },
-            { type: 'image', src: './images/home/mine2.webp', alt: 'MrMine Crafting Screenshot' },
-            { type: 'image', src: './images/home/mine3.webp', alt: 'MrMine scientist Screenshot' },
-            { type: 'image', src: './images/home/mine4.webp', alt: 'MrMine underground city screenshot' },
-            { type: 'image', src: './images/home/mine5.webp', alt: 'MrMine combat screenshot' },
-            { type: 'image', src: './images/home/mine6.webp', alt: 'MrMine gem forge screenshot' },
-            { type: 'image', src: './images/home/mine7.webp', alt: 'MrMine moon screenshot' },
-            { type: 'image', src: './images/home/mine8.webp', alt: 'MrMine reactor screenshot' },
-            { type: 'image', src: './images/home/mine9.webp', alt: 'MrMine caves screenshot' }
-        ],
-        gameUpdateTime: '1760145351',
-        thumbnails: [
-            './images/home/video_thumbnail_2.webp',
-            './images/home/mine1_thumbnail.webp',
-            './images/home/mine2_thumbnail.webp',
-            './images/home/mine3_thumbnail.webp',
-            './images/home/mine4_thumbnail.webp',
-            './images/home/mine5_thumbnail.webp',
-            './images/home/mine6_thumbnail.webp',
-            './images/home/mine7_thumbnail.webp',
-            './images/home/mine8_thumbnail.webp',
-            './images/home/mine9_thumbnail.webp'
-        ],
-
-        init() {
-            // scroll initial active slide into view (index 0)
-            this.scrollThumbIntoView();
-
-            // Recenter when activeSlide changes via any other mechanism
-            this.$watch('activeSlide', () => {
-                this.$nextTick(() => this.scrollThumbIntoView());
-            });
-
-            // Recenter on window resize
-            window.addEventListener('resize', () => this.scrollThumbIntoView());
-
-            if (this.shouldRedirectToGame()) {
-                const referer = this.getReferrer();
-                window.location.replace(`./game?nocache=${this.gameUpdateTime}&referer=${encodeURIComponent(referer)}`);
-            }
-        },
-
-        getReferrer() {
-            try {
-                if (document.referrer == 'app-info://platform/microsoft-store') {
-                    return 'microsoft';
-                }
-                var refererSplit = document.referrer.split('://')[1].split('.');
-                return refererSplit.length >= 3 ? refererSplit[1] : refererSplit[0];
-            } catch (e) {
-                console.warn(e);
-                return 'undefined';
-            }
-        },
-
-        isEmbedded() {
-            try {
-                return window.self !== window.top;
-            } catch (e) {
-                return true;
-            }
-        },
-
-        shouldRedirectToGame() {
-            return this.isEmbedded() || this.getReferrer() === 'microsoft';
-        },
-
-        scrollThumbIntoView() {
-            // horizontal scroll container
-            const scroller = this.$refs.thumbScroller;
-            if (!scroller) return;
-
-            // element representing current thumb
-            const el = scroller.querySelector(`[data-thumb='${this.activeSlide}']`);
-            if (!el) return;
-
-            // Prefer scrollIntoView with centering; fallback manual
-            try {
-                el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-            } catch (err) {
-                // Safari fallback (older versions)
-                const target = el.offsetLeft - (scroller.clientWidth / 2 - el.offsetWidth / 2);
-                scroller.scrollTo({ left: target, behavior: 'smooth' });
-            }
-        },
-
-        setActiveSlide(index) {
-            this.activeSlide = index;
-            // wait for DOM to update, then ensure visibility
-            this.$nextTick(() => this.scrollThumbIntoView());
-        },
-
-        setActiveSlide(index) {
-            this.activeSlide = index;
-        },
-        loadYoutubeVideo(videoId) {
-            const holder = document.getElementById('youtubeHolder');
-            holder.innerHTML = `<iframe class='absolute inset-0 w-full h-full border-0' src='https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&ecver=2'></iframe>`;
-        },
-        openGameLink(url) {
-            window.open(url);
-        },
-
-    }">
-
-    <!-- Background -->
-    <div class="fixed inset-0 -z-10">
-        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('https://cdn.mrmine.com/images/home/bg.webp')"></div>
-        <div class="absolute inset-0 bg-black bg-opacity-75 backdrop-blur-xs"></div>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="bg-neutral-800">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-center h-16 relative">
-                <!-- Mobile menu button -->
-                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden absolute left-0 text-white">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-
-                <!-- Desktop menu - centered -->
-                <div class="hidden md:flex items-center space-x-12">
-                    <a href="#" @click="openGameLink('./game?nocache=1760145351'); logExperimentConversion('navPlay');" class="text-white hover:text-yellow-400 px-3 py-2">Play</a>
-                    <a href="https://discord.gg/C3KwWQr" target="_blank" rel="noopener" class="text-white hover:text-yellow-400 px-3 py-2">Discord</a>
-                    <a href="https://blog.mrmine.com/" target="_blank" class="text-white hover:text-yellow-400 px-3 py-2">Blog</a>
-
-                    <!-- More dropdown -->
-                    <div class="relative" x-data="{ open: false }">
-                        <button @click="open = !open" class="text-white hover:text-yellow-400 flex items-center px-3 py-2">
-                            More
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                        <div x-show="open" @click.away="open = false" x-cloak class="absolute top-full left-0 mt-1 w-48 bg-neutral-700 rounded-md shadow-lg z-10">
-                            <a href="https://www.youtube.com/@Playsaurus?sub_confirmation=1" target="_blank" class="block px-4 py-2 text-white hover:bg-neutral-600">Youtube</a>
-                            <a href="https://mrmine.fandom.com/wiki/Mr._Mine_Wiki" target="_blank" rel="noopener" class="block px-4 py-2 text-white hover:bg-neutral-600">Wiki</a>
-                            <a href="https://twitter.com/mrmineidle" target="_blank" rel="noopener" class="block px-4 py-2 text-white hover:bg-neutral-600">Twitter</a>
-                            <a href="https://www.tiktok.com/@mrmineidle" target="_blank" rel="noopener" class="block px-4 py-2 text-white hover:bg-neutral-600">TikTok</a>
-                            <a href="https://www.facebook.com/MrMineGame" target="_blank" rel="noopener" class="block px-4 py-2 text-white hover:bg-neutral-600">Facebook</a>
-                            <a href="https://playsaurus.com/MrMinePressKit/Presskit.html" target="_blank" class="block px-4 py-2 text-white hover:bg-neutral-600">Press Kit</a>
-                            <a href="https://playsaurus.com/embed.php" target="_blank" class="block px-4 py-2 text-white hover:bg-neutral-600">Embed Game</a>
-                            <a href="https://playsaurus.com/contact.php" target="_blank" class="block px-4 py-2 text-white hover:bg-neutral-600">Contact Us</a>
-                            <a href="https://playsaurus.com" target="_blank" class="block px-4 py-2 text-white hover:bg-neutral-600">Playsaurus</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mobile menu -->
-            <div x-show="mobileMenuOpen" x-cloak class="md:hidden py-4 space-y-2">
-                <a href="#" @click="openGameLink('./game?nocache=1760145351'); logExperimentConversion('navPlay');" class="block text-white hover:text-yellow-400">Play</a>
-                <a href="https://discord.gg/C3KwWQr" target="_blank" rel="noopener" class="block text-white hover:text-yellow-400">Discord</a>
-                <a href="https://blog.mrmine.com/" target="_blank" class="block text-white hover:text-yellow-400">Blog</a>
-                <a href="https://www.youtube.com/@Playsaurus?sub_confirmation=1" target="_blank" class="block text-white hover:text-yellow-400">Youtube</a>
-                <a href="https://mrmine.fandom.com/wiki/Mr._Mine_Wiki" target="_blank" rel="noopener" class="block text-white hover:text-yellow-400">Wiki</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="container mx-auto px-4 py-8">
-        <div class="bg-stone-950/90 rounded-xs p-6 lg:p-8">
-            <div class="grid lg:grid-cols-[2fr_1fr] gap-8">
-                <!-- Carousel Section -->
-                <div class="space-y-4">
-                    <!-- Main Display -->
-                    <div class="relative aspect-video bg-black rounded-lg overflow-hidden">
-                        <template x-for="(slide, index) in slides" :key="index">
-                            <div x-show="activeSlide === index" class="absolute inset-0">
-                                <template x-if="slide.type === 'video'">
-                                    <div class="relative w-full h-full cursor-pointer" @click="loadYoutubeVideo(slide.videoId)">
-                                        <img :src="slide.src" :alt="slide.alt" class="w-full h-full object-cover">
-                                        <div id="youtubeHolder" class="absolute inset-0"></div>
-                                    </div>
-                                </template>
-                                <template x-if="slide.type === 'image'">
-                                    <img :src="slide.src" :alt="slide.alt" class="w-full h-full object-cover" loading="lazy">
-                                </template>
-                            </div>
-                        </template>
-                    </div>
-
-                    <!-- Thumbnails -->
-                    <div class="flex space-x-2 overflow-x-auto py-2 pt-[16px]" x-ref="thumbScroller">
-                        <template x-for="(thumbnail, index) in thumbnails" :key="index">
-                            <div class="shrink-0 relative" :data-thumb="index">
-                                <div x-show="activeSlide === index" class="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                                    <div class="w-0 h-0 border-l-18 border-r-18 border-b-16 border-transparent border-b-white"></div>
-                                </div>
-                                <button @click="setActiveSlide(index)"
-                                    class="block"
-                                    :class="activeSlide === index ? 'ring-2 ring-white' : ''">
-                                    <img :src="thumbnail" :alt="'Thumbnail ' + (index + 1)"
-                                        class="w-36 h-24 object-cover rounded-sm">
-                                </button>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <!-- Info Panel -->
-                <div class="space-y-6">
-                    <!-- Logo -->
-                    <div class="text-center">
-                        <img src="https://cdn.mrmine.com/images/home/MainThumb.webp" alt="Mr.Mine Logo" class="w-full max-w-md mx-auto">
-                    </div>
-
-                    <!-- Description -->
-                    <p class="text-center text-lg leading-relaxed">
-                        中毒性のあるマイニングシミュレーターであるMr.Mineで、地球の深みを探索し、隠された宝物を発見してください。200以上のドリルのアップグレードとユニークな建物が特徴で、鉱山をアイドリングしながら発見できます。下の深みに隠されたすべての秘密を暴くことができますか？
-                    </p>
-
-                    <!-- Buttons - Desktop Only -->
-                    <div class="hidden lg:block space-y-4">
-                        <!-- Steam Button -->
-                        <div class="text-center">
-                            <a href="https://store.steampowered.com/app/1397920/MrMine/" target="_blank"
-                                @click="logExperimentConversion('steamPlayButton')"
-                                class="inline-block transition hover:shadow-lg hover:shadow-green-600/30 hover:ring-2 hover:ring-green-400 rounded-lg">
-                                <img src="https://cdn.mrmine.com/images/steam-badge.webp"
-                                    alt="Mr. Mine Steam Store button" class="h-16">
-                            </a>
-                        </div>
-
-                        <!-- Play on Web Button -->
-                        <div class="text-center">
-                            <a href="#" @click="openGameLink('./game?nocache=1760145351'); logExperimentConversion('webPlayButton')"
-                                class="inline-block transition hover:shadow-lg hover:shadow-green-600/30 hover:ring-2 hover:ring-green-400 rounded-lg">
-                                <img src="https://cdn.mrmine.com/images/play-on-web-badge.webp"
-                                    alt="Play on web button"
-                                    class="h-16">
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Platform Links -->
-                    <div class="text-center">
-                        <h3 class="text-xl mb-4">Also Available To Play At</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-md mx-auto">
-                            <a href="https://play.google.com/store/apps/details?id=com.playsaurus.mrmine"
-                                target="_blank" @click="logExperimentConversion('playStoreButton')"
-                                class="block transition hover:shadow-lg hover:shadow-green-600/30 hover:ring-2 hover:ring-green-400 rounded-lg">
-                                <img src="https://cdn.mrmine.com/images/home/goggles.webp" alt="Google Play Store" class="w-full">
-                            </a>
-                            <a href="https://apps.apple.com/us/app/mr-mine-idle/id1659735369"
-                                target="_blank" @click="logExperimentConversion('iosStoreButton')"
-                                class="block transition hover:shadow-lg hover:shadow-green-600/30 hover:ring-2 hover:ring-green-400 rounded-lg">
-                                <img src="https://cdn.mrmine.com/images/home/apples.webp" alt="App Store" class="w-full">
-                            </a>
-                            <a href="#" @click="openGameLink('https://www.coolmathgames.com/0-mr-mine'); logExperimentConversion('CMGButton')"
-                                class="block transition hover:shadow-lg hover:shadow-green-600/30 hover:ring-2 hover:ring-green-400 rounded-lg">
-                                <img src="https://cdn.mrmine.com/images/home/cmg.webp" alt="Cool Math Games" class="w-full">
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Game Features Content -->
-        <div class="mt-6 max-w-4xl mx-auto space-y-12 bg-stone-950/90 rounded-xs p-6 lg:p-8">
-            <div class="text-center">
-                <p class="text-lg mb-4">
-                    クリッカーヒーローズやクッキークリッカーのように、ミスターマインはやめたくない古典的なアイドルゲームです。
-
-2012年にリリースされたMr.Mineは1000万回以上再生され、現在はSteamとMobile向けにリマスターされています。
-
-Mr.Mineは、冒険と発見を強調することで、斬新な方法で増分ゲームにアプローチします。                </p>
-                <p class="text-lg">
-                    鉱山労働者のチームを管理し、ドリルをアップグレードして鉱山をアイドリングし、下の深みで謎と宝物を発見してください。
-                </p>
-            </div>
-
-            <!-- Features -->
-            <div class="space-y-8">
-                <div class="text-center">
-                    <img src="https://cdn.mrmine.com/images/home/drills.webp" alt="Drill upgrades" loading="lazy" class="mx-auto mb-4 max-w-full">
-                    <p class="text-lg">Over 100+ drill upgrades to unlock as you progress through the mines!</p>
-                </div>
-
-                <div class="text-center">
-                    <img src="https://cdn.mrmine.com/images/home/buildings.webp" alt="Building upgrades" loading="lazy" class="mx-auto mb-4 max-w-full">
-                    <p class="text-lg">Many unique buildings to encounter with special mechanics to help you dig faster and get further!</p>
-                </div>
-
-                <div class="text-center">
-                    <img src="https://cdn.mrmine.com/images/home/achievements.webp" alt="Achievements" loading="lazy" class="mx-auto mb-4 max-w-full">
-                    <p class="text-lg">Tons of quests to complete and achievements to unlock!</p>
-                </div>
-
-                <div class="text-center">
-                    <img src="https://cdn.mrmine.com/images/home/scientists.webp" alt="Scientists" loading="lazy" class="mx-auto mb-4 max-w-full">
-                    <p class="text-lg">Hire scientists to find rare relics to help you progress further.</p>
-                </div>
-            </div>
-
-            <!-- Other Features -->
-            <div class="bg-gray-800 bg-opacity-50 rounded-lg p-8">
-                <h3 class="text-2xl font-bold mb-4">Other Features:</h3>
-                <ul class="space-y-2 text-lg list-disc list-inside">
-                    <li>Many Secret encounters. Can you find them all?</li>
-                    <li>Chests with hidden upgrades.</li>
-                    <li>Unlock new features the deeper you go. Discover them all!</li>
-                    <li>Afraid of federally induced inflation? Mine tons of precious gems and ores to make your billions! Klang Gang!</li>
-                    <li>Updated artwork & rebalanced progression from the original!</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="mt-12 border-t-2 border-t-gray-400">
-        <div class="bg-gray-800 py-12 text-white">
-            <div class="container mx-auto flex flex-col justify-between px-8 leading-loose sm:flex-row sm:flex-wrap">
-                <div class="w-full sm:w-1/2 md:w-1/4">
-                    <h3 class="mb-2 font-bold">Resources</h3>
-                    <ul class="space-y-1">
-                        <li><a target="_blank" href="https://playsaurus.com/presskit.php" class="hover:underline">Press Kit</a></li>
-                        <li><a target="_blank" href="https://playsaurus.com/embed.php" class="hover:underline">Embed on your site</a></li>
-                        <li><a target="_blank" href="https://blog.mrmine.com/" class="hover:underline">Mr. Mine Blog</a></li>
-                        <li><a target="_blank" href="https://playsaurus.com/blog/" class="hover:underline">Playsaurus Blog</a></li>
-                    </ul>
-                </div>
-                <div class="mt-8 w-full sm:mt-0 sm:w-1/2 md:w-1/4">
-                    <h3 class="mb-2 font-bold">Community</h3>
-                    <ul class="space-y-1">
-                        <li><a target="_blank" href="https://discord.gg/C3KwWQr" class="hover:underline">Join us on Discord</a></li>
-                        <li><a target="_blank" href="https://steamcommunity.com/app/1397920/discussions/" class="hover:underline">Steam Community</a></li>
-                        <li><a target="_blank" href="https://mrmine.fandom.com/wiki/Mr._Mine_Wiki" class="hover:underline">Wiki</a></li>
-                        <li><a target="_blank" href="https://www.youtube.com/@Playsaurus?sub_confirmation=1" class="hover:underline">Follow us on Youtube</a></li>
-                    </ul>
-                </div>
-                <div class="flex w-full items-center justify-center md:w-1/4">
-                    <a href="https://playsaurus.com" target="_blank" class="inline-block">
-                        <img src="https://cdn.mrmine.com/images/playsaurus-logo.webp" alt="Playsaurus Logo" class="h-40 object-contain">
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="border-t-2 border-t-gray-600 bg-gray-900 py-8 text-gray-400">
-            <p class="container mx-auto text-center text-base font-semibold">
-                Mr. Mine © Playsaurus 2025. All rights reserved.
-            </p>
-        </div>
-    </footer>
-
-    <!-- Tracking Scripts -->
+<head>
     <script>
-        // Facebook Pixel
-        ! function(f, b, e, v, n, t, s) {
-            if (f.fbq) return;
-            n = f.fbq = function() {
-                n.callMethod ?
-                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
-            };
-            if (!f._fbq) f._fbq = n;
-            n.push = n;
-            n.loaded = !0;
-            n.version = '2.0';
-            n.queue = [];
-            t = b.createElement(e);
-            t.async = !0;
-            t.src = v;
-            s = b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t, s)
-        }(window, document, 'script', '//connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '1658647427735318');
-        fbq('track', "PageView");
+        var crazysdk;
 
-        // AB Testing
-        const experimentName = document.head.dataset.experiment;
-        const variantName = document.head.dataset.variant;
-
-        function logExperimentConversion(label) {
-            if (!experimentName) {
-                console.error('Experiment name not found');
-                return;
+        function loadCrazyGamesSdk()
+        {
+            var sdkScript = document.createElement('script');
+            sdkScript.src = "https://sdk.crazygames.com/crazygames-sdk-v1.js";
+            sdkScript.onload = function()
+            {
+                crazysdk = window.CrazyGames.CrazySDK.getInstance(); // getting the SDK
+                crazysdk.init(); // initializing the SDK, call as early as possible
             }
-            window.logConversion(experimentName, 'MrMineCom', 1.0, label);
+            document.head.appendChild(sdkScript);
         }
 
-        console.info(`Experiment: ${experimentName}, Variant: ${variantName}`);
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split('&');
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split('=');
+                if (decodeURIComponent(pair[0]) == variable) {
+                    return decodeURIComponent(pair[1]);
+                }
+            }
+            console.log('Query variable %s not found', variable);
+        }
+
+        if (getQueryVariable("referer") == "crazygames")
+        {
+            loadCrazyGamesSdk();
+        }
     </script>
+</head>
 
-    <!-- StatCounter -->
-    <script type="text/javascript">
-        var sc_project = 9427182;
-        var sc_invisible = 1;
-        var sc_security = "637f988f";
-        var scJsHost = (("https:" == document.location.protocol) ? "https://secure." : "https://www.");
-        document.write("<sc" + "ript type='text/javascript' src='" + scJsHost + "statcounter.com/counter/counter.js'></" + "script>");
-    </script>
-    <noscript>
-        <div class="statcounter"><img class="statcounter" src="https://c.statcounter.com/9427182/0/637f988f/1/"></div>
-    </noscript>
+<body style="background-color: black; padding: 0; margin: 0; height: 100%; overflow:hidden;">
+<div class='game-container'>
+    <iframe id='gameFrame'></iframe>
+</div>
 
-    <!-- Playsaurus Analytics -->
-    <script language="javascript" src="https://playsaurusstats.com/p.js?utm_medium=MrMineCom"></script>
+<style>
+    .game-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+    }
 
-    <!-- Facebook Pixel NoScript -->
-    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1658647427735318&ev=PageView&noscript=1" /></noscript>
+    .game-frame {
+        border: 0;
+        max-width:1280px;
+        max-height: 720px;
+    }
+
+    .game-frame-desktop {
+        width: 100vw;
+        height: 56.25vw;
+    }
+
+    .game-frame-mobile {
+        width: 56.25vh;
+        height: 100vh;
+    }
+    
+    @media (min-aspect-ratio: 16/9) {
+        .game-frame-desktop {
+            width: 178vh;
+            height: 100vh;
+        }
+        .game-frame-mobile {
+            width: 56.25vh;
+            height: 100vh;
+        }
+    }
+</style>
+<script>
+    var orientation = (screen.orientation || {}).type || screen.mozOrientation || screen.msOrientation;
+    var gameFrame = document.getElementById("gameFrame");
+
+    if (getParameterByName('m') != '1')// && orientation === "landscape-primary" || orientation === "landscape-secondary" || orientation === undefined)
+    {
+        gameFrame.src = "https://mrmine.com/game/desktop/index.html?t=1760145351";
+        gameFrame.classList.add("game-frame-desktop");
+    } 
+    else
+    {
+        gameFrame.src = "https://mrmine.com/game/mobile/index.html"
+        gameFrame.classList.add("game-frame-mobile");
+    }
+
+    function getParameterByName(name, url = window.location.href) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+</script>
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','//connect.facebook.net/en_US/fbevents.js');
+
+fbq('init', '1658647427735318');
+fbq('track', "PageView");
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1658647427735318&ev=PageView&noscript=1"
+/></noscript>
+
+<script type="text/javascript">
+var sc_project=9427182; 
+var sc_invisible=1; 
+var sc_security="637f988f"; 
+var scJsHost = (("https:" == document.location.protocol) ?
+"https://secure." : "http://www.");
+document.write("<sc"+"ript type='text/javascript' src='" +
+scJsHost+
+"statcounter.com/counter/counter.js'></"+"script>");
+</script>
+<noscript><div class="statcounter"><img
+class="statcounter"
+src="http://c.statcounter.com/9427182/0/637f988f/1/"
+alt="hits counter"></div></noscript>
+<iframe src="https://playsaurusstats.com/loadTimeCheck.html"></iframe>
 </body>
-
-</html>
