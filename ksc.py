@@ -2,79 +2,144 @@ import sys
 import os
 from flask import Flask
 
-# --- KVM 命令セット (今回未使用だが、構造維持のため定義) ---
+# --- KVM 命令セット (四則演算を追加) ---
 PUSH_NUMBER = 1
 STORE_VAR = 3
 JUMP_IF_FALSE = 4
 JUMP = 5
 OP_EQUAL = 6
-PUSH_BOOL_TRUE = 7
-PUSH_BOOL_FALSE = 8
 RECORD = 9
+OP_ADD = 10       # 足し算を追加
+OP_SUBTRACT = 11  # 引き算を追加
+OP_MULTIPLY = 12  # 掛け算を更新
+OP_DIVIDE = 13    # 割り算を更新
 
+# --- KVMの中核要素 ---
+class KVM:
+    def __init__(self, memory=None):
+        self.stack = [] 
+        self.memory = memory if memory is not None else {}
+        self.pc = 0
+
+    def _execute_instruction(self, instruction):
+        """単一の命令を実行する"""
+        
+        # スタックからオペランドをポップし、計算を実行するヘルパー関数
+        def binary_op(op):
+            operand_b = self.stack.pop()
+            operand_a = self.stack.pop()
+            result = op(operand_a, operand_b)
+            self.stack.append(result)
+
+        if instruction == PUSH_NUMBER:
+            value = self.program[self.pc]
+            self.stack.append(value)
+            self.pc += 1
+        elif instruction == STORE_VAR:
+            var_name = self.program[self.pc]
+            value = self.stack.pop()
+            self.memory[var_name] = value
+            self.pc += 1
+        
+        # --- 四則演算のKVMロジック ---
+        elif instruction == OP_ADD:
+            binary_op(lambda a, b: a + b)
+        elif instruction == OP_SUBTRACT:
+            binary_op(lambda a, b: a - b)
+        elif instruction == OP_MULTIPLY:
+            binary_op(lambda a, b: a * b)
+        elif instruction == OP_DIVIDE:
+            binary_op(lambda a, b: a / b)
+        
+        # (JUMP, JUMP_IF_FALSE, OP_EQUAL, RECORD などの他の命令処理は省略)
+        # (今回のテストでは使用しないため、コードを簡略化しています)
+        
+        else:
+            # 実際のKVMではここでエラー処理
+            pass 
+
+    def run(self, program):
+        """KVM命令を実行するメインループ (テスト用)"""
+        self.program = program
+        self.pc = 0
+        while self.pc < len(self.program):
+            self._execute_instruction(self.program[self.pc])
+            self.pc += 1
+            
 # --- KSC Webサーバーの初期設定 ---
-# Flaskアプリのインスタンスを作成（Vercelが探している「app」オブジェクト）
 app = Flask(__name__) 
 
-# KSCの関数（職人技）のKVM命令を格納する場所
-KSC_FUNCTIONS = {} 
-
-
 # --- KSCの路地割り当て命令を処理する関数 ---
+# (前回のWebサーバーのエラーを修正したバージョンを使用)
 def assign_route(path, function_name):
-    """
-    KSCの路地割り当て命令（職人技 $名前 を 路地 "/" に 割り当てる 〆）を処理する。
-    Flaskのエンドポイント重複を防ぐため、職人技名をユニークなエンドポイントとして利用する。
-    """
-    
     # KSCの職人技名から $ を取り、エンドポイント名として利用
     endpoint_name = function_name.strip('$') 
     
-    # KVMに登録する職人技のID (実際にはKVM命令の開始アドレス)
-    ksc_function_id = function_name 
-    
     print(f"KSCサーバー: 路地 '{path}' に '{endpoint_name}' 職人技を割り当てます。")
-    
-    # Flaskのadd_url_ruleを使って、動的にリクエストハンドラを登録
-    # @app.route(path)の代替手法
+
     def ksc_dynamic_handler():
-        """リクエストを受けたときにKSCコード（職人技）を実行するハンドラ"""
-        
-        # 実際には、ここでKSC_FUNCTIONSからksc_function_idのKVM命令を取り出し実行する
-        
-        # --- 現時点では、KSC構文「お返しする」のダミー処理を実装 ---
-        ksc_response = f"<h1>KSCが路地 {path} で動いています! 職人技: {endpoint_name}</h1>"
+        # KSCコードの実行と、四則演算のテストを行う
+        ksc_response = run_kvm_logic()
         print(f"KSCログ: 職人技 {endpoint_name} を実行し、レスポンスを「お返し」しました。")
         return ksc_response
 
     # Flaskにadd_url_ruleメソッドを使い、エンドポイント名を指定して登録
-    # これにより、ksc_dynamic_handlerという名前が重複しても、endpoint_nameが一意ならOK
     app.add_url_rule(path, endpoint_name, ksc_dynamic_handler)
 
 
-# --- KSCの実行エンジン（ParserとKVMの呼び出し元） ---
-def run_ksc_program():
-    """KSCファイル全体を読み込み、ParserとKVMを実行する（想定）"""
+# --- KSCの実行エンジン（テストロジック） ---
+def run_kvm_logic():
+    """
+    KSCの四則演算テストを KVM命令として手動で生成し、実行する。
+    KSCコード: $R1 を 1 を 足す 1 に する 〆  ...など
+    """
+    kvm = KVM()
     
-    # 実際にはここでKSCファイルを読み込み、Parserを実行する
-    
-    print("KSCサーバー: KSCコードを解析・実行します。")
-    
-    # --- ダミーのKSCプログラム実行 (路地割り当てのテスト) ---
-    # KSCコード: 職人技 $メイン処理 を 路地 "/" に 割り当てる 〆
-    assign_route("/", "$メイン処理") 
-    
-    # KSCコード: 職人技 $API処理 を 路地 "/api" に 割り当てる 〆
-    assign_route("/api", "$API処理")
+    # 1. 足し算: 1 + 1 = 2
+    # KVM命令: [PUSH 1, PUSH 1, OP_ADD, STORE "$R1"]
+    kvm_add = [PUSH_NUMBER, 1, PUSH_NUMBER, 1, OP_ADD, STORE_VAR, "$R1"]
+    kvm.run(kvm_add)
+    r1 = kvm.memory.get("$R1", "未定義")
+
+    # 2. 引き算: 2 - 1 = 1
+    # KVM命令: [PUSH 2, PUSH 1, OP_SUBTRACT, STORE "$R2"]
+    kvm_sub = [PUSH_NUMBER, 2, PUSH_NUMBER, 1, OP_SUBTRACT, STORE_VAR, "$R2"]
+    kvm.run(kvm_sub)
+    r2 = kvm.memory.get("$R2", "未定義")
+
+    # 3. 掛け算: 2 * 2 = 4
+    # KVM命令: [PUSH 2, PUSH 2, OP_MULTIPLY, STORE "$R3"]
+    kvm_mul = [PUSH_NUMBER, 2, PUSH_NUMBER, 2, OP_MULTIPLY, STORE_VAR, "$R3"]
+    kvm.run(kvm_mul)
+    r3 = kvm.memory.get("$R3", "未定義")
+
+    # 4. 割り算: 4 / 2 = 2.0
+    # KVM命令: [PUSH 4, PUSH 2, OP_DIVIDE, STORE "$R4"]
+    kvm_div = [PUSH_NUMBER, 4, PUSH_NUMBER, 2, OP_DIVIDE, STORE_VAR, "$R4"]
+    kvm.run(kvm_div)
+    r4 = kvm.memory.get("$R4", "未定義")
+
+    # KSC構文「お返しする」の処理 (Webレスポンスとして結果を返す)
+    response = f"""
+    <h1>KSC 四則演算テスト実行結果</h1>
+    <p>1. 足し算 (1 を 足す 1): <strong>{r1}</strong></p>
+    <p>2. 引き算 (2 を 引く 1): <strong>{r2}</strong></p>
+    <p>3. 掛け算 (2 を 掛ける 2): <strong>{r3}</strong></p>
+    <p>4. 割り算 (4 を 割る 2): <strong>{r4}</strong></p>
+    """
+    return response
+
 
 # --- Flaskの実行環境要件を満たす ---
+def run_ksc_program():
+    print("KSCサーバー: KSCコードを解析・実行します。")
+    # KSCコード: 職人技 $メイン処理 を 路地 "/" に 割り当てる 〆
+    assign_route("/", "$メイン処理") 
 
-# Vercelなどの本番環境で import された時の処理 (appオブジェクトが自動的に使われる)
+# Vercelなどの本番環境で import された時の処理
 run_ksc_program()
 
 # 1. コマンドライン実行時の処理
 if __name__ == '__main__':
-    # 開発環境で実行する場合
     print("\n--- 開発用サーバー起動 ---")
-    # PORTは環境変数から取得、なければ5000を使う
     app.run(debug=True, host='0.0.0.0', port=os.environ.get("PORT", 5000))
