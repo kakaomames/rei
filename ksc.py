@@ -1,6 +1,6 @@
 import sys
 import os
-from flask import Flask, send_from_directory, abort
+from flask import Flask, send_from_directory, abort, redirect, url_for
 
 
 
@@ -149,10 +149,10 @@ run_ksc_program()
 # Vercel環境でも、このパスがリポジトリのルートになります
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# -----------------------------------------------
+## -----------------------------------------------
 # 1. ルート ('/') の処理
 # -----------------------------------------------
-@app.route('/home')
+@app.route('/')
 def root_index():
     # app.pyと同じ階層にある index.html を返す
     try:
@@ -167,27 +167,29 @@ def root_index():
 @app.route('/<path:asset_path>')
 def serve_all_assets(asset_path):
     
-    # 1. asset_path がフォルダ名として存在するかチェック
-    # 例: '/2048' や '/db' へのアクセスの場合
+    # 1. asset_path がフォルダとして存在するかチェック（例: /db, /2048）
     full_target_path = os.path.join(BASE_DIR, asset_path)
     
     if os.path.isdir(full_target_path):
-        # フォルダが存在する場合、そのフォルダから 'index.html' を返す
-        # 例: フォルダ '2048' の中から 'index.html' を返す
-        directory = full_target_path
+        # ★ 404エラー対策 ★: スラッシュなし (例: /db) でアクセスされた場合
+        #    末尾にスラッシュを付けてリダイレクトし、パス解決を確実にする
+        if not asset_path.endswith('/'):
+            return redirect(url_for('serve_all_assets', asset_path=asset_path + '/'))
+            
+        # フォルダとして存在し、スラッシュで終わっている場合、そのフォルダから 'index.html' を返す
+        directory = full_target_path # フォルダの絶対パス
         filename = 'index.html'
         
         try:
             return send_from_directory(directory, filename)
         except FileNotFoundError:
-            # index.html が見つからなければ 404
+            # index.html がない場合は 404
             abort(404)
 
-    # 2. asset_path がファイルパスとして存在する場合をチェック
-    # 例: '2048/style.css' や 'db/ksc.html' の場合
+    # 2. asset_path がファイルパスとして存在する場合をチェック（例: /db/ksc.html）
     
     # パスをディレクトリ名とファイル名に分割
-    # 'db/ksc.html' -> directory_name='db', filename='ksc.html'
+    # 例: 'db/ksc.html' -> directory_name='db', filename='ksc.html'
     directory_name, filename = os.path.split(asset_path)
     
     # ディレクトリパスの絶対パスを作成
@@ -195,12 +197,11 @@ def serve_all_assets(asset_path):
     
     # 該当ファイルが実際に存在するかチェック
     if os.path.exists(os.path.join(directory, filename)):
-        # ディレクトリとファイル名を指定してファイルを返す
-        # send_from_directory がセキュリティチェックを自動で行います
+        # send_from_directory の内部チェックと組み合わせてファイルを返す
         try:
             return send_from_directory(directory, filename)
         except FileNotFoundError:
-             # send_from_directory の内部チェックで失敗した場合など
+             # send_from_directory 内部でのエラー（セキュリティチェック失敗など）
              abort(404)
     
     # 3. どちらのパターンにも該当しない場合は 404 Not Found
