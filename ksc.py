@@ -163,7 +163,7 @@ def root_index():
 # 2. フォルダのINDEX処理 (例: /db/) ★このルートで404を解決します
 # -----------------------------------------------
 # 必ずスラッシュで終わるパスをキャッチし、index.htmlを返す専用ルート
-@app.route('/<string:folder>/')
+@app.route('/<string:folder>')
 def serve_folder_index(folder):
     
     # フォルダの絶対パスを作成
