@@ -148,9 +148,6 @@ run_ksc_program()
 
 
 
-#from flask import Flask, send_from_directory, abort, redirect, url_for
-
-
 # Flaskアプリの実行ファイル(app.py)があるディレクトリの絶対パスを取得
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -159,44 +156,57 @@ print(f"BASE_DIR: {BASE_DIR}")
 print(f"---------------------")
 
 # -----------------------------------------------
-# ユーティリティ関数: 指定されたディレクトリの内容を再帰的に表示
+# 1. ルート ('/') の処理
 # -----------------------------------------------
-def print_directory_contents(start_dir):
-    print(f"DEBUG: 📂 ディレクトリ内容 (ls -R 相当) from {start_dir}:")
-    for root, dirs, files in os.walk(start_dir):
-        # start_dirからの相対パスを計算
-        relative_path = os.path.relpath(root, start_dir)
-        if relative_path == ".":
-            relative_path = "" # ルートディレクトリの場合は空文字にする
-            
-        # フォルダリスト
-        for d in dirs:
-            print(f"DEBUG:   [DIR] {os.path.join(relative_path, d)}")
-        # ファイルリスト
-        for f in files:
-            print(f"DEBUG:   [FILE] {os.path.join(relative_path, f)}")
-    print(f"DEBUG: --------------------------------")
+@app.route('/')
+def root_index():
+    try:
+        # BASE_DIR直下の index.html を返す
+        return send_from_directory(BASE_DIR, 'index.html')
+    except FileNotFoundError:
+        # ファイルが見つからない場合は 404
+        return "Main Index file not found.", 404
 
 # -----------------------------------------------
-# 3. フォルダのINDEX処理 (例: /db/) ★ここで ls 相当を実行
+# 2. スラッシュなしのアクセス (例: /db) はスラッシュありにリダイレクト
+# -----------------------------------------------
+@app.route('/<string:folder>')
+def redirect_to_folder(folder):
+    directory = os.path.join(BASE_DIR, folder)
+
+    # フォルダが存在するかどうかを確認
+    if os.path.isdir(directory):
+        print(f"DEBUG: /<folder> -> /{folder}/ にリダイレクト (フォルダあり)")
+        # url_for はエンドポイント名 'serve_folder_index' を使用
+        return redirect(url_for('serve_folder_index', folder=folder))
+    else:
+        print(f"DEBUG: /<folder> -> 404 (フォルダなし)")
+        abort(404)
+
+# -----------------------------------------------
+# 3. フォルダのINDEX処理 (例: /db/)
 # -----------------------------------------------
 @app.route('/<string:folder>/')
 def serve_folder_index(folder):
     print(f"DEBUG: --- ルート /<{folder}>/ に到達 ---")
     
+    # フォルダの絶対パスを作成
     directory = os.path.join(BASE_DIR, folder)
     print(f"DEBUG: フォルダパス (directory): {directory}")
     
+    # フォルダが存在しなかった場合は 404
     if not os.path.isdir(directory):
         print("DEBUG: ❌ FOLDER NOT FOUND (404)")
         abort(404)
     
     print("DEBUG: ✅ FOLDER FOUND")
     
-    # 🌟 ここで os.walk を使ってディレクトリの中身をリスト表示 🌟
-    print_directory_contents(directory) 
-    
     file_path = os.path.join(directory, 'index.html')
+    
+    # 🌟 ここで os.walk を使ってディレクトリの中身をリスト表示 🌟
+    # 注意: print_directory_contents 関数は別途定義が必要です
+    # 実際の実行時にはこの関数は定義済みとして動作することを想定します
+    # print_directory_contents(directory) 
     
     # ファイルの存在を os.path で明示的にチェック
     if not os.path.isfile(file_path):
@@ -205,15 +215,48 @@ def serve_folder_index(folder):
         
     print(f"DEBUG: index.html を {directory} から探します")
     
+    # 確実にそのフォルダから index.html を返す
     try:
         return send_from_directory(directory, 'index.html')
     except Exception as e:
         print(f"DEBUG: ❌ 致命的なエラーが発生: {e}")
-        abort(404) 
-
-# ... (他のルートと main ブロックは省略) ...
+        # 環境の問題、アクセス権限などでこの例外に入る可能性がある
+        abort(404)
+        
 # -----------------------------------------------
-# サーバー起動 (ローカルテスト用)
+# 4. フォルダ内のファイル処理 (例: /db/game.js)
+# -----------------------------------------------
+@app.route('/<string:folder>/<path:filename>')
+def serve_folder_file(folder, filename):
+    print(f"DEBUG: --- ルート /<{folder}>/<{filename}> に到達 ---")
+
+    # フォルダの絶対パスを作成
+    directory = os.path.join(BASE_DIR, folder)
+    print(f"DEBUG: フォルダパス (directory): {directory}")
+    print(f"DEBUG: 要求されたファイル名 (filename): {filename}")
+    
+    # フォルダが存在しない場合は 404
+    if not os.path.isdir(directory):
+        print("DEBUG: ❌ FOLDER NOT FOUND (404)")
+        abort(404)
+        
+    file_path = os.path.join(directory, filename)
+    
+    # 🌟 ファイルの存在を os.path で明示的にチェック 🌟
+    if not os.path.isfile(file_path):
+        print(f"DEBUG: ❌ ファイル {file_path} は存在しません (404)")
+        abort(404)
+        
+    print(f"DEBUG: ✅ ファイル {file_path} は存在します。サーブを試みます。")
+    
+    # send_from_directory がセキュリティチェックを自動で行いながらファイルを返す
+    try:
+        # directoryからfilenameを探す
+        return send_from_directory(directory, filename)
+    except Exception as e:
+        print(f"DEBUG: ❌ 致命的なエラーが発生: {e}")
+        abort(404)
+
 
 
 
