@@ -146,66 +146,73 @@ run_ksc_program()
 
 
 # Flaskアプリの実行ファイル(app.py)があるディレクトリの絶対パスを取得
-# Vercel環境でも、このパスがリポジトリのルートになります
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-## -----------------------------------------------
-# 1. ルート ('/') の処理
 # -----------------------------------------------
-@app.route('/')
+# 1. ルート ('/') の処理 (変更なし)
+# -----------------------------------------------
+@app.route('/h')
 def root_index():
-    # app.pyと同じ階層にある index.html を返す
+    print("サーバー: index.html。")
     try:
         return send_from_directory(BASE_DIR, 'index.html')
     except FileNotFoundError:
         return "Main Index file not found.", 404
 
 # -----------------------------------------------
-# 2. すべてのサブディレクトリとファイルのリクエストを処理
+# 2. フォルダのINDEX処理 (例: /db/) ★このルートで404を解決します
 # -----------------------------------------------
-# <path:asset_path> で、ルート以下の全てのパスを asset_path に格納します
-@app.route('/<path:asset_path>')
-def serve_all_assets(asset_path):
+# 必ずスラッシュで終わるパスをキャッチし、index.htmlを返す専用ルート
+@app.route('/<string:folder>/')
+def serve_folder_index(folder):
     
-    # 1. asset_path がフォルダとして存在するかチェック（例: /db, /2048）
-    full_target_path = os.path.join(BASE_DIR, asset_path)
+    # フォルダの絶対パスを作成
+    directory = os.path.join(BASE_DIR, folder)
     
-    if os.path.isdir(full_target_path):
-        # ★ 404エラー対策 ★: スラッシュなし (例: /db) でアクセスされた場合
-        #    末尾にスラッシュを付けてリダイレクトし、パス解決を確実にする
-        if not asset_path.endswith('/'):
-            return redirect(url_for('serve_all_assets', asset_path=asset_path + '/'))
-            
-        # フォルダとして存在し、スラッシュで終わっている場合、そのフォルダから 'index.html' を返す
-        directory = full_target_path # フォルダの絶対パス
-        filename = 'index.html'
+    # フォルダが存在しなかった場合は 404
+    if not os.path.isdir(directory):
+        abort(404)
         
-        try:
-            return send_from_directory(directory, filename)
-        except FileNotFoundError:
-            # index.html がない場合は 404
-            abort(404)
+    # 確実にそのフォルダから index.html を返す
+    try:
+        return send_from_directory(directory, 'index.html')
+    except FileNotFoundError:
+        abort(404)
+        
+# -----------------------------------------------
+# 3. フォルダ内のファイル処理 (例: /db/ksc.html)
+# -----------------------------------------------
+# <string:folder>でフォルダ名を、<path:filename>でファイル名を含む残りのパスをキャッチ
+@app.route('/<string:folder>/<path:filename>')
 
-    # 2. asset_path がファイルパスとして存在する場合をチェック（例: /db/ksc.html）
+def serve_folder_file(folder, filename):
     
-    # パスをディレクトリ名とファイル名に分割
-    # 例: 'db/ksc.html' -> directory_name='db', filename='ksc.html'
-    directory_name, filename = os.path.split(asset_path)
+    # フォルダの絶対パスを作成
+    directory = os.path.join(BASE_DIR, folder)
     
-    # ディレクトリパスの絶対パスを作成
-    directory = os.path.join(BASE_DIR, directory_name)
-    
-    # 該当ファイルが実際に存在するかチェック
-    if os.path.exists(os.path.join(directory, filename)):
-        # send_from_directory の内部チェックと組み合わせてファイルを返す
-        try:
-            return send_from_directory(directory, filename)
-        except FileNotFoundError:
-             # send_from_directory 内部でのエラー（セキュリティチェック失敗など）
-             abort(404)
-    
-    # 3. どちらのパターンにも該当しない場合は 404 Not Found
-    abort(404)
+    # フォルダが存在しない場合は 404
+    if not os.path.isdir(directory):
+         abort(404)
+         
+    # send_from_directory がセキュリティチェックを自動で行いながらファイルを返す
+    try:
+        return send_from_directory(directory, filename)
+    except FileNotFoundError:
+        abort(404)
+
+# -----------------------------------------------
+# 4. スラッシュなしのアクセス (例: /db) はスラッシュありにリダイレクト
+# -----------------------------------------------
+@app.route('/<string:folder>')
+def redirect_to_folder(folder):
+    # フォルダが存在しない場合は 404
+    directory = os.path.join(BASE_DIR, folder)
+    if not os.path.isdir(directory):
+         abort(404)
+         
+    # フォルダが存在する場合、/db/ の形にリダイレクト
+    # url_for('serve_folder_index', ...) を使って、確実に目的のルート名を指定
+    return redirect(url_for('serve_folder_index', folder=folder))
 
 
 
