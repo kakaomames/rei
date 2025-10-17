@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>プロキシ結果の表示 - /proxy/browse.php.html</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+        }
+        #loading-message {
+            font-size: 1.2em;
+            color: #3B578B;
+            font-weight: bold;
+        }
+        /* コマンド結果が Pre タグで返されることを想定したスタイル */
+        pre {
+            white-space: pre-wrap; /* 長い行を折り返す */
+            word-wrap: break-word;
+            background: #fff;
+            padding: 15px;
+            border: 1px solid #ccc;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-message">
+        🚀 プロキシ結果を外部サービス経由で取得中です... しばらくお待ちください。
+    </div>
+
+    <div id="proxy-content">
+        </div>
+
+    <script>
+        // 実行する外部サービスとコマンド
+        const COMMAND_URL = 'https://xeroxapp032.vercel.app/run?cmd=curl%20-L%20-X%20POST%20%27https%3A%2F%2Fwww.pc-freak.net%2Fproxy%2Fincludes%2Fprocess.php%3Faction%3Dupdate%27%20-d%20%27u%3Dhttps%253A%252F%252Fwww.google.com%27%20-d%20%27encodeURL%3Don%27%20-d%20%27allowCookies%3Don%27%20-d%20%27stripJS%3Don%27%20-d%20%27Go%3DGo%27%20--referer%20%27https%3A%2F%2Fwww.pc-freak.net%2Fproxy%2F%27';
+
+        const contentContainer = document.getElementById('proxy-content');
+        const loadingMessage = document.getElementById('loading-message');
+
+        async function fetchAndDisplayProxyResult() {
+            try {
+                // 1. 外部サービスにアクセスし、コマンドを実行
+                const response = await fetch(COMMAND_URL);
+
+                if (!response.ok) {
+                    throw new Error(`HTTPエラー: ${response.status}`);
+                }
+
+                // 2. 結果のテキストデータを取得
+                const resultText = await response.text();
+
+                // 3. ローディングメッセージを非表示にし、結果を表示
+                loadingMessage.style.display = 'none';
+
+                // NOTE: 外部サービスからの結果がHTML断片または<pre>タグに囲まれたテキストであることを想定し、
+                // contentContainerのinnerHTMLとして直接挿入します。
+                // これにより、取得したHTML（プロキシバーやGoogleコンテンツ）がブラウザで描画されます。
+                contentContainer.innerHTML = resultText;
+
+            } catch (error) {
+                loadingMessage.textContent = '❌ エラーが発生しました: ' + error.message;
+                console.error('フェッチエラー:', error);
+            }
+        }
+
+        fetchAndDisplayProxyResult();
+    </script>
+</body>
+</html>
