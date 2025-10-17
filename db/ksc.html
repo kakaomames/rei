@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>KSC 最小実行環境 (自立型)</title>
+    <style>
+        body { font-family: sans-serif; display: flex; height: 100vh; margin: 0; }
+        #input-area, #output-area { flex: 1; padding: 10px; border: 1px solid #ccc; }
+        textarea { width: 100%; height: 60vh; font-family: monospace; }
+        canvas { border: 2px solid #333; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div id="input-area">
+        <h2>KSC コード入力</h2>
+        <textarea id="ksc-code">
+// KSC コードをここに入力
+$Canvas を 要素ID "myCanvas" から 接続する 〆
+$職人 を $Canvas の 2Dコンテキストとする 〆
+$職人 の色を "blue" に 設定する 〆
+$職人 で 四角形を 50 50 100 100 で 塗りつぶす 〆
+        </textarea>
+        <button onclick="executeKSC()">KSC 実行 🚀</button>
+    </div>
+
+    <div id="output-area">
+        <h2>実行結果 & ログ</h2>
+        <canvas id="myCanvas" width="400" height="200"></canvas>
+        <pre id="log-output"></pre>
+        <script>
+            // --- 重要な接続ポイント ---
+            // KSCの自作ランタイムとトランスパイラを読み込む
+            // (ここでは簡略化のためインラインで記述)
+            
+            async function executeKSC() {
+                const kscCode = document.getElementById('ksc-code').value;
+                const logElement = document.getElementById('log-output');
+                logElement.textContent = ''; // ログをクリア
+
+                try {
+                    // 1. KSC トランスパイラを呼び出し (ksc_transpiler.jsに統合されていると仮定)
+                    // トランスパイラはKSC_Runtimeの定義を含んだJSコードを返す
+                    const generatedJsCode = KscTranspiler.transpile(kscCode); 
+
+                    logElement.textContent += "✅ トランスパイル成功！実行中...\n";
+
+                    // 2. KSC_Runtime のログ出力をHTMLにリダイレクトする一時的な処理
+                    const originalLog = KSC_Runtime.log;
+                    KSC_Runtime.log = (...messages) => {
+                        logElement.textContent += "📢 " + messages.join(' ') + '\n';
+                    };
+                    
+                    // 3. 生成されたJSコードを動的に実行
+                    const asyncWrapper = new Function('KSC_Runtime', generatedJsCode);
+                    await asyncWrapper(KSC_Runtime);
+
+                    // ログ出力を元に戻す
+                    KSC_Runtime.log = originalLog; 
+
+                } catch (error) {
+                    logElement.textContent += `❌ エラーが発生しました: ${error.message}\n`;
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>
