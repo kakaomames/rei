@@ -1,6 +1,8 @@
 import sys
 import os
-from flask import Flask
+from flask import Flask, send_from_directory, abort
+
+
 
 # --- KVM 命令セット (四則演算を追加) ---
 PUSH_NUMBER = 1
@@ -139,7 +141,77 @@ def run_ksc_program():
 # Vercelなどの本番環境で import された時の処理
 run_ksc_program()
 
+
+
+
+
+# Flaskアプリの実行ファイル(app.py)があるディレクトリの絶対パスを取得
+# Vercel環境でも、このパスがリポジトリのルートになります
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# -----------------------------------------------
+# 1. ルート ('/') の処理
+# -----------------------------------------------
+@app.route('/home')
+def root_index():
+    # app.pyと同じ階層にある index.html を返す
+    try:
+        return send_from_directory(BASE_DIR, 'index.html')
+    except FileNotFoundError:
+        return "Main Index file not found.", 404
+
+# -----------------------------------------------
+# 2. すべてのサブディレクトリとファイルのリクエストを処理
+# -----------------------------------------------
+# <path:asset_path> で、ルート以下の全てのパスを asset_path に格納します
+@app.route('/<path:asset_path>')
+def serve_all_assets(asset_path):
+    
+    # 1. asset_path がフォルダ名として存在するかチェック
+    # 例: '/2048' や '/db' へのアクセスの場合
+    full_target_path = os.path.join(BASE_DIR, asset_path)
+    
+    if os.path.isdir(full_target_path):
+        # フォルダが存在する場合、そのフォルダから 'index.html' を返す
+        # 例: フォルダ '2048' の中から 'index.html' を返す
+        directory = full_target_path
+        filename = 'index.html'
+        
+        try:
+            return send_from_directory(directory, filename)
+        except FileNotFoundError:
+            # index.html が見つからなければ 404
+            abort(404)
+
+    # 2. asset_path がファイルパスとして存在する場合をチェック
+    # 例: '2048/style.css' や 'db/ksc.html' の場合
+    
+    # パスをディレクトリ名とファイル名に分割
+    # 'db/ksc.html' -> directory_name='db', filename='ksc.html'
+    directory_name, filename = os.path.split(asset_path)
+    
+    # ディレクトリパスの絶対パスを作成
+    directory = os.path.join(BASE_DIR, directory_name)
+    
+    # 該当ファイルが実際に存在するかチェック
+    if os.path.exists(os.path.join(directory, filename)):
+        # ディレクトリとファイル名を指定してファイルを返す
+        # send_from_directory がセキュリティチェックを自動で行います
+        try:
+            return send_from_directory(directory, filename)
+        except FileNotFoundError:
+             # send_from_directory の内部チェックで失敗した場合など
+             abort(404)
+    
+    # 3. どちらのパターンにも該当しない場合は 404 Not Found
+    abort(404)
+
+
+
+
+
 # 1. コマンドライン実行時の処理
 if __name__ == '__main__':
     print("\n--- 開発用サーバー起動 ---")
     app.run(debug=True, host='0.0.0.0', port=os.environ.get("PORT", 5000))
+    
