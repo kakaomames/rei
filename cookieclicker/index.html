@@ -1,45 +1,258 @@
 <!DOCTYPE html>
-<html lang="en-US">
-  <head>
-    <title>ちょっと待ってください...</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    <meta name="robots" content="noindex,nofollow">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <style>
-      *{box-sizing:border-box;margin:0;padding:0}
-      html{line-height:1.15;-webkit-text-size-adjust:100%;color:#313131;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"}
-      body{display:flex;flex-direction:column;height:100vh;min-height:100vh}
-      .main-content{margin:8rem auto;padding-left:1.5rem;max-width:60rem}
-      @media (width <= 720px){.main-content{margin-top:4rem}}
-      .h2{line-height:2.25rem;font-size:1.5rem;font-weight:500}
-      @media (width <= 720px){.h2{line-height:1.5rem;font-size:1.25rem}}
-      #challenge-error-text{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iI0IyMEYwMyIgZD0iTTE2IDNhMTMgMTMgMCAxIDAgMTMgMTNBMTMuMDE1IDEzLjAxNSAwIDAgMCAxNiAzbTAgMjRhMTEgMTEgMCAxIDEgMTEtMTEgMTEuMDEgMTEuMDEgMCAwIDEtMTEgMTEiLz48cGF0aCBmaWxsPSIjQjIwRjAzIiBkPSJNMTcuMDM4IDE4LjYxNUgxNC44N0wxNC41NjMgOS41aDIuNzgzem0tMS4wODQgMS40MjdxLjY2IDAgMS4wNTcuMzg4LjQwNy4zODkuNDA3Ljk5NCAwIC41OTYtLjQwNy45ODQtLjM5Ny4zOS0xLjA1Ny4zODktLjY1IDAtMS4wNTYtLjM4OS0uMzk4LS4zODktLjM5OC0uOTg0IDAtLjU5Ny4zOTgtLjk4NS40MDYtLjM5NyAxLjA1Ni0uMzk3Ii8+PC9zdmc+");background-repeat:no-repeat;background-size:contain;padding-left:34px}
-      @media (prefers-color-scheme: dark){body{background-color:#222;color:#d9d9d9}}
-    </style>
-    <meta http-equiv="refresh" content="360">
-  </head>
-  <body>
-    <div class="main-wrapper" role="main">
-      <div class="main-content">
-        <noscript>
-          <div class="h2">
-            <span id="challenge-error-text">続行するにはJavaScriptとCookieを有効にしてください</span>
-          </div>
-        </noscript>
-      </div>
-    </div>
-    <script>(function(){window._cf_chl_opt = {cvId: '3',cZone: 'orteil.dashnet.org',cType: 'managed',cRay: '98e3352d4d90f889',cH: 'mMwkHVrwOORmg9Yyf_ulo29ntjUhA.WOeXLewLtTfXA-1760404338-1.2.1.1-qV6nxleZqrWHnmGzdmxPoiD6wV239AupDklSSLtPD4C6dnnm9EphajcckR1UydwU',cUPMDTk:"\/cookieclicker\/index.html?__cf_chl_tk=zBnfmrK8_7g7UJfvfVkfMgALERRKHHChY9B9oiVSE6Y-1760404338-1.0.1.1-zOgVtsHwu0G27lYqlvO8n.ie42m4tInX9DKqPWvyx_k",cFPWv: 'g',cITimeS: '1760404338',cTplC:0,cTplV:5,cTplB: 'cf',fa:"\/cookieclicker\/index.html?__cf_chl_f_tk=zBnfmrK8_7g7UJfvfVkfMgALERRKHHChY9B9oiVSE6Y-1760404338-1.0.1.1-zOgVtsHwu0G27lYqlvO8n.ie42m4tInX9DKqPWvyx_k",md: 'iyuexF3YXizBcXmSkvLpVXxxI.PL0G3a.yHLCbpPZtc-1760404338-1.2.1.1-8ASSvdjSTT1g1sgMVfWkMitQrArOXDiBaV_zU0vGHjNJothphlEMMF6hl3S.m9jaah09OiYoxgDBkNS3bHtuERllKrKiqCLkWis48amlORk_f_kozZTQUocx8svKDNAXH1YLIXt4hx1OmY8DyHDjDYehWl26Hzs3Dg41wg53wt434hhMoLy8sC8qh1_pYIEXY9eoyLL8HRV.d_uoKFRIR..znhnCixohqV0VN5sy5nxRgwutapPNNK0vWi.Af4wCEFUshQE049FUUiTFFs6SWNuN75cC9Q8r0V8MJGCVszV0qoTBDQ2ArfnMZ2iUb52eVjYQNXulEbuXaWa1rB3dSWkf_l9D0kBYrfT4CJvw9VyP5deKAG0wUf1tNNU1b.qkdVW1Ux.JQTYO7ee_derIg9Ou9DOvGpdLIL.0p.gk.72JzcvzbsW9yK7MLOZxlPLD2KL_wrTUC0UUT9buR.HonJ4efJz5mTJL4qE45Gd4M380mOxdVcURjkds7QtyF51h.SOLsgqlmFGe42Vfc2Nm5hOE0JKTlxaJ..qlqX3aGdHF0wwO8aP95u2pf8cM7FWKc813i5zdOgFmbQXXuMJLvH..qQ.OIOT1_okkhyNTxwSMhq8M4ekfHL5EpJ.0lhEge4wJhc8OeIl_sV2PzdF0s7CMxQ3Fy.ZEQgXOPzdEqWF44bV1SincN2erYLaMnB2DxDoZCiiiSvTYcQfNl8D26YOL7urYJp7tIUGGtIfeaIAWO9YLZl1pB5YCmXOo8pydyX4fuBFzId5ZAFLjcibDKC8DrP8R6K20i59FIy7Ewat6mWQH5_AmmD5IC369eFRYFeZBrxUbSaaVGJpipyyQ6MHodoV2w.v7WMW9uKUinPZ2TkQ25qHEclIj0S596kNIHC9gSSrP1xDsjuvhdzNwDNC_SFrOaiUe1mt0l5fqF0GL9RyCjLm8oMpB5tyP6eoS',mdrd: '9ZYm6zxcazXxXuroEQeOCg18iPGxhOU4zVBbLL_mEuM-1760404338-1.2.1.1-zRAGgLR0.B66DtEQfqj6zADHRunNpkohSAeq.ZEot5WVrXGF4DuFtDMhCK2_5EOwrQgqeePXyGsHu7Yn6ysQ08cd5HVROLB9NBDZNQGJyE9q4pIsYPylXNJCBIf.DygwkGPdachjD_eHlPce2Pt7WdciToyVzjFWmklGn3FygswFjlPzqSHfU4upswpF69PT9hk54Bemy9S5wVqPcuz2jbzsbyZ9rPh.pTdpDdC7yJBfBh1zcWykQCkdr.xwYecxunkmpbmkEWG_BDDT4OkctCoPwOIMZdKvMfa01dj2kKAqyWuMLVcSBfR.oo5KOn13sg6W8YKRpgqEVhpv_QdkfBkyLFY_KFRTWwikdWZ5qCqFzCxfwb.QRhfg9tfTgHczKrdYB7_yyIi4uoaiesFIoGXT27HCeQn2uT9kv85qbZ9eRTiI9Biz5lGXfpLBgw.g9WAZCD7oUz.Z9rTjEXe9qRjAsaGZxSsEAmZlo2kZXynSvAvN2MC56P6xzhaq.eFqHKBhH7MmDIgGrVVN5iAibbcbGRpWR8vMq1alcuwYFUaQXwHmiGzuJ9C3XOHCDoDINaPKOgXbYPYzWj2OkMWplQ',};
-                        var a = document.createElement('script');
-                        a.src = './cdn-cgi/challenge-platform/h/g/orchestrate/chl_page/v1?ray=98e3352d4d90f889';
-                        window._cf_chl_opt.cOgUHash = location.hash === '' && location.href.indexOf('#') !== -1 ? '#' : location.hash;
-                        window._cf_chl_opt.cOgUQuery = location.search === '' && location.href.slice(0, location.href.length - window._cf_chl_opt.cOgUHash.length).indexOf('?') !== -1 ? '?' : location.search;
-                        if (window.history && window.history.replaceState) {
-                          var ogU = location.pathname + window._cf_chl_opt.cOgUQuery + window._cf_chl_opt.cOgUHash;
-                          history.replaceState(null, null,"\/rei\/cookieclicker\/index.html?__cf_chl_rt_tk=zBnfmrK8_7g7UJfvfVkfMgALERRKHHChY9B9oiVSE6Y-1760404338-1.0.1.1-zOgVtsHwu0G27lYqlvO8n.ie42m4tInX9DKqPWvyx_k"+ window._cf_chl_opt.cOgUHash);
-                          a.onload = function() {history.replaceState(null, null, ogU);}}
-                        document.getElementsByTagName('head')[0].appendChild(a);
-                       }());
-    </script>
-  </body>
+<html>
+<head>
+<script type="text/javascript">
+    window.cookieconsent_options = {"message":"当たり前のことですが、このウェブサイトは広告とアクセス解析のためにクッキーを使用しております。","dismiss":"わかったよ!","learnMore":"さらに詳しく",link:"//natto0wtr.html.xdomain.jp/cookieconsentpolicy.html","target":"_blank",theme:"//natto0wtr.html.xdomain.jp/cookieconsent.css","domain":"natto0wtr.html.xdomain.jp/"};
+</script>
+
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.9/cookieconsent.min.js"></script>
+
+<title>CookieClicker日本語版</title>	
+<!--
+Code and graphics copyright Orteil, 2013-2020
+Feel free to alter this code to your liking, but please do not re-host it, do not profit from it and do not present it as your own.
+-->
+
+<meta name="viewport" content="width=900, initial-scale=1">
+<link rel="shortcut icon" href="img/favicon.ico" />
+<!--<link href="https://fonts.googleapis.com/css?family=Kavoon&subset=latin,latin-ext" rel="stylesheet" type="text/css">-->
+<link href='https://fonts.googleapis.com/css?family=Merriweather:900&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+<script src="showads.js"></script><!-- this just detects adblockers so we can adjust the layout and play nice -->
+<script src="base64.js"></script>
+<script src="main.js?v=2.089"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({
+          google_ad_client: "ca-pub-8491708950677704",
+          enable_page_level_ads: true
+     });
+</script>
+<link href="style.css?v=2.053" rel="stylesheet" type="text/css">
+<!--[if IE]>
+<style type="text/css">
+	#ifIE9{display:block;}
+</style>
+<![endif]-->
+
+<!--[if lt IE9]><script src="excanvas.compiled.js"></script><![endif]-->
+<!-- Facebook Pixel Code -->
+	<script>
+	!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+	n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+	n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+	t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+	document,'script','https://connect.facebook.net/en_US/fbevents.js');
+	fbq('init', '357399801355203');
+	fbq('track', 'PageView');
+	</script>
+	<noscript><img height="1" width="1" style="display:none"
+	src="https://www.facebook.com/tr?id=357399801355203&ev=PageView&noscript=1"></noscript>
+<!-- end code -->
+</head>
+<body>
+
+<div id="wrapper">
+
+	<div id="topBar">
+		<div><b>Cookie Clicker</b>&trade; &copy; <a href="//orteil.dashnet.org" target="_blank" id="topbarOrteil">Orteil</a>, 2020 - <a href="//dashnet.org" target="_blank" id="topbarDashnet">DashNet</a></div>
+		<div><a href="https://twitter.com/orteil42" target="_blank" id="topbarTwitter">twitter</a></div>
+		<div><a href="https://orteil42.tumblr.com" target="_blank" id="topbarTumblr">tumblr</a></div>
+		<div style="position:relative;"><div style="width:22px;height:32px;background:url(img/discord.png);position:absolute;left:0px;top:0px;pointer-events:none;"></div><a href="https://discordapp.com/invite/cookie" target="_blank" style="padding-left:16px;" id="topbarDiscord">Discord</a></div>
+		<div style="position:relative;"><div style="width:25px;height:32px;background:url(img/weeHoodie.png);position:absolute;left:-2px;top:0px;pointer-events:none;"></div><a class="blueLink" href="http://www.redbubble.com/people/dashnet" target="_blank" style="padding-left:12px;" id="topbarMerch">買ってね!</a></div>
+		<div style="position:relative;"><div style="width:22px;height:32px;background:url(img/patreon.png);position:absolute;left:0px;top:0px;pointer-events:none;"></div><a class="orangeLink" href="https://www.patreon.com/dashnet" target="_blank" style="padding-left:16px;" id="topbarPatreon">Patreon</a></div>
+		<div style="position:relative;display:none;font-weight:bold;" id="heralds"><div style="position:absolute;top:-4px;width:31px;height:39px;background:url(img/heraldFlag.png);left:50%;margin-left:-15px;pointer-events:none;"></div><div id="heraldsAmount" style="position:relative;z-index:10;text-shadow:0px 1px 0px #000,0px 0px 6px #ff00e4;color:#fff;">-</div></div>
+		<div><a class="lightblueLink" style="font-weight:bold;" href="https://play.google.com/store/apps/details?id=org.dashnet.cookieclicker" target="_blank" id="topbarMobileCC">Android用CookieClicker</a></div>
+		<div><a href="//orteil.dashnet.org/randomgen/" target="_blank" id="topbarRandomgen">RandomGen</a></div>
+		<div><a href="//orteil.dashnet.org/igm/" target="_blank" id="topbarIGM">Idle Game Maker</a></div>
+		<div id="links" class="hoverer">
+			他のバージョン
+			<div class="hoverable">
+			<a href="../" target="_blank" id="linkVersionLive">最新版</a>
+			<a href="http://orteil.dashnet.org/cookieclicker/" target="_blank">本家最新版</a>
+			<a href="http://orteil.dashnet.org/cookieclicker/beta" target="_blank" id="linkVersionBeta">ベータテストに参加!</a>
+			<a href="//orteil.dashnet.org/cookieclicker/v10466" target="_blank" id="linkVersionOld">v. 1.0466</a>
+			<a href="//orteil.dashnet.org/experiments/cookie/" target="_blank">クラシック</a>
+			<a href="http://natto0wtr.web.fc2.com/CookieClicker/beta/" target="_blank">日本語版<br>ベータテスト</a>
+			<a href="http://natto0wtr.web.fc2.com/CookieClicker/v10466/" target="_blank">日本語版<br>v. 1.0466</a>
+			</div>
+		</div>
+	</div>
+
+	<div id="game">
+		<div id="javascriptError">
+			<div id="loader">
+				<div class="spinnyBig"></div>
+				<div class="spinnySmall"></div>
+				<div id="loading" class="title">ロード中...</div>
+				<div id="failedToLoad" class="title">通常より長い時間かかっています。<br>
+				<div style="font-size:65%;line-height:120%;">回線速度は遅いですか?そうでないなら、javascriptが有効になっていることを確認して、更新してください。<br>
+				もし問題が継続するようであれば、こちら側の問題かもしれません。すこし待った後、Ctrl+F5で更新してください!</div></div>
+				<div id="ifIE9" class="title" style="font-size:100%;line-height:120%;">お使いのブラウザはCookieClickerを実行するには古いかもしれません。<br>ブラウザを更新するか、ChromeやFirefoxなどの、より新しいブラウザに乗り換えてはいかかでしょうか。</div>
+				<!--<div class="title">すみません!開発側に問題が発生しているようです!</div>
+				<div>修正するまで我々とともに辛抱してください。セーブデータは大丈夫です、ご心配なく!</div>-->
+			</div>
+		</div>
+
+		<canvas id="backgroundCanvas"></canvas>
+		
+		<div id="goldenCookie" class="goldenCookie"></div>
+		<div id="seasonPopup" class="seasonPopup"></div>
+		<div id="shimmers"></div>
+		<div id="alert"></div>
+		<div id="particles"></div>
+		<div id="sparkles" class="sparkles"></div>
+		<div id="notes"></div>
+		<div id="darken"></div>
+		<div id="toggleBox" class="framed prompt"></div>
+		<div id="promptAnchor"><div id="prompt" class="framed"><div id="promptContent"></div><div class="close" onclick="PlaySound('snd/tick.mp3');Game.ClosePrompt();">x</div></div></div>
+		<div id="versionNumber" class="title"></div>
+		<div id="ascend">
+			<div id="ascendBG"></div>
+			<div id="ascendZoomable"><div id="ascendContent"><div id="ascendUpgrades" style="position:absolute;"></div></div></div>
+			<div id="ascendOverlay"></div>
+		</div>
+		
+		<div id="debug"><div id="devConsole" class="framed"></div><div id="debugLog"></div></div>
+		
+		<div id="sectionLeft" class="inset">
+			<canvas id="backgroundLeftCanvas" style="z-index:5;"></canvas>
+			<div class="blackFiller"></div>
+			<div class="blackGradient"></div>
+			<div id="sectionLeftInfo"></div>
+			<div id="cookies" class="title"></div>
+			<div id="bakeryNameAnchor"><div id="bakeryName" class="title"></div></div>
+			<div id="specialPopup" class="framed prompt offScreen"></div>
+			<div id="buffs" class="crateBox"></div>
+			<div id="cookieAnchor">
+				<div id="bigCookie"></div>
+				<div id="cookieNumbers"></div>
+			</div>
+			<div id="sectionLeftExtra"></div>
+		</div>
+
+		<div class="separatorLeft"></div>
+		<div class="separatorRight"></div>
+
+		<div id="sectionMiddle" class="inset">
+			<div id="comments" class="inset title">
+				<div id="prefsButton" class="button">設定</div>
+				<div id="statsButton" class="button">統計</div>
+				<div id="logButton" class="button"><div id="checkForUpdate">更新あり!</div>情報</div>
+				<div id="legacyButton" class="button">遺産<div id="ascendMeterContainer" class="smallFramed meterContainer"><div id="ascendMeter" class="meter filling"></div></div><div class="roundedPanel" id="ascendNumber"></div><div id="ascendTooltip" class="framed"></div></div>
+				<div id="commentsTextBelow" class="commentsText"></div>
+				<div id="commentsText" class="commentsText"></div>
+				<div class="separatorBottom"></div>
+			</div>
+			<div id="centerArea">
+				<div id="buildingsTitle" class="inset title zoneTitle">施設</div>
+				<div id="buildingsMaster"></div>
+				<div id="rows"></div>
+				<div id="menu"></div>
+				<!--
+				<div id="donateBox">
+					<form target="_blank" action="https://www.paypal.com/cgi-bin/webscr" method="post" id="donate" style="margin:0px 16px;">
+					<input type="hidden" name="cmd" value="_s-xclick">
+					<input type="hidden" name="hosted_button_id" value="BBN2WL3TC6QH4">
+					<input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal — The safer, easier way to pay online.">
+					<img alt="" border="0" src="https://www.paypalobjects.com/nl_NL/i/scr/pixel.gif" width="1" height="1">
+					</form>
+					<small>Help us keep developing the game!</small>
+				</div>
+				-->
+			</div>
+		</div>
+
+		<div id="sectionRight" class="inset">
+			<div class="ifNoAds" style="width:300px;text-align:center;padding:8px 0px;background:rgba(0,0,0,0.95);font-size:10px;opacity:0.5;text-shadow:0px 0px 2px #000,0px 1px 0px #000;text-align:center;">
+				Cookie Clickerは主に広告によって支えられています。<br>このサイトをブロックしないよう考えていただくか<a href="https://www.patreon.com/dashnet" target="_blank">Patreon</a>を確認してください!(現状日本語版は広告の表示ができません。)
+			</div>
+			<div id="smallSupport" style="width:300px;text-align:center;padding-bottom:40px;background:rgba(0,0,0,0.5);position:relative;z-index:100;">
+				
+				<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+				<!-- Cookie Clicker Header Responsive -->
+				<ins class="adsbygoogle"
+					 style="display:block;margin:auto;width:300px;max-height:300px;overflow:hidden;"
+					 data-ad-client="ca-pub-8491708950677704"
+					 data-ad-slot="7077525342"
+					 data-ad-format="rectangle"
+					 data-full-width-responsive="true"></ins>
+				<script>
+				(adsbygoogle = window.adsbygoogle || []).push({});
+				</script>
+				
+				<div class="supportComment">^ スポンサードリンク ^</div>
+			</div>
+			<div id="store">
+				<div id="storeTitle" class="inset title zoneTitle">お店</div>
+				<div id="toggleUpgrades" class="storeSection upgradeBox"></div>
+				<div id="techUpgrades" class="storeSection upgradeBox"></div>
+				<div id="vaultUpgrades" class="storeSection upgradeBox"></div>
+				<div id="upgrades" class="storeSection upgradeBox"></div>
+				<div id="products" class="storeSection"></div>
+			</div>
+			
+			<div id="detectAds" class="adBanner" style="background:transparent;width:1px;height:1px;"></div>
+			<div id="support" style="margin-top:130px;">
+				<div class="supportComment">v スポンサードリンク v</div>
+				<div style="position:relative;">
+				
+					<div style="position:relative;z-index:100;min-height:250px;">
+					
+						<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+						<!-- Cookie Clicker Responsive -->
+						<ins class="adsbygoogle"
+							 style="display:block;margin:auto;"
+							 data-ad-client="ca-pub-8491708950677704"
+							 data-ad-slot="9780186019"
+							 data-ad-format="auto"
+							 data-full-width-responsive="true"></ins>
+						<script>
+						(adsbygoogle = window.adsbygoogle || []).push({});
+						</script>
+						
+						<div style="height:16px;"></div>
+						
+						<!-- AdventureQuest Worlds banner -->
+						<a class="ad" id="aqad" href="http://www.aq.com/landing/cookie/?utm_campaign=AQW_CookieClicker&utm_source=CookieClicker" target="_blank" title="AdventureQuest Worlds" style="background:url(img/aqworldsbanner.jpg) no-repeat;width:300px;height:64px;display:block;position:relative;margin:0px auto;">
+						</a>
+						
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		
+		<div id="focusButtons">
+			<div id="focusLeft" class="title">クッキー</div>
+			<div id="focusMiddle" class="title" style="font-size:80%;padding-top:18px;padding-bottom:14px;">施設</div>
+			<div id="focusRight" class="title">お店</div>
+			<div id="focusMenu" class="title">メニュー</div>
+		</div>
+		<div id="compactOverlay" class="title">
+			<div id="compactCommentsText" class="commentsText"></div>
+			<div id="compactCookies"></div>
+			<div class="separatorBottom"></div>
+		</div>
+		
+		<div id="tooltipAnchor"><div id="tooltip" class="framed" onMouseOut="Game.tooltip.hide();"></div></div>
+
+	</div>
+
+</div>
+
+<script><!--
+var fc2footerparam = 'ver=1'
+    + '&url=' + encodeURIComponent(document.location)
+    + '&service=0'
+    + '&r=' + Math.floor(Math.random() * 99999999999);
+var fc2footertag = "//vip.chps-api.fc2.com/apis/footer/?" + fc2footerparam;
+var script = document.createElement('script');
+script.src = fc2footertag;
+script.charset = "UTF-8";
+script.async = true;
+document.getElementsByTagName('head')[0].appendChild(script);
+//--></script>
+<!-- FC2, inc.-->
+<img src="//media.fc2.com/counter_img.php?id=50" style="display:none" alt="inserted by FC2 system" width="0" height="0">
+<!-- FC2, inc.--></body>
 </html>
