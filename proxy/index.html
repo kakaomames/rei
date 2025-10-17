@@ -199,7 +199,7 @@
 <body>
 <div id="wrapper">
 	<div id="header">
-		<h1><a href="index.php">www.pc-freak.net <span>WebProxy</span> proxy </a></h1>
+		<h1><a href="./">www.pc-freak.net <span>WebProxy</span> proxy </a></h1>
 	</div>
 	<div id="content">
  
@@ -209,7 +209,10 @@
  
 		<h2 class="first">About</h2>
  
-		   <p>Welcome to SiteProxy. This enables you to view any website on the net using pc-freak.net as a proxy. This is useful whether you need to check if new websites are properly configured and visible from the Internet. Web-Proxy Includes embedded Virtual browser which even supports cookies. Using the proxy you can emulate large range of OS-es and Browser types. Happy Proxying ! ;)</p><script type="text/javascript"><!--
+		   <p>SiteProxyへようこそ。これにより、pc-freak.netをプロキシとして使用して、ネット上の任意のWebサイトを表示できます。これは、新しい Web サイトが正しく設定され、インターネットから表示されているかどうかを確認する必要がある場合に便利です。Web-Proxyには、Cookieをサポートする組み込みの仮想ブラウザが含まれています。プロキシを使用すると、幅広いOS-esとブラウザタイプをエミュレートできます。ハッピープロキシ！;)</p>
+		<script type="text/javascript">
+			
+<!--
    google_ad_client = "pub-6964339082113074";
    /* 300x250, created 5/18/11 */
    google_ad_slot = "4202544518";
@@ -225,11 +228,30 @@
  
 		
  
-		<form action="includes/process.php?action=update" method="post" onsubmit="return updateLocation(this);" class="form">
+		<form action="https://www.pc-freak.net/proxy/includes/process.php?action=update" method="post" onsubmit="return updateLocation(this);" class="form">
 			<input type="text" name="u" id="input" size="40" class="textbox">
 			<input type="submit" value="Go" class="button"> &nbsp; [<a style="cursor:pointer;" onclick="document.getElementById('options').style.display=(document.getElementById('options').style.display=='none'?'':'none')">options</a>]
 			<ul id="options" style="display: none;">
-				<li><input type="checkbox" name="encodeURL" id="encodeURL" checked="checked"><label for="encodeURL" class="tooltip" onmouseover="tooltip('Encodes the URL of the page you are viewing so that it does not contain the target site in plaintext.')" onmouseout="exit();">Encode URL</label></li><li><input type="checkbox" name="encodePage" id="encodePage"><label for="encodePage" class="tooltip" onmouseover="tooltip('Helps avoid filters by encoding the page before sending it and decoding it with javascript once received. This is not 100% reliable and may break functionality in some browsers.')" onmouseout="exit();">Encode Page</label></li><li><input type="checkbox" name="allowCookies" id="allowCookies" checked="checked"><label for="allowCookies" class="tooltip" onmouseover="tooltip('Cookies may be required on interactive websites (especially where you need to log in) but advertisers also use cookies to track your browsing habits.')" onmouseout="exit();">Allow Cookies</label></li><li><input type="checkbox" name="stripJS" id="stripJS" checked="checked"><label for="stripJS" class="tooltip" onmouseover="tooltip('Remove scripts to protect your anonymity and speed up page loads. However, not all sites will provide an HTML-only alternative. (Recommended)')" onmouseout="exit();">Remove Scripts</label></li><li><input type="checkbox" name="stripObjects" id="stripObjects"><label for="stripObjects" class="tooltip" onmouseover="tooltip('You can increase page load times by removing unnecessary Flash, Java and other objects. If not removed, these may also compromise your anonymity.')" onmouseout="exit();">Remove Objects</label></li>			</ul>
+				<li><input type="checkbox" name="encodeURL" id="encodeURL" checked="checked">
+					<label for="encodeURL" class="tooltip" onmouseover="tooltip('Encodes the URL of the page you are viewing so that it does not contain the target site in plaintext.')" onmouseout="exit();">Encode URL</label>
+				</li>
+　　　　　　　　　　<li>
+			  <input type="checkbox" name="encodePage" id="encodePage">
+			  <label for="encodePage" class="tooltip" onmouseover="tooltip('Helps avoid filters by encoding the page before sending it and decoding it with javascript once received. This is not 100% reliable and may break functionality in some browsers.')" onmouseout="exit();">Encode Page</label>
+		  </li>
+				<li>
+					<input type="checkbox" name="allowCookies" id="allowCookies" checked="checked">
+					<label for="allowCookies" class="tooltip" onmouseover="tooltip('Cookies may be required on interactive websites (especially where you need to log in) but advertisers also use cookies to track your browsing habits.')" onmouseout="exit();">Allow Cookies</label>
+				</li>
+				<li>
+					<input type="checkbox" name="stripJS" id="stripJS" checked="checked">
+					<label for="stripJS" class="tooltip" onmouseover="tooltip('Remove scripts to protect your anonymity and speed up page loads. However, not all sites will provide an HTML-only alternative. (Recommended)')" onmouseout="exit();">Remove Scripts</label>
+				</li>
+				<li>
+					<input type="checkbox" name="stripObjects" id="stripObjects">
+					<label for="stripObjects" class="tooltip" onmouseover="tooltip('You can increase page load times by removing unnecessary Flash, Java and other objects. If not removed, these may also compromise your anonymity.')" onmouseout="exit();">Remove Objects</label>
+				</li>
+			</ul>
 			<br style="clear: both;">
 		</form>
 	 
