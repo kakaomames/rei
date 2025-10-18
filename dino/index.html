@@ -1,38 +1,575 @@
 https://chromedino.com
 <!DOCTYPE html>
-<html lang="en-US">
-  <head>
-    <title>Just a moment...</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    <meta name="robots" content="noindex,nofollow">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <style>
-      *{box-sizing:border-box;margin:0;padding:0}
-      html{line-height:1.15;-webkit-text-size-adjust:100%;color:#313131;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"}
-      body{display:flex;flex-direction:column;height:100vh;min-height:100vh}
-      .main-content{margin:8rem auto;padding-left:1.5rem;max-width:60rem}
-      @media (width <= 720px){.main-content{margin-top:4rem}}
-      .h2{line-height:2.25rem;font-size:1.5rem;font-weight:500}
-      @media (width <= 720px){.h2{line-height:1.5rem;font-size:1.25rem}}
-      #challenge-error-text{background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iI0IyMEYwMyIgZD0iTTE2IDNhMTMgMTMgMCAxIDAgMTMgMTNBMTMuMDE1IDEzLjAxNSAwIDAgMCAxNiAzbTAgMjRhMTEgMTEgMCAxIDEgMTEtMTEgMTEuMDEgMTEuMDEgMCAwIDEtMTEgMTEiLz48cGF0aCBmaWxsPSIjQjIwRjAzIiBkPSJNMTcuMDM4IDE4LjYxNUgxNC44N0wxNC41NjMgOS41aDIuNzgzem0tMS4wODQgMS40MjdxLjY2IDAgMS4wNTcuMzg4LjQwNy4zODkuNDA3Ljk5NCAwIC41OTYtLjQwNy45ODQtLjM5Ny4zOS0xLjA1Ny4zODktLjY1IDAtMS4wNTYtLjM4OS0uMzk4LS4zODktLjM5OC0uOTg0IDAtLjU5Ny4zOTgtLjk4NS40MDYtLjM5NyAxLjA1Ni0uMzk3Ii8+PC9zdmc+");background-repeat:no-repeat;background-size:contain;padding-left:34px}
-      @media (prefers-color-scheme: dark){body{background-color:#222;color:#d9d9d9}}
-    </style>
-    <meta http-equiv="refresh" content="360">
-  </head>
-  <body>
-    <div class="main-wrapper" role="main">
-      <div class="main-content">
-        <noscript>
-          <div class="h2">
-            <span id="challenge-error-text">続行するにはJavaScriptとCookieを有効にしてください</span>
-          </div>
-        </noscript>
-      </div>
-    </div>
+<html itemscope="" itemtype="http://schema.org/WebPage" lang="jp">
+<head>
+    <title>Chrome Dino ゲームオンライン</title>
+    <meta name="keywords" content="" />
+    <meta name="description" content="T-Rex Dinosaur（Dinosaur Google）-インターネットがない場合のChromeブラウザに隠されたゲームのレプリカ。 スペースバーを押して開始します。 スペースバーまたは上矢印と下矢印（↓）を使用して恐竜をジャンプしてアヒルします。" />
+
+    <meta property="og:url" content="https://dinorunner.com/jp/" />
+    <meta property="og:description" content="T-Rex Dinosaur（Dinosaur Google）-インターネットがない場合のChromeブラウザに隠されたゲームのレプリカ。 スペースバーを押して開始します。 スペースバーまたは上矢印と下矢印（↓）を使用して恐竜をジャンプしてアヒルします。" />
+    <meta property="og:title" content="Chrome Dino ゲームオンライン" />
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://dinorunner.com/static/images/chrome_dino_runner.png">
+    <meta property="og:site_name" content="Chrome_Dino">
+
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <link rel="apple-touch-icon" sizes="57x57" href="./static/favicons/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="./static/favicons/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="./static/favicons/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="./static/favicons/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="./static/favicons/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="./static/favicons/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="./static/favicons/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./static/favicons/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./static/favicons/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="./static/favicons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./static/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="./static/favicons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./static/favicons/favicon-16x16.png">
+    <link rel="manifest" href="./static/favicons/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="./static/favicons/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    
+    <link hreflang="EN"  href="/" rel="alternate" />
+  <link hreflang="RU"  href="/ru/" rel="alternate" />
+  <link hreflang="IT"  href="/it/" rel="alternate" />
+  <link hreflang="ZH"  href="/zh/" rel="alternate" />
+  <link hreflang="DE"  href="/de/" rel="alternate" />
+  <link hreflang="FR"  href="/fr/" rel="alternate" />
+  <link hreflang="ES"  href="/es/" rel="alternate" />
+  <link hreflang="PT"  href="/pt/" rel="alternate" />
+  <link hreflang="TR"  href="/tr/" rel="alternate" />
+  <link hreflang="PL"  href="/pl/" rel="alternate" />
+  <link hreflang="KO"  href="/ko/" rel="alternate" />
+  <link hreflang="TH"  href="/th/" rel="alternate" />
+  <link hreflang="VI"  href="/vi/" rel="alternate" />
+  <link hreflang="AR"  href="/ar/" rel="alternate" />
+    <link rel="canonical" href="https://dinorunner.com/jp/" />
+    <link rel="shortlink" href="/jp/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin />
+    <link rel="dns-prefetch" href="https://ssl.google-analytics.com" crossorigin />
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+    <link rel="dns-prefetch" href="https://adservice.google.com" crossorigin />
+    <link rel="dns-prefetch" href="https://partner.googleadservices.com" crossorigin />
+    <link rel="dns-prefetch" href="https://tpc.googlesyndication.com" crossorigin />
+
     <script>
-      (function(){
-        window._cf_chl_opt = {cvId: '3',cZone: 'chromedino.com',cType: 'managed',cRay: '9903d9137f81c999',cH: 'zFYp4JFat2ST9l0ow0F.lQqcKfKYB0Wjib4hmtPUytQ-1760746596-1.2.1.1-WO6WAFfutglzzdOiRdRg_t_P4NepUEm5xnbeXlgJJmf5eRne5gxPrRbNANI1_Xax',cUPMDTk:"\/?__cf_chl_tk=Fq146hC7XkBBFTS2XzPROk9hl1fuhmSaQrGw1KoV_t4-1760746596-1.0.1.1-M_UD3BA3kSkfzLJLxLsm8BEGzxXBaTDtTQ0ge_2xWys",cFPWv: 'g',cITimeS: '1760746596',cTplC:0,cTplV:5,cTplB: 'cf',fa:"\/?__cf_chl_f_tk=Fq146hC7XkBBFTS2XzPROk9hl1fuhmSaQrGw1KoV_t4-1760746596-1.0.1.1-M_UD3BA3kSkfzLJLxLsm8BEGzxXBaTDtTQ0ge_2xWys",md: 'b2f6k7LVEj5dsGnMle6rkSMRC8j0px2xoF6ugzFHBUE-1760746596-1.2.1.1-ExGnsnWkGYR0nYVu3VcFV02EER.B1i5jm1uCbJ_DvXXI4VNuGGmx268p9AXzBohZf5XVqdw0sAdWpPrJKQHEcmlTYkLqwkWL2u57dlO27ZHMebe.BOGFtK6TliPc5Ydud_hAj8FZATr6ScFAvmm3OnDUTfX95A92ujqN0zBR5CkFV9bjsCr78J5TosqKdQ7QY8uOuz7QgqPX9jxZQNEI7w7BMBx091cJjgRNkSwyS86cATZyLmISQzUWvIZ1Pbv_plSk07D7dR_sTh6p6qD9wgL.MaukT7eSNqVOWWg1Klsol749Hbbyqx4ALrjRIq7Oi8GvbF_SHelaMKtWzjlkA73ei6pa.HeSyjzx97lsxkMfLm.Xo._ppU04r6MhEdGvgXgthqhOft6w5QPJn2dRr4cRHl49HWBjxMKNI2ZmiSBrZ_VFQXHVNJfHbwT_oVAGQHVSOXte2X2ugxvR_YEhtKfLNpjrJdzZblCQ0tswpqo854hog0f8Zmy3km_cL4Zca5LhHxxRgsQnbWtL6PpnBQXB0csFNiknmZybtUuwub0VuvfvZavlgHvqO.aF.O4Bo5X75O6tIkS6QqJfl6VB0HXWLhkpVacBArRb_dJCNnlB1wp77jQEkOF9oODfdoqg5o.HthRXazOUXU4QPnYeGss.w39Ulauz23kG.c8CilIqC1PaYmUpbtO.pvlxpz2dIGO7LQF.Q3OKtVT5xJf3qjaRreaZHkTtYeDcohKCUBPmPs3B8ExwR8PHaM9.mYMFcNQ8Ld4VR1MGpjKarheZIoejNFnBjplNMMAoc3YCV7USxljnkVRQUWBVhuQ2LvWUvYSkY5gO2xbCnxGn.PXfmWYu90ISlNxR4v2gqNOL_L8e5VDE74ANVdu9b2ptAp8QcpYI0DK9CitrGtSZEjdnZg',mdrd: 'hqv7qNegnPTRwAA.vhaVoyf66BWdMVYUuD_ur6AyXSo-1760746596-1.2.1.1-YbT1NsJ.VVHuDYXF3yin74k9pWSAgK_BGwPbycQJi8VNO.7y13C8SF6.FF.XApb1oxW4G6Ca3p.HizE4N6OX9vfCuxstNJ4ZZ.VswisUVSZe7WcX9BsqmoGxXeQKnf8TMoCPts7vhIX4gUiQysEWdyYEGBDbTYp6DTlBuPMGkyJFOaFLD_.q6oKMThUMFqXdabcydwwEu9dh9XJ8DWf.8vZMnicQ0XIxpW97apufDF_T84OMwZwsua8bbTcrrJxyThKrrGW1IrVrMxzC.Wdmq66epLwY7JQ1.tW6xw8ppSMqGdxJxOSpb6NnW.IMQYjaFhYkdXrtkOwe3PgCRchNb7.GpWQ6k9P0h2zbqFnZnPELxPgkSXhtCnJAiM1XYen8Fha5Sx2fkUKl8qkjDE9bnu_9W58.ygnqOwrURzT77f6nMfna6IVuSGLciTTldJTL04nipFfMypGx080mfYwaypwOZ5LFkEtZCmQgj0OqBbq55k0BRIDUoi8h1Aqi4TrGNY.Hz99MDIFWvDL6NNAbaLPHPRnYwnmtGY8Laq2Gw3dJDy9H6aEZDFEmHOGtNmJlYMgY9ZBXWVJ1Ou9z4lotRg',};var a = document.createElement('script');a.src = '/cdn-cgi/challenge-platform/h/g/orchestrate/chl_page/v1?ray=9903d9137f81c999';window._cf_chl_opt.cOgUHash = location.hash === '' && location.href.indexOf('#') !== -1 ? '#' : location.hash;window._cf_chl_opt.cOgUQuery = location.search === '' && location.href.slice(0, location.href.length - window._cf_chl_opt.cOgUHash.length).indexOf('?') !== -1 ? '?' : location.search;if (window.history && window.history.replaceState) {var ogU = location.pathname + window._cf_chl_opt.cOgUQuery + window._cf_chl_opt.cOgUHash;history.replaceState(null, null,"\/?__cf_chl_rt_tk=Fq146hC7XkBBFTS2XzPROk9hl1fuhmSaQrGw1KoV_t4-1760746596-1.0.1.1-M_UD3BA3kSkfzLJLxLsm8BEGzxXBaTDtTQ0ge_2xWys"+ window._cf_chl_opt.cOgUHash);a.onload = function() {history.replaceState(null, null, ogU);}}document.getElementsByTagName('head')[0].appendChild(a);}());
+      var VERSION = 'e546bec7037dedbc1d6a';
+      var LEVEL_CURRENT = 'default';
+      var LEVEL_CURRENT_UUID = '1';
+      var LANG = 'jp';
+      var LANG_UUID = '2';
+      var IS_AUTH = false;
     </script>
-  </body>
+
+          <link rel="stylesheet" href="./static/css/app.css?v=e546bec7037dedbc1d6a">
+<link rel="stylesheet" href="./static/css/dino_default.css?v=e546bec7037dedbc1d6a">
+    
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0CF0NPTFD6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0CF0NPTFD6');
+</script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript" >
+   (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+   m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+   (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+   ym(71467330, "init", {
+        clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        webvisor:true
+   });
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/71467330" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
+            <script data-ad-client="ca-pub-8107939018403383" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      </head>
+<body id="t" class="offline default"  data-type="game">
+
+           
+<div class="page">
+    
+<!-- ######### HEADER ############ -->
+<header class="header">
+    <div class="header__inner page__max">
+        <div class="header__logo">
+            <a href="https://dinorunner.com/jp/">
+              <img src="./static/images/default/logo.png" alt="Google Chrome Dinosaur Game Online dinorunner.com" title="Google Chrome Dinosaur Game Online dinorunner.com"></a>
+        </div>
+        <div class="header__humburger">
+            <svg xmlns="http://www.w3.org/2000/svg" width="38" height="32" class="header__humburger-icon header__humburger_open">
+              <use xlink:href="./static/svg/sprite.svg?v=e546bec7037dedbc1d6a#bars"></use>
+            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="38" height="32" class="header__humburger-icon header__humburger_close">
+              <use xlink:href="./static/svg/sprite.svg?v=e546bec7037dedbc1d6a#times"></use>
+            </svg>
+        </div>
+        <div class="header__more">
+            <div class="header__menu">
+                        
+<nav class="header-menu">
+    <div class="header-menu__inner">
+
+        <ul class="header-menu__ul">
+            <li class="header-menu__li">
+                <a class="header-menu__a" href="https://dinorunner.com/jp/users/">ユーザー</a>
+            </li>
+        </ul>
+    </div>
+</nav>            </div>
+            <div class="header__right">
+                <div class="header__lang">
+                            
+<div class="langs">
+    <div class="langs__current">
+        <span class="icon langs__icon langs__icon-jp">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="./static/svg/sprite.svg#jp"></use></svg>
+        </span>
+        日本語    </div>
+    <div class="langs__arrow icon-arrow-dropdown">
+        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="15">
+          <use xlink:href="./static/svg/sprite.svg#angle-down"></use></svg>
+    </div>
+    <div class="langs__menu">
+        <ul class="langs__list">
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-en">
+                      <svg xmlns="http://www.w3.org/2000/svg">
+                        <use xlink:href="./static/svg/sprite.svg#en"></use></svg>
+                    </span>
+                    English                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/ru/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-ru">
+                      <svg xmlns="http://www.w3.org/2000/svg">
+                        <use xlink:href="./static/svg/sprite.svg#ru"></use></svg>
+                    </span>
+                    Русский                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/jp/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-jp">
+                      <svg xmlns="http://www.w3.org/2000/svg">
+                        <use xlink:href="./static/svg/sprite.svg#jp"></use></svg></span>
+                    日本語                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/it/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-it">
+                      <svg xmlns="http://www.w3.org/2000/svg">
+                        <use xlink:href="./static/svg/sprite.svg#it"></use></svg>
+                    </span>
+                    Italiano                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/zh/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-zh"><svg xmlns="http://www.w3.org/2000/svg"><use xlink:href="./static/svg/sprite.svg#zh"></use></svg></span>
+                    中文                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/de/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-de"><svg xmlns="http://www.w3.org/2000/svg"><use xlink:href="./static/svg/sprite.svg#de"></use></svg></span>
+                    Deutsch                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/fr/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-fr"><svg xmlns="http://www.w3.org/2000/svg"><use xlink:href="./static/svg/sprite.svg#fr"></use></svg></span>
+                    Français                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/es/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-es"><svg xmlns="http://www.w3.org/2000/svg"><use xlink:href="./static/svg/sprite.svg#es"></use></svg></span>
+                    Español                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/pt/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-pt"><svg xmlns="http://www.w3.org/2000/svg"><use xlink:href="./static/svg/sprite.svg#pt"></use></svg></span>
+                    Português                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/tr/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-tr"><svg xmlns="http://www.w3.org/2000/svg"><use xlink:href="./static/svg/sprite.svg#tr"></use></svg></span>
+                    Türk                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/pl/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-pl"><svg xmlns="http://www.w3.org/2000/svg"><use xlink:href="./static/svg/sprite.svg#pl"></use></svg></span>
+                    Polski                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/ko/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-ko"><svg xmlns="http://www.w3.org/2000/svg"><use xlink:href="./static/svg/sprite.svg#ko"></use></svg></span>
+                    한국인                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/th/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-th"><svg xmlns="http://www.w3.org/2000/svg"><use xlink:href="./static/svg/sprite.svg#th"></use></svg></span>
+                    ไทย                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/vi/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-vi"><svg xmlns="http://www.w3.org/2000/svg"><use xlink:href="./static/svg/sprite.svg#vi"></use></svg></span>
+                    Tiếng Việt                </a>
+            </li>
+                    <li class="langs__item">
+                <a href="https://dinorunner.com/ar/" class="langs__link">
+                    <span class="icon langs__icon langs__icon-ar"><svg xmlns="http://www.w3.org/2000/svg"><use xlink:href="./static/svg/sprite.svg#ar"></use></svg></span>
+                    عربى                </a>
+            </li>
+                </ul>                        
+    </div>
+</div>
+                </div>
+                <div class="header__userpanel">
+                            
+<div class="user-panel user-panel--no-auth">
+            <div class="user-panel__inn">
+            
+                            <a href="./jp/login/?return=%2Fjp%2F" class="btn btn-small btn-success user-panel__btn">
+                    ログイン                </a>
+                
+                <a href="./jp/signup/?return=%2Fjp%2F" class="btn btn-small btn-info user-panel__btn">
+                    新しいアカウントを作成                </a>
+                                    
+        </div>
+    </div>                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- ######### // HEADER ############ -->    
+    <!-- ######### CONTENT ############ -->
+
+<div class="page__center">
+    <div class="page__max">
+
+        <div class="intro text-content">
+                            <h1>T-Rexクローム恐竜</h1>
+                        
+                            <div><p>ティーレックス恐竜 （グーグル恐竜ゲーム）-インターネットがない場合のChromeブラウザに隠されたゲームのレプリカ。 スペースバーを押して開始します。 スペースバーまたは上矢印と下矢印（↓）を使用して恐竜をジャンプしてアヒルします。</p></div>
+                    </div>
+
+        
+        
+                   
+<div class="game">
+    <div class="game__inner">
+        <div id="main-frame-error" class="interstitial-wrapper">
+            <div id="main-content">
+            <div class="icon icon-offline" alt=""></div>
+            </div>
+            <div class="game__help">
+                <div class="game__start">ゲームを始める</div>
+            </div> 
+        </div>
+        <div id="offline-resources">
+            <img id="offline-resources-1x" src="data:image/png;base64,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" jstcache="0">
+            <img id="offline-resources-2x" src="data:image/png;base64,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">
+            <template id="audio-resources">
+                <audio id="offline-sound-press" src="data:audio/mpeg;base64,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"></audio>
+                <audio id="offline-sound-hit" src="data:audio/mpeg;base64,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"></audio>
+                <audio id="offline-sound-reached" src="data:audio/mpeg;base64,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"></audio>
+            </template>
+        </div>
+    </div>
+</div>
+
+<div class="help__outer">
+    <div class="help">
+        <div class="help__space">使用する</div>
+        <div class="help__keys">
+            <div class="help__keys-line">
+                <div class="help__key_small help__key_active">↑</div>
+            </div>
+            <div class="help__keys-line">
+                <div class="help__key_small">←</div>
+                <div class="help__key_small help__key_active">↓</div>
+                <div class="help__key_small">→</div>
+            </div>
+        </div>
+        <div class="help__space">また</div>
+        <span class="help__key_big help__key_active">スペース</span>
+    </div>
+    <div class="help__tap">ジャンプ</div>
+</div>        
+        <div class="themes-list">
+    <ul class="themes-list__list">
+                    <li class="themes-list__item">
+                <a href="./jp/wednesday/" class="themes-list__link" title="ウェンズデー">
+                    <span class="themes-list__media">
+                        <img src="./static/images/themes_icons/wednesday.jpg" title="ウェンズデー" class="themes-list__image">
+                    </span>
+                    <span class="themes-list__title">
+                        ウェンズデー                    </span>
+                </a>
+            </li>
+                    <li class="themes-list__item">
+                <a href="./jp/night/" class="themes-list__link" title="夜">
+                    <span class="themes-list__media">
+                        <img src="./static/images/themes_icons/night.jpg" title="夜" class="themes-list__image">
+                    </span>
+                    <span class="themes-list__title">
+                        夜                    </span>
+                </a>
+            </li>
+                    <li class="themes-list__item">
+                <a href="./jp/color/" class="themes-list__link" title="色">
+                    <span class="themes-list__media">
+                        <img src="./static/images/themes_icons/color.jpg" title="色" class="themes-list__image">
+                    </span>
+                    <span class="themes-list__title">
+                        色                    </span>
+                </a>
+            </li>
+                    <li class="themes-list__item">
+                <a href="./jp/squid-game/" class="themes-list__link" title="イカゲーム">
+                    <span class="themes-list__media">
+                        <img src="./static/images/themes_icons/squid-game.jpg" title="イカゲーム" class="themes-list__image">
+                    </span>
+                    <span class="themes-list__title">
+                        イカゲーム                    </span>
+                </a>
+            </li>
+                    <li class="themes-list__item">
+                <a href="./jp/halloween/" class="themes-list__link" title="ハロウィーン">
+                    <span class="themes-list__media">
+                        <img src="./static/images/themes_icons/halloween.jpg" title="ハロウィーン" class="themes-list__image">
+                    </span>
+                    <span class="themes-list__title">
+                        ハロウィーン                    </span>
+                </a>
+            </li>
+                    <li class="themes-list__item">
+                <a href="./jp/joker/" class="themes-list__link" title="ジョーカー">
+                    <span class="themes-list__media">
+                        <img src="./static/images/themes_icons/joker.jpg" title="ジョーカー" class="themes-list__image">
+                    </span>
+                    <span class="themes-list__title">
+                        ジョーカー                    </span>
+                </a>
+            </li>
+                    <li class="themes-list__item">
+                <a href="./jp/naruto/" class="themes-list__link" title="なると">
+                    <span class="themes-list__media">
+                        <img src="./static/images/themes_icons/naruto.jpg" title="なると" class="themes-list__image">
+                    </span>
+                    <span class="themes-list__title">
+                        なると                    </span>
+                </a>
+            </li>
+                    <li class="themes-list__item">
+                <a href="./jp/godzilla/" class="themes-list__link" title="ゴジラ">
+                    <span class="themes-list__media">
+                        <img src="./static/images/themes_icons/godzilla.jpg" title="ゴジラ" class="themes-list__image">
+                    </span>
+                    <span class="themes-list__title">
+                        ゴジラ                    </span>
+                </a>
+            </li>
+                    <li class="themes-list__item">
+                <a href="./jp/mario/" class="themes-list__link" title="マリオ">
+                    <span class="themes-list__media">
+                        <img src="./static/images/themes_icons/mario.jpg" title="マリオ" class="themes-list__image">
+                    </span>
+                    <span class="themes-list__title">
+                        マリオ                    </span>
+                </a>
+            </li>
+                    <li class="themes-list__item">
+                <a href="./jp/batman/" class="themes-list__link" title="バットマン">
+                    <span class="themes-list__media">
+                        <img src="./static/images/themes_icons/batman.jpg" title="バットマン" class="themes-list__image">
+                    </span>
+                    <span class="themes-list__title">
+                        バットマン                    </span>
+                </a>
+            </li>
+                    <li class="themes-list__item">
+                <a href="./jp/santa/" class="themes-list__link" title="サンタクロース">
+                    <span class="themes-list__media">
+                        <img src="./static/images/themes_icons/santa.jpg" title="サンタクロース" class="themes-list__image">
+                    </span>
+                    <span class="themes-list__title">
+                        サンタクロース                    </span>
+                </a>
+            </li>
+                <li class="themes-list__item themes-list__arrow">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" class="themes-list__icon"><use xlink:href="/static/svg/sprite.svg#angle-down"></use></svg>
+        </li>
+    </ul>
+</div>
+
+        <div class="vad">
+    <div class="vad__block">
+                    <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-8107939018403383"
+                data-ad-slot="1497170376"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+            </div>
+</div>
+                    <div class="text-content">
+                <h2>クローム恐竜ゲーム - 説明</h2>
+                      <p>おそらく、すべてのインターネットユーザーは、
+                        インターネットが消滅したという事実に直面しています。
+                        これは、セルラーネットワークの欠如から、
+                        有線インターネットケーブルの破損まで、
+                        さまざまな理由で発生した可能性があります。
+                        ただし、いずれにせよ、
+                        Google Chromeブラウザのユーザーには、
+                        この場合、接続エラーのある空白のページだけでなく、
+                        インターネットなしでプレイできるゲーム「恐竜」が表示されます。
+                        <br>
+                        オフラインジャンプ恐竜ゲームは、学校や職場に行く間、
+                        時間を過ごすのに役立ちます。
+                        インターネットは手元にありません。
+                      </p>
+                      <p>
+                        ゲームはGoogleChromeブラウザーに組み込まれた最も原始的なランナーであるという事実にもかかわらず、
+                        開発者に敬意を表する価値があります。
+                        特定のモノクログラフィックとシンプルさがゲームの手に渡るだけです。
+                        世界中で、ゲームの存在の間に、多くのファンが現れました。
+                      </p>
+                      <p>
+                        主役は古典的な恐竜であるティラノサウルスレックスです。
+                        これは恐竜に関する映画や本で最もよく見られます。
+                        白亜紀の肉食恐竜です。ゲームでは、彼は砂漠の速歩で走ります。
+                        そこでは、途中でサボテンとテロダクティルスだけに出会い、
+                        そこからかわす、かがむ、またはジャンプする必要があります。
+                        移動距離が長くなると、T-Rexの走行速度も速くなります。
+                        したがって、ゲームは非常にシンプルですが、
+                        経験の浅いプレイヤーが多くのポイントを獲得することは非常に困難です。
+                      </p>
+                      <p>
+                        確かに、誰もがGoogle Dino T-Rexゲームがどのように開発されたかを知りたいと思うので、
+                        少し時間をさかのぼって早送りしましょう。
+                      </p>
+                      <h2>歴史</h2>
+                      <p>ゲームの開発は2014年9月にさかのぼります。ただし、最終改訂は同年12月に完了しました。
+                        修正により、Androidオペレーティングシステムの以前のバージョンのサポートを提供できるようになりました。
+                      </p>
+                      <p>Google ChromeのデザイナーであるSebastian Gabrielによると、インターネットがまだ十分に開発されておらず、
+                        まだ普及していない「昔」の時代を遊び心のある形で参照するために、
+                        恐竜が選択されました。
+                      </p>
+                      <p>ティラノサウルスという名前も偶然ではありませんでした。
+                        オフラインゲームのChrome恐竜は、
+                        1970年代のバンドT-Rexの有名なボーカリストであるMark Bolan にちなんで「Project Bolan 」と呼ばれていました。
+                        ゲームに取り組んでいる間、プログラマーはディノにうなり声を上げる能力を与える方法と、
+                        キックを導入する方法について考えました。
+                        しかし、ゲームがそのシンプルさ、つまり「先史時代の」精神を維持するために、これらのアイデアは最終的に拒否されました。
+                      </p>
+                      <h2>ゲーム恐竜 Google Chromeを開く方法は？</h2>
+                      <p>Google Chromeブラウザでゲームを開くには、アドレスバーに 
+                        <strong>chrome：//dino/</strong>
+                        と入力します。インターネットがあればブラウザに組み込まれているゲームが開くので、
+                        自分でインターネットをオフにする必要はありません。</p>
+                      <p>インターネットユーザーの大多数は、メインブラウザとしてChromeを使用しています。
+                        ただし、別のブラウザを使用している場合は、当サイトがお手伝いします。
+                        その上で、Dino Tirex恐竜をオンラインで、どのブラウザでも、どのデバイスでも、
+                        デスクトップでも、携帯電話でもプレイできます。</p>
+                      <h2>遊び方？</h2>
+                      <p>上記のように、Google Chrome Dinosaurは、T-Rexがサボテンやテロダクティルスなど、
+                        途中で多くの障害を克服しなければならない無料のエンドレスランナーです。
+                        ゲームがモバイルプラットフォームで実行されている場合、
+                        ユーザーがスペースバーを押すか、小さなChrome Dinoヒーローに触れるとすぐに、
+                        恐竜が自動的に動き始めます。</p>
+                      <p>サボテンと衝突しないようにするには、スペースバーまたは上矢印を押してサボテンを飛び越え、
+                        2番目の障害物（空飛ぶテロダクティルス）を克服するには、逆に下矢印を押して下に曲がる必要があります。
+                        衝突が発生すると、ゲームは終了し、スコアが表示されます。
+                        獲得したポイント数は、経過時間に対して計算されます。</p>
+                      <p>ゲームの目標は、可能な限り長く生き残ることです。
+                        ゲームを進めると、背景色が明るい色から暗い色に、またはその逆に変化します（昼と夜の変化）。
+                        内蔵のブラウザゲームでは、プレイヤーが次の障害物を回避できない場合だけでなく、インターネット信号が回復した場合にもT-Rexは停止します。</p>
+                      <p>作者によると、ゲームを完了するには約1,700万年かかるため、ゲームを最後まで完了することはできません。
+                        ほぼこの時点で、ティラノサウルスレックス恐竜はまだ地球上で生きていました。
+                        さらに、ゲームの速度が絶えず増加しているという事実のために、ある時点で、障害物に反応する時間を持つのに十分な人の身体能力がありません。
+                        恐竜をプレイするように訓練されたニューラルネットワークでさえ、フレームのリフレッシュレートがもはや十分ではないため、ある
+                        時点で失敗し、失われます-T-Rexの実行速度は非常に速くなっています。</p>
+                      <h2>トリック</h2>
+                      <p>ゲームの標準バージョンには、たとえば、固定の低速を設定したり、サボテンや他のオブジェクトと衝突したときに敗北をオフにしたりすることで、結果を改善できるチートコードがあります。</p><p>ただし、他の人と競争することは常に興味深いため、ゲームをできるだけ公平にするために、ChromeDinoで標準のチートを使用する機能を無効にしました。したがって、当社のウェブサイトに表示されるすべての評価は絶対に正直であり、プレーヤーは自分で非常に多くのポイントを獲得することができました。</p>
+                      <p>ただし、ブラウザベースのゲームをプレイしている場合は、次のチートが役立つ場合があります。このコードは、開発者ツールバーの[コンソール]タブの入力行に挿入する必要があります。この入力行は、キーボードのF12キーを押すか、Ctrl + Shift + Iを押すことで開くことができます。</p>
+                      <p>障害物を無効にする<br>
+                        Runner.instance_.gameOver = function(){};</p>
+                      <p>恐竜の速度を変更します（100の代わりに、他の値を指定できます）<br>
+                        Runner.instance_.setSpeed (100);</p> 
+                    </div>
+            </div>
+</div>
+<!-- ######### // CONTENT ############ -->  
+  <div class="page__clear"></div>
+</div>
+
+
+<!-- ######### FOOTER ############ 1 -->
+<footer class="footer">
+    <div class="footer__inner page__max">
+        Google Chrome Dinosaur Game Online, 2010—2025  
+      <div class="footer__info">ゲームのソース コードとインターフェイスのビジュアル要素はオープン ソースから取得されています。</div>
+        <div class="footer__menu">
+            <ul class="footer__menu-ul">
+                <li class="footer__menu-li">
+                    <a class="footer__menu-a" href="./jp/help/">助けて</a>
+                </li>
+                                <li class="footer__menu-li">
+                    <a class="footer__menu-a" href="https://dinorunner.com/help/terms-of-use/">利用規約</a>
+                </li>
+                <li class="footer__menu-li">
+                    <a class="footer__menu-a" href="https://dinorunner.com/help/cookie/">Cookieポリシー</a>
+                </li>
+                <li class="footer__menu-li">
+                    <a class="footer__menu-a" href="https://dinorunner.com/help/privacy-policy/">プライバシーポリシー</a>
+                </li>
+                <li class="footer__menu-li">
+                    <a class="footer__menu-a" href="https://dinorunner.com/contact-us/">連絡先</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+	<section class="more-games">
+    <div class="more-games__inner page__max">
+        <span class="more-games__label">More games</span>
+                <a href="https://sudokuhit.com/" class="more-games__item" target="_blank">Sudoku</a>
+        <a href="https://mahjonghit.com/" class="more-games__item" target="_blank">Mahjong</a>
+    </div>
+</section></footer>
+<!-- ######### // FOOTER ############ -->
+
+<script type="text/javascript">
+    var lang = 'jp';
+</script>
+
+
+<script src="./static/js/229.js?v=e546bec7037dedbc1d6a" defer></script>
+<script src="./static/js/77.js?v=e546bec7037dedbc1d6a" defer></script>
+<script src="./static/js/54.js?v=e546bec7037dedbc1d6a" defer></script>
+<script src="./static/js/app.js?v=e546bec7037dedbc1d6a" defer></script>
+<script src="./static/js/809.js?v=e546bec7037dedbc1d6a" defer></script>
+<script src="./static/js/dino_default.js?v=e546bec7037dedbc1d6a" defer></script>
+    </body>
 </html>
+<!-- Time: 0.007 Sec. | Memory: 527.852 Kb. -->
