@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <script src="/lib/javascripts/no_scalable.js" async></script>
+  <script src="/appconfig/"></script>
+  <script src="/lib/javascripts/socket.io.slim.js"></script>
+  <script src="./exif.js" async></script>
+  <link rel="stylesheet" href="./highlight/styles/default.css">
+  <script src="./highlight/highlight.pack.js" async></script>
+  <script src="/lib/javascripts/localcache.js"></script>
+  <link rel="manifest" data-webmanifest="app.webmanifest">
+  <script src="/lib/javascripts/pwa_plugins/pwa_loader.js" async></script>
+  <title>konoMi</title>
+  <style>
+    html {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* SafeArea対応 */
+    body>.appContainer {
+      position: relative;
+      height: 100%;
+      width: 100%;
+    }
+
+    body>.appContainer>#app {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: dimgray;
+    }
+
+    body>.appContainer>#app>div {
+      font-size: 14px;
+      color: darkgray;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="appContainer">
+    <div id="app">
+      <div>Loading...</div>
+    </div>
+  </div>
+
+  <script>
+    window.setImmediate = window.setTimeout;
+    function isMobile() {
+      //暫定：シンプルに幅だけで判定
+      // return (window.parent.screen.width <= 1024);
+      /** ユーザーエージェントからスマホ判定 */
+      var ua = navigator.userAgent;
+      return (ua.indexOf('iPhone') > 0 || ua.indexOf('Android') > 0 && ua.indexOf('Mobile') > 0)
+    }
+    function getIOSVersion() {
+      try {
+        const ua = navigator.userAgent.toLowerCase();
+        if (ua.match(/iphone/i) !== null || ua.match(/ipod/i) !== null || ua.match(/ipad/i) !== null) {
+          const versionInfo = ua.match(/os (\d+)_(\d+)_?(\d+)?/);
+          return parseInt(versionInfo[1], 10);
+        }
+      } catch (err) { console.error(err); }
+    }
+
+    /*ユーザーエージェント偽装モードを探知*/
+    function lsUALieDetector() {
+      // iPadのPCモード(PCのユーザーエージェントなのにタッチができる)場合はちゃんとユーザーエージェントにiPadとつける
+      if (/Macintosh/i.test(navigator.userAgent) && 'ontouchend' in document) {
+        const ua = navigator.userAgent + " LS_UA_LieDetector (iPad; Mobile/PCMode like Mac OS X)";
+        navigator.__defineGetter__("userAgent", () => ua);
+        console.warn("[lsUALieDetector] User Agent Changed Manually to:" + ua);
+      }
+    };
+    lsUALieDetector();
+
+    const script = document.createElement('script');
+    // 暫定
+    // const boundlePath = isMobile() ? 'mobile' : 'web';
+    const boundlePath = (!isMobile() && location.pathname == '/calendb/') ? 'web' : 'mobile';
+    // if (isMobile() && location.pathname == '/calendb/') {
+    //   localStorage.setItem('viewMode', 'calendb');
+    // }
+
+    const iOS10 = (getIOSVersion() < 11) ? '.ios10' : ''; // Webpackdで難読化すると、iOS10ではエラーとなる為
+    //script.src = `./${boundlePath}/index.bundle${iOS10}.js?_hash=${new Date().getTime()}`;
+    script.src = `./${boundlePath}/index.bundle${iOS10}.js`;
+
+    //モバイルの場合はカスタマイズしたキャッシュから読み込む
+    if (isMobile() && "LocalCache" in window) {
+      LocalCache.loadIndexBundle(script.src);　//キャッシュからスクリプトを読む
+    }
+    else {
+      document.head.appendChild(script);
+    }
+    // バージョンチェッカーを起動する(※現状Cordova内部でのみ動作)
+    if ("LocalCache" in window) LocalCache.startVersionChecker();
+    //    LocalCacheCordova.loadScript(`./${boundlePath}/index.bundle${iOS10}.js`);
+
+
+    // ファビコンの設定
+    const link = document.createElement('link');
+    let faviconPath = LsAppConfig.space.hasFaviconImage ? LsAppConfig.space.hasFaviconImagePath : 'favicon.ico';
+    if (location.pathname == '/calendb/') {
+      faviconPath = isMobile() ? 'CalenDB_favicon.png' : 'favicon.ico';
+    }
+    link.rel = 'icon';
+    link.href = faviconPath;
+    document.head.appendChild(link);
+
+    // アイコン
+    let iconPath = LsAppConfig.space.hasMobileIconImage ? LsAppConfig.space.hasMobileIconImagePath : 'konoMi_logo.png';
+    if (location.pathname == '/calendb/') {
+      iconPath = 'logo.png';
+    }
+    // apple-touch-iconの設定
+    const appleTouchIconLink = document.createElement('link');
+    appleTouchIconLink.rel = 'apple-touch-icon';
+    appleTouchIconLink.sizes = '192x192';
+    appleTouchIconLink.href = iconPath;
+    document.head.appendChild(appleTouchIconLink);
+
+    // shortcut icon の設定
+    const shortcutIconLink = document.createElement('link');
+    shortcutIconLink.rel = 'shortcut icon';
+    shortcutIconLink.href = iconPath;
+    document.head.appendChild(shortcutIconLink);
+
+    //iPhone X Maxではアプリ内部でinputタグに入力後、ステータスバーが隠れてしまうので元に戻す
+    document.addEventListener("onblur", () => {
+      if (window.cordova != undefined && document.body.classList.contains("isSafeAreaDisplay")) {
+        StatusBar.hide(); StatusBar.show();
+      }
+    });
+  </script>
+</body>
+
+</html>
