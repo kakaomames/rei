@@ -1,4 +1,5 @@
 // app.js
+
 import { logInfo, logWarn, logError, getLogsAsCopyableText } from './log.js';
 
 logInfo('アプリケーション起動'); // 起動時のINFOログ
@@ -15,24 +16,27 @@ let loadedObject = null;
 function init() {
     logInfo('Three.js初期設定開始');
     
-    // ... (前回のinit()内のThree.js設定はそのまま) ...
     // 💡 シーンを作成
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xcccccc);
+    scene.background = new THREE.Color(0xcccccc); // 背景色を少し明るく
+
     // 📸 カメラを作成
     const width = window.innerWidth;
     const height = window.innerHeight;
     camera = new THREE.PerspectiveCamera(45, width / height, 1, 2000);
     camera.position.set(0, 50, 150);
+
     // 💡 ライトを追加
-    scene.add(new THREE.AmbientLight(0x404040, 3));
+    scene.add(new THREE.AmbientLight(0x404040, 3)); // 環境光を強めに
     const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
     directionalLight.position.set(1, 1, 1).normalize();
     scene.add(directionalLight);
+
     // 🖼️ レンダラーを作成
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
     container.appendChild(renderer.domElement);
+
     // 🖱 カメラコントロール
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     
@@ -52,7 +56,8 @@ function init() {
 // --- ファイル選択時のハンドラ ---
 function handleFileSelect(event) {
     const file = event.target.files[0];
-    print(f"file:{file}");
+    // Pythonのprint(f"file:{file}"); を修正
+    console.log(`file: ${file.name}`);
     
     if (!file) {
         logWarn('ファイル選択がキャンセルされました。');
@@ -63,7 +68,7 @@ function handleFileSelect(event) {
     if (loadedObject) {
         logInfo('既存モデルを削除', {name: loadedObject.name || 'Unnamed Object'});
         scene.remove(loadedObject);
-        // ... (dispose処理は省略せず実行) ...
+        // メモリ解放処理
         loadedObject.traverse(function (child) {
             if (child.geometry) child.geometry.dispose();
             if (child.material) {
@@ -75,7 +80,8 @@ function handleFileSelect(event) {
             }
         });
         loadedObject = null;
-        print(f"loadedObject:{loadedObject} (前のモデルを削除しました)");
+        // Pythonのprint(f"loadedObject:{loadedObject} (前のモデルを削除しました)"); を修正
+        console.log(`loadedObject: ${loadedObject} (前のモデルを削除しました)`);
     }
     
     logInfo('新しいファイル読み込み開始', { fileName: file.name, fileSize: file.size });
@@ -85,7 +91,8 @@ function handleFileSelect(event) {
     
     reader.onload = function (e) {
         const objText = e.target.result;
-        print(f"objText:{objText.substring(0, 50)}...");
+        // Pythonのprint(f"objText:{objText.substring(0, 50)}..."); を修正
+        console.log(`objText: ${objText.substring(0, 50)}...`); 
         
         const loader = new THREE.OBJLoader();
         
@@ -93,11 +100,14 @@ function handleFileSelect(event) {
             // テキストとして読み込んだOBJデータをパース（解析）
             const object = loader.parse(objText);
             
-            // ... (スケール調整処理はそのまま) ...
+            // 💡 モデルが大きすぎたり小さすぎたりする場合があるので、中心に移動＆スケール調整
             const box = new THREE.Box3().setFromObject(object);
             const center = box.getCenter(new THREE.Vector3());
             const size = box.getSize(new THREE.Vector3());
-            object.position.sub(center);
+            
+            object.position.sub(center); // モデルを原点に移動
+            
+            // モデルが大きすぎる場合のスケール調整
             const maxDim = Math.max(size.x, size.y, size.z);
             if (maxDim > 100) {
                 object.scale.multiplyScalar(100 / maxDim);
@@ -106,7 +116,8 @@ function handleFileSelect(event) {
             
             scene.add(object);
             loadedObject = object;
-            print(f"loadedObject:{loadedObject} (新しいモデルをシーンに追加しました)");
+            // Pythonのprint(f"loadedObject:{loadedObject} (新しいモデルをシーンに追加しました)"); を修正
+            console.log(`loadedObject: ${loadedObject} (新しいモデルをシーンに追加しました)`);
             
             controls.reset();
             
@@ -126,7 +137,8 @@ function handleFileSelect(event) {
     }
 
     reader.readAsText(file);
-    print(f"reader.readyState:{reader.readyState} (ファイル読み込み開始)");
+    // Pythonのprint(f"reader.readyState:{reader.readyState} (ファイル読み込み開始)"); を修正
+    console.log(`reader.readyState: ${reader.readyState} (ファイル読み込み開始)`);
 }
 
 // --- ログ表示機能 ---
@@ -149,17 +161,21 @@ function displayLogs() {
     }
 }
 
-// ... (animate() と onWindowResize() は変更なし) ...
+// --- 描画とアニメーション ---
 function animate() {
     requestAnimationFrame(animate); 
     controls.update();
     renderer.render(scene, camera);
 }
+
+// --- リサイズ処理 ---
 function onWindowResize() {
     const width = window.innerWidth;
     const height = window.innerHeight;
+
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
+
     renderer.setSize(width, height);
 }
 
