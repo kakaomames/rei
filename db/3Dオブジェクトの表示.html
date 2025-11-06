@@ -2,23 +2,34 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Three.js OBJ Uploader</title>
+    <title>Three.js OBJ Uploader with Logger</title>
     <style>
+        /* (前回のCSSと同じですが、ボタン用を追加) */
         body { margin: 0; overflow: hidden; font-family: sans-serif; }
-        #file-input {
+        #controls { /* ファイル入力とログボタンのコンテナ */
             position: absolute;
             top: 10px;
             left: 10px;
             z-index: 10;
+            display: flex; /* ボタンを横並びにする */
+            gap: 10px;
         }
         #container {
             width: 100vw;
             height: 100vh;
         }
+        #show-logs-button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <input type="file" id="file-input" accept=".obj">
+    <div id="controls">
+        <input type="file" id="file-input" accept=".obj">
+        
+        <button id="show-logs-button">ログを表示する 📋</button>
+    </div>
 
     <div id="container"></div>
 
@@ -26,6 +37,6 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
-    <script src="app.js"></script>
-</body>
+    <script type="module" src="app.js"></script>
+    </body>
 </html>
