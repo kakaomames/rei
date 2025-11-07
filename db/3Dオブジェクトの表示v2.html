@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Three.js OBJ Uploader with Logger & JSON Converter</title>
+
+    <link rel="icon" type="image/jpeg" href="/rei/db/mobile_cover-start.jpg">
+    
+    <meta name="description" content="OBJファイルをアップロードし、Three.jsで表示しながら、Minecraft統合版ジオメトリJSONに変換するツール。">
+    <meta name="keywords" content="Minecraft, マインクラフト, 統合版, geometry, ジオメトリ, OBJ, Blockbench, Three.js">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
         /* CSS: 描画エリアと情報パネルの分割 */
         body { 
@@ -50,6 +57,15 @@
             padding: 5px 10px;
             cursor: pointer;
         }
+        
+        /* 編集可能な入力欄のスタイルを少し調整 */
+        #model-id-input, #file-name-input {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+            width: 100%; /* info-panelのpaddingを考慮し、幅を調整 */
+        }
     </style>
 </head>
 <body>
@@ -61,8 +77,12 @@
 
     <div id="info-panel">
         <h3 style="margin-top: 0;">ファイル情報とダウンロード</h3>
-        <p><strong>Minecraft ID:</strong> <span id="model-id">N/A</span></p>
-        <p><strong>Filename:</strong> <span id="file-name">N/A</span></p>
+        
+        <p><strong>Minecraft ID (model):</strong></p>
+        <input type="text" id="model-id-input" value="custom_obj" style="width: 100%;">
+
+        <p><strong>Filename (w/ Ext.):</strong></p>
+        <input type="text" id="file-name-input" value="N/A" style="width: 100%;">
         
         <hr>
         
@@ -77,6 +97,6 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
-    <script type="module" src="apps.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
