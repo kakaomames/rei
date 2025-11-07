@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Three.js OBJ Uploader with Logger & JSON Converter</title>
+    <style>
+        /* CSS: 描画エリアと情報パネルの分割 */
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: sans-serif;
+            display: flex; /* flexboxでcontainerとinfo-panelを横並びにする */
+        }
+        
+        /* 3Dビューアの描画エリア (画面全体の75%) */
+        #container {
+            width: 75vw;
+            height: 100vh;
+        }
+
+        /* 画面右側4分の1の情報パネル */
+        #info-panel {
+            width: 25vw; 
+            height: 100vh;
+            padding: 15px;
+            box-sizing: border-box; /* paddingを含めて幅が25vwになるように */
+            background-color: #f5f5f5; 
+            border-left: 1px solid #ddd;
+            overflow-y: auto; 
+        }
+
+        /* 既存のコントロール（ファイル入力、ログボタン：左上）*/
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ダウンロードボタンのスタイル */
+        #download-json-button {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        /* ログボタンのスタイル */
+        #show-logs-button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <input type="file" id="file-input" accept=".obj">
+        
+        <button id="show-logs-button">ログを表示する 📋</button>
+    </div>
+
+    <div id="info-panel">
+        <h3 style="margin-top: 0;">ファイル情報とダウンロード</h3>
+        <p><strong>Minecraft ID:</strong> <span id="model-id">N/A</span></p>
+        <p><strong>Filename:</strong> <span id="file-name">N/A</span></p>
+        
+        <hr>
+        
+        <a id="download-link" href="#" download="custom_geo.json" target="_blank" style="text-decoration: none;">
+            <button id="download-json-button" disabled style="width: 100%;">JSONをダウンロード 💾</button>
+        </a>
+    </div>
+    
+    <div id="container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
