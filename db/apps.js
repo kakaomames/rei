@@ -11,11 +11,11 @@ const container = document.getElementById('container');
 const fileInput = document.getElementById('file-input');
 const showLogsButton = document.getElementById('show-logs-button'); 
 
-// ⭐ 新しく追加したDOM要素
+// ⭐ 新しく追加したDOM要素 (HTML側もinputに変更されています)
 const downloadJsonButton = document.getElementById('download-json-button'); 
 const downloadLink = document.getElementById('download-link');
-const modelIdSpan = document.getElementById('model-id');
-const fileNameSpan = document.getElementById('file-name');
+const modelIdInput = document.getElementById('model-id-input');     // 編集可能なID入力欄
+const fileNameInput = document.getElementById('file-name-input');   // 編集可能なファイル名入力欄
 
 let loadedObject = null;
 let generatedJsonData = null; // 生成されたJSONデータを保持する変数
@@ -74,10 +74,11 @@ function handleFileSelect(event) {
     // -----------------------------------------------------
     const baseName = file ? file.name.replace(/\.obj$/i, '') : 'N_A';
     // ファイル名からMinecraftで使用できるクリーンなIDを生成（小文字、数字、アンダーバーのみ）
-    const modelId = baseName.toLowerCase().replace(/[^a-z0-9_]/g, ''); 
+    const initialModelId = baseName.toLowerCase().replace(/[^a-z0-9_]/g, ''); 
     
-    modelIdSpan.textContent = `geometry.${modelId}`;
-    fileNameSpan.textContent = file ? file.name : 'N/A';
+    // 編集可能なinputタグに値を設定
+    modelIdInput.value = initialModelId;
+    fileNameInput.value = file ? file.name : 'N/A';
     // -----------------------------------------------------
 
     console.log(`file: ${file ? file.name : 'N/A (キャンセル)'}`);
@@ -122,13 +123,20 @@ function handleFileSelect(event) {
             // -----------------------------------------------------
             // ⭐ OBJ解析とJSONデータ生成
             // -----------------------------------------------------
+            // 編集可能なinputから現在のIDを取得
+            const currentModelId = modelIdInput.value; 
+
             logInfo('OBJファイルをJSONデータへ変換開始...');
             const geoData = convertObjToGeoData(objText); // 解析実行
-            generatedJsonData = generateMinecraftGeoJson(geoData, modelId); // IDを渡してJSON文字列を生成
+            generatedJsonData = generateMinecraftGeoJson(geoData, currentModelId); // IDを渡してJSON文字列を生成
 
-            downloadLink.download = `${modelId}.geo.json`; // aタグのdownload属性を更新
+            // 編集可能なinputから現在のファイル名を取得し、ダウンロードファイル名を決定
+            const currentFileName = fileNameInput.value;
+            const downloadBaseName = currentFileName.endsWith('.obj') ? currentFileName.slice(0, -4) : currentFileName;
+            
+            downloadLink.download = `${downloadBaseName}.geo.json`; // aタグのdownload属性を更新
             downloadJsonButton.disabled = false;
-            logInfo('JSONデータ生成成功', { id: `geometry.${modelId}`, vertices: geoData.vertices.length });
+            logInfo('JSONデータ生成成功', { id: `geometry.${currentModelId}`, vertices: geoData.vertices.length });
             // -----------------------------------------------------
             
             // Three.jsでOBJを表示
