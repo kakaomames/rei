@@ -64,9 +64,6 @@ export function convertObjToGeoData(objText) {
     }
     
     // 2. ジオメトリJSONの形式に必要なインデックス配列を作成
-    
-    // OBJの面(faces)は頂点のインデックスの配列 [ [i1, i2, i3], [i4, i5, i6], ... ]
-    // indicesはそれらを平坦化した一次元配列 [i1, i2, i3, i4, i5, i6, ...]
     const indices = []; 
     faces.forEach(face => {
         // 面のインデックスを順番に追加
@@ -109,10 +106,11 @@ export function generateMinecraftGeoJson(geoData, modelId) {
                 },
                 "bones": [
                     {
-                        "name": "root",
+                        "name": identifierId, // ⭐ 修正: ボーン名をIDと一致させ、Blockbenchでの可視性を向上
                         "pivot": [0, 0, 0],
                         "cubes": [], // キューブは使用せず、カスタムジオメトリデータを使用
-                        "geometry_data": { 
+                        // ⭐ 修正: geometry_dataの代わりに poly_meshを使用する形式（互換性向上の試み）
+                        "poly_mesh": { 
                             "positions": geoData.vertices, // 抽出した頂点データを格納
                             "normals": [], // 法線データはOBJから正確に抽出していないため空
                             "uvs": [], // UVデータ（テクスチャ座標）はOBJから抽出していないため空
