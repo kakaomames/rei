@@ -14,10 +14,13 @@
         overflow: hidden; /* 意図しないスクロールバーの発生を防ぎます */
     }
 	#thegame {
-        width: 100%;
-        height: 100%;
-        overflow: hidden; /* 意図しないスクロールバーの発生を防ぎます */
+        width: 100%; /* 親要素（body）の幅全体を使う */
+        height: 100%; /* 親要素（body）の高さ全体を使う */
+        display: flex;
+        justify-content: center; /* 中央寄せ */
+        align-items: center; /* 中央寄せ */
     }
+		
 ruffle-player {
     width: 100%; /* 親要素 (#thegame) の幅全体 */
     height: 100%; /* 親要素 (#thegame) の高さ全体 */
