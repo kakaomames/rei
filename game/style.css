@@ -1,0 +1,63 @@
+/* style.css */
+
+/* -------------------- ページ切り替えの基本設定 -------------------- */
+
+/* すべてのゲーム画面を非表示にする */
+.game-page {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    /* スロットゲームのために中央寄せを追加 */
+    text-align: center; 
+}
+
+/* activeクラスがついている画面だけ表示する */
+.game-page.active {
+    display: block;
+}
+
+/* -------------------- スロットゲーム用のスタイル -------------------- */
+
+#reels-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 30px 0;
+}
+
+.reel-box {
+    width: 100px;
+    height: 100px;
+    /* リールが回転しているように見せるための枠 */
+    border: 3px solid gold; 
+    overflow: hidden; /* リール外のシンボルを隠す */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #222;
+    border-radius: 8px;
+}
+
+.reel {
+    font-size: 50px;
+    line-height: 100px; /* 縦方向の中央揃え */
+    text-align: center;
+    width: 100%;
+    color: white;
+    /* キー停止の視覚効果を出すためのトランジション（今回はJSで制御） */
+    transition: transform 0.1s ease-out; 
+}
+
+#result-message {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 20px 0;
+    min-height: 1.2em;
+}
+
+#spin-button {
+    padding: 10px 30px;
+    font-size: 1.5em;
+    cursor: pointer;
+}
