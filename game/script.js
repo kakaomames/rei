@@ -1,12 +1,12 @@
 // script.js
 
-// 🚨 デバッグ関数: Pythonのprintを模倣 (未定義エラー防止とログ追跡のため)
+// 🚨 デバッグ関数
 function print(value) {
     console.log(`[PRINT_VALUE] ${value}`);
 }
 
 // ----------------------------------------------------------------------
-// スロットゲームの定義
+// 状態管理変数 (グローバルに維持されます)
 // ----------------------------------------------------------------------
 const SYMBOLS = ['❼', '👑', '🍋', '☘️', '💎', '🍒', '⛱️', '❻'];
 const PAYOUTS = {
@@ -20,35 +20,145 @@ const PAYOUTS = {
     '❻': 'HALF' 
 };
 const BET_AMOUNT = 100; 
-let currentMoney = 5000; 
+let currentMoney = 5000; // 持ち金はJS内で維持
 
-// 状態管理変数
+// ----------------------------------------------------------------------
+// ページ遷移ロジック (HTML上書きのため、機能を簡略化)
+// ----------------------------------------------------------------------
+
+// 画面を遷移させ、URLを更新する関数
+function navigateTo(pageType) {
+    let newSearch = '';
+    
+    if (pageType !== 'title') {
+        newSearch = `?type=${pageType}`;
+    }
+
+    // URLを更新 (リロードなし)
+    history.pushState(null, '', newSearch);
+    
+    // 画面全体を再描画
+    renderPage(pageType);
+}
+
+// URLの 'type' パラメータを取得
+function getPageTypeFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get('type') || 'title';
+    print(`type:${type}`); 
+    return type;
+}
+
+// ブラウザの「戻る/進む」ボタンに対応
+window.addEventListener('popstate', () => {
+    const pageType = getPageTypeFromUrl();
+    renderPage(pageType); // 画面全体を再描画
+});
+
+// ----------------------------------------------------------------------
+// 🚨 メインの描画関数: body全体を上書き
+// ----------------------------------------------------------------------
+function renderPage(pageType) {
+    let htmlContent = '';
+    
+    // 描画する画面を選択
+    if (pageType === 'slot') {
+        htmlContent = getSlotScreenHtml();
+    } else if (pageType === 'game1') {
+        htmlContent = getGame1ScreenHtml();
+    } else {
+        // デフォルトはタイトル画面
+        htmlContent = getTitleScreenHtml();
+    }
+
+    // 🚨 document.body の中身を上書き
+    document.body.innerHTML = htmlContent;
+    
+    // 警告やメッセージをクリア
+    document.getElementById('result-message')?.textContent = `スピンボタンを押してください (1回 ${BET_AMOUNT}円)`;
+
+    // スロット画面の場合は、キーボードイベントを再登録する必要がある
+    if (pageType === 'slot') {
+        // 毎回 body が上書きされるため、リール停止ロジックを再実行できる状態にする
+        allReelsStopped = true; 
+        
+        // 毎回イベントリスナーを再登録する処理が必要だが、今回は簡略化のため
+        // キーイベントのリスナーはグローバルに維持されていると仮定し、
+        // 処理に必要な要素IDが再構築されていることを利用します。
+        
+        // 持ち金の表示を更新
+        document.getElementById('money-display').textContent = currentMoney;
+    }
+}
+
+// ----------------------------------------------------------------------
+// ページごとのHTMLテンプレート
+// ----------------------------------------------------------------------
+function getTitleScreenHtml() {
+    return `
+        <section id="title-screen" class="game-page active">
+            <h1>ゲーム選択画面</h1>
+            <p>
+                <button onclick="navigateTo('game1')">ゲーム1へ (type=game1)</button>
+                <button onclick="navigateTo('slot')">スロットへ (type=slot)</button>
+            </p>
+        </section>
+    `;
+}
+
+function getGame1ScreenHtml() {
+    return `
+        <section id="game1-screen" class="game-page active">
+            <h2>🎮 ゲーム1 画面</h2>
+            <p>ここが ?type=game1 で表示される画面です。</p>
+            <p><button onclick="navigateTo('title')">タイトルに戻る</button></p>
+        </section>
+    `;
+}
+
+function getSlotScreenHtml() {
+    // スロット画面のHTML
+    return `
+        <section id="slot-screen" class="game-page active">
+            <h2>💰 持ち金: <span id="money-display">${currentMoney}</span> 円</h2>
+            
+            <div id="reels-container">
+                <div class="reel-box"><div id="reel-1" class="reel">?</div></div>
+                <div class="reel-box"><div id="reel-2" class="reel">?</div></div>
+                <div class="reel-box"><div id="reel-3" class="reel">?</div></div>
+            </div>
+            
+            <p id="result-message">スピンボタンを押してください (1回 ${BET_AMOUNT}円)</p>
+            
+            <button id="spin-button" onclick="spin()">スピン！</button>
+            <p style="margin-top: 20px;"><button onclick="navigateTo('title')">タイトルに戻る</button></p>
+        </section>
+    `;
+}
+
+// ----------------------------------------------------------------------
+// スロットのゲームロジック (HTML上書き方式に合わせて調整)
+// ----------------------------------------------------------------------
 const REEL_COUNT = 3;
-const reelResults = Array(REEL_COUNT).fill(''); 
+// reelResults, isSpinning, spinIntervals は、関数外（グローバル）で定義されていることが前提
+let reelResults = Array(REEL_COUNT).fill(''); 
 let isSpinning = Array(REEL_COUNT).fill(false);
 let allReelsStopped = true; 
 const spinIntervals = Array(REEL_COUNT).fill(null);
 
-// ----------------------------------------------------------------------
-// ヘルパー関数
-// ----------------------------------------------------------------------
 function getRandomSymbol() {
     const index = Math.floor(Math.random() * SYMBOLS.length);
     return SYMBOLS[index];
 }
 
 function getReelElement(index) {
-    // indexは0, 1, 2。IDは reel-1, reel-2, reel-3
+    // 描画後にDOMから取得
     return document.getElementById(`reel-${index + 1}`);
 }
 
-// ----------------------------------------------------------------------
-// スロットのメイン処理
-// ----------------------------------------------------------------------
 function spin() {
-    if (!allReelsStopped) {
-        return;
-    }
+    // 描画関数内で isSpinning がリセットされているので、再チェック
+    if (!allReelsStopped) { return; }
 
     if (currentMoney < BET_AMOUNT) {
         alert('持ち金が足りません！タイトルに戻ります。');
@@ -56,7 +166,6 @@ function spin() {
         return;
     }
 
-    // 1. 賭け金を減らす
     currentMoney -= BET_AMOUNT;
     print(`currentMoney:${currentMoney}`);
     document.getElementById('money-display').textContent = currentMoney;
@@ -65,68 +174,49 @@ function spin() {
     const spinButton = document.getElementById('spin-button');
     spinButton.disabled = true;
     allReelsStopped = false;
+    isSpinning = Array(REEL_COUNT).fill(true); // リセット
 
-    // 2. 全リールを回転状態にする
     for (let i = 0; i < REEL_COUNT; i++) {
-        isSpinning[i] = true;
-        
-        // リールを視覚的に回転させるインターバルを設定
         spinIntervals[i] = setInterval(() => {
             const reel = getReelElement(i);
-            reel.textContent = getRandomSymbol(); 
+            if (reel) reel.textContent = getRandomSymbol(); 
         }, 100); 
     }
 }
 
-// ----------------------------------------------------------------------
-// リールを停止させる関数 (1, 2, 3キーで呼び出される)
-// ----------------------------------------------------------------------
 function stopReel(reelIndex) {
-    // すでに停止している、または回転中でなければ無視
-    if (!isSpinning[reelIndex]) {
-        return;
-    }
+    if (!isSpinning[reelIndex]) { return; }
 
-    // 1. インターバルをクリアして回転を止める
     clearInterval(spinIntervals[reelIndex]);
     isSpinning[reelIndex] = false;
     
-    // 2. 最終結果のシンボルを決定し、表示を確定する
     const finalSymbol = getRandomSymbol(); 
     reelResults[reelIndex] = finalSymbol;
     print(`reelResults[${reelIndex}]:${finalSymbol}`);
     
     const reel = getReelElement(reelIndex);
-    reel.textContent = finalSymbol; 
+    if (reel) reel.textContent = finalSymbol; 
     
-    // 3. 全てのリールが停止したかチェック
     if (isSpinning.every(state => state === false)) {
         allReelsStopped = true;
         document.getElementById('spin-button').disabled = false;
-        
-        // 勝敗判定を実行
         checkWin(reelResults);
     }
 }
 
-// ----------------------------------------------------------------------
-// キーイベントのリスナー
-// ----------------------------------------------------------------------
+// キーイベントのリスナーは body 上書き後もグローバルに維持されますが、
+// DOM要素が再構築されるため、操作の際は renderPage 後に要素の存在チェックが必要です。
 window.addEventListener('keydown', (event) => {
-    // 全てのリールが停止しているときはキー操作を無視
-    if (allReelsStopped) {
+    // スロット画面でない、またはスピン中でなければ無視
+    if (getPageTypeFromUrl() !== 'slot' || allReelsStopped) {
         return;
     }
     
     let reelToStop = -1;
 
-    if (event.key === '1') {
-        reelToStop = 0; // 1列目 (インデックス0)
-    } else if (event.key === '2') {
-        reelToStop = 1; // 2列目 (インデックス1)
-    } else if (event.key === '3') {
-        reelToStop = 2; // 3列目 (インデックス2)
-    }
+    if (event.key === '1') { reelToStop = 0; } 
+    else if (event.key === '2') { reelToStop = 1; } 
+    else if (event.key === '3') { reelToStop = 2; }
     
     if (reelToStop !== -1) {
         event.preventDefault();
@@ -134,9 +224,6 @@ window.addEventListener('keydown', (event) => {
     }
 });
 
-// ----------------------------------------------------------------------
-// 勝敗判定ロジック
-// ----------------------------------------------------------------------
 function checkWin(result) {
     const isThreeOfAKind = result[0] === result[1] && result[1] === result[2];
     let message = '';
@@ -169,67 +256,18 @@ function checkWin(result) {
     
     if (currentMoney <= 0) {
         alert('持ち金がなくなりました。ゲームオーバーです...');
+        // ゲームオーバー後は強制的にタイトルに戻し、持ち金をリセット
+        currentMoney = 5000;
         navigateTo('title'); 
     }
 }
 
+
 // ----------------------------------------------------------------------
-// ページ切り替えロジック
-// ----------------------------------------------------------------------
-
-// URLから 'type' パラメータを取得
-function getPageTypeFromUrl() {
-    const params = new URLSearchParams(window.location.search);
-    const type = params.get('type') || 'title';
-    print(`type:${type}`); 
-    return type;
-}
-
-// 画面を表示する
-function showPage(pageType) {
-    const pages = document.querySelectorAll('.game-page');
-    
-    pages.forEach(page => {
-        page.classList.remove('active');
-    });
-
-    const targetId = pageType + '-screen';
-    const targetPage = document.getElementById(targetId);
-    
-    if (targetPage) {
-        targetPage.classList.add('active');
-        // スロット画面に切り替わったときの初期化
-        if (pageType === 'slot') {
-            document.getElementById('money-display').textContent = currentMoney;
-            document.getElementById('result-message').textContent = `スピンボタンを押してください (1回 ${BET_AMOUNT}円)`;
-            allReelsStopped = true; 
-        }
-    } else {
-        showPage('title'); 
-    }
-}
-
-// ページ遷移を実行し、URLを更新
-function navigateTo(pageType) {
-    let newSearch = '';
-    
-    if (pageType !== 'title') {
-        newSearch = `?type=${pageType}`;
-    }
-
-    // history APIでURLを更新 (リロードなし)
-    history.pushState(null, '', newSearch);
-    showPage(pageType);
-}
-
-// ブラウザの「戻る/進む」ボタンに対応
-window.addEventListener('popstate', () => {
-    const pageType = getPageTypeFromUrl();
-    showPage(pageType);
-});
-
 // ページ読み込み時の初期表示
+// ----------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
     const initialPageType = getPageTypeFromUrl();
-    showPage(initialPageType);
+    // 最初の画面描画を実行
+    renderPage(initialPageType);
 });
