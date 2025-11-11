@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>シンプルなゲームSPA</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <div id="game-container">
+        
+        <section id="title-screen" class="game-page active">
+            <h1>ゲーム選択画面</h1>
+            <p>
+                <button onclick="navigateTo('game1')">ゲーム1へ (type=game1)</button>
+                <button onclick="navigateTo('slot')">スロットへ (type=slot)</button>
+            </p>
+        </section>
+
+        <section id="game1-screen" class="game-page">
+            <h2>🎮 ゲーム1 画面</h2>
+            <p>ここが `?type=game1` で表示される画面です。</p>
+            <p><button onclick="navigateTo('title')">タイトルに戻る</button></p>
+        </section>
+
+        <section id="slot-screen" class="game-page">
+            <h2>💰 持ち金: <span id="money-display">5000</span> 円</h2>
+            
+            <div id="reels-container">
+                <div class="reel-box"><div id="reel-1" class="reel">?</div></div>
+                <div class="reel-box"><div id="reel-2" class="reel">?</div></div>
+                <div class="reel-box"><div id="reel-3" class="reel">?</div></div>
+            </div>
+            
+            <p id="result-message">スピンボタンを押してください (1回 ${BET_AMOUNT}円)</p>
+            
+            <button id="spin-button" onclick="spin()">スピン！</button>
+            <p style="margin-top: 20px;"><button onclick="navigateTo('title')">タイトルに戻る</button></p>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
