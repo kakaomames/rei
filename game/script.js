@@ -1,7 +1,12 @@
 // script.js
 
+// 🚨 デバッグ関数: Pythonのprintを模倣 (未定義エラー防止とログ追跡のため)
+function print(value) {
+    console.log(`[PRINT_VALUE] ${value}`);
+}
+
 // ----------------------------------------------------------------------
-// スロットゲームの定義 (変更なし)
+// スロットゲームの定義
 // ----------------------------------------------------------------------
 const SYMBOLS = ['❼', '👑', '🍋', '☘️', '💎', '🍒', '⛱️', '❻'];
 const PAYOUTS = {
@@ -11,27 +16,21 @@ const PAYOUTS = {
     '🍒': 2000,
     '🍋': 1000,
     '☘️': 500,
-    '⛱️': 0, 
+    '⛱': 0, 
     '❻': 'HALF' 
 };
 const BET_AMOUNT = 100; 
 let currentMoney = 5000; 
 
-// ----------------------------------------------------------------------
-// 🚨 新しい状態管理変数
-// ----------------------------------------------------------------------
+// 状態管理変数
 const REEL_COUNT = 3;
-// リールの現在のシンボルを保持 (結果判定に使う)
 const reelResults = Array(REEL_COUNT).fill(''); 
-// リールのスピン状態を管理 (false: 停止, true: 回転中)
 let isSpinning = Array(REEL_COUNT).fill(false);
-// 全てのリールが停止したかどうかのフラグ
 let allReelsStopped = true; 
-// リールが回転し続けるためのインターバルID
 const spinIntervals = Array(REEL_COUNT).fill(null);
 
 // ----------------------------------------------------------------------
-// シンボル取得とリール要素の取得 (変更なし)
+// ヘルパー関数
 // ----------------------------------------------------------------------
 function getRandomSymbol() {
     const index = Math.floor(Math.random() * SYMBOLS.length);
@@ -39,6 +38,7 @@ function getRandomSymbol() {
 }
 
 function getReelElement(index) {
+    // indexは0, 1, 2。IDは reel-1, reel-2, reel-3
     return document.getElementById(`reel-${index + 1}`);
 }
 
@@ -46,13 +46,10 @@ function getReelElement(index) {
 // スロットのメイン処理
 // ----------------------------------------------------------------------
 function spin() {
-    // スピン中であれば、多重起動を防止
     if (!allReelsStopped) {
-        console.log('まだスピン中です。');
         return;
     }
 
-    // 持ち金チェック
     if (currentMoney < BET_AMOUNT) {
         alert('持ち金が足りません！タイトルに戻ります。');
         navigateTo('title');
@@ -61,12 +58,12 @@ function spin() {
 
     // 1. 賭け金を減らす
     currentMoney -= BET_AMOUNT;
-    print(f"currentMoney:{currentMoney}");
+    print(`currentMoney:${currentMoney}`);
     document.getElementById('money-display').textContent = currentMoney;
     document.getElementById('result-message').textContent = 'リール回転中... 1, 2, 3キーで止められます。';
     
     const spinButton = document.getElementById('spin-button');
-    spinButton.disabled = true; // スピン中はボタンを無効化
+    spinButton.disabled = true;
     allReelsStopped = false;
 
     // 2. 全リールを回転状態にする
@@ -76,19 +73,16 @@ function spin() {
         // リールを視覚的に回転させるインターバルを設定
         spinIntervals[i] = setInterval(() => {
             const reel = getReelElement(i);
-            // ランダムなシンボルを次々に表示し、回転しているように見せる
             reel.textContent = getRandomSymbol(); 
         }, 100); 
     }
 }
 
 // ----------------------------------------------------------------------
-// 🚨 リールを停止させる関数
+// リールを停止させる関数 (1, 2, 3キーで呼び出される)
 // ----------------------------------------------------------------------
 function stopReel(reelIndex) {
-    // 0, 1, 2 (1列目, 2列目, 3列目)
-    
-    // すでに停止している、またはそもそも回転中でなければ何もしない
+    // すでに停止している、または回転中でなければ無視
     if (!isSpinning[reelIndex]) {
         return;
     }
@@ -98,19 +92,16 @@ function stopReel(reelIndex) {
     isSpinning[reelIndex] = false;
     
     // 2. 最終結果のシンボルを決定し、表示を確定する
-    const finalSymbol = getRandomSymbol(); // 停止時のシンボルを決定
+    const finalSymbol = getRandomSymbol(); 
     reelResults[reelIndex] = finalSymbol;
-    print(f"reelResults[{reelIndex}]:{finalSymbol}");
+    print(`reelResults[${reelIndex}]:${finalSymbol}`);
     
     const reel = getReelElement(reelIndex);
-    reel.textContent = finalSymbol; // 最終結果を表示
+    reel.textContent = finalSymbol; 
     
-    console.log(`${reelIndex + 1}列目が停止: ${finalSymbol}`);
-
     // 3. 全てのリールが停止したかチェック
     if (isSpinning.every(state => state === false)) {
         allReelsStopped = true;
-        console.log('全てのリールが停止しました。');
         document.getElementById('spin-button').disabled = false;
         
         // 勝敗判定を実行
@@ -119,35 +110,34 @@ function stopReel(reelIndex) {
 }
 
 // ----------------------------------------------------------------------
-// 🚨 キーイベントのリスナーを追加
+// キーイベントのリスナー
 // ----------------------------------------------------------------------
 window.addEventListener('keydown', (event) => {
-    // スピン中でなければキー操作を無視
+    // 全てのリールが停止しているときはキー操作を無視
     if (allReelsStopped) {
         return;
     }
     
-    let reelToStop = -1; // 停止させるリールのインデックス
+    let reelToStop = -1;
 
     if (event.key === '1') {
-        reelToStop = 0; // 1列目
+        reelToStop = 0; // 1列目 (インデックス0)
     } else if (event.key === '2') {
-        reelToStop = 1; // 2列目
+        reelToStop = 1; // 2列目 (インデックス1)
     } else if (event.key === '3') {
-        reelToStop = 2; // 3列目
+        reelToStop = 2; // 3列目 (インデックス2)
     }
     
     if (reelToStop !== -1) {
-        event.preventDefault(); // ブラウザのデフォルト動作をキャンセル
+        event.preventDefault();
         stopReel(reelToStop);
     }
 });
 
 // ----------------------------------------------------------------------
-// 勝敗判定ロジック (引数が reelResults に変わった以外、内容は変更なし)
+// 勝敗判定ロジック
 // ----------------------------------------------------------------------
 function checkWin(result) {
-    // 3つが揃ったか判定
     const isThreeOfAKind = result[0] === result[1] && result[1] === result[2];
     let message = '';
     
@@ -156,13 +146,11 @@ function checkWin(result) {
         const payoutAction = PAYOUTS[symbol];
         
         if (payoutAction === 'HALF') {
-            // [❻, ❻, ❻] のペナルティ: 持ち金半分、小数点以下切り捨て
             const penalty = Math.floor(currentMoney / 2);
-            print(f"penalty:{penalty}");
+            print(`penalty:${penalty}`);
             currentMoney -= penalty;
             message = `ペナルティ! ❻が揃ったため、持ち金${penalty}円を失い、残り${currentMoney}円になりました...😭`;
         } else {
-            // 通常の勝利
             const winnings = payoutAction;
             currentMoney += winnings;
             
@@ -179,7 +167,6 @@ function checkWin(result) {
     document.getElementById('result-message').textContent = message;
     document.getElementById('money-display').textContent = currentMoney;
     
-    // 持ち金が0になった場合のゲームオーバー処理
     if (currentMoney <= 0) {
         alert('持ち金がなくなりました。ゲームオーバーです...');
         navigateTo('title'); 
@@ -187,16 +174,18 @@ function checkWin(result) {
 }
 
 // ----------------------------------------------------------------------
-// ページ切り替えロジック (変更なし)
+// ページ切り替えロジック
 // ----------------------------------------------------------------------
 
+// URLから 'type' パラメータを取得
 function getPageTypeFromUrl() {
     const params = new URLSearchParams(window.location.search);
     const type = params.get('type') || 'title';
-    print(f"type:{type}"); 
+    print(`type:${type}`); 
     return type;
 }
 
+// 画面を表示する
 function showPage(pageType) {
     const pages = document.querySelectorAll('.game-page');
     
@@ -209,10 +198,10 @@ function showPage(pageType) {
     
     if (targetPage) {
         targetPage.classList.add('active');
+        // スロット画面に切り替わったときの初期化
         if (pageType === 'slot') {
             document.getElementById('money-display').textContent = currentMoney;
             document.getElementById('result-message').textContent = `スピンボタンを押してください (1回 ${BET_AMOUNT}円)`;
-            // スロット画面に移動した際、キー入力を受け付ける準備
             allReelsStopped = true; 
         }
     } else {
@@ -220,6 +209,7 @@ function showPage(pageType) {
     }
 }
 
+// ページ遷移を実行し、URLを更新
 function navigateTo(pageType) {
     let newSearch = '';
     
@@ -227,15 +217,18 @@ function navigateTo(pageType) {
         newSearch = `?type=${pageType}`;
     }
 
+    // history APIでURLを更新 (リロードなし)
     history.pushState(null, '', newSearch);
     showPage(pageType);
 }
 
+// ブラウザの「戻る/進む」ボタンに対応
 window.addEventListener('popstate', () => {
     const pageType = getPageTypeFromUrl();
     showPage(pageType);
 });
 
+// ページ読み込み時の初期表示
 document.addEventListener('DOMContentLoaded', () => {
     const initialPageType = getPageTypeFromUrl();
     showPage(initialPageType);
