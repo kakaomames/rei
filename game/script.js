@@ -10,34 +10,14 @@ function print(value) {
 // ----------------------------------------------------------------------
 const BET_AMOUNT = 100; 
 let currentMoney = 5000; // 持ち金はここで定義
+let isKakuhen = false; // 🚨 確率変動の状態管理を追加
 
 // ----------------------------------------------------------------------
 // CSS定義 (動的スタイル)
 // ----------------------------------------------------------------------
 
-// 全てのページに共通する基本CSS (display: none のルールは index.html へ移動)
+// 全てのページに共通する基本CSS
 const BASE_CSS = `
-    /* activeな画面だけ表示 */
-    .game-page.active {
-        display: block !important; /* index.htmlのCSSに勝つように !important を追加 */
-    }
-    .game-page {
-        padding: 20px;
-        border: 1px solid #ccc;
-        margin-bottom: 10px;
-        text-align: center; 
-    }
-    button {
-        padding: 5px 15px;
-        font-size: 1.1em;
-        cursor: pointer;
-    }
-`;
-
-// スロット画面にのみ必要な追加CSS (slot.jsからの参照時に使用)
-
-
-const SLOT_CSS = `
     /* activeな画面だけ表示 */
     .game-page.active {
         display: block !important;
@@ -53,7 +33,10 @@ const SLOT_CSS = `
         font-size: 1.1em;
         cursor: pointer;
     }
-    
+`;
+
+// 🚨 スロット画面の追加CSS (DOMアニメーション用)
+const SLOT_CSS = `
     /* -------------------- スロットゲーム用のスタイル -------------------- */
     
     #reels-container {
@@ -83,17 +66,19 @@ const SLOT_CSS = `
         text-align: center;
         width: 100%;
         color: white;
-        transition: transform 0.1s ease-out; 
         
         /* 縦方向に動かすための設定 */
         position: absolute;
         top: 0;
         left: 0;
-        height: 2000px; /* 十分な長さ */
+        height: 2000px; /* シンボルリストの長さ */
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
+        
+        /* 停止時のアニメーション */
+        transition: transform 0.1s ease-out; 
     }
     
     /* 🚨 アニメーション開始時：縦スクロールアニメーションを適用 🚨 */
@@ -102,7 +87,7 @@ const SLOT_CSS = `
         animation: scroll-down 0.05s linear infinite; /* 高速でループ */
     }
     
-    /* 🚨 アニメーション定義 (このキーフレームが必須です) 🚨 */
+    /* 🚨 アニメーション定義 (このキーフレームがリールを動かす) 🚨 */
     @keyframes scroll-down {
         from {
             transform: translateY(0);
