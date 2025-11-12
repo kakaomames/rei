@@ -52,14 +52,33 @@ const SLOT_CSS = `
         justify-content: center;
         background-color: #222;
         border-radius: 8px;
+        position: relative; /* 子要素の配置基準 */
     }
     .reel {
+        /* 🚨 修正点: 縦方向に動かすコンテナとして使用 🚨 */
         font-size: 50px;
-        line-height: 100px;
+        line-height: 100px; 
         text-align: center;
         width: 100%;
         color: white;
-        transition: transform 0.1s ease-out; 
+        transition: transform 0.1s ease-out; /* 停止時の微調整用 */
+        
+        /* 🚨 新規追加: リールを縦に動かすためのスタイル 🚨 */
+        position: absolute;
+        top: 0; /* 初期位置 */
+        left: 0;
+        /* 長いリストを想定して高さを設定（例: 2000px） */
+        height: 2000px; 
+        display: flex; /* 子要素（シンボル）を縦に並べるためにFlexboxを使用 */
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        
+        /* スピン中にアニメーションさせるクラス */
+        &.spinning {
+            transition: none; /* スピン中はtransitionを無効化 */
+            animation: scroll-down 0.1s linear infinite; /* 縦スクロールアニメーションを繰り返す */
+        }
     }
     #result-message {
         font-size: 1.2em;
