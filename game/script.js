@@ -6,27 +6,26 @@ function print(value) {
 }
 
 // ----------------------------------------------------------------------
-// 共通状態管理変数
+// 共通状態管理変数 (slot.jsからも参照される)
 // ----------------------------------------------------------------------
 const BET_AMOUNT = 100; 
-let currentMoney = 5000; // 持ち金はここで定義し、slot.jsから参照/変更される
+let currentMoney = 5000; // 持ち金はここで定義
 
 // ----------------------------------------------------------------------
 // CSS定義 (動的スタイル)
 // ----------------------------------------------------------------------
 
-// 全てのページに共通する基本CSS
+// 全てのページに共通する基本CSS (display: none のルールは index.html へ移動)
 const BASE_CSS = `
-    /* ページ切り替えの基本設定 */
+    /* activeな画面だけ表示 */
+    .game-page.active {
+        display: block !important; /* index.htmlのCSSに勝つように !important を追加 */
+    }
     .game-page {
-        display: none;
         padding: 20px;
         border: 1px solid #ccc;
         margin-bottom: 10px;
         text-align: center; 
-    }
-    .game-page.active {
-        display: block;
     }
     button {
         padding: 5px 15px;
@@ -35,7 +34,7 @@ const BASE_CSS = `
     }
 `;
 
-// スロット画面にのみ必要な追加CSS (slot.jsに移動するが、ここでは定義)
+// スロット画面にのみ必要な追加CSS (slot.jsからの参照時に使用)
 const SLOT_CSS = `
     #reels-container {
         display: flex;
@@ -114,6 +113,7 @@ function showPage(pageType) {
         
         // スロット画面に切り替わったとき、slot.js内の初期化関数を呼ぶ
         if (pageType === 'slot') {
+            // initSlotGameはslot.jsで定義されている
             if (typeof initSlotGame === 'function') {
                 initSlotGame();
             }
@@ -141,8 +141,10 @@ window.addEventListener('popstate', () => {
     showPage(pageType);
 });
 
-// ページ読み込み時の初期表示
-document.addEventListener('DOMContentLoaded', () => {
+// ----------------------------------------------------------------------
+// 🚨 初期化関数 (index.htmlの遅延ロードスクリプトから呼び出される) 🚨
+// ----------------------------------------------------------------------
+function initializeGame() {
     const initialPageType = getPageTypeFromUrl();
     showPage(initialPageType);
-});
+}
