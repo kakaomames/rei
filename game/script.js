@@ -35,51 +35,84 @@ const BASE_CSS = `
 `;
 
 // スロット画面にのみ必要な追加CSS (slot.jsからの参照時に使用)
+
+
 const SLOT_CSS = `
+    /* activeな画面だけ表示 */
+    .game-page.active {
+        display: block !important;
+    }
+    .game-page {
+        padding: 20px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+        text-align: center; 
+    }
+    button {
+        padding: 5px 15px;
+        font-size: 1.1em;
+        cursor: pointer;
+    }
+    
+    /* -------------------- スロットゲーム用のスタイル -------------------- */
+    
     #reels-container {
         display: flex;
         justify-content: center;
         gap: 10px;
         margin: 30px 0;
     }
+    
     .reel-box {
         width: 100px;
         height: 100px;
         border: 3px solid gold; 
-        overflow: hidden; 
+        overflow: hidden; /* 枠外のシンボルを隠す */
+        position: relative; /* リールコンテナの配置基準 */
         display: flex;
         align-items: center;
         justify-content: center;
         background-color: #222;
         border-radius: 8px;
-        position: relative; /* 子要素の配置基準 */
+        cursor: pointer; /* タップ対応 */
     }
+    
     .reel {
-        /* 🚨 修正点: 縦方向に動かすコンテナとして使用 🚨 */
         font-size: 50px;
-        line-height: 100px; 
+        line-height: 100px;
         text-align: center;
         width: 100%;
         color: white;
-        transition: transform 0.1s ease-out; /* 停止時の微調整用 */
+        transition: transform 0.1s ease-out; 
         
-        /* 🚨 新規追加: リールを縦に動かすためのスタイル 🚨 */
+        /* 縦方向に動かすための設定 */
         position: absolute;
-        top: 0; /* 初期位置 */
+        top: 0;
         left: 0;
-        /* 長いリストを想定して高さを設定（例: 2000px） */
-        height: 2000px; 
-        display: flex; /* 子要素（シンボル）を縦に並べるためにFlexboxを使用 */
+        height: 2000px; /* 十分な長さ */
+        display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
-        
-        /* スピン中にアニメーションさせるクラス */
-        &.spinning {
-            transition: none; /* スピン中はtransitionを無効化 */
-            animation: scroll-down 0.1s linear infinite; /* 縦スクロールアニメーションを繰り返す */
+    }
+    
+    /* 🚨 アニメーション開始時：縦スクロールアニメーションを適用 🚨 */
+    .reel.spinning {
+        transition: none !important; /* スピン中はtransitionを無効化 */
+        animation: scroll-down 0.05s linear infinite; /* 高速でループ */
+    }
+    
+    /* 🚨 アニメーション定義 (このキーフレームが必須です) 🚨 */
+    @keyframes scroll-down {
+        from {
+            transform: translateY(0);
+        }
+        to {
+            /* リール内のシンボル1個分 (100px) 移動 */
+            transform: translateY(100px); 
         }
     }
+    
     #result-message {
         font-size: 1.2em;
         font-weight: bold;
