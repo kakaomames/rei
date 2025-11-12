@@ -31,19 +31,19 @@
         </section>
 
         <section id="slot-screen" class="game-page">
-            <h2>💰 持ち金: <span id="money-display">5000</span> 円</h2>
-            
-            <div id="reels-container">
-                <div class="reel-box"><div id="reel-1" class="reel">?</div></div>
-                <div class="reel-box"><div id="reel-2" class="reel">?</div></div>
-                <div class="reel-box"><div id="reel-3" class="reel">?</div></div>
-            </div>
-            
-            <p id="result-message">スピンボタンを押してください (1回 100円)</p>
-            
-            <button id="spin-button" onclick="spin()">スピン！</button>
-            <p style="margin-top: 20px;"><button onclick="navigateTo('title')">タイトルに戻る</button></p>
-        </section>
+    <h2>💰 持ち金: <span id="money-display">5000</span> 円</h2>
+    
+    <div id="reels-container">
+        <canvas id="reel-canvas-0" width="100" height="300" onclick="stopReel(0)"></canvas>
+        <canvas id="reel-canvas-1" width="100" height="300" onclick="stopReel(1)"></canvas>
+        <canvas id="reel-canvas-2" width="100" height="300" onclick="stopReel(2)"></canvas>
+    </div>
+    
+    <p id="result-message">スピンボタンを押してください (1回 100円)</p>
+    
+    <button id="spin-button" onclick="spin()">スピン！</button>
+    <p style="margin-top: 20px;"><button onclick="navigateTo('title')">タイトルに戻る</button></p>
+</section>
     </div>
 
 <script>
