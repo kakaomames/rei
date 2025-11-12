@@ -2,13 +2,21 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>シンプルなゲームSPA (分割版)</title>
+    <title>シンプルなゲームSPA (遅延読み込み)</title>
+    
+    <style>
+        .game-page {
+            /* JSがactiveクラスを付けるまで強制的に非表示 */
+            display: none !important; 
+        }
+    </style>
+    
     <style id="dynamic-style"></style> 
 </head>
 <body>
     <div id="game-container">
         
-        <section id="title-screen" class="game-page active">
+        <section id="title-screen" class="game-page">
             <h1>ゲーム選択画面</h1>
             <p>
                 <button onclick="navigateTo('game1')">ゲーム1へ (type=game1)</button>
@@ -38,7 +46,34 @@
         </section>
     </div>
 
-    <script src="script.js"></script>
-    <script src="slot.js"></script>
+    <script>
+        function loadScripts() {
+            // スクリプトのファイルパスを定義 (script.js -> slot.js の順)
+            const scriptsToLoad = ['script.js', 'slot.js'];
+            
+            scriptsToLoad.forEach(src => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.async = false; 
+                document.body.appendChild(script);
+                console.log(`[Script Loader] ${src} の読み込みを開始しました。`);
+            });
+            
+            // スクリプトの実行が完了するのを待ってから初期化処理を実行
+            setTimeout(() => {
+                // script.js 内の初期化関数を呼び出す
+                if (typeof initializeGame === 'function') {
+                    initializeGame();
+                    console.log("[Script Loader] ゲームの初期化処理を実行しました。");
+                } else {
+                    console.error("[Script Loader] initializeGame 関数が見つかりません。");
+                }
+            }, 100);
+        }
+
+        // 1秒 (1000ミリ秒) の遅延後にスクリプトの読み込みを開始
+        setTimeout(loadScripts, 1000); 
+        console.log("【初期ログ】ゲームスクリプトの読み込みを1秒遅延させます...");
+    </script>
 </body>
 </html>
