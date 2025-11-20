@@ -2,12 +2,14 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>シンプルなゲームSPA (遅延読み込み)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カカオマメのシンプルなゲームSPA (遅延読み込み)</title>
     
     <style>
+        /* DOMがロードされた瞬間、JSが起動するまでコンテンツが重なるのを防ぐため、
+           デフォルトで全てのゲーム画面を非表示にしておく */
         .game-page {
-            /* JSがactiveクラスを付けるまで強制的に非表示 
-            display: none !important; */
+            display: none; 
         }
     </style>
     
@@ -21,6 +23,7 @@
             <p>
                 <button onclick="navigateTo('game1')">ゲーム1へ (type=game1)</button>
                 <button onclick="navigateTo('slot')">スロットへ (type=slot)</button>
+                <button onclick="navigateTo('hansya')">反射神経ゲームへ</button>
             </p>
         </section>
 
@@ -31,23 +34,38 @@
         </section>
 
         <section id="slot-screen" class="game-page">
-    <h2>💰 持ち金: <span id="money-display">5000</span> 円</h2>
-    
-    <div id="reels-container">
-        <canvas id="reel-canvas-0" width="100" height="300" onclick="stopReel(0)"></canvas>
-        <canvas id="reel-canvas-1" width="100" height="300" onclick="stopReel(1)"></canvas>
-        <canvas id="reel-canvas-2" width="100" height="300" onclick="stopReel(2)"></canvas>
-    </div>
-    
-    <p id="result-message">スピンボタンを押してください (1回 100円)</p>
-    
-    <button id="spin-button" onclick="spin()">スピン！</button>
-    <p style="margin-top: 20px;"><button onclick="navigateTo('title')">タイトルに戻る</button></p>
-</section>
+            <h2>💰 持ち金: <span id="money-display">5000</span> 円</h2>
+            
+            <div id="reels-container">
+                <div class="reel-box" onclick="stopReel(0)"><div class="reel" id="reel-0">?</div></div>
+                <div class="reel-box" onclick="stopReel(1)"><div class="reel" id="reel-1">?</div></div>
+                <div class="reel-box" onclick="stopReel(2)"><div class="reel" id="reel-2">?</div></div>
+            </div>
+            
+            <p id="result-message">スピンボタンを押してください (1回 100円)</p>
+            
+            <button id="spin-button" onclick="spin()">スピン！</button>
+            <p style="margin-top: 20px;"><button onclick="navigateTo('title')">タイトルに戻る</button></p>
+        </section>
+        
+        <section id="hansya-screen" class="game-page">
+            <h2>🚀 反射神経テストゲーム</h2>
+            <p class="instruction">現在のコイン: <span id="coin-display-hansya">0</span> 🪙</p>
+            <p class="instruction">「スタート！」の表示後、丸が表示されたらすぐにクリックしてください。</p>
+            <div id="game-area-hansya">
+                <div id="target-hansya"></div>
+                <div id="message-hansya">クリックでスタート！</div>
+            </div>
+            <div id="result-hansya" class="result"></div>
+            
+            <p style="margin-top: 20px;"><button onclick="navigateTo('title')">タイトルに戻る</button></p>
+        </section>
     </div>
 
-<script>
-        // スクリプトの読み込みと完了時のコールバックを処理する汎用関数
+    <script>
+        /**
+         * 外部スクリプトを動的に作成・読み込み、完了時にコールバックを実行する汎用関数。
+         */
         function loadScript(src, callback) {
             const script = document.createElement('script');
             script.src = src;
@@ -65,27 +83,32 @@
             console.log(`[Script Loader] ${src} の読み込みを開始しました。`);
         }
 
+        /**
+         * 全ての外部スクリプトを順番に読み込み、完了後に初期化関数を実行する。
+         */
         function startLoading() {
-            // 1. script.js を読み込み、完了したら slot.js を読み込む
+            // 1. script.js (共通ロジック/ルーティング) を読み込む
             loadScript('script.js', () => {
-                // 2. slot.js を読み込み、完了したらゲームを初期化
+                // 2. slot.js (スロットロジック) を読み込む
                 loadScript('slot.js', () => {
-                    // 3. 全てのスクリプトの実行完了後、initializeGame を実行
-                    if (typeof initializeGame === 'function') {
-                        initializeGame();
-                        console.log("[Script Loader] ゲームの初期化処理を実行しました。");
-                    } else {
-                        // ここでエラーが出た場合は、script.jsの関数定義に問題がある可能性
-                        console.error("[Script Loader] initializeGame 関数が見つかりません (実行タイミングエラー)。");
-                    }
+                    // 3. hansya_logic.js (反射神経ロジック) を読み込む
+                    loadScript('hansya.js', () => {
+                        
+                        // 4. 全てのスクリプトの実行完了後、initializeGame を実行
+                        if (typeof initializeGame === 'function') {
+                            initializeGame();
+                            console.log("[Script Loader] ゲームの初期化処理を実行しました。");
+                        } else {
+                            console.error("[Script Loader] initializeGame 関数が見つかりません (実行タイミングエラー)。");
+                        }
+                    });
                 });
             });
         }
 
-        // 1秒 (1000ミリ秒) の遅延後にスクリプトの読み込みを開始
+        // 1秒 (1000ミリ秒) の遅延後にスクリプトの読み込みを開始 (ご要望の遅延処理)
         setTimeout(startLoading, 1000); 
         console.log("【初期ログ】ゲームスクリプトの読み込みを1秒遅延させます...");
     </script>
-    <script src="hansya.js"></script>
 </body>
 </html>
