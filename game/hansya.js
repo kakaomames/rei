@@ -1,10 +1,11 @@
 /**
  * 反射神経ゲームのHTMLコンテンツ全体をロードし、documentを置き換える関数です。
- * HTMLファイルがこのスクリプトを読み込んだ際に自動的に実行されます。
+ * 外部JSファイルとして読み込まれたら、すぐに実行されます。
  */
 function loadReactionGame() {
     // HTMLコンテンツ（<head>と<body>の中身）を全て含む文字列
     // 注意: スタイルとスクリプトはこの文字列内に完全に埋め込まれています
+    // ここで文字列として定義されたHTML/CSS/JSが新しいページ内容になります。
     const gameHtmlContent = `
         <head>
             <meta charset="UTF-8">
@@ -207,7 +208,8 @@ function loadReactionGame() {
                  * コインの表示とスタイルを更新し、ストアを再描画します。
                  */
                 function updateUI() {
-                    coinDisplay.textContent = gameState.coins;
+                    // コインの表示を更新 (coinsが0以外なら、その値を表示)
+                    coinDisplay.textContent = gameState.coins; 
                     renderStore();
                 }
 
@@ -426,7 +428,6 @@ function loadReactionGame() {
                 // --- 初期化処理 ---
                 
                 // ページロード時に状態をロードし、ゲームの準備を完了
-                // 注意: DOM要素がロードされた後に実行されるように、このコードブロックの最後に配置
                 loadState(); 
                 
                 // クリックイベントリスナーを設定
