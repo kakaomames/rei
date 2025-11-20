@@ -1,4 +1,4 @@
-/* style.css */
+/* style.css (推奨の最終版) */
 
 /* -------------------- ページ切り替えの基本設定 -------------------- */
 
@@ -8,7 +8,6 @@
     padding: 20px;
     border: 1px solid #ccc;
     margin-bottom: 10px;
-    /* スロットゲームのために中央寄せを追加 */
     text-align: center; 
 }
 
@@ -29,9 +28,11 @@
 .reel-box {
     width: 100px;
     height: 100px;
-    /* リールが回転しているように見せるための枠 */
     border: 3px solid gold; 
     overflow: hidden; /* リール外のシンボルを隠す */
+    /* 必須追加 */
+    position: relative; 
+    
     display: flex;
     align-items: center;
     justify-content: center;
@@ -41,12 +42,38 @@
 
 .reel {
     font-size: 50px;
-    line-height: 100px; /* 縦方向の中央揃え */
+    line-height: 100px; 
     text-align: center;
     width: 100%;
     color: white;
-    /* キー停止の視覚効果を出すためのトランジション（今回はJSで制御） */
+    
+    /* 必須追加 */
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2000px; /* シンボルリストの長さ */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
     transition: transform 0.1s ease-out; 
+}
+
+/* 🚨 必須追加: スピン中のアニメーション設定 🚨 */
+.reel.spinning {
+    transition: none !important;
+    animation: scroll-down 0.05s linear infinite; 
+}
+
+/* 🚨 必須追加: アニメーション定義 🚨 */
+@keyframes scroll-down {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(100px); 
+    }
 }
 
 #result-message {
