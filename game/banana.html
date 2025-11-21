@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>無限バナナ工場：JSON外部化</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            background-color: #fdf6e3;
+            color: #5d4037;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* 左側：クリッカーエリア */
+        .click-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 4px solid #ccc;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            color: #fbc02d;
+            text-shadow: 2px 2px #5d4037;
+            text-align: center;
+        }
+
+        .title-rank {
+            font-size: 1rem;
+            color: #d84315;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid #d84315;
+        }
+
+        .count-display {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .per-sec {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+        
+        .net-bps {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: -10px;
+        }
+        
+        /* ネット生産量がマイナスの場合の表示 */
+        .negative {
+            color: #c0392b; /* 赤色 */
+        }
+        .positive {
+            color: #27ae60; /* 緑色 */
+        }
+
+        .big-banana {
+            font-size: 10rem;
+            cursor: pointer;
+            transition: transform 0.05s;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2));
+            z-index: 10;
+        }
+
+        .big-banana:active {
+            transform: scale(0.95);
+        }
+
+        /* クリック時のエフェクト */
+        .pop-number {
+            position: absolute;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fbc02d;
+            pointer-events: none;
+            animation: floatUp 1s forwards;
+            z-index: 20;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }
+
+        /* ゴールデンバナナ */
+        .golden-banana {
+            position: absolute;
+            font-size: 5rem;
+            cursor: pointer;
+            animation: shimmer 1s infinite alternate, appear 0.5s ease-out;
+            filter: drop-shadow(0 0 15px gold);
+            z-index: 100;
+        }
+
+        @keyframes shimmer {
+            from { transform: scale(1) rotate(0deg); }
+            to { transform: scale(1.1) rotate(10deg); }
+        }
+
+        @keyframes appear {
+            from { opacity: 0; transform: scale(0); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* 右側：ショップエリア */
+        .shop-area {
+            width: 400px;
+            background-color: #eee;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: inset 5px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .shop-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #bbb;
+            padding-bottom: 10px;
+        }
+
+        .item {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #ccc;
+            transition: transform 0.1s;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #ddd;
+        }
+        
+        .item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #ccc;
+        }
+
+        .item.disabled {
+            opacity: 0.6;
+            background-color: #e0e0e0;
+            cursor: not-allowed;
+            box-shadow: none;
+            color: #999;
+        }
+
+        .item-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+        }
+        
+        .item-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .item-stats {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            border-top: 1px dashed #eee;
+            padding-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            color: #333;
+        }
+        
+        .stats-cost { color: #d84315; font-weight: bold; } /* 購入コスト */
+        .stats-prod { color: #27ae60; font-weight: bold; } /* 生産 */
+        .stats-cons { color: #c0392b; font-weight: bold; } /* 消費 */
+
+        .owned {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ddd;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body onload="init()">
+
+    <div class="click-area" id="clickArea">
+        <h1>🍌 BANANA FACTORY</h1>
+        <div class="title-rank" id="rankTitle">データ読込中...</div>
+        
+        <div class="count-display"><span id="bananaCount">0</span> 本</div>
+        <div class="per-sec">生産: <span id="totalBpsProd">0</span> 本/秒 | 消費: <span id="totalBpsCons">0</span> 本/秒</div>
+        <div class="net-bps">純増: <span id="netBps">0</span> 本/秒</div>
+        
+        <div class="big-banana" id="clickBtn">🍌</div>
+        <div class="message-box" id="msg">JSONファイルを読み込んでいます...</div>
+    </div>
+
+    <div class="shop-area">
+        <div class="shop-header">🛒 設備投資</div>
+        <div id="shopList"></div>
+    </div>
+
+    <script>
+        // --- ゲームデータ ---
+        let bananas = 0;
+        let totalBpsProd = 0; // 総生産
+        let totalBpsCons = 0; // 総消費
+        let netBps = 0;       // 純増
+        let totalClicks = 0;
+        let items = []; // 実際のゲームで使うアイテムリスト
+
+        // 称号リスト (JSONから読み込まないのでそのまま保持)
+        const ranks = [
+            { limit: 0, title: "見習い農家" },
+            { limit: 1000, title: "バナナ屋の店長" },
+            { limit: 100000, title: "地域のバナナ王" },
+            { limit: 10000000, title: "バナナ財閥総帥" },
+            { limit: 1000000000, title: "地球バナナ大統領" },
+            { limit: 100000000000, title: "銀河バナナ帝王" },
+            { limit: 10000000000000, title: "バナナの概念" }
+        ];
+
+        // DOM要素
+        const displayCount = document.getElementById('bananaCount');
+        const displayTotalProd = document.getElementById('totalBpsProd');
+        const displayTotalCons = document.getElementById('totalBpsCons');
+        const displayNetBps = document.getElementById('netBps');
+        const clickBtn = document.getElementById('clickBtn');
+        const shopList = document.getElementById('shopList');
+        const clickArea = document.getElementById('clickArea');
+        const rankTitle = document.getElementById('rankTitle');
+        const msgBox = document.getElementById('msg');
+
+        // --- 初期化 (Async/AwaitでJSONを読み込む) ---
+        async function init() {
+            msgBox.style.display = 'block';
+            console.log("--- Loading Game Data from JSON ---");
+            
+            try {
+                // JSONデータをフェッチ
+                const response = await fetch('./banana_game_data.json');
+                console.log(`Fetch response status: ${response.status}`);
+                
+                const data = await response.json();
+                console.log("JSON data loaded successfully.");
+                
+                // データを加工・格納
+                processItemData(data);
+                
+                // ゲーム開始
+                startGame();
+
+            } catch (error) {
+                console.error("FATAL ERROR: Failed to load JSON:", error);
+                msgBox.innerText = "致命的なエラー: ゲームデータの読み込みに失敗しました。ファイル名を確認してください。";
+                rankTitle.innerText = "エラー";
+                clickBtn.style.pointerEvents = 'none';
+            }
+        }
+        
+        // JSONデータを処理してitems配列を作成
+        function processItemData(data) {
+            let index = 0;
+            for (const name in data.item) {
+                const item = data.item[name];
+                items.push({
+                    id: index++,
+                    name: name,
+                    cost: item.コスト,
+                    prod: item.生産,
+                    cons: item.消費,
+                    desc: item.説明,
+                    icon: item.icon,
+                    owned: 0
+                });
+            }
+            console.log(`Item list finalized. Total items: ${items.length}`);
+            rankTitle.innerText = ranks[0].title;
+            msgBox.style.display = 'none';
+        }
+
+        // ゲームのループ処理を開始
+        function startGame() {
+            renderShop();
+            
+            // 毎秒の生産ループ
+            setInterval(gameLoop, 1000);
+
+            // 画面更新ループ（高速）
+            setInterval(() => {
+                updateDisplay();
+                updateShopButtons();
+                checkRank();
+            }, 100);
+
+            // ゴールデンバナナ出現ループ
+            spawnGoldenBananaLoop();
+            
+            // クリックイベントリスナーの追加
+            clickBtn.addEventListener('mousedown', (e) => {
+                addBananas(1);
+                totalClicks++;
+                createPopNumber(e.clientX, e.clientY, "+1");
+            });
+
+            console.log("Game started successfully!");
+        }
+        
+        // --- メインゲームループ（1秒ごと） ---
+        function gameLoop() {
+            netBps = totalBpsProd - totalBpsCons;
+            addBananas(netBps);
+            
+            // ユーザーのデバッグリクエストに応えるためのログ出力
+            console.log(`BPS update: Prod(+${totalBpsProd}) - Cons(-${totalBpsCons}) = Net(${netBps}) | Total Bananas: ${Math.floor(bananas)}`);
+        }
+
+        // --- メインロジック（省略） ---
+        // (省略部: addBananas, updateDisplay, checkRank, createPopNumber, renderShop, buyItem, updateShopButtons, spawnGoldenBananaLoop, spawnGoldenBanana は前回のコードとほぼ同一です。ここでは可読性のため省略します。)
+
+        // 以下、前回のコードから変更なしの関数定義を再掲（必要最小限のみ）
+
+        function addBananas(amount) {
+            bananas += amount;
+            if (bananas < 0) bananas = 0;
+        }
+
+        function updateDisplay() {
+            displayCount.innerText = Math.floor(bananas).toLocaleString();
+            displayTotalProd.innerText = totalBpsProd.toLocaleString();
+            displayTotalCons.innerText = totalBpsCons.toLocaleString();
+            
+            netBps = totalBpsProd - totalBpsCons;
+            displayNetBps.innerText = netBps.toLocaleString();
+            
+            if (netBps < 0) {
+                displayNetBps.classList.remove('positive');
+                displayNetBps.classList.add('negative');
+            } else {
+                displayNetBps.classList.remove('negative');
+                displayNetBps.classList.add('positive');
+            }
+            
+            document.title = `${Math.floor(bananas).toLocaleString()} バナナ - 工場`;
+        }
+
+        function checkRank() {
+            let currentTitle = ranks[0].title;
+            for (let r of ranks) {
+                if (bananas >= r.limit) {
+                    currentTitle = r.title;
+                }
+            }
+            rankTitle.innerText = currentTitle;
+        }
+
+        function createPopNumber(x, y, text, color="#fbc02d", size="2rem") {
+            const floatNum = document.createElement('div');
+            floatNum.innerText = text;
+            floatNum.classList.add('pop-number');
+            floatNum.style.left = x + 'px';
+            floatNum.style.top = (y - 50) + 'px';
+            floatNum.style.color = color;
+            floatNum.style.fontSize = size;
+            document.body.appendChild(floatNum);
+
+            setTimeout(() => floatNum.remove(), 1000);
+        }
+
+        function renderShop() {
+            shopList.innerHTML = "";
+            items.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.classList.add('item');
+                div.id = `item-${index}`;
+                div.onclick = () => buyItem(index);
+
+                div.innerHTML = `
+                    <div class="item-top">
+                        <div class="item-info">
+                            <h3>${item.icon} ${item.name}</h3>
+                            <p>${item.desc}</p>
+                        </div>
+                        <div class="owned" id="owned-${index}">${item.owned}</div>
+                    </div>
+                    <div class="item-stats">
+                        <span class="stats-cost">コスト: ${item.cost.toLocaleString()}</span>
+                        <span class="stats-prod">生産: +${item.prod.toLocaleString()}/秒</span>
+                        <span class="stats-cons">消費: -${item.cons.toLocaleString()}/秒</span>
+                    </div>
+                `;
+                shopList.appendChild(div);
+            });
+        }
+
+        function buyItem(index) {
+            const item = items[index];
+            if (bananas >= item.cost) {
+                bananas -= item.cost;
+                item.owned++;
+                
+                totalBpsProd += item.prod;
+                totalBpsCons += item.cons;
+                
+                item.cost = Math.ceil(item.cost * 1.15); 
+
+                document.getElementById(`owned-${index}`).innerText = item.owned;
+                document.querySelector(`#item-${index} .stats-cost`).innerText = `コスト: ${item.cost.toLocaleString()}`;
+                
+                console.log(`Bought ${item.name}. New Prod: ${totalBpsProd}, New Cons: ${totalBpsCons}`);
+            }
+        }
+
+        function updateShopButtons() {
+            items.forEach((item, index) => {
+                const div = document.getElementById(`item-${index}`);
+                if (div) { // 要素がrenderShopで生成されていることを確認
+                    if (bananas >= item.cost) {
+                        div.classList.remove('disabled');
+                    } else {
+                        div.classList.add('disabled');
+                    }
+                }
+            });
+        }
+
+        // --- ゴールデンバナナ機能（JSON読み込み待ちのため、initから呼び出しに変更） ---
+
+        function spawnGoldenBananaLoop() {
+            const randomTime = Math.random() * 10000 + 5000; 
+            
+            setTimeout(() => {
+                spawnGoldenBanana();
+                spawnGoldenBananaLoop();
+            }, randomTime);
+        }
+
+        function spawnGoldenBanana() {
+            const gb = document.createElement('div');
+            gb.innerText = "🍌";
+            gb.classList.add('golden-banana');
+            
+            const maxX = clickArea.offsetWidth - 100;
+            const maxY = clickArea.offsetHeight - 100;
+            const randX = Math.random() * maxX + 20;
+            const randY = Math.random() * maxY + 20;
+
+            gb.style.left = randX + 'px';
+            gb.style.top = randY + 'px';
+
+            gb.onmousedown = (e) => {
+                e.stopPropagation();
+                
+                netBps = totalBpsProd - totalBpsCons; // ボーナス計算直前に純増を再計算
+                const bonus = Math.max(777, netBps * 300);
+                
+                addBananas(bonus);
+                createPopNumber(e.clientX, e.clientY, `Lucky! +${bonus.toLocaleString()}`, "red", "4rem");
+                
+                gb.remove();
+            };
+
+            clickArea.appendChild(gb);
+
+            setTimeout(() => {
+                if(gb.parentNode) {
+                    gb.remove();
+                }
+            }, 5000);
+        }
+
+        // init()関数はbodyのonload属性で実行されます。
+    </script>
+</body>
+</html>
