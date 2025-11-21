@@ -1,5 +1,5 @@
-// map_manager.js
-import { startCapture } from "./capture_3d.js";
+// map_manager.js (グローバル変数対応版)
+// import { startCapture } from "./capture_3d.js"; <--- ★削除しました★
 
 // --- グローバル変数 (ここではモジュール内変数) ---
 let userLat = 35.6895; // 初期値（東京）
@@ -9,22 +9,27 @@ let userMarker = null;
 const monsters = [];
 
 // --- 外部から呼び出せるようにするための関数 ---
-window.moveFake = (dLat, dLng) => {
+function moveFakeInternal(dLat, dLng) {
     userLat += dLat;
     userLng += dLng;
     updateUserPosition();
 };
+window.moveFake = moveFakeInternal; // グローバルに公開
 
-window.closeCapture = () => {
-    // capture_3d.js の関数を呼び出す
+// 逃げるボタンが押されたときの処理
+function closeCaptureInternal() {
+    // 3Dアニメーション停止はcapture_3d.js側で処理
     document.getElementById('capture-container').style.display = 'none';
     document.getElementById('map-container').style.display = 'block';
     if(map) map.invalidateSize();
 };
+window.closeCapture = closeCaptureInternal; // グローバルに公開
+
 
 // --- 初期化 ---
 function initMap() {
     map = L.map('map-container').setView([userLat, userLng], 16);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
@@ -70,9 +75,22 @@ function initGPS() {
                 updateUserPosition();
             },
             (error) => {
-                document.getElementById('msg').innerText = "GPSエラー: " + error.message;
+                // 前回追加したデバッグ用ログ
+                console.error("Geolocation Error Code:", error.code); 
+                console.error("Geolocation Error Message:", error.message);
+                
+                document.getElementById('msg').innerText = `GPSエラー: Code ${error.code} - ${error.message}`;
+                
+                if (error.code === 1) {
+                    // Code 1が出た場合、OS/ブラウザ設定をチェック
+                    console.warn("位置情報が拒否されました。設定を確認してください。");
+                }
             },
-            { enableHighAccuracy: true }
+            { 
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0   
+            }
         );
     } else {
         alert("このブラウザはGPSに対応していません。");
@@ -92,10 +110,15 @@ function spawnMonster(lat, lng, emoji, name) {
     
     // クリックイベント：3D画面へ遷移
     marker.on('click', () => {
-        // capture_3d.js の関数を呼び出す
-        document.getElementById('map-container').style.display = 'none';
-        document.getElementById('capture-container').style.display = 'block';
-        startCapture({ emoji, name, marker }); // マーカー情報も渡して、捕獲成功時に消せるようにする
+        // capture_3d.js の関数を window 経由で呼び出す
+        if (window.startCapture) {
+             document.getElementById('map-container').style.display = 'none';
+             document.getElementById('capture-container').style.display = 'block';
+             // window.を付けて呼び出し
+             window.startCapture({ emoji, name, marker }); 
+        } else {
+             console.error("Error: window.startCapture is not defined. (capture_3d.jsの読み込みに失敗)");
+        }
     });
 
     monsters.push(marker);
