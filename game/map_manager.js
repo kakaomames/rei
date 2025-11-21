@@ -1,8 +1,8 @@
-// map_manager.js (グローバル変数対応版)
-// import { startCapture } from "./capture_3d.js"; <--- ★削除しました★
+// map_manager.js (現在地スポーン対応版)
 
 // --- グローバル変数 (ここではモジュール内変数) ---
-let userLat = 35.6895; // 初期値（東京）
+// GPS成功後にこの値が更新されますが、初期表示は東京のまま
+let userLat = 35.6895; 
 let userLng = 139.6917;
 let map = null;
 let userMarker = null;
@@ -18,7 +18,6 @@ window.moveFake = moveFakeInternal; // グローバルに公開
 
 // 逃げるボタンが押されたときの処理
 function closeCaptureInternal() {
-    // 3Dアニメーション停止はcapture_3d.js側で処理
     document.getElementById('capture-container').style.display = 'none';
     document.getElementById('map-container').style.display = 'block';
     if(map) map.invalidateSize();
@@ -28,28 +27,27 @@ window.closeCapture = closeCaptureInternal; // グローバルに公開
 
 // --- 初期化 ---
 function initMap() {
+    // 地図の初期化
     map = L.map('map-container').setView([userLat, userLng], 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    const userIcon = L.divIcon({
-        className: 'custom-icon',
-        html: '🏃',
-        iconSize: [40, 40],
-        iconAnchor: [20, 40]
-    });
-
-    userMarker = L.marker([userLat, userLng], {icon: userIcon}).addTo(map)
+    // ★ユーザーマーカーの定義 (デバッグのため標準ピンで定義します)
+    userMarker = L.marker([userLat, userLng]).addTo(map)
         .bindPopup("現在地 (あなた)");
     
     document.getElementById('msg').innerText = "マップ準備完了。移動してモンスターを探そう！";
     
-    // モンスターの初期スポーン
-    spawnMonster(userLat + 0.001, userLng + 0.001, "🍌", "ワイルドバナナ");
-    spawnMonster(userLat - 0.001, userLng + 0.001, "🦍", "怒れるゴリラ");
-    spawnMonster(userLat + 0.001, userLng - 0.001, "🍫", "伝説のカカオ");
+    // --- モンスターの初期スポーンを、現在地 (userLat/userLng) を基準に変更！ ---
+    const baseLat = userLat; 
+    const baseLng = userLng; 
+
+    // 0.001 (約110m) を加減して、現在地の周辺にスポーンさせます
+    spawnMonster(baseLat + 0.001, baseLng + 0.001, "🍌", "ワイルドバナナ");
+    spawnMonster(baseLat - 0.001, baseLng + 0.001, "🦍", "怒れるゴリラ");
+    spawnMonster(baseLat + 0.001, baseLng - 0.001, "🍫", "伝説のカカオ");
     
     // GPSの起動
     initGPS();
@@ -70,19 +68,19 @@ function initGPS() {
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
             (position) => {
+                // 成功時
                 userLat = position.coords.latitude;
                 userLng = position.coords.longitude;
                 updateUserPosition();
             },
             (error) => {
-                // 前回追加したデバッグ用ログ
+                // 失敗時：エラーコードとメッセージをコンソールに出力
                 console.error("Geolocation Error Code:", error.code); 
                 console.error("Geolocation Error Message:", error.message);
                 
                 document.getElementById('msg').innerText = `GPSエラー: Code ${error.code} - ${error.message}`;
                 
                 if (error.code === 1) {
-                    // Code 1が出た場合、OS/ブラウザ設定をチェック
                     console.warn("位置情報が拒否されました。設定を確認してください。");
                 }
             },
@@ -99,14 +97,12 @@ function initGPS() {
 
 // モンスター生成
 function spawnMonster(lat, lng, emoji, name) {
-    const monsterIcon = L.divIcon({
-        className: 'custom-icon',
-        html: emoji,
-        iconSize: [40, 40],
-        iconAnchor: [20, 40]
-    });
+    
+    // 標準ピンマーカーの作成 (L.divIconのCSS問題が解決するまでこちらを使用)
+    const marker = L.marker([lat, lng]).addTo(map)
+        .bindPopup(`${name} (${emoji})`); // ポップアップで名前を表示
 
-    const marker = L.marker([lat, lng], {icon: monsterIcon}).addTo(map);
+    console.log(`[MONSTER] ${name} (${emoji}) を ${lat.toFixed(4)}, ${lng.toFixed(4)} にスポーン`);
     
     // クリックイベント：3D画面へ遷移
     marker.on('click', () => {
