@@ -29,6 +29,7 @@
     </div>
 
     <div id="debug-controls">
+        <button class="d-btn" onclick="logPositions()" style="font-size: 0.9rem; padding: 5px 10px;">📌 ログ出力</button>
         <button class="d-btn" onclick="moveFake(0.001, 0)">⬆️</button>
         <div style="display:flex; gap:5px;">
             <button class="d-btn" onclick="moveFake(0, -0.001)">⬅️</button>
@@ -54,7 +55,7 @@
         setTimeout(() => {
             console.log("【2. 1秒経過】 JSファイルの読み込みを開始します。");
             
-            // capture_3d.js を先に読み込みます (window.startCaptureの定義のため)
+            // capture_3d.js を先に読み込みます
             const script3d = document.createElement('script');
             script3d.type = 'module';
             script3d.src = './capture_3d.js';
