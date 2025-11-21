@@ -88,7 +88,7 @@ function initGPS() {
             },
             { 
                 enableHighAccuracy: true,
-                timeout: 10000,
+                timeout: 3000,
                 maximumAge: 0   
             }
         );
