@@ -102,4 +102,5 @@ function spawnMonster(lat, lng, emoji, name) {
 }
 
 // マップの初期化を呼び出し、ゲーム開始！
+console.log("【3. map_manager.js 実行開始】 initMap()を呼び出します。");
 initMap();
