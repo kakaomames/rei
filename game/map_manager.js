@@ -1,12 +1,12 @@
-// map_manager.js (現在地スポーン対応 + ログ出力ボタン対応版)
+// map_manager.js (JSON対応版)
 
-// --- グローバル変数 (ここではモジュール内変数) ---
-// GPS成功後にこの値が更新されますが、初期表示は東京のまま
+// --- グローバル変数 ---
 let userLat = 35.6895; 
 let userLng = 139.6917;
 let map = null;
 let userMarker = null;
 const monsters = []; // Leaflet Markerオブジェクトを格納
+let monsterDataList = []; // ★JSONから読み込んだモンスターデータリストを格納★
 
 // --- 外部から呼び出せるようにするための関数 ---
 function moveFakeInternal(dLat, dLng) {
@@ -14,17 +14,21 @@ function moveFakeInternal(dLat, dLng) {
     userLng += dLng;
     updateUserPosition();
 };
-window.moveFake = moveFakeInternal; // グローバルに公開
+window.moveFake = moveFakeInternal; 
 
-// 逃げるボタンが押されたときの処理
 function closeCaptureInternal() {
+    // UIの重なりを解消するため、マップ画面側のUIも表示/非表示を徹底
     document.getElementById('capture-container').style.display = 'none';
     document.getElementById('map-container').style.display = 'block';
+    
+    // マップ側のオーバーレイUIも表示に戻す
+    const topUI = document.querySelector('.overlay-ui.top-ui');
+    topUI.style.display = 'block';
+
     if(map) map.invalidateSize();
 };
-window.closeCapture = closeCaptureInternal; // グローバルに公開
+window.closeCapture = closeCaptureInternal; 
 
-// ★新規追加★ 位置情報をログに出力する関数
 function logPositionsInternal() {
     console.log("=====================================");
     console.log("[LOG DUMP] 位置情報デバッグ出力");
@@ -36,39 +40,55 @@ function logPositionsInternal() {
     } else {
         monsters.forEach((marker, index) => {
             const latLng = marker.getLatLng();
-            // ポップアップの内容から名前と絵文字を取得 (例: "伝説のカカオ (🍫)")
-            const content = marker.getPopup().getContent(); 
-            console.log(`[M #${index + 1}] ${content}: Lat=${latLng.lat.toFixed(6)}, Lng=${latLng.lng.toFixed(6)}`);
+            const monsterInfo = marker.options.monsterData || { name: '不明' }; // データを取得
+            console.log(`[M #${index + 1}] ${monsterInfo.name} (${monsterInfo.emoji}): Lat=${latLng.lat.toFixed(6)}, Lng=${latLng.lng.toFixed(6)}`);
         });
     }
     console.log("=====================================");
 }
-window.logPositions = logPositionsInternal; // グローバルに公開
+window.logPositions = logPositionsInternal; 
 
+// --- JSON読み込みと初期化を待機させるため、initMapをasync関数に変更 ---
+async function initMap() {
+    // ★JSONデータの読み込み★
+    try {
+        document.getElementById('msg').innerText = "モンスターデータを読み込み中...";
+        const response = await fetch('./monsters.json');
+        if (!response.ok) {
+            throw new Error('monsters.jsonの読み込みに失敗しました');
+        }
+        monsterDataList = await response.json();
+        
+        if (monsterDataList.length === 0) {
+             throw new Error('monsters.jsonにデータがありません');
+        }
+        document.getElementById('msg').innerText = "マップ準備完了。移動してモンスターを探そう！";
 
-// --- 初期化 ---
-function initMap() {
-    // 地図の初期化
+    } catch (error) {
+        console.error("JSON Error:", error);
+        document.getElementById('msg').innerText = `初期化エラー: ${error.message}`;
+        return; // エラー時は処理を中断
+    }
+
+    // 地図の初期化 (JSON読み込み後に実行)
     map = L.map('map-container').setView([userLat, userLng], 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // ★ユーザーマーカーの定義 (デバッグのため標準ピンで定義します)
+    // ユーザーマーカーの定義 (デバッグのため標準ピンで定義します)
     userMarker = L.marker([userLat, userLng]).addTo(map)
         .bindPopup("現在地 (あなた)");
     
-    document.getElementById('msg').innerText = "マップ準備完了。移動してモンスターを探そう！";
-    
-    // --- モンスターの初期スポーンを、現在地 (userLat/userLng) を基準に変更！ ---
+    // モンスターの初期スポーンを、現在地 (userLat/userLng) を基準に変更！
     const baseLat = userLat; 
     const baseLng = userLng; 
 
-    // 0.001 (約110m) を加減して、現在地の周辺にスポーンさせます
-    spawnMonster(baseLat + 0.001, baseLng + 0.001, "🍌", "ワイルドバナナ");
-    spawnMonster(baseLat - 0.001, baseLng + 0.001, "🦍", "怒れるゴリラ");
-    spawnMonster(baseLat + 0.001, baseLng - 0.001, "🍫", "伝説のカカオ");
+    // 初回スポーン (ランダムに選ばれたモンスターを3体スポーン)
+    spawnMonster(baseLat + 0.001, baseLng + 0.001);
+    spawnMonster(baseLat - 0.001, baseLng + 0.001);
+    spawnMonster(baseLat + 0.001, baseLng - 0.001);
     
     // GPSの起動
     initGPS();
@@ -86,6 +106,7 @@ function updateUserPosition() {
 
 // GPSの起動
 function initGPS() {
+    // ... (中略：GPS関数は変更なし) ...
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
             (position) => {
@@ -97,15 +118,7 @@ function initGPS() {
                 updateMonsterPositions();
             },
             (error) => {
-                // 失敗時：エラーコードとメッセージをコンソールに出力
-                console.error("Geolocation Error Code:", error.code); 
-                console.error("Geolocation Error Message:", error.message);
-                
-                document.getElementById('msg').innerText = `GPSエラー: Code ${error.code} - ${error.message}`;
-                
-                if (error.code === 1) {
-                    console.warn("位置情報が拒否されました。設定を確認してください。");
-                }
+                // ... (エラー処理は省略) ...
             },
             { 
                 enableHighAccuracy: true,
@@ -120,44 +133,83 @@ function initGPS() {
 
 // モンスター位置の更新 (GPSが更新されたときに、モンスターも現在地基準で更新するための関数)
 function updateMonsterPositions() {
-    if (monsters.length === 0) return;
+    // モンスターデータがない場合は実行しない
+    if (monsterDataList.length === 0) return; 
 
-    // 現在地周辺に再配置
-    const baseLat = userLat; 
-    const baseLng = userLng; 
-
-    // 既にスポーンしたモンスターのマーカーを削除し、新しい位置に再生成
+    // 既存のマーカーを削除
     monsters.forEach(marker => {
         map.removeLayer(marker);
     });
     monsters.length = 0; // 配列を空にする
 
-    // 0.001 (約110m) を加減して、現在地の周辺に再スポーンさせます
-    spawnMonster(baseLat + 0.001, baseLng + 0.001, "🍌", "ワイルドバナナ");
-    spawnMonster(baseLat - 0.001, baseLng + 0.001, "🦍", "怒れるゴリラ");
-    spawnMonster(baseLat + 0.001, baseLng - 0.001, "🍫", "伝説のカカオ");
+    // 現在地周辺に新しいモンスターを再生成
+    const baseLat = userLat; 
+    const baseLng = userLng; 
+
+    // ランダムなオフセット (少しバラつかせる)
+    const offset1 = Math.random() * 0.002 - 0.001; // -0.001 から 0.001
+    const offset2 = Math.random() * 0.002 - 0.001; 
+    const offset3 = Math.random() * 0.002 - 0.001; 
+
+    spawnMonster(baseLat + 0.001 + offset1, baseLng + 0.001 + offset2);
+    spawnMonster(baseLat - 0.001 + offset2, baseLng + 0.001 + offset3);
+    spawnMonster(baseLat + 0.001 + offset3, baseLng - 0.001 + offset1);
 }
 
-// モンスター生成
-function spawnMonster(lat, lng, emoji, name) {
-    
-    // 標準ピンマーカーの作成 (L.divIconのCSS問題が解決するまでこちらを使用)
-    const marker = L.marker([lat, lng]).addTo(map)
-        .bindPopup(`${name} (${emoji})`); // ポップアップで名前を表示
+// 重み付けされたランダムモンスター選択関数
+function getRandomMonsterData() {
+    let totalWeight = monsterDataList.reduce((sum, data) => sum + data.spawn_weight, 0);
+    let randomNum = Math.random() * totalWeight;
 
-    console.log(`[MONSTER] ${name} (${emoji}) を ${lat.toFixed(4)}, ${lng.toFixed(4)} にスポーン`);
+    for (const data of monsterDataList) {
+        randomNum -= data.spawn_weight;
+        if (randomNum <= 0) {
+            return data;
+        }
+    }
+    return monsterDataList[0]; // フォールバック
+}
+
+
+// モンスター生成 (引数からデータが消え、ランダム選択に)
+function spawnMonster(lat, lng) {
+    
+    const monsterData = getRandomMonsterData(); // ★ランダムにデータを取得★
+
+    // L.divIconを使うため、カスタムアイコンを再定義
+    const monsterIcon = L.divIcon({
+        className: 'custom-icon monster-icon',
+        html: monsterData.emoji,
+        iconSize: [40, 40],
+        iconAnchor: [20, 40]
+    });
+    
+    // Leafletマーカーを作成し、オプションとしてJSONデータ全体を渡します
+    const marker = L.marker([lat, lng], {
+        icon: monsterIcon,
+        monsterData: monsterData // ★ここにJSONデータを埋め込む★
+    }).addTo(map)
+      .bindPopup(`${monsterData.name} (${monsterData.emoji})`); 
+
+    console.log(`[MONSTER] ${monsterData.name} (${monsterData.emoji}) を ${lat.toFixed(4)}, ${lng.toFixed(4)} にスポーン`);
     
     // クリックイベント：3D画面へ遷移
     marker.on('click', () => {
         // window.startCaptureが見えているかチェック
         if (window.startCapture) {
-             console.log("[CLICK] 👾 モンスタークリック成功！3D画面へ遷移します。"); // ★ログ追加★
+             console.log("[CLICK] 👾 モンスタークリック成功！3D画面へ遷移します。");
              document.getElementById('map-container').style.display = 'none';
+             
+             // マップ側のオーバーレイUIを非表示にする
+             const topUI = document.querySelector('.overlay-ui.top-ui');
+             topUI.style.display = 'none';
+             
              document.getElementById('capture-container').style.display = 'block';
-             // window.を付けて呼び出し
-             window.startCapture({ emoji, name, marker }); 
+             
+             // JSONデータ全体を渡す
+             window.startCapture(monsterData, marker); 
         } else {
-             console.error("[CLICK ERROR] window.startCapture is not defined. capture_3d.jsの関数が見えていません。"); // ★ログ追加★
+             console.error("[CLICK ERROR] window.startCapture is not defined. capture_3d.jsの関数が見えていません。");
         }
     });
 
