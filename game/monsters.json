@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "name": "ワイルドバナナ",
+        "emoji": "🍌",
+        "capture_rate": 0.7,   
+        "flee_rate": 0.2,      
+        "spawn_weight": 5      
+    },
+    {
+        "id": 2,
+        "name": "怒れるゴリラ",
+        "emoji": "🦍",
+        "capture_rate": 0.4,   
+        "flee_rate": 0.5,      
+        "spawn_weight": 3      
+    },
+    {
+        "id": 3,
+        "name": "伝説のカカオ",
+        "emoji": "🍫",
+        "capture_rate": 0.1,   
+        "flee_rate": 0.8,      
+        "spawn_weight": 1      
+    }
+]
