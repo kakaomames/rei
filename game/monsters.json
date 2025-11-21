@@ -1,26 +1,32 @@
 [
     {
-        "id": 1,
+        "id": "wild-banana",
         "name": "ワイルドバナナ",
         "emoji": "🍌",
         "capture_rate": 0.7,   
         "flee_rate": 0.2,      
-        "spawn_weight": 5      
+        "spawn_weight": 5,
+        "color": "0xffff00",
+        "obj": null
     },
     {
-        "id": 2,
+        "id": "can-angry-gorilla",
         "name": "怒れるゴリラ",
         "emoji": "🦍",
         "capture_rate": 0.4,   
         "flee_rate": 0.5,      
-        "spawn_weight": 3      
+        "spawn_weight": 3,
+        "color": "0x333333",
+        "obj": null
     },
     {
-        "id": 3,
+        "id": "cacao-densetu",
         "name": "伝説のカカオ",
         "emoji": "🍫",
         "capture_rate": 0.1,   
         "flee_rate": 0.8,      
-        "spawn_weight": 1      
+        "spawn_weight": 1,
+        "color": "0x5d4037",
+        "obj": null
     }
 ]
