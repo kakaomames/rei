@@ -21,10 +21,31 @@
 <body>
 
     <div id="map-container"></div>
+    
+    <div class="overlay-ui top-ui">
+        <h1>🍫 Cacao GO 🍌</h1>
+        <br>
+        <div id="msg">GPS信号を探索中...</div>
+    </div>
+
     <div id="debug-controls">
+        <button class="d-btn" onclick="moveFake(0.001, 0)">⬆️</button>
+        <div style="display:flex; gap:5px;">
+            <button class="d-btn" onclick="moveFake(0, -0.001)">⬅️</button>
+            <button class="d-btn" onclick="moveFake(0, 0.001)">➡️</button>
         </div>
+        <button class="d-btn" onclick="moveFake(-0.001, 0)">⬇️</button>
+    </div>
+
     <div id="capture-container">
+        <div class="overlay-ui top-ui">
+            <h1 id="target-name">野生のバナナが現れた！</h1>
         </div>
+        <div class="overlay-ui bottom-ui">
+            <button id="throw-btn">ボールを投げる！</button>
+            <button onclick="closeCapture()" style="background:#ccc; box-shadow:0 5px 0 #999; font-size:1rem; padding:10px 20px; margin-top:10px;">逃げる</button>
+        </div>
+    </div>
     
     <script>
         console.log("【1. HTMLロード完了】 1秒待機してからJSファイルを読み込みます。");
@@ -33,7 +54,7 @@
         setTimeout(() => {
             console.log("【2. 1秒経過】 JSファイルの読み込みを開始します。");
             
-            // capture_3d.js を先に読み込みます（map_managerが依存しているため）
+            // capture_3d.js を先に読み込みます (window.startCaptureの定義のため)
             const script3d = document.createElement('script');
             script3d.type = 'module';
             script3d.src = './capture_3d.js';
