@@ -26,8 +26,31 @@
     <div id="capture-container">
         </div>
     
-    <script type="module" src="./capture_3d.js"></script>
-    <script type="module" src="./map_manager.js"></script>
+    <script>
+        console.log("【1. HTMLロード完了】 1秒待機してからJSファイルを読み込みます。");
+        
+        // 1秒 (1000ms) の遅延をかける
+        setTimeout(() => {
+            console.log("【2. 1秒経過】 JSファイルの読み込みを開始します。");
+            
+            // capture_3d.js を先に読み込みます（map_managerが依存しているため）
+            const script3d = document.createElement('script');
+            script3d.type = 'module';
+            script3d.src = './capture_3d.js';
+            document.body.appendChild(script3d);
+
+            console.log(`a:./capture_3d.js`);
+
+            // map_manager.js を読み込みます
+            const scriptMap = document.createElement('script');
+            scriptMap.type = 'module';
+            scriptMap.src = './map_manager.js';
+            document.body.appendChild(scriptMap);
+            
+            console.log(`a:./map_manager.js`);
+
+        }, 1000); // 1000ミリ秒 = 1秒
+    </script>
 
 </body>
 </html>
