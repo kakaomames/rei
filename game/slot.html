@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カカオマメ・スキルストップ</title>
+    <style>
+        body {
+            font-family: "Arial Black", sans-serif;
+            background-color: #222;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            user-select: none; /* 連打時の選択防止 */
+        }
+
+        h1 {
+            color: #f39c12;
+            text-shadow: 0 0 10px #e67e22;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .machine-body {
+            background: linear-gradient(to bottom, #e74c3c, #c0392b);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5);
+            border: 4px solid #333;
+            text-align: center;
+        }
+
+        .reels-wrapper {
+            display: flex;
+            gap: 15px;
+            background-color: #000;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: inset 0 0 15px #000;
+            margin-bottom: 20px;
+        }
+
+        .reel-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reel-display {
+            width: 80px;
+            height: 100px;
+            background-color: #fff;
+            border-radius: 5px;
+            font-size: 3.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        /* 回転中のブレを表現するためのクラス */
+        .spinning {
+            color: rgba(0,0,0,0.5);
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .stop-btn {
+            width: 80px;
+            height: 40px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #2980b9;
+            transition: transform 0.1s;
+        }
+
+        .stop-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #2980b9;
+        }
+
+        .stop-btn:disabled {
+            background-color: #555;
+            box-shadow: none;
+            color: #888;
+            cursor: not-allowed;
+            transform: translateY(5px);
+        }
+
+        .main-controls {
+            margin-top: 20px;
+        }
+
+        #startBtn {
+            background-color: #f1c40f;
+            color: #c0392b;
+            border: none;
+            padding: 15px 60px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #d35400;
+        }
+
+        #startBtn:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #d35400;
+        }
+
+        #startBtn:disabled {
+            background-color: #7f8c8d;
+            box-shadow: none;
+            cursor: default;
+            transform: translateY(4px);
+        }
+
+        .message-box {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            min-height: 1.5em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎰 SKILL STOP 🎰</h1>
+
+    <div class="machine-body">
+        <div class="reels-wrapper">
+            <div class="reel-unit">
+                <div class="reel-display" id="display1">7️⃣</div>
+                <button class="stop-btn" id="stop1" onclick="stopReel(0)" disabled>STOP</button>
+            </div>
+            <div class="reel-unit">
+                <div class="reel-display" id="display2">7️⃣</div>
+                <button class="stop-btn" id="stop2" onclick="stopReel(1)" disabled>STOP</button>
+            </div>
+            <div class="reel-unit">
+                <div class="reel-display" id="display3">7️⃣</div>
+                <button class="stop-btn" id="stop3" onclick="stopReel(2)" disabled>STOP</button>
+            </div>
+        </div>
+
+        <div class="main-controls">
+            <button id="startBtn" onclick="startSpin()">START SPIN</button>
+        </div>
+
+        <div class="message-box" id="msg">Press START!</div>
+    </div>
+
+    <script>
+        // 絵柄の配列
+        const symbols = ["🍌", "🍫", "💎", "7️⃣", "💀"];
+        console.log(`Symbols loaded: ${symbols}`);
+
+        // リールの状態管理
+        let reelIntervals = [null, null, null]; // タイマーID用
+        let reelValues = [null, null, null];     // 止まった値用
+        let spinningCount = 0;                   // 回っているリールの数
+
+        const startBtn = document.getElementById('startBtn');
+        const msg = document.getElementById('msg');
+        
+        // 要素を配列で取得
+        const displays = [
+            document.getElementById('display1'),
+            document.getElementById('display2'),
+            document.getElementById('display3')
+        ];
+        const stopBtns = [
+            document.getElementById('stop1'),
+            document.getElementById('stop2'),
+            document.getElementById('stop3')
+        ];
+
+        // --- 回転開始処理 ---
+        function startSpin() {
+            if (spinningCount > 0) return; // 既に回っていたら無視
+
+            console.log("--- Game Start ---");
+            msg.innerText = "Good Luck!";
+            msg.style.color = "#fff";
+            
+            // リセット処理
+            reelValues = [null, null, null];
+            spinningCount = 3;
+            startBtn.disabled = true;
+
+            // 各リールを回す
+            for (let i = 0; i < 3; i++) {
+                stopBtns[i].disabled = false; // STOPボタン有効化
+                displays[i].classList.add("spinning"); // 見た目を変える
+
+                // 高速で絵柄を書き換える
+                reelIntervals[i] = setInterval(() => {
+                    const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+                    displays[i].innerText = randomSymbol;
+                }, 80); // 0.08秒ごとに切り替え
+            }
+        }
+
+        // --- ストップボタン処理 ---
+        function stopReel(index) {
+            if (reelIntervals[index] === null) return; // 既に止まっていたら無視
+
+            // タイマーを止める
+            clearInterval(reelIntervals[index]);
+            reelIntervals[index] = null;
+
+            // 最終的な値を決定（本来はここでリール配列の位置計算をするが、今回はランダムで確定）
+            const finalValue = symbols[Math.floor(Math.random() * symbols.length)];
+            reelValues[index] = finalValue;
+            
+            // 画面更新
+            displays[index].innerText = finalValue;
+            displays[index].classList.remove("spinning");
+            stopBtns[index].disabled = true; // ボタンを押せなくする
+
+            // ログ出力
+            console.log(`Reel[${index}] stopped at: ${finalValue}`);
+
+            spinningCount--;
+
+            // 全て止まったら判定へ
+            if (spinningCount === 0) {
+                checkResult();
+            }
+        }
+
+        // --- 結果判定 ---
+        function checkResult() {
+            console.log(`All stopped. Values: ${reelValues}`);
+            startBtn.disabled = false; // 次のゲームへ
+
+            const [v1, v2, v3] = reelValues;
+            let resultText = "";
+
+            if (v1 === v2 && v2 === v3) {
+                if (v1 === "💀") {
+                    resultText = "😱 ギャー！！地獄行き！！";
+                    msg.style.color = "#e74c3c";
+                } else if (v1 === "7️⃣") {
+                    resultText = "🎉 SUPER JACKPOT !!! 🎉";
+                    msg.style.color = "#f1c40f";
+                } else {
+                    resultText = `✨ ${v1} ビンゴ！！お見事！ ✨`;
+                    msg.style.color = "#2ecc71";
+                }
+            } else if (v1 === v2 || v2 === v3 || v1 === v3) {
+                resultText = "🥺 あと1つ！惜しい！";
+            } else {
+                resultText = "🧹 ドンマイ！次こそ！";
+            }
+
+            msg.innerText = resultText;
+            console.log(`Result Message: ${resultText}`);
+        }
+    </script>
+</body>
+</html>
