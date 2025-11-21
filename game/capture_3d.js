@@ -1,16 +1,19 @@
-// capture_3d.js (グローバル変数化)
-import * as THREE from 'three'; // Three.jsのインポートはそのまま
+// capture_3d.js (構文エラー修正・JSON対応版)
+import * as THREE from 'three'; 
 
 // --- Three.js グローバル変数 ---
 let scene, camera, renderer, targetMesh, ballMesh;
 let animationId;
 let isBallThrown = false;
-let currentTargetData = null; // map_managerから渡されたモンスター情報
+let currentTargetData = null; // map_managerから渡されたJSONモンスター情報
+let currentMarker = null;     // map_managerから渡されたLeafletマーカーオブジェクト
 
 // --- 捕獲モード開始 ---
 // window.startCapture としてグローバルに公開
-function startCapture(data) { 
+function startCapture(data, marker) { 
     currentTargetData = data;
+    currentMarker = marker;
+
     document.getElementById('target-name').innerText = `${data.name} が現れた！`;
     document.getElementById('throw-btn').disabled = false;
     document.getElementById('throw-btn').innerText = "ボールを投げる！";
@@ -20,12 +23,11 @@ function startCapture(data) {
     // ターゲットの再生成ロジック
     if (targetMesh) scene.remove(targetMesh);
     
-    let color = 0xffff00; 
-    if(data.emoji === "🍫") color = 0x5d4037;
-    if(data.emoji === "🦍") color = 0x333333;
+    // JSONから色情報を取得
+    const colorCode = parseInt(data.color, 16); 
 
     const geometry = new THREE.IcosahedronGeometry(1, 1);
-    const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.4, metalness: 0.3 });
+    const material = new THREE.MeshStandardMaterial({ color: colorCode, roughness: 0.4, metalness: 0.3 });
     targetMesh = new THREE.Mesh(geometry, material);
     targetMesh.position.set(0, 0, -5); 
     scene.add(targetMesh);
@@ -103,24 +105,38 @@ function animate3D() {
         // 当たり判定
         if (ballMesh.position.z < -4) {
             isBallThrown = false;
+            cancelAnimationFrame(animationId); // アニメーションを停止
             
-            // 捕獲成功！
+            // --- 捕獲判定ロジック ---
+            const captureRate = currentTargetData.capture_rate; // JSONから確率を取得
+            const success = Math.random() < captureRate; // 乱数判定
+            
             scene.remove(ballMesh);
             scene.remove(targetMesh);
             
-            // マップからモンスターを削除 (Leafletマーカーを削除)
-            if (currentTargetData.marker) {
-                 currentTargetData.marker.remove();
-            }
-
-            document.getElementById('target-name').innerText = `やった！ ${currentTargetData.name} を捕まえた！`;
-            document.getElementById('throw-btn').innerText = "捕獲成功！";
             document.getElementById('throw-btn').disabled = true;
-            
-            // アニメーションを停止
-            cancelAnimationFrame(animationId);
-            // map_manager.js側のwindow.closeCapture()を呼び出す必要があるが、
-            // 今回はデバッグのため、手動で逃げるボタンを押してもらう
+
+            if (success) {
+                // 捕獲成功！
+                currentMarker.remove(); // マップからモンスターを削除
+                document.getElementById('target-name').innerText = `🎉 捕獲成功！${currentTargetData.name} を捕まえた！`;
+                document.getElementById('throw-btn').innerText = "SUCCESS!";
+                
+                // 3秒後に自動でマップ画面に戻る
+                setTimeout(() => {
+                    window.closeCapture(); 
+                }, 3000); 
+
+            } else {
+                // 捕獲失敗/逃走！
+                document.getElementById('target-name').innerText = `😢 逃げられた... ${currentTargetData.name} は遠くへ行ってしまった。`;
+                document.getElementById('throw-btn').innerText = "ESCAPE!";
+
+                // 3秒後に自動でマップ画面に戻る
+                setTimeout(() => {
+                    window.closeCapture(); 
+                }, 3000); 
+            }
         }
     }
 
