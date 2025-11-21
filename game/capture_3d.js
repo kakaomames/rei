@@ -1,5 +1,5 @@
-// capture_3d.js
-import * as THREE from 'three';
+// capture_3d.js (グローバル変数化)
+import * as THREE from 'three'; // Three.jsのインポートはそのまま
 
 // --- Three.js グローバル変数 ---
 let scene, camera, renderer, targetMesh, ballMesh;
@@ -8,7 +8,8 @@ let isBallThrown = false;
 let currentTargetData = null; // map_managerから渡されたモンスター情報
 
 // --- 捕獲モード開始 ---
-export function startCapture(data) {
+// window.startCapture としてグローバルに公開
+function startCapture(data) { 
     currentTargetData = data;
     document.getElementById('target-name').innerText = `${data.name} が現れた！`;
     document.getElementById('throw-btn').disabled = false;
@@ -36,6 +37,10 @@ export function startCapture(data) {
     // アニメーションループ開始
     animate3D(); 
 }
+
+// capture_3d.js の機能が必要なため、グローバルに公開
+window.startCapture = startCapture; 
+
 
 // --- 3D初期化 (初回一度だけ実行) ---
 function init3D() {
@@ -114,7 +119,8 @@ function animate3D() {
             
             // アニメーションを停止
             cancelAnimationFrame(animationId);
-            // capture_3d.jsを呼び出した map_manager.js がウィンドウクローズを処理する
+            // map_manager.js側のwindow.closeCapture()を呼び出す必要があるが、
+            // 今回はデバッグのため、手動で逃げるボタンを押してもらう
         }
     }
 
