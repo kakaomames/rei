@@ -1,4 +1,4 @@
-// map_manager.js (現在地スポーン対応版)
+// map_manager.js (現在地スポーン対応 + ログ出力ボタン対応版)
 
 // --- グローバル変数 (ここではモジュール内変数) ---
 // GPS成功後にこの値が更新されますが、初期表示は東京のまま
@@ -6,7 +6,7 @@ let userLat = 35.6895;
 let userLng = 139.6917;
 let map = null;
 let userMarker = null;
-const monsters = [];
+const monsters = []; // Leaflet Markerオブジェクトを格納
 
 // --- 外部から呼び出せるようにするための関数 ---
 function moveFakeInternal(dLat, dLng) {
@@ -23,6 +23,27 @@ function closeCaptureInternal() {
     if(map) map.invalidateSize();
 };
 window.closeCapture = closeCaptureInternal; // グローバルに公開
+
+// ★新規追加★ 位置情報をログに出力する関数
+function logPositionsInternal() {
+    console.log("=====================================");
+    console.log("[LOG DUMP] 位置情報デバッグ出力");
+    console.log(`[USER] 現在地: Lat=${userLat.toFixed(6)}, Lng=${userLng.toFixed(6)}`);
+    console.log("-------------------------------------");
+
+    if (monsters.length === 0) {
+        console.log("[MONSTER] モンスターはまだスポーンしていません。");
+    } else {
+        monsters.forEach((marker, index) => {
+            const latLng = marker.getLatLng();
+            // ポップアップの内容から名前と絵文字を取得 (例: "伝説のカカオ (🍫)")
+            const content = marker.getPopup().getContent(); 
+            console.log(`[M #${index + 1}] ${content}: Lat=${latLng.lat.toFixed(6)}, Lng=${latLng.lng.toFixed(6)}`);
+        });
+    }
+    console.log("=====================================");
+}
+window.logPositions = logPositionsInternal; // グローバルに公開
 
 
 // --- 初期化 ---
@@ -72,6 +93,8 @@ function initGPS() {
                 userLat = position.coords.latitude;
                 userLng = position.coords.longitude;
                 updateUserPosition();
+                // GPS取得に成功したら、モンスターの位置も現在地基準で更新
+                updateMonsterPositions();
             },
             (error) => {
                 // 失敗時：エラーコードとメッセージをコンソールに出力
@@ -95,6 +118,26 @@ function initGPS() {
     }
 }
 
+// モンスター位置の更新 (GPSが更新されたときに、モンスターも現在地基準で更新するための関数)
+function updateMonsterPositions() {
+    if (monsters.length === 0) return;
+
+    // 現在地周辺に再配置
+    const baseLat = userLat; 
+    const baseLng = userLng; 
+
+    // 既にスポーンしたモンスターのマーカーを削除し、新しい位置に再生成
+    monsters.forEach(marker => {
+        map.removeLayer(marker);
+    });
+    monsters.length = 0; // 配列を空にする
+
+    // 0.001 (約110m) を加減して、現在地の周辺に再スポーンさせます
+    spawnMonster(baseLat + 0.001, baseLng + 0.001, "🍌", "ワイルドバナナ");
+    spawnMonster(baseLat - 0.001, baseLng + 0.001, "🦍", "怒れるゴリラ");
+    spawnMonster(baseLat + 0.001, baseLng - 0.001, "🍫", "伝説のカカオ");
+}
+
 // モンスター生成
 function spawnMonster(lat, lng, emoji, name) {
     
@@ -106,14 +149,15 @@ function spawnMonster(lat, lng, emoji, name) {
     
     // クリックイベント：3D画面へ遷移
     marker.on('click', () => {
-        // capture_3d.js の関数を window 経由で呼び出す
+        // window.startCaptureが見えているかチェック
         if (window.startCapture) {
+             console.log("[CLICK] 👾 モンスタークリック成功！3D画面へ遷移します。"); // ★ログ追加★
              document.getElementById('map-container').style.display = 'none';
              document.getElementById('capture-container').style.display = 'block';
              // window.を付けて呼び出し
              window.startCapture({ emoji, name, marker }); 
         } else {
-             console.error("Error: window.startCapture is not defined. (capture_3d.jsの読み込みに失敗)");
+             console.error("[CLICK ERROR] window.startCapture is not defined. capture_3d.jsの関数が見えていません。"); // ★ログ追加★
         }
     });
 
