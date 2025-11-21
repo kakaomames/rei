@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>無限バナナ工場：JSON外部化</title>
+    <title>無限バナナ工場</title>
     <style>
         body {
             font-family: "Helvetica Neue", Arial, sans-serif;
@@ -226,275 +226,406 @@
     </div>
 
     <script>
-        // --- ゲームデータ ---
-        let bananas = 0;
-        let totalBpsProd = 0; // 総生産
-        let totalBpsCons = 0; // 総消費
-        let netBps = 0;       // 純増
-        let totalClicks = 0;
-        let items = []; // 実際のゲームで使うアイテムリスト
+    // --- ゲームデータ ---
+    let bananas = 0;
+    let totalBpsProd = 0; // 総生産
+    let totalBpsCons = 0; // 総消費
+    let netBps = 0;       // 純増
+    let totalClicks = 0;
+    let items = []; // 実際のゲームで使うアイテムリスト
 
-        // 称号リスト (JSONから読み込まないのでそのまま保持)
-        const ranks = [
-            { limit: 0, title: "見習い農家" },
-            { limit: 1000, title: "バナナ屋の店長" },
-            { limit: 100000, title: "地域のバナナ王" },
-            { limit: 10000000, title: "バナナ財閥総帥" },
-            { limit: 1000000000, title: "地球バナナ大統領" },
-            { limit: 100000000000, title: "銀河バナナ帝王" },
-            { limit: 10000000000000, title: "バナナの概念" }
-        ];
+    // 称号リスト (変更なし)
+    // 称号リスト (50段階に拡張)
+const ranks = [
+    { limit: 0, title: "見習い農家" },
+    { limit: 1e3, title: "バナナ屋の店員" },
+    { limit: 1e4, title: "地域の名物店長" },
+    { limit: 1e5, title: "バナナ運搬業者" },
+    { limit: 1e6, title: "街のバナナ王" },
+    { limit: 1e7, title: "バナナの仕立人" },
+    { limit: 1e8, title: "地方バナナ総督" },
+    { limit: 1e9, title: "大陸バナナ支配者" },
+    { limit: 1e10, title: "バナナ財閥総帥" },
+    { limit: 1e11, title: "世界バナナ大統領" },
+    { limit: 1e12, title: "銀河バナナ領主" },
+    { limit: 1e13, title: "バナナの概念" },
+    { limit: 1e14, title: "概念の調律者" },
+    { limit: 1e15, title: "四次元農夫" },
+    { limit: 1e16, title: "超時空のバイヤー" },
+    { limit: 1e17, title: "反物質バナナ工学士" },
+    { limit: 1e18, title: "宇宙のバナナの種" },
+    { limit: 1e19, title: "錬金術の達人" },
+    { limit: 1e20, title: "創世記の調理人" },
+    { limit: 1e21, title: "バナナ次元の管理者" },
+    { limit: 1e22, title: "ブラックホールの管理人" },
+    { limit: 1e23, title: "超新星の輝き" },
+    { limit: 1e24, title: "銀河ネットワークの支配者" },
+    { limit: 1e25, title: "惑星バナナの建築家" },
+    { limit: 1e26, title: "次元間の貿易商" },
+    { limit: 1e27, title: "ビッグクランチの監視者" },
+    { limit: 1e28, title: "バナナ宇宙の創造者" },
+    { limit: 1e29, title: "因果律の支配者" },
+    { limit: 1e30, title: "カカオ神殿の守護者" },
+    { limit: 1e31, title: "概念存在の理解者" },
+    { limit: 1e32, title: "全知バナナの啓示者" },
+    { limit: 1e33, title: "時空の裁縫師" },
+    { limit: 1e34, title: "ビッグバン再起動の鍵" },
+    { limit: 1e35, title: "虚無の克服者" },
+    { limit: 1e36, title: "オメガ・プロトコルの実行者" },
+    { limit: 1e37, title: "バナナの宇宙論者" },
+    { limit: 1e38, title: "異次元のバナナの神" },
+    { limit: 1e39, title: "究極のバナナ形態" },
+    { limit: 1e40, title: "超越的存在" },
+    { limit: 1e41, title: "バナナ・パラダイム" },
+    { limit: 1e42, title: "現実の書き換え手" },
+    { limit: 1e43, title: "意識を超越したバナナ" },
+    { limit: 1e44, title: "多元宇宙の調停者" },
+    { limit: 1e45, title: "量子のバナナ職人" },
+    { limit: 1e46, title: "神秘のバナナ波動" },
+    { limit: 1e47, title: "不可視のバナナ存在" },
+    { limit: 1e48, title: "無限の源泉" },
+    { limit: 1e49, title: "バナナ絶対神" },
+    { limit: 1e50, title: "カカオマメ神" },
+    { limit: 1e51, title: "真の創造主" } // 50個より多くなりましたが、1e51を最終目標とします
+];
 
-        // DOM要素
-        const displayCount = document.getElementById('bananaCount');
-        const displayTotalProd = document.getElementById('totalBpsProd');
-        const displayTotalCons = document.getElementById('totalBpsCons');
-        const displayNetBps = document.getElementById('netBps');
-        const clickBtn = document.getElementById('clickBtn');
-        const shopList = document.getElementById('shopList');
-        const clickArea = document.getElementById('clickArea');
-        const rankTitle = document.getElementById('rankTitle');
-        const msgBox = document.getElementById('msg');
+    // DOM要素 (変更なし)
+    const displayCount = document.getElementById('bananaCount');
+    const displayTotalProd = document.getElementById('totalBpsProd');
+    const displayTotalCons = document.getElementById('totalBpsCons');
+    const displayNetBps = document.getElementById('netBps');
+    const clickBtn = document.getElementById('clickBtn');
+    const shopList = document.getElementById('shopList');
+    const clickArea = document.getElementById('clickArea');
+    const rankTitle = document.getElementById('rankTitle');
+    const msgBox = document.getElementById('msg');
+    
+    // 定数
+    const SAVE_KEY = "bananaClickerSaveData";
 
-        // --- 初期化 (Async/AwaitでJSONを読み込む) ---
-        async function init() {
-            msgBox.style.display = 'block';
-            console.log("--- Loading Game Data from JSON ---");
-            
-            try {
-                // JSONデータをフェッチ
-                const response = await fetch('./banana_game_data.json');
-                console.log(`Fetch response status: ${response.status}`);
-                
-                const data = await response.json();
-                console.log("JSON data loaded successfully.");
-                
-                // データを加工・格納
-                processItemData(data);
-                
-                // ゲーム開始
-                startGame();
-
-            } catch (error) {
-                console.error("FATAL ERROR: Failed to load JSON:", error);
-                msgBox.innerText = "致命的なエラー: ゲームデータの読み込みに失敗しました。ファイル名を確認してください。";
-                rankTitle.innerText = "エラー";
-                clickBtn.style.pointerEvents = 'none';
-            }
-        }
+    // --- 初期化 (Async/AwaitでJSONを読み込む) ---
+    async function init() {
+        msgBox.style.display = 'block';
+        msgBox.innerText = "JSONファイルを読み込んでいます...";
+        console.log("--- Loading Game Data from JSON ---");
         
-        // JSONデータを処理してitems配列を作成
-        function processItemData(data) {
-            let index = 0;
-            for (const name in data.item) {
-                const item = data.item[name];
-                items.push({
-                    id: index++,
-                    name: name,
-                    cost: item.コスト,
-                    prod: item.生産,
-                    cons: item.消費,
-                    desc: item.説明,
-                    icon: item.icon,
-                    owned: 0
-                });
-            }
-            console.log(`Item list finalized. Total items: ${items.length}`);
-            rankTitle.innerText = ranks[0].title;
-            msgBox.style.display = 'none';
-        }
-
-        // ゲームのループ処理を開始
-        function startGame() {
-            renderShop();
+        try {
+            const response = await fetch('./banana_game_data.json');
+            const data = await response.json();
             
-            // 毎秒の生産ループ
-            setInterval(gameLoop, 1000);
-
-            // 画面更新ループ（高速）
-            setInterval(() => {
-                updateDisplay();
-                updateShopButtons();
-                checkRank();
-            }, 100);
-
-            // ゴールデンバナナ出現ループ
-            spawnGoldenBananaLoop();
+            // データを加工・格納
+            processItemData(data);
             
-            // クリックイベントリスナーの追加
-            clickBtn.addEventListener('mousedown', (e) => {
-                addBananas(1);
-                totalClicks++;
-                createPopNumber(e.clientX, e.clientY, "+1");
-            });
-
-            console.log("Game started successfully!");
-        }
-        
-        // --- メインゲームループ（1秒ごと） ---
-        function gameLoop() {
-            netBps = totalBpsProd - totalBpsCons;
-            addBananas(netBps);
+            // ローカルストレージからのデータロードを試みる
+            const loaded = loadGame(); 
+            console.log(`loadGame result: ${loaded}`);
             
-            // ユーザーのデバッグリクエストに応えるためのログ出力
-            console.log(`BPS update: Prod(+${totalBpsProd}) - Cons(-${totalBpsCons}) = Net(${netBps}) | Total Bananas: ${Math.floor(bananas)}`);
+            // ゲーム開始
+            startGame();
+
+        } catch (error) {
+            console.error("FATAL ERROR: Failed to load JSON:", error);
+            msgBox.innerText = "致命的なエラー: ゲームデータの読み込みに失敗しました。";
+            rankTitle.innerText = "エラー";
+            clickBtn.style.pointerEvents = 'none';
         }
-
-        // --- メインロジック（省略） ---
-        // (省略部: addBananas, updateDisplay, checkRank, createPopNumber, renderShop, buyItem, updateShopButtons, spawnGoldenBananaLoop, spawnGoldenBanana は前回のコードとほぼ同一です。ここでは可読性のため省略します。)
-
-        // 以下、前回のコードから変更なしの関数定義を再掲（必要最小限のみ）
-
-        function addBananas(amount) {
-            bananas += amount;
-            if (bananas < 0) bananas = 0;
-        }
-
-        function updateDisplay() {
-            displayCount.innerText = Math.floor(bananas).toLocaleString();
-            displayTotalProd.innerText = totalBpsProd.toLocaleString();
-            displayTotalCons.innerText = totalBpsCons.toLocaleString();
-            
-            netBps = totalBpsProd - totalBpsCons;
-            displayNetBps.innerText = netBps.toLocaleString();
-            
-            if (netBps < 0) {
-                displayNetBps.classList.remove('positive');
-                displayNetBps.classList.add('negative');
-            } else {
-                displayNetBps.classList.remove('negative');
-                displayNetBps.classList.add('positive');
-            }
-            
-            document.title = `${Math.floor(bananas).toLocaleString()} バナナ - 工場`;
-        }
-
-        function checkRank() {
-            let currentTitle = ranks[0].title;
-            for (let r of ranks) {
-                if (bananas >= r.limit) {
-                    currentTitle = r.title;
-                }
-            }
-            rankTitle.innerText = currentTitle;
-        }
-
-        function createPopNumber(x, y, text, color="#fbc02d", size="2rem") {
-            const floatNum = document.createElement('div');
-            floatNum.innerText = text;
-            floatNum.classList.add('pop-number');
-            floatNum.style.left = x + 'px';
-            floatNum.style.top = (y - 50) + 'px';
-            floatNum.style.color = color;
-            floatNum.style.fontSize = size;
-            document.body.appendChild(floatNum);
-
-            setTimeout(() => floatNum.remove(), 1000);
-        }
-
-        function renderShop() {
-            shopList.innerHTML = "";
-            items.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.classList.add('item');
-                div.id = `item-${index}`;
-                div.onclick = () => buyItem(index);
-
-                div.innerHTML = `
-                    <div class="item-top">
-                        <div class="item-info">
-                            <h3>${item.icon} ${item.name}</h3>
-                            <p>${item.desc}</p>
-                        </div>
-                        <div class="owned" id="owned-${index}">${item.owned}</div>
-                    </div>
-                    <div class="item-stats">
-                        <span class="stats-cost">コスト: ${item.cost.toLocaleString()}</span>
-                        <span class="stats-prod">生産: +${item.prod.toLocaleString()}/秒</span>
-                        <span class="stats-cons">消費: -${item.cons.toLocaleString()}/秒</span>
-                    </div>
-                `;
-                shopList.appendChild(div);
+    }
+    
+    // JSONデータを処理してitems配列を作成（変更なし）
+    function processItemData(data) {
+        let index = 0;
+        for (const name in data.item) {
+            const item = data.item[name];
+            items.push({
+                id: index++,
+                name: name,
+                cost: item.コスト,
+                prod: item.生産,
+                cons: item.消費,
+                desc: item.説明,
+                icon: item.icon,
+                owned: 0 // 初期所有数は0
             });
         }
+        console.log(`Item list finalized. Total items: ${items.length}`);
+        rankTitle.innerText = ranks[0].title;
+        msgBox.style.display = 'none';
+    }
 
-        function buyItem(index) {
-            const item = items[index];
-            if (bananas >= item.cost) {
-                bananas -= item.cost;
-                item.owned++;
-                
-                totalBpsProd += item.prod;
-                totalBpsCons += item.cons;
-                
-                item.cost = Math.ceil(item.cost * 1.15); 
+    // ゲームのループ処理を開始
+    function startGame() {
+        renderShop();
+        
+        // 毎秒の生産ループと保存
+        setInterval(gameLoop, 1000);
 
-                document.getElementById(`owned-${index}`).innerText = item.owned;
-                document.querySelector(`#item-${index} .stats-cost`).innerText = `コスト: ${item.cost.toLocaleString()}`;
-                
-                console.log(`Bought ${item.name}. New Prod: ${totalBpsProd}, New Cons: ${totalBpsCons}`);
-            }
+        // 画面更新ループ（高速）
+        setInterval(() => {
+            updateDisplay();
+            updateShopButtons();
+            checkRank();
+        }, 100);
+
+        // ゴールデンバナナ出現ループ
+        spawnGoldenBananaLoop();
+        
+        // クリックイベントリスナーの追加
+        clickBtn.addEventListener('mousedown', (e) => {
+            addBananas(1);
+            totalClicks++;
+            createPopNumber(e.clientX, e.clientY, "+1");
+        });
+        
+        // ブラウザやタブを閉じるときに最終保存
+        window.addEventListener('beforeunload', saveGame);
+
+        console.log("Game started successfully!");
+    }
+
+    // --- セーブ機能 (Saves the game state to Local Storage) ---
+    function saveGame() {
+        // アイテム所有数を整形
+        const itemSaves = items.map(item => `${item.name}:${item.owned}:${item.cost}`).join(',');
+        
+        // 保存データオブジェクト
+        const saveData = {
+            name: "カカオマメ", // ユーザー名
+            count: bananas,
+            item_data: itemSaves
+        };
+        
+        try {
+            const saveDataJSON = JSON.stringify(saveData);
+            localStorage.setItem(SAVE_KEY, saveDataJSON);
+            console.log("Game saved successfully.");
+        } catch (e) {
+            console.error("Local Storage Save Error:", e);
         }
+    }
+    
+    // --- ロード機能 (Loads the game state from Local Storage) ---
+    function loadGame() {
+        const savedDataJSON = localStorage.getItem(SAVE_KEY);
+        
+        if (!savedDataJSON) {
+            console.log("No saved data found. Starting fresh.");
+            return false;
+        }
+        
+        try {
+            const loadedData = JSON.parse(savedDataJSON);
+            
+            // 1. バナナの個数を復元
+            bananas = parseFloat(loadedData.count) || 0;
+            console.log(`bananas:${bananas}`);
 
-        function updateShopButtons() {
-            items.forEach((item, index) => {
-                const div = document.getElementById(`item-${index}`);
-                if (div) { // 要素がrenderShopで生成されていることを確認
-                    if (bananas >= item.cost) {
-                        div.classList.remove('disabled');
-                    } else {
-                        div.classList.add('disabled');
+            // 2. アイテムデータを復元
+            const itemSaves = loadedData.item_data.split(',');
+            
+            totalBpsProd = 0;
+            totalBpsCons = 0;
+
+            itemSaves.forEach(itemStr => {
+                const parts = itemStr.split(':');
+                if (parts.length === 3) {
+                    const name = parts[0];
+                    const owned = parseInt(parts[1]) || 0;
+                    const cost = parseFloat(parts[2]) || 0;
+
+                    const item = items.find(i => i.name === name);
+
+                    if (item) {
+                        item.owned = owned;
+                        item.cost = cost;
+                        
+                        // 生産と消費の合計を再計算
+                        totalBpsProd += item.prod * owned;
+                        totalBpsCons += item.cons * owned;
+                        
+                        // 復元されたアイテムをログ出力
+                        console.log(`Item loaded: ${item.name}, Owned: ${item.owned}, Cost: ${item.cost}`);
                     }
                 }
             });
-        }
 
-        // --- ゴールデンバナナ機能（JSON読み込み待ちのため、initから呼び出しに変更） ---
-
-        function spawnGoldenBananaLoop() {
-            const randomTime = Math.random() * 10000 + 5000; 
+            netBps = totalBpsProd - totalBpsCons;
             
-            setTimeout(() => {
-                spawnGoldenBanana();
-                spawnGoldenBananaLoop();
-            }, randomTime);
-        }
-
-        function spawnGoldenBanana() {
-            const gb = document.createElement('div');
-            gb.innerText = "🍌";
-            gb.classList.add('golden-banana');
+            // UIを更新
+            updateDisplay();
+            msgBox.innerText = `ゲームをロードしました！バナナ: ${Math.floor(bananas).toLocaleString()} 本`;
             
-            const maxX = clickArea.offsetWidth - 100;
-            const maxY = clickArea.offsetHeight - 100;
-            const randX = Math.random() * maxX + 20;
-            const randY = Math.random() * maxY + 20;
+            return true;
 
-            gb.style.left = randX + 'px';
-            gb.style.top = randY + 'px';
+        } catch (e) {
+            console.error("Local Storage Load Error: Corrupted data.", e);
+            localStorage.removeItem(SAVE_KEY); // データ破損の場合は削除
+            return false;
+        }
+    }
 
-            gb.onmousedown = (e) => {
-                e.stopPropagation();
-                
-                netBps = totalBpsProd - totalBpsCons; // ボーナス計算直前に純増を再計算
-                const bonus = Math.max(777, netBps * 300);
-                
-                addBananas(bonus);
-                createPopNumber(e.clientX, e.clientY, `Lucky! +${bonus.toLocaleString()}`, "red", "4rem");
-                
-                gb.remove();
-            };
 
-            clickArea.appendChild(gb);
+    // --- メインゲームループ（1秒ごと） ---
+    function gameLoop() {
+        netBps = totalBpsProd - totalBpsCons;
+        addBananas(netBps);
+        
+        // ここでゲーム状態を保存！
+        saveGame(); 
 
-            setTimeout(() => {
-                if(gb.parentNode) {
-                    gb.remove();
+        // ユーザーのデバッグリクエストに応えるためのログ出力
+        console.log(`gameLoop executed. Prod(+${totalBpsProd}) - Cons(-${totalBpsCons}) = Net(${netBps}) | Total Bananas: ${Math.floor(bananas)}`);
+    }
+
+    // --- その他の関数（変更なし） ---
+    
+    function addBananas(amount) {
+        bananas += amount;
+        if (bananas < 0) bananas = 0;
+    }
+
+    function updateDisplay() {
+        displayCount.innerText = Math.floor(bananas).toLocaleString();
+        displayTotalProd.innerText = totalBpsProd.toLocaleString();
+        displayTotalCons.innerText = totalBpsCons.toLocaleString();
+        
+        netBps = totalBpsProd - totalBpsCons;
+        displayNetBps.innerText = netBps.toLocaleString();
+        
+        if (netBps < 0) {
+            displayNetBps.classList.remove('positive');
+            displayNetBps.classList.add('negative');
+        } else {
+            displayNetBps.classList.remove('negative');
+            displayNetBps.classList.add('positive');
+        }
+        
+        document.title = `${Math.floor(bananas).toLocaleString()} バナナ - 工場`;
+    }
+
+    function checkRank() {
+        let currentTitle = ranks[0].title;
+        for (let r of ranks) {
+            if (bananas >= r.limit) {
+                currentTitle = r.title;
+            }
+        }
+        rankTitle.innerText = currentTitle;
+    }
+
+    function createPopNumber(x, y, text, color="#fbc02d", size="2rem") {
+        const floatNum = document.createElement('div');
+        floatNum.innerText = text;
+        floatNum.classList.add('pop-number');
+        floatNum.style.left = x + 'px';
+        floatNum.style.top = (y - 50) + 'px';
+        floatNum.style.color = color;
+        floatNum.style.fontSize = size;
+        document.body.appendChild(floatNum);
+
+        setTimeout(() => floatNum.remove(), 1000);
+    }
+
+    function renderShop() {
+        shopList.innerHTML = "";
+        items.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.classList.add('item');
+            div.id = `item-${index}`;
+            div.onclick = () => buyItem(index);
+
+            div.innerHTML = `
+                <div class="item-top">
+                    <div class="item-info">
+                        <h3>${item.icon} ${item.name}</h3>
+                        <p>${item.desc}</p>
+                    </div>
+                    <div class="owned" id="owned-${index}">${item.owned}</div>
+                </div>
+                <div class="item-stats">
+                    <span class="stats-cost">コスト: ${item.cost.toLocaleString()}</span>
+                    <span class="stats-prod">生産: +${item.prod.toLocaleString()}/秒</span>
+                    <span class="stats-cons">消費: -${item.cons.toLocaleString()}/秒</span>
+                </div>
+            `;
+            shopList.appendChild(div);
+        });
+    }
+
+    function buyItem(index) {
+        const item = items[index];
+        if (bananas >= item.cost) {
+            bananas -= item.cost;
+            item.owned++;
+            
+            totalBpsProd += item.prod;
+            totalBpsCons += item.cons;
+            
+            item.cost = Math.ceil(item.cost * 1.15); 
+
+            document.getElementById(`owned-${index}`).innerText = item.owned;
+            document.querySelector(`#item-${index} .stats-cost`).innerText = `コスト: ${item.cost.toLocaleString()}`;
+            
+            console.log(`Bought ${item.name}. New Prod: ${totalBpsProd}, New Cons: ${totalBpsCons}`);
+        }
+    }
+
+    function updateShopButtons() {
+        items.forEach((item, index) => {
+            const div = document.getElementById(`item-${index}`);
+            if (div) { 
+                if (bananas >= item.cost) {
+                    div.classList.remove('disabled');
+                } else {
+                    div.classList.add('disabled');
                 }
-            }, 5000);
-        }
+            }
+        });
+    }
 
-        // init()関数はbodyのonload属性で実行されます。
-    </script>
+    function spawnGoldenBananaLoop() {
+        const randomTime = Math.random() * 10000 + 5000; 
+        
+        setTimeout(() => {
+            spawnGoldenBanana();
+            spawnGoldenBananaLoop();
+        }, randomTime);
+    }
+
+    function spawnGoldenBanana() {
+        const gb = document.createElement('div');
+        gb.innerText = "🍌";
+        gb.classList.add('golden-banana');
+        
+        const maxX = clickArea.offsetWidth - 100;
+        const maxY = clickArea.offsetHeight - 100;
+        const randX = Math.random() * maxX + 20;
+        const randY = Math.random() * maxY + 20;
+
+        gb.style.left = randX + 'px';
+        gb.style.top = randY + 'px';
+
+        gb.onmousedown = (e) => {
+            e.stopPropagation();
+            
+            netBps = totalBpsProd - totalBpsCons; 
+            const bonus = Math.max(777, netBps * 300);
+            
+            addBananas(bonus);
+            createPopNumber(e.clientX, e.clientY, `Lucky! +${bonus.toLocaleString()}`, "red", "4rem");
+            
+            gb.remove();
+        };
+
+        clickArea.appendChild(gb);
+
+        setTimeout(() => {
+            if(gb.parentNode) {
+                gb.remove();
+            }
+        }, 5000);
+    }
+
+    // init()関数はbodyのonload属性で実行されます。
+</script>
 </body>
 </html>
