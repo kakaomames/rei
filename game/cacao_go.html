@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <link rel="stylesheet" href="./cacao_go.css" />
+    <link rel="ball-obj" href="./model.obj" />
+    
     
     <script type="importmap">
         {
@@ -50,8 +52,19 @@
             <button onclick="closeCapture()" style="background:#ccc; box-shadow:0 5px 0 #999; font-size:1rem; padding:10px 20px; margin-top:10px;">逃げる</button>
         </div>
     </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="https://unpkg.com/three@0.160.0/examples/js/loaders/OBJLoader.js"></script>
     
-    <script>
+    <script src="https://unpkg.com/three@0.160.0/examples/js/loaders/MTLLoader.js"></script> 
+    
+    <script type="module" src="./capture_3d.js"></script>
+
+    <script type="module" src="./map_manager.js"></script>
+
+
+
+   <!-- <script>
         console.log("【1. HTMLロード完了】 1秒待機してからJSファイルを読み込みます。");
         
         // 1秒 (1000ms) の遅延をかける
@@ -75,7 +88,7 @@
             console.log(`a:./map_manager.js`);
 
         }, 1000); // 1000ミリ秒 = 1秒
-    </script>
+    </script>-->
 
 </body>
 </html>
