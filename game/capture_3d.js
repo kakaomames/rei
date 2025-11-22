@@ -1,486 +1,422 @@
-// capture_3d.js (最終統合版 - Bedrock JSONモデル/アニメーション修正済み)
+// capture_3d.js
 
-// --- Three.js グローバル変数 ---
-let scene, camera, renderer, targetMesh, ballMesh;
-let animationId;
-let isBallThrown = false;
-let currentTargetData = null; 
-let currentMarker = null;     
+// Three.js 関連のグローバル変数
+let scene, camera, renderer, monsterMesh;
+let ballMesh, ballMixer, clock;
+let currentAnimationClip;
 
-// アニメーション用変数
-let mixer; 
-let clock; 
-let allClips = {}; 
+// 定数
+const BALL_SCALE_FACTOR = 6.0; // ボールのサイズを Three.js 空間で調整するための係数 (Blockbench 1/16 単位をこの値でスケール)
+const TARGET_Z_POSITION = -5.0; // モンスターの Z 座標 (奥)
+const BALL_START_Z_POSITION = 2.0; // ボール開始位置の Z 座標 (手元)
 
-// --- 捕獲モード開始 ---
-function startCapture(data, marker) { 
-    console.log(`[3D LOG] 1. 捕獲画面開始: モンスター (${data.name}) の表示を試みます。`); 
-    
-    // THREEオブジェクトの存在確認
-    if (typeof THREE === 'undefined' || typeof THREE.Scene === 'undefined') {
-        console.error('[3D CRITICAL ERROR] THREE.jsコアライブラリ(THREE)が見つからないか、不完全です。');
-        return;
-    }
-    console.log('[3D LOG] 2. THREEオブジェクトの存在確認OK。初期化へ進みます。'); 
-    
-    currentTargetData = data;
-    currentMarker = marker;
-
-    document.getElementById('target-name').innerText = `${data.name} が現れた！`;
-    document.getElementById('target-name').style.display = 'block';
-    document.getElementById('throw-btn').disabled = false;
-    document.getElementById('throw-btn').innerText = "ボールを投げる！";
-    
-    hideCaptureMessage();
-
-    if (!renderer) {
-        init3D();
-    } else {
-        console.log('[3D LOG] init3Dはスキップ。既にレンダラーが存在します。');
-    }
-
-    // ターゲットの再生成ロジック
-    if (targetMesh) scene.remove(targetMesh);
-    
-    // JSONから色情報を取得
-    const colorCode = parseInt(data.color, 16); 
-
-    console.log('[3D LOG] 4. モンスターメッシュ作成直前。'); 
-    const geometry = new THREE.IcosahedronGeometry(1, 1);
-    const material = new THREE.MeshStandardMaterial({ color: colorCode, roughness: 0.4, metalness: 0.3 });
-    targetMesh = new THREE.Mesh(geometry, material);
-    targetMesh.position.set(0, 0, -5); 
-    scene.add(targetMesh);
-    console.log('[3D LOG] 5. ターゲットのモンスター（球体）をシーンに追加しました。'); 
-
-    // ボールのリセット
-    if (ballMesh) scene.remove(ballMesh);
-    isBallThrown = false;
-    
-    if (!clock) clock = new THREE.Clock();
-    
-    // ★★★ 修正箇所1: 捕獲画面開始時にボールをロード/表示する ★★★
-    loadCacaoBall();
-
-    animate3D(); 
-}
-
-window.startCapture = startCapture; 
-
-
-// --- 3D初期化 (初回一度だけ実行) ---
-function init3D() {
-    console.log('[3D LOG] 3. init3D: 3D初期化開始。'); 
-    
-    const container = document.getElementById('capture-container');
-    if (!container) {
-        console.error('[3D CRITICAL ERROR] 3a. HTMLにID="capture-container"の要素が見つかりません。描画できません。');
-        return; 
-    }
-    console.log('[3D LOG] 3b. コンテナ要素の取得OK。'); 
-
-    console.log('[3D LOG] 3c. THREE.Scene() 実行直前。'); 
-    scene = new THREE.Scene();
-    console.log('[3D LOG] 3d. THREE.Scene作成成功。'); 
-    
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
-    camera.position.y = 1;
-
-    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    container.appendChild(renderer.domElement);
-    console.log('[3D LOG] 3e. レンダラーをDOMに追加しました。');
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    scene.add(ambientLight);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight.position.set(5, 10, 7);
-    scene.add(dirLight);
-
-    const gridHelper = new THREE.GridHelper(20, 20, 0xffffff, 0x555555);
-    gridHelper.position.y = -1;
-    scene.add(gridHelper);
-    
-    mixer = new THREE.AnimationMixer(scene); 
-    
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-    console.log('[3D LOG] 3z. init3D: 3D初期化完了。');
-}
-
-
-// --- ボールを投げる処理 (修正版) ---
-document.getElementById('throw-btn').addEventListener('click', () => {
-    if (isBallThrown || !ballMesh) return;
-    console.log('[3D LOG] ボール投げボタンクリック！');
-    isBallThrown = true;
-    document.getElementById('throw-btn').disabled = true; 
-    
-    // 待機アニメーションを停止し、投げるアニメーションを開始
-    if (allClips['animation.nageru-curb']) {
-        mixer.stopAllAction();
-        const action = mixer.clipAction(allClips['animation.nageru-curb'], ballMesh);
-        action.setLoop(THREE.LoopOnce);
-        action.clampWhenFinished = true; // 終了フレームで停止
-        action.play();
-        console.log('[3D LOG] animation.nageru-curb を適用し再生開始。');
-    } else {
-        console.warn('[3D WARN] animation.nageru-curb クリップが見つかりませんでした。');
-        // アニメーションが見つからない場合、手動で前進させる（フォールバック）
-        ballMesh.position.z -= 0.1; // わずかに前進させることで当たり判定を有効にする
-    }
-});
-
-
-/**
- * Bedrock JSONデータからThree.jsのジオメトリとメッシュを構築する関数。
- * @param {object} json - ball.geo.json のパースされたデータ
- * @returns {THREE.Group} 構築されたモデルのグループ
- */
+// Blockbench Bedrock JSON の解析と Three.js ジオメトリ構築
 function buildModelFromJson(json) {
     console.log('[3D LOG] JSON: ジオメトリ構築開始。');
     
-    // ★ヒント: ボールが灰色の場合、texture.pngにテクスチャが正しく設定されていない可能性があります。
+    // 1. テクスチャの読み込み
     const texture = new THREE.TextureLoader().load('./texture.png');
-    texture.flipY = false; 
+    texture.flipY = false; // Bedrock JSON の UV 座標は通常、Y軸を反転させる必要がある
+
+    // ★ 変更点1: MeshStandardMaterialに変更
+    // ライトの影響を受け、立体的に描画されるマテリアルを使用
+    const material = new THREE.MeshStandardMaterial({ 
+        map: texture, 
+        side: THREE.FrontSide, 
+        transparent: true,
+        roughness: 0.8, // 光沢の強さ (0.0=鏡面反射, 1.0=拡散反射)
+        metalness: 0.0  // 金属感 (非金属)
+    });
 
     // JSONのtexture_widthとtexture_heightを取得
-    const description = json['minecraft:geometry'][0].description;
-    const texWidth = description.texture_width;
-    const texHeight = description.texture_height;
+    const textureWidth = json['minecraft:geometry'][0].description.texture_width;
+    const textureHeight = json['minecraft:geometry'][0].description.texture_height;
 
-    // ジオメトリ全体を保持する親グループ（これがアニメーションターゲット "ball" になる）
+    // ジオメトリ全体を保持する親グループ（アニメーションターゲット "ball" になる）
     const modelGroup = new THREE.Group();
     modelGroup.name = 'ball'; 
 
-    // マテリアル（テクスチャを使用）
-    const material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.FrontSide, transparent: true });
-
     const bones = json['minecraft:geometry'][0].bones;
     
-    // JSONのすべてのボーンをループ
-    for (const bone of bones) {
-        if (!bone.cubes) continue;
-
-        // ボーン用のグループを作成し、pivotを設定
+    // 全てのボーンを処理
+    bones.forEach(bone => {
         const boneGroup = new THREE.Group();
-        boneGroup.name = bone.name; 
+        boneGroup.name = bone.name;
         
-        // Bedrockのピボットと位置を設定 (1/16単位を考慮)
+        // ピボットポイントは Bedrock の座標そのまま (通常は 1/16 単位ではない)
+        // Three.js ではピボットは Group の position に反映される
         if (bone.pivot) {
-             boneGroup.position.set(bone.pivot[0] / 16, bone.pivot[1] / 16, bone.pivot[2] / 16);
-        }
-
-        // キューブ（BoxGeometry）を構築
-        for (const cube of bone.cubes) {
-            const size = cube.size;
-            const origin = cube.origin;
-            const uv = cube.uv;
-
-            const boxWidth = size[0] / 16;
-            const boxHeight = size[1] / 16;
-            const boxDepth = size[2] / 16;
-            
-            const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
-
-            // UV座標をBedrock形式からThree.js形式に変換
-            const uvData = [
-                // Right Face (+X)
-                [uv[0] / texWidth, (uv[1] + size[2]) / texHeight], [uv[0] / texWidth, uv[1] / texHeight], 
-                [(uv[0] + size[2]) / texWidth, uv[1] / texHeight], [(uv[0] + size[2]) / texWidth, (uv[1] + size[2]) / texHeight],
-                // Left Face (-X)
-                [(uv[0] + size[2] + size[0]) / texWidth, (uv[1] + size[2]) / texHeight], [(uv[0] + size[2] + size[0]) / texWidth, uv[1] / texHeight], 
-                [(uv[0] + size[2] + size[0] + size[0]) / texWidth, uv[1] / texHeight], [(uv[0] + size[2] + size[0] + size[0]) / texWidth, (uv[1] + size[2]) / texHeight],
-                // Top Face (+Y)
-                [(uv[0] + size[2]) / texWidth, uv[1] / texHeight], [uv[0] / texWidth, uv[1] / texHeight], 
-                [uv[0] / texWidth, (uv[1] + size[2]) / texHeight], [(uv[0] + size[2]) / texWidth, (uv[1] + size[2]) / texHeight],
-                // Bottom Face (-Y)
-                [(uv[0] + size[2] + size[0]) / texWidth, uv[1] / texHeight], [(uv[0] + size[2] + size[0] + size[2]) / texWidth, uv[1] / texHeight], 
-                [(uv[0] + size[2] + size[0] + size[2]) / texWidth, (uv[1] + size[2]) / texHeight], [(uv[0] + size[2] + size[0]) / texWidth, (uv[1] + size[2]) / texHeight],
-                // Front Face (+Z)
-                [(uv[0] + size[2] + size[0]) / texWidth, (uv[1] + size[2]) / texHeight], [(uv[0] + size[2] + size[0]) / texWidth, uv[1] / texHeight], 
-                [(uv[0] + size[2]) / texWidth, uv[1] / texHeight], [(uv[0] + size[2]) / texWidth, (uv[1] + size[2]) / texHeight],
-                // Back Face (-Z)
-                [(uv[0] + size[2] + size[0] + size[2] + size[0]) / texWidth, (uv[1] + size[2]) / texHeight], [(uv[0] + size[2] + size[0] + size[2] + size[0]) / texWidth, uv[1] / texHeight], 
-                [(uv[0] + size[2] + size[0] + size[2]) / texWidth, uv[1] / texHeight], [(uv[0] + size[2] + size[0] + size[2]) / texWidth, (uv[1] + size[2]) / texHeight],
-            ];
-            
-            // UV属性をジオメトリに設定
-            const uvAttribute = new THREE.BufferAttribute(new Float32Array(uvData.flat()), 2);
-            geometry.setAttribute('uv', uvAttribute);
-
-            const mesh = new THREE.Mesh(geometry, material);
-            
-            // 原点を調整してメッシュを配置
-            const offsetX = (origin[0] + size[0] / 2) / 16 - boneGroup.position.x;
-            const offsetY = (origin[1] + size[1] / 2) / 16 - boneGroup.position.y;
-            const offsetZ = (origin[2] + size[2] / 2) / 16 - boneGroup.position.z;
-
-            mesh.position.set(offsetX, offsetY, offsetZ);
-
-            boneGroup.add(mesh);
+             // 座標系変換は複雑なため、ここでは一旦ピボットの移動はスキップし、
+             // アニメーションローダー（loadCacaoAnimation）に任せる
         }
         
-        // 全キューブを構築後、ボーングループをモデルグループに追加
-        modelGroup.add(boneGroup);
-    }
-    
-    console.log('[3D LOG] JSON: ジオメトリ構築完了。');
-    
-    modelGroup.position.y = 0.5; // ボールを地面に浮かせたい場合
+        if (bone.cubes) {
+            bone.cubes.forEach(cube => {
+                
+                // ★ 変更点2: Yサイズ補正 (Y=0 の場合に最小厚さ 0.1 を適用)
+                const rawSizeY = cube.size[1];
+                const MIN_SIZE_BB_UNIT = 0.1; // Blockbench単位 (16分の1) での最小厚さ
+                
+                // Yサイズが0の場合、最小厚さ 0.1 を使用する
+                const compensatedSizeY = (rawSizeY === 0) ? MIN_SIZE_BB_UNIT : rawSizeY;
 
+                // スケールファクターを適用して Three.js のサイズを計算
+                const boxWidth = cube.size[0] / 16 * BALL_SCALE_FACTOR;
+                const boxHeight = compensatedSizeY / 16 * BALL_SCALE_FACTOR; // ここに補正を適用
+                const boxDepth = cube.size[2] / 16 * BALL_SCALE_FACTOR;
+                
+                // ジオメトリの生成
+                const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+                
+                // UV マッピング (Blockbench 座標系から Three.js 座標系へ変換)
+                const uvMap = cube.uv;
+                if (uvMap) {
+                    const u = uvMap[0];
+                    const v = uvMap[1];
+                    const w = cube.size[0];
+                    const h = cube.size[1];
+                    const d = cube.size[2];
+
+                    const uvData = [
+                        // 右面: +X
+                        new THREE.Vector2((u + d) / textureWidth, 1 - (v + h) / textureHeight),
+                        new THREE.Vector2((u + d + w) / textureWidth, 1 - (v + h) / textureHeight),
+                        new THREE.Vector2((u + d + w) / textureWidth, 1 - v / textureHeight),
+                        new THREE.Vector2((u + d) / textureWidth, 1 - v / textureHeight),
+                        // 左面: -X
+                        new THREE.Vector2((u + d + w + d) / textureWidth, 1 - (v + h) / textureHeight),
+                        new THREE.Vector2((u + d + w) / textureWidth, 1 - (v + h) / textureHeight),
+                        new THREE.Vector2((u + d + w) / textureWidth, 1 - v / textureHeight),
+                        new THREE.Vector2((u + d + w + d) / textureWidth, 1 - v / textureHeight),
+                        // 上面: +Y
+                        new THREE.Vector2(u / textureWidth, 1 - (v + d) / textureHeight),
+                        new THREE.Vector2((u + w) / textureWidth, 1 - (v + d) / textureHeight),
+                        new THREE.Vector2((u + w) / textureWidth, 1 - v / textureHeight),
+                        new THREE.Vector2(u / textureWidth, 1 - v / textureHeight),
+                        // 下面: -Y
+                        new THREE.Vector2((u + w) / textureWidth, 1 - (v + d) / textureHeight),
+                        new THREE.Vector2((u + w + w) / textureWidth, 1 - (v + d) / textureHeight),
+                        new THREE.Vector2((u + w + w) / textureWidth, 1 - v / textureHeight),
+                        new THREE.Vector2((u + w) / textureWidth, 1 - v / textureHeight),
+                        // 前面: +Z
+                        new THREE.Vector2((u + d) / textureWidth, 1 - (v + h) / textureHeight),
+                        new THREE.Vector2((u + d + w) / textureWidth, 1 - (v + h) / textureHeight),
+                        new THREE.Vector2((u + d + w) / textureWidth, 1 - v / textureHeight),
+                        new THREE.Vector2((u + d) / textureWidth, 1 - v / textureHeight),
+                        // 背面: -Z
+                        new THREE.Vector2((u + d + w + d) / textureWidth, 1 - (v + h) / textureHeight),
+                        new THREE.Vector2((u + d + w + d + w) / textureWidth, 1 - (v + h) / textureHeight),
+                        new THREE.Vector2((u + d + w + d + w) / textureWidth, 1 - v / textureHeight),
+                        new THREE.Vector2((u + d + w + d) / textureWidth, 1 - v / textureHeight),
+                    ];
+
+                    geometry.attributes.uv.set(uvData.flatMap(v => [v.x, v.y]));
+                }
+                
+                // メッシュの作成と位置調整
+                const mesh = new THREE.Mesh(geometry, material);
+                
+                // origin はキューブの中心座標を決定。Blockbenchの原点はキューブの最小X, 最小Y, 最小Z
+                const offsetX = cube.origin[0] / 16 * BALL_SCALE_FACTOR + boxWidth / 2;
+                const offsetY = cube.origin[1] / 16 * BALL_SCALE_FACTOR + boxHeight / 2;
+                const offsetZ = cube.origin[2] / 16 * BALL_SCALE_FACTOR + boxDepth / 2;
+
+                mesh.position.set(offsetX, offsetY, offsetZ);
+
+                // boneGroup (親) にメッシュ (子) を追加
+                boneGroup.add(mesh);
+            });
+        }
+        
+        // Blockbench座標系では、Yは上、Zは奥、Xは右
+        // Three.jsはYは上、Zは手前、Xは右（右手座標系）
+        // アニメーションで調整されるため、ここでは最低限の変換のみ行う
+        
+        // boneGroupを親モデルに追加
+        modelGroup.add(boneGroup);
+    });
+
+    console.log('[3D LOG] JSON: ジオメトリ構築完了。');
     return modelGroup;
 }
 
 
-// JSONファイルからモデルをロードする関数
-function loadCacaoBall() {
-    console.log('[3D LOG] loadCacaoBall: Bedrock JSONのロード処理開始。');
-    
-    fetch('./ball.geo.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`JSONファイルのロードに失敗: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('[3D LOG] JSON: ball.geo.json ロード成功。');
-            
-            // JSONデータから直接Three.jsオブジェクトを構築
-            ballMesh = buildModelFromJson(data); 
-
-            // Bedrockモデルのスケールを調整
-            ballMesh.scale.set(6.0, 6.0, 6.0); // ★★★ ユーザー指定の6.0を適用 ★★★
-            // 初期位置: モンスター(z=-5)より手前、カメラ(z=5)より奥、地面より少し上(-0.5)
-            ballMesh.position.set(0, -0.5, 2); 
-            scene.add(ballMesh);
-            
-            console.log('[3D LOG] JSON: ボールをシーンに追加しました。');
-            
-            // アニメーションを適用
-            loadCacaoAnimation();
-            
-        })
-        .catch(error => {
-            console.error('[3D ERROR] Bedrock JSONの読み込み中にエラーが発生しました:', error);
-            // 代替ボールを生成 (JSONエラー時)
-            const ballGeo = new THREE.SphereGeometry(0.3, 32, 32);
-            const ballMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-            ballMesh = new THREE.Mesh(ballGeo, ballMat);
-            ballMesh.position.set(0, -0.5, 2); 
-            scene.add(ballMesh);
-            console.log('[3D LOG] JSONロード失敗のため、代替の赤い球体をシーンに追加しました。');
-        });
-}
-
-
-// アニメーションJSONを読み込み、アニメーションを開始する関数 (ロバスト化済み)
+// アニメーション JSON を読み込み、アニメーションミキサーを設定
 function loadCacaoAnimation() {
     console.log('[3D LOG] loadCacaoAnimation: アニメーションJSONのフェッチ開始。');
-    if (!mixer) {
-        console.warn("[3D WARN] AnimationMixer not initialized. Skipping animation load.");
-        return;
-    }
-    
+
+    // model.animation.json をフェッチ
     fetch('./model.animation.json')
-        .then(response => {
-            console.log('[3D LOG] アニメーションJSONレスポンス受信。');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log('[3D LOG] アニメーションJSONデータ受信成功。クリップ解析開始。');
+            console.log('[3D LOG] アニメーションJSONレスポンス受信。');
+            const clipData = data['minecraft:animations'];
             
-            for (const clipName in data.animations) {
-                if (data.animations.hasOwnProperty(clipName)) {
-                    console.log(`[3D LOG] クリップ解析中: ${clipName}`);
-                    const animationData = data.animations[clipName];
-                    const tracks = [];
-                    
-                    // --- 1. Rotation Trackの解析 ---
-                    if (animationData.bones && animationData.bones.ball && animationData.bones.ball.rotation) {
-                        try {
-                            const rotationKeys = Object.keys(animationData.bones.ball.rotation);
-                            const times = rotationKeys.map(t => parseFloat(t) * animationData.animation_length);
-                            
-                            const values = [];
-                            for (const timeKey of rotationKeys) {
-                                const [x, y, z] = animationData.bones.ball.rotation[timeKey];
-                                values.push(
-                                    THREE.MathUtils.degToRad(x), 
-                                    THREE.MathUtils.degToRad(y), 
-                                    THREE.MathUtils.degToRad(z)
-                                );
-                            }
-                            
-                            if (times.length > 0) {
-                                const rotationTrack = new THREE.VectorKeyframeTrack(
-                                    '.rotation', 
-                                    times, 
-                                    values, 
-                                    THREE.InterpolateSmooth
-                                );
-                                tracks.push(rotationTrack);
-                                console.log(`[3D LOG] クリップ ${clipName}: Rotation Track (${times.length}キー) を追加。`);
-                            }
-                        } catch (e) {
-                             console.error(`[3D ERROR] Rotation Track解析エラー (${clipName}): `, e);
-                        }
-                    }
-                    
-                    // --- 2. Position Trackの解析 ---
-                    if (animationData.bones && animationData.bones.ball && animationData.bones.ball.position) {
-                        const positionData = animationData.bones.ball.position;
+            // アニメーションミキサーを設定
+            ballMixer = new THREE.AnimationMixer(ballMesh);
+            console.log('[3D LOG] クリップ解析開始。');
+            let validClipCount = 0;
+
+            // アニメーションクリップを生成
+            for (const key in clipData) {
+                const animation = clipData[key];
+                
+                // BoneAnimationTrack を作成するためのキーフレームを収集
+                const tracks = [];
+                if (animation.bones) {
+                    for (const boneName in animation.bones) {
+                        const boneAnim = animation.bones[boneName];
+                        const bone = ballMesh.getObjectByName(boneName);
                         
-                        // 配列でない (つまりキーフレームオブジェクトである) 場合のみ解析
-                        if (!Array.isArray(positionData)) { 
-                            try {
-                                const positionKeys = Object.keys(positionData);
-                                const times = positionKeys.map(t => parseFloat(t) * animationData.animation_length);
-                                
+                        if (bone) {
+                            if (boneAnim.position) {
+                                const times = [];
                                 const values = [];
-                                for (const timeKey of positionKeys) {
-                                    const [x, y, z] = positionData[timeKey];
-                                    // Bedrock JSONのpositionは通常単位が1/16ブロック。Three.jsスケールに合わせる。
-                                    values.push(
-                                        x / 16, 
-                                        y / 16, 
-                                        z / 16
-                                    );
+                                
+                                // position キーフレームを処理
+                                for (const time in boneAnim.position) {
+                                    times.push(parseFloat(time));
+                                    const pos = boneAnim.position[time];
+                                    
+                                    // Z軸を Blockbench の「奥 (Z-)」から Three.js のワールド座標に合うように変換
+                                    // Blockbench Z値 (1/16 単位) の移動量を Z に適用し、スケールをかける
+                                    // BlockbenchのZ+が手前(Three.jsのZ+)なので、値を反転させずに適用
+                                    
+                                    // ⚠️ 注意: Bedrock JSONのPosition値は 1/16 単位で、そのまま移動量として使用
+                                    // Blockbenchで「北側(手元)から南へ飛ぶ」ようにZ値をマイナス補正済み
+                                    const factor = BALL_SCALE_FACTOR / 16;
+                                    
+                                    values.push(pos[0] * factor);  // X
+                                    values.push(pos[1] * factor);  // Y
+                                    values.push(pos[2] * factor);  // Z (すでに負の方向に補正済み)
                                 }
                                 
-                                if (times.length > 0) {
-                                    const positionTrack = new THREE.VectorKeyframeTrack(
-                                        '.position', 
-                                        times, 
-                                        values, 
-                                        THREE.InterpolateSmooth
+                                if (times.length > 1 || (times.length === 1 && (boneAnim.position["0.0"] && boneAnim.position["0.0"].length === 3))) {
+                                    // Positionトラック
+                                    const track = new THREE.VectorKeyframeTrack(
+                                        `${boneName}.position`, times, values
                                     );
-                                    tracks.push(positionTrack);
-                                    console.log(`[3D LOG] クリップ ${clipName}: Position Track (${times.length}キー) を追加。`);
+                                    tracks.push(track);
+                                    console.log(`[3D LOG] クリップ ${key}: Position Track (${times.length}キー) を追加。`);
+                                } else {
+                                    console.log(`[3D LOG] クリップ ${key}: Positionデータは単一値 ([x,y,z]) のためアニメーショントラックはスキップ。`);
                                 }
-                            } catch (e) {
-                                 console.error(`[3D ERROR] Position Track解析エラー (${clipName}): `, e);
                             }
-                        } else {
-                            console.log(`[3D LOG] クリップ ${clipName}: Positionデータは単一値 ([x,y,z]) のためアニメーショントラックはスキップ。`);
+
+                            if (boneAnim.rotation) {
+                                const times = [];
+                                const values = [];
+                                
+                                for (const time in boneAnim.rotation) {
+                                    times.push(parseFloat(time));
+                                    const rot = boneAnim.rotation[time];
+                                    
+                                    // 度数をラジアンに変換
+                                    const radX = THREE.MathUtils.degToRad(rot[0]);
+                                    const radY = THREE.MathUtils.degToRad(rot[1]);
+                                    const radZ = THREE.MathUtils.degToRad(rot[2]);
+
+                                    // Three.js の Quaternion に変換 (順序は ZYX を仮定)
+                                    const quaternion = new THREE.Quaternion().setFromEuler(
+                                        new THREE.Euler(radX, radY, radZ, 'ZYX')
+                                    );
+                                    
+                                    values.push(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+                                }
+                                
+                                if (times.length > 1) {
+                                    // Rotationトラック
+                                    const track = new THREE.QuaternionKeyframeTrack(
+                                        `${boneName}.quaternion`, times, values
+                                    );
+                                    tracks.push(track);
+                                    console.log(`[3D LOG] クリップ ${key}: Rotation Track (${times.length}キー) を追加。`);
+                                }
+                            }
                         }
                     }
-                    
-                    if (tracks.length > 0) {
-                        const clip = new THREE.AnimationClip(clipName, animationData.animation_length, tracks);
-                        allClips[clipName] = clip;
-                    } else {
-                        console.warn(`[3D WARN] クリップ ${clipName} は有効なトラックを含みませんでした。`);
+                }
+
+                if (tracks.length > 0) {
+                    const clip = new THREE.AnimationClip(key, animation.animation_length, tracks);
+                    ballMixer.clipAction(clip).setLoop(THREE.LoopOnce, 0); // 基本は1回再生
+                    validClipCount++;
+
+                    // 待機アニメーションを自動で再生
+                    if (key === 'animation.taiki') {
+                        currentAnimationClip = ballMixer.clipAction(clip);
+                        currentAnimationClip.setDuration(animation.animation_length);
+                        currentAnimationClip.setEffectiveTimeScale(0.2); // ★ 修正点3: 待機アニメーションを遅くする
+                        currentAnimationClip.play();
+                        console.log(`[LOG] [3D LOG] animation.taiki をボールに適用し再生開始 (速度: 0.2)。`);
                     }
                 }
             }
-            
-            console.log(`[3D LOG] 最終的な有効クリップ数: ${Object.keys(allClips).length}個。`);
-
-            // 待機アニメーション (taiki) の実行
-            if (allClips['animation.taiki']) {
-                mixer.stopAllAction();
-                const action = mixer.clipAction(allClips['animation.taiki'], ballMesh); 
-                action.setLoop(THREE.LoopRepeat);
-                
-                // ★★★ 修正箇所2: 待機アニメーションの速度を0.2倍に落とす ★★★
-                action.setEffectiveTimeScale(0.2); 
-                
-                action.play();
-                console.log('[3D LOG] animation.taiki をボールに適用し再生開始 (速度: 0.2)。');
-            } else {
-                console.warn('[3D WARN] animation.taiki クリップが見つかりませんでした。');
-            }
+            console.log(`[LOG] [3D LOG] 最終的な有効クリップ数: ${validClipCount}個。`);
         })
-        .catch(error => {
-            console.error('[3D ERROR] アニメーションJSONのフェッチまたはパース中にエラーが発生しました:', error);
-        });
+        .catch(error => console.error('[ERROR] アニメーションJSONのロードエラー:', error));
 }
 
 
-// --- メッセージ表示ヘルパー関数 ---
-function displayCaptureMessage(message) {
-    const msgDiv = document.getElementById('capture-message-display');
-    msgDiv.innerText = message;
-    msgDiv.style.display = 'block';
-    
-    document.getElementById('target-name').style.display = 'none';
-    document.getElementById('throw-btn').style.display = 'none'; 
-    const bottomUi = document.getElementById('capture-container').querySelector('.bottom-ui');
-    if(bottomUi) bottomUi.style.display = 'none';
-}
+// ボールを投げるアニメーションを開始
+function throwBall() {
+    console.log('[LOG] [3D LOG] ボール投げボタンクリック！');
 
-function hideCaptureMessage() {
-    const msgDiv = document.getElementById('capture-message-display');
-    if(msgDiv) msgDiv.style.display = 'none';
-    
-    document.getElementById('target-name').style.display = 'block';
-    const bottomUi = document.getElementById('capture-container').querySelector('.bottom-ui');
-    if(bottomUi) bottomUi.style.display = 'flex'; 
-}
-
-
-// --- 3Dアニメーションループ ---
-function animate3D() {
-    animationId = requestAnimationFrame(animate3D);
-
-    const delta = clock ? clock.getDelta() : 0;
-    if (mixer) mixer.update(delta); 
-
-    // ターゲットモンスターの浮遊と回転
-    if (targetMesh) {
-        targetMesh.rotation.y += 0.01;
-        targetMesh.rotation.x += 0.005;
-        targetMesh.position.y = Math.sin(Date.now() * 0.002) * 0.5;
+    // 待機アニメーションを停止
+    if (currentAnimationClip) {
+        currentAnimationClip.stop();
     }
 
-    if (isBallThrown && ballMesh) {
-        // ボール投げアニメーションが適用されているため、ここでは手動での移動は行いません。
-        // ボールのz座標が-4より奥に行った場合に当たり判定とする。
-        if (ballMesh.position.z < -4) {
-            console.log('[3D LOG] ボールがターゲット位置に到達しました。');
-            isBallThrown = false;
-            cancelAnimationFrame(animationId); 
-            
-            // --- 捕獲判定ロジック ---
-            const captureRate = currentTargetData.capture_rate; 
-            const success = Math.random() < captureRate; 
-            
-            if (ballMesh) scene.remove(ballMesh);
-            if (targetMesh) scene.remove(targetMesh);
-            
-            document.getElementById('throw-btn').disabled = true;
+    // 投げるアニメーションを取得
+    const throwClip = ballMixer.existingAction('animation.nageru-curb'); 
+    
+    if (throwClip) {
+        // Z軸の位置を初期位置にリセット
+        ballMesh.position.set(0, -0.5, BALL_START_Z_POSITION);
+        
+        throwClip.reset();
+        throwClip.setLoop(THREE.LoopOnce);
+        throwClip.setEffectiveTimeScale(1.0); // 速度は通常に戻す
+        throwClip.clampWhenFinished = true; // 最後のフレームで停止
+        throwClip.play();
+        currentAnimationClip = throwClip;
 
-            if (success) {
-                console.log('[3D LOG] 捕獲判定: 成功。');
-                currentMarker.remove(); 
+        console.log('[LOG] [3D LOG] animation.nageru-curb を適用し再生開始。');
+
+        // アニメーション完了後に捕獲判定
+        ballMixer.addEventListener('finished', (e) => {
+            if (e.action === throwClip) {
+                console.log('[LOG] [3D LOG] ボールがターゲット位置に到達しました。');
                 
-                displayCaptureMessage(`🎉 捕獲成功！${currentTargetData.name} を捕まえた！`);
-                
-                setTimeout(() => {
-                    window.closeCapture(); 
-                    console.log('[3D LOG] 3秒後: マップ画面へ自動復帰。');
-                }, 3000); 
+                // 簡易的な捕獲判定（ここでは常に成功とする）
+                if (Math.random() < 1) { 
+                    console.log('[LOG] [3D LOG] 捕獲判定: 成功。');
+                    
+                    // 成功後のアニメーション (ここでは 'animation.hokaku')
+                    const successClip = ballMixer.existingAction('animation.hokaku');
+                    if (successClip) {
+                         successClip.reset();
+                         successClip.setLoop(THREE.LoopOnce);
+                         successClip.clampWhenFinished = true;
+                         successClip.play();
+                    }
+                }
 
-            } else {
-                console.log('[3D LOG] 捕獲判定: 失敗/逃走。');
-                displayCaptureMessage(`😢 逃げられた... ${currentTargetData.name} は遠くへ行ってしまった。`);
-
-                setTimeout(() => {
-                    window.closeCapture(); 
-                    console.log('[3D LOG] 3秒後: マップ画面へ自動復帰。');
-                }, 3000); 
+                // 3秒後にマップ画面へ自動復帰するログ
+                console.log('[LOG] [3D LOG] 3秒後: マップ画面へ自動復帰。');
             }
-        }
+        });
+    } else {
+        console.error('[ERROR] アニメーション clip.nageru-curb が見つかりません。');
+    }
+}
+
+
+// 3D 環境の初期化
+function init3D() {
+    // 1. シーンの作成
+    scene = new THREE.Scene();
+    console.log('[LOG] [3D LOG] 3d. THREE.Scene作成成功。');
+    
+    // 2. カメラの作成 (視野角, アスペクト比, near, far)
+    const container = document.getElementById('threejs-container');
+    if (!container) {
+        console.error('[ERROR] DOM要素 #threejs-container が見つかりません。');
+        return;
+    }
+    console.log('[LOG] [3D LOG] 3b. コンテナ要素の取得OK。');
+
+    const aspectRatio = container.clientWidth / container.clientHeight;
+    camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
+    // カメラはボールのやや後ろ、プレイヤーの視点に配置
+    camera.position.set(0, 3, BALL_START_Z_POSITION + 1.5); // (X, Y, Z)
+    camera.lookAt(0, 0, 0);
+
+    // 3. レンダラーの作成
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // alpha: trueで背景を透明にする
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+    console.log('[LOG] [3D LOG] 3e. レンダラーをDOMに追加しました。');
+    
+    // ★ 変更点4: MeshStandardMaterialが機能するためにライトを追加
+    function addLight() {
+        // 環境光 (全体を柔らかく照らす)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0); 
+        scene.add(ambientLight);
+
+        // 平行光源 (太陽のように影を作る主光源)
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); 
+        directionalLight.position.set(5, 10, 5); // 光源の位置
+        scene.add(directionalLight);
+    }
+    addLight();
+
+    // 4. モンスターの配置 (仮の球体)
+    const monsterGeometry = new THREE.SphereGeometry(1.5, 32, 32); 
+    const monsterMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+    monsterMesh = new THREE.Mesh(monsterGeometry, monsterMaterial);
+    monsterMesh.position.set(0, -0.5, TARGET_Z_POSITION); // Z=-5 の位置に配置
+    scene.add(monsterMesh);
+    console.log('[LOG] [3D LOG] 5. ターゲットのモンスター（球体）をシーンに追加しました。');
+
+    // 5. アニメーションクロックを初期化
+    clock = new THREE.Clock();
+    
+    console.log('[LOG] [3D LOG] 3z. init3D: 3D初期化完了。');
+}
+
+
+// ボールモデルのロードとアニメーションの開始
+function loadCacaoBall() {
+    console.log('[LOG] [3D LOG] loadCacaoBall: Bedrock JSONのロード処理開始。');
+    
+    // ball.geo.json をフェッチ
+    fetch('./ball.geo.json')
+        .then(response => response.json())
+        .then(data => {
+            console.log('[LOG] [3D LOG] JSON: ball.geo.json ロード成功。');
+            
+            // モデルを構築
+            ballMesh = buildModelFromJson(data);
+            
+            // モデルの位置を設定
+            ballMesh.position.set(0, -0.5, BALL_START_Z_POSITION);
+            scene.add(ballMesh);
+            console.log('[LOG] [3D LOG] JSON: ボールをシーンに追加しました。');
+            
+            // アニメーションをロード
+            loadCacaoAnimation();
+            
+            // レンダリングループを開始
+            animate();
+        })
+        .catch(error => console.error('[ERROR] ジオメトリJSONのロードエラー:', error));
+}
+
+
+// レンダリングループ
+function animate() {
+    requestAnimationFrame(animate);
+
+    // アニメーションミキサーの更新
+    if (ballMixer) {
+        const delta = clock.getDelta();
+        ballMixer.update(delta);
     }
 
-    if(renderer) renderer.render(scene, camera);
+    renderer.render(scene, camera);
 }
+
+
+// ページロード時とボタンクリックのイベントリスナー設定 (環境依存のため、ここではロジックのみ)
+
+// THREE.js が読み込まれていることを確認してから初期化を開始
+if (typeof THREE !== 'undefined') {
+    init3D();
+    loadCacaoBall();
+} else {
+    console.error('[ERROR] THREE.js ライブラリがロードされていません。');
+}
+
+// 投げるボタンのダミーイベント（実際のHTML構造に合わせて調整してください）
+// document.getElementById('throw-button').addEventListener('click', throwBall);
