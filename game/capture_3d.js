@@ -1,4 +1,4 @@
-// capture_3d.js (ログ強化・衝突解消版)
+// capture_3d.js (THREE存在チェック版)
 
 // --- Three.js グローバル変数 ---
 let scene, camera, renderer, targetMesh, ballMesh;
@@ -14,7 +14,15 @@ let allClips = {};
 
 // --- 捕獲モード開始 ---
 function startCapture(data, marker) { 
-    console.log(`[3D LOG] 捕獲画面開始: モンスター (${data.name}) の表示を試みます。`);
+    console.log(`[3D LOG] 1. 捕獲画面開始: モンスター (${data.name}) の表示を試みます。`); // LOG 1
+    
+    // ★★★ クリティカルチェック ★★★
+    if (typeof THREE === 'undefined') {
+        // THREEオブジェクトが見つからない場合、すぐにエラーを表示して終了
+        console.error('[3D CRITICAL ERROR] THREE.jsコアライブラリ(THREE)が見つかりません。HTMLの読み込み順/パスを再確認してください。');
+        return;
+    }
+    console.log('[3D LOG] 2. THREEオブジェクトの存在確認OK。初期化へ進みます。'); // LOG 2
     
     currentTargetData = data;
     currentMarker = marker;
@@ -43,7 +51,7 @@ function startCapture(data, marker) {
     targetMesh = new THREE.Mesh(geometry, material);
     targetMesh.position.set(0, 0, -5); 
     scene.add(targetMesh);
-    console.log('[3D LOG] ターゲットのモンスター（球体）をシーンに追加しました。');
+    console.log('[3D LOG] 4. ターゲットのモンスター（球体）をシーンに追加しました。'); // LOG 4
 
     // ボールのリセット
     if (ballMesh) scene.remove(ballMesh);
@@ -57,7 +65,7 @@ window.startCapture = startCapture;
 
 // --- 3D初期化 (初回一度だけ実行) ---
 function init3D() {
-    console.log('[3D LOG] init3D: 3D初期化開始。');
+    console.log('[3D LOG] 3. init3D: 3D初期化開始。'); // LOG 3
     const container = document.getElementById('capture-container');
 
     scene = new THREE.Scene();
@@ -81,14 +89,13 @@ function init3D() {
     scene.add(gridHelper);
     
     mixer = new THREE.AnimationMixer(scene); 
-    console.log('[3D LOG] init3D: アニメーションミキサー初期化完了。');
-
+    console.log('[3D LOG] init3D: 3D初期化完了。');
+    
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
-    console.log('[3D LOG] init3D: 3D初期化完了。');
 }
 
 
@@ -240,7 +247,6 @@ function hideCaptureMessage() {
 
 // --- 3Dアニメーションループ ---
 function animate3D() {
-    // console.log('[3D LOG] animate3Dループ実行中...'); // ループが速すぎるためコメントアウト
     animationId = requestAnimationFrame(animate3D);
 
     const delta = clock.getDelta();
