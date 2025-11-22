@@ -78,3 +78,115 @@ button:active { transform: translateY(3px); box-shadow: 0 2px 0 #e65100; }
     padding: 5px 10px; border-radius: 5px;
     margin-top: 10px; display: inline-block; font-size: 0.8rem;
 }
+/* ============================================== */
+/* メインUI画面群のスタイル (ナビゲーションで切り替わる画面) */
+/* ============================================== */
+
+/* メインコンテナをフルスクリーン表示 */
+#main-ui-screens {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1500; /* overlay-ui (z-index: 1000) より上に重ねる */
+    background-color: rgba(248, 248, 248, 0.95); /* 半透明にして背景の地図をわずかに見えるように */
+    padding: 0; /* Paddingは中の.ui-screenで調整 */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 画面共通ヘッダー */
+.screen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.screen-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.screen-header .close-btn {
+    /* 既存のボタンのスタイルを流用しつつ調整 */
+    background: #ccc;
+    color: #333;
+    box-shadow: 0 3px 0 #999;
+    padding: 8px 15px;
+    font-size: 1rem;
+    border-radius: 20px;
+}
+
+/* 個別画面のスタイル */
+.ui-screen {
+    flex-grow: 1; 
+    overflow-y: auto; 
+    padding: 20px;
+    background-color: white;
+}
+
+.hidden-screen {
+    display: none !important;
+}
+
+.active-screen {
+    display: block;
+}
+
+/* メニューリストのスタイル */
+.menu-list {
+    margin-top: 20px;
+}
+.menu-list button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 10px;
+    /* 既存のボタンと差別化するスタイル */
+    background-color: #f6b31c; 
+    border: 1px solid #d29400;
+    color: white;
+    box-shadow: 0 5px 0 #d29400;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: normal;
+}
+
+.menu-list button:active {
+    transform: translateY(3px); 
+    box-shadow: 0 2px 0 #d29400;
+}
+
+
+/* マップ上のナビゲーションボタンのスタイル (既存のボタンとの差別化) */
+#main-nav-controls {
+    /* 既存のbottom-uiの定義を利用 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#nav-center-btn {
+    /* 既存のbuttonスタイルをリセットし、特定のスタイルを適用 */
+    background-color: #f6b31c; 
+    color: white; 
+    border-radius: 50%; 
+    width: 60px; 
+    height: 60px; 
+    font-size: 1.5rem; 
+    border: 5px solid #d29400; 
+    box-shadow: 0 5px 0 #999;
+    padding: 0;
+    line-height: 60px; /* アイコンを中央に配置 */
+    text-align: center;
+}
+#nav-center-btn:active {
+    transform: translateY(3px); 
+    box-shadow: 0 2px 0 #999;
+}
