@@ -1,4 +1,4 @@
-// capture_3d.js (Bedrock JSONモデル対応版)
+// capture_3d.js (Bedrock JSONモデル/アニメーション対応版)
 
 // --- Three.js グローバル変数 ---
 let scene, camera, renderer, targetMesh, ballMesh;
@@ -228,7 +228,7 @@ function buildModelFromJson(json) {
 function loadCacaoBall() {
     console.log('[3D LOG] loadCacaoBall: Bedrock JSONのロード処理開始。');
     
-    // ★★★ ファイル名を './ball.geo.json' に修正 ★★★
+    // ファイル名: ball.geo.json
     fetch('./ball.geo.json')
         .then(response => {
             if (!response.ok) {
@@ -266,7 +266,7 @@ function loadCacaoBall() {
 }
 
 
-// アニメーションJSONを読み込み、アニメーションを開始する関数
+// アニメーションJSONを読み込み、アニメーションを開始する関数 (ロバスト化済み)
 function loadCacaoAnimation() {
     console.log('[3D LOG] loadCacaoAnimation: アニメーションJSONのフェッチ開始。');
     if (!mixer) {
@@ -287,62 +287,90 @@ function loadCacaoAnimation() {
             
             for (const clipName in data.animations) {
                 if (data.animations.hasOwnProperty(clipName)) {
+                    console.log(`[3D LOG] クリップ解析中: ${clipName}`);
                     const animationData = data.animations[clipName];
                     const tracks = [];
                     
+                    // --- 1. Rotation Trackの解析 ---
                     if (animationData.bones && animationData.bones.ball && animationData.bones.ball.rotation) {
-                        const times = Object.keys(animationData.bones.ball.rotation).map(t => parseFloat(t) * animationData.animation_length);
-                        
-                        const values = [];
-                        for (const timeKey in animationData.bones.ball.rotation) {
-                            const [x, y, z] = animationData.bones.ball.rotation[timeKey];
-                            values.push(
-                                THREE.MathUtils.degToRad(x), 
-                                THREE.MathUtils.degToRad(y), 
-                                THREE.MathUtils.degToRad(z)
-                            );
+                        try {
+                            const rotationKeys = Object.keys(animationData.bones.ball.rotation);
+                            const times = rotationKeys.map(t => parseFloat(t) * animationData.animation_length);
+                            
+                            const values = [];
+                            for (const timeKey of rotationKeys) {
+                                const [x, y, z] = animationData.bones.ball.rotation[timeKey];
+                                values.push(
+                                    THREE.MathUtils.degToRad(x), 
+                                    THREE.MathUtils.degToRad(y), 
+                                    THREE.MathUtils.degToRad(z)
+                                );
+                            }
+                            
+                            if (times.length > 0) {
+                                const rotationTrack = new THREE.VectorKeyframeTrack(
+                                    '.rotation', 
+                                    times, 
+                                    values, 
+                                    THREE.InterpolateSmooth
+                                );
+                                tracks.push(rotationTrack);
+                                console.log(`[3D LOG] クリップ ${clipName}: Rotation Track (${times.length}キー) を追加。`);
+                            }
+                        } catch (e) {
+                             console.error(`[3D ERROR] Rotation Track解析エラー (${clipName}): `, e);
                         }
-                        
-                        // 回転トラックの作成
-                        const rotationTrack = new THREE.VectorKeyframeTrack(
-                            'rotation', 
-                            times, 
-                            values, 
-                            THREE.InterpolateSmooth
-                        );
-                        tracks.push(rotationTrack);
                     }
                     
-                    // positionトラックの解析と追加
+                    // --- 2. Position Trackの解析 ---
                     if (animationData.bones && animationData.bones.ball && animationData.bones.ball.position) {
-                        const times = Object.keys(animationData.bones.ball.position).map(t => parseFloat(t) * animationData.animation_length);
+                        const positionData = animationData.bones.ball.position;
                         
-                        const values = [];
-                        for (const timeKey in animationData.bones.ball.position) {
-                            const [x, y, z] = animationData.bones.ball.position[timeKey];
-                            // Bedrock JSONのpositionは通常単位が1/16ブロック。Three.jsスケールに合わせる。
-                            values.push(
-                                x / 16, 
-                                y / 16, 
-                                z / 16
-                            );
+                        // 配列でない (つまりキーフレームオブジェクトである) 場合のみ解析
+                        if (!Array.isArray(positionData)) { 
+                            try {
+                                const positionKeys = Object.keys(positionData);
+                                const times = positionKeys.map(t => parseFloat(t) * animationData.animation_length);
+                                
+                                const values = [];
+                                for (const timeKey of positionKeys) {
+                                    const [x, y, z] = positionData[timeKey];
+                                    // Bedrock JSONのpositionは通常単位が1/16ブロック。Three.jsスケールに合わせる。
+                                    values.push(
+                                        x / 16, 
+                                        y / 16, 
+                                        z / 16
+                                    );
+                                }
+                                
+                                if (times.length > 0) {
+                                    const positionTrack = new THREE.VectorKeyframeTrack(
+                                        '.position', 
+                                        times, 
+                                        values, 
+                                        THREE.InterpolateSmooth
+                                    );
+                                    tracks.push(positionTrack);
+                                    console.log(`[3D LOG] クリップ ${clipName}: Position Track (${times.length}キー) を追加。`);
+                                }
+                            } catch (e) {
+                                 console.error(`[3D ERROR] Position Track解析エラー (${clipName}): `, e);
+                            }
+                        } else {
+                            console.log(`[3D LOG] クリップ ${clipName}: Positionデータは単一値 ([x,y,z]) のためアニメーショントラックはスキップ。`);
                         }
-                        
-                        // 位置トラックの作成
-                        const positionTrack = new THREE.VectorKeyframeTrack(
-                            'position', 
-                            times, 
-                            values, 
-                            THREE.InterpolateSmooth
-                        );
-                        tracks.push(positionTrack);
                     }
                     
-                    const clip = new THREE.AnimationClip(clipName, animationData.animation_length, tracks);
-                    allClips[clipName] = clip;
+                    if (tracks.length > 0) {
+                        const clip = new THREE.AnimationClip(clipName, animationData.animation_length, tracks);
+                        allClips[clipName] = clip;
+                    } else {
+                        console.warn(`[3D WARN] クリップ ${clipName} は有効なトラックを含みませんでした。`);
+                    }
                 }
             }
-            console.log(`[3D LOG] ${Object.keys(allClips).length}個のアニメーションクリップを解析完了。`);
+            
+            console.log(`[3D LOG] 最終的な有効クリップ数: ${Object.keys(allClips).length}個。`);
 
             // 待機アニメーション (taiki) の実行
             if (allClips['animation.taiki']) {
@@ -399,13 +427,9 @@ function animate3D() {
     }
 
     if (isBallThrown && ballMesh) {
-        // ボール投げアニメーションが適用されている場合は、以下の手動移動は上書きされます。
-        // ボール投げアニメーションがない場合に備え、手動移動は一旦削除せずに残します。
-        // ballMesh.position.z -= 0.3; 
-        // ballMesh.position.y += 0.05; 
-
+        // ボール投げアニメーションが適用されている場合は、この位置の変更はアニメーションによって上書きされます。
+        
         // 当たり判定 (アニメーションの終了をトリガーとするか、位置で判定する)
-        // 今回は、手動移動の代わりに、ボールが奥に進んでいることを確認する。
         if (ballMesh.position.z < -4) {
             console.log('[3D LOG] ボールがターゲット位置に到達しました。');
             isBallThrown = false;
