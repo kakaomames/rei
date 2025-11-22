@@ -1,0 +1,19 @@
+
+{
+  "balls": {
+    "standard_cacao_ball": {
+      "name": "カカオボール",
+      "catch_rate": 1.0,
+      "geo_json_path": "./assets/balls/cacao_ball.geo.json",
+      "animation_json_path": "./assets/balls/cacao_ball.animation.json",
+      "texture_path": "./assets/balls/cacao_ball.png"
+    },
+    "legend_cacao_ball": {
+      "name": "スーパーボール",
+      "catch_rate": 1.8,
+      "geo_json_path": "./assets/balls/super_ball.geo.json",
+      "animation_json_path": "./assets/balls/super_ball.animation.json",
+      "texture_path": "./assets/balls/super_ball.png"
+    }
+  }
+}
