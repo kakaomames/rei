@@ -5,20 +5,25 @@ let scene, camera, renderer, monsterMesh;
 let ballMesh, ballMixer, clock;
 let currentAnimationClip;
 
+// ★★★ 修正: 設定ファイルパスとキャッシュ ★★★
+let ballDataCache = null;
+const BALL_DATA_CONFIG_PATH = './ball.json'; // ファイル名をball.jsonに変更
+
 // 定数
-const BALL_SCALE_FACTOR = 6.0; // ボールのサイズを Three.js 空間で調整するための係数
-const TARGET_Z_POSITION = -5.0; // モンスターの Z 座標 (奥)
-const BALL_START_Z_POSITION = 2.0; // ボール開始位置の Z 座標 (手元)
+const BALL_SCALE_FACTOR = 6.0; 
+const TARGET_Z_POSITION = -5.0; 
+const BALL_START_Z_POSITION = 2.0; 
 
 // Blockbench Bedrock JSON の解析と Three.js ジオメトリ構築
-function buildModelFromJson(json) {
+// ★★★ 修正: texturePath を引数として受け取る ★★★
+function buildModelFromJson(json, texturePath) {
     console.log('[3D LOG] JSON: ジオメトリ構築開始。');
     
-    // 1. テクスチャの読み込み
-    const texture = new THREE.TextureLoader().load('./texture.png');
+    // 1. テクスチャの読み込み (パスは引数から取得)
+    const texture = new THREE.TextureLoader().load(texturePath); 
     texture.flipY = false;
 
-    // MeshStandardMaterialに変更
+    // MeshStandardMaterial
     const material = new THREE.MeshStandardMaterial({ 
         map: texture, 
         side: THREE.FrontSide, 
@@ -27,17 +32,14 @@ function buildModelFromJson(json) {
         metalness: 0.0  
     });
 
-    // JSONのtexture_widthとtexture_heightを取得
     const textureWidth = json['minecraft:geometry'][0].description.texture_width;
     const textureHeight = json['minecraft:geometry'][0].description.texture_height;
 
-    // ジオメトリ全体を保持する親グループ（アニメーションターゲット "ball" になる）
     const modelGroup = new THREE.Group();
     modelGroup.name = 'ball'; 
 
     const bones = json['minecraft:geometry'][0].bones;
     
-    // 全てのボーンを処理
     bones.forEach(bone => {
         const boneGroup = new THREE.Group();
         boneGroup.name = bone.name;
@@ -48,17 +50,14 @@ function buildModelFromJson(json) {
                 // Yサイズ補正 (Y=0 の場合に最小厚さ 0.1 を適用)
                 const rawSizeY = cube.size[1];
                 const MIN_SIZE_BB_UNIT = 0.1; 
-                
                 const compensatedSizeY = (rawSizeY === 0) ? MIN_SIZE_BB_UNIT : rawSizeY;
 
-                // スケールファクターを適用して Three.js のサイズを計算
                 const boxWidth = cube.size[0] / 16 * BALL_SCALE_FACTOR;
                 const boxHeight = compensatedSizeY / 16 * BALL_SCALE_FACTOR; 
                 const boxDepth = cube.size[2] / 16 * BALL_SCALE_FACTOR;
                 
                 const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
                 
-                // UV マッピング (Blockbench 座標系から Three.js 座標系へ変換)
                 const uvMap = cube.uv;
                 if (uvMap) {
                     const u = uvMap[0];
@@ -68,32 +67,26 @@ function buildModelFromJson(json) {
                     const d = cube.size[2];
 
                     const uvData = [
-                        // 右面: +X
                         new THREE.Vector2((u + d) / textureWidth, 1 - (v + h) / textureHeight),
                         new THREE.Vector2((u + d + w) / textureWidth, 1 - (v + h) / textureHeight),
                         new THREE.Vector2((u + d + w) / textureWidth, 1 - v / textureHeight),
                         new THREE.Vector2((u + d) / textureWidth, 1 - v / textureHeight),
-                        // 左面: -X
                         new THREE.Vector2((u + d + w + d) / textureWidth, 1 - (v + h) / textureHeight),
                         new THREE.Vector2((u + d + w) / textureWidth, 1 - (v + h) / textureHeight),
                         new THREE.Vector2((u + d + w) / textureWidth, 1 - v / textureHeight),
                         new THREE.Vector2((u + d + w + d) / textureWidth, 1 - v / textureHeight),
-                        // 上面: +Y
                         new THREE.Vector2(u / textureWidth, 1 - (v + d) / textureHeight),
                         new THREE.Vector2((u + w) / textureWidth, 1 - (v + d) / textureHeight),
                         new THREE.Vector2((u + w) / textureWidth, 1 - v / textureHeight),
                         new THREE.Vector2(u / textureWidth, 1 - v / textureHeight),
-                        // 下面: -Y
                         new THREE.Vector2((u + w) / textureWidth, 1 - (v + d) / textureHeight),
                         new THREE.Vector2((u + w + w) / textureWidth, 1 - (v + d) / textureHeight),
                         new THREE.Vector2((u + w + w) / textureWidth, 1 - v / textureHeight),
                         new THREE.Vector2((u + w) / textureWidth, 1 - v / textureHeight),
-                        // 前面: +Z
                         new THREE.Vector2((u + d) / textureWidth, 1 - (v + h) / textureHeight),
                         new THREE.Vector2((u + d + w) / textureWidth, 1 - (v + h) / textureHeight),
                         new THREE.Vector2((u + d + w) / textureWidth, 1 - v / textureHeight),
                         new THREE.Vector2((u + d) / textureWidth, 1 - v / textureHeight),
-                        // 背面: -Z
                         new THREE.Vector2((u + d + w + d) / textureWidth, 1 - (v + h) / textureHeight),
                         new THREE.Vector2((u + d + w + d + w) / textureWidth, 1 - (v + h) / textureHeight),
                         new THREE.Vector2((u + d + w + d + w) / textureWidth, 1 - v / textureHeight),
@@ -103,22 +96,18 @@ function buildModelFromJson(json) {
                     geometry.attributes.uv.set(uvData.flatMap(v => [v.x, v.y]));
                 }
                 
-                // メッシュの作成と位置調整
                 const mesh = new THREE.Mesh(geometry, material);
                 
-                // origin はキューブの中心座標を決定
                 const offsetX = cube.origin[0] / 16 * BALL_SCALE_FACTOR + boxWidth / 2;
                 const offsetY = cube.origin[1] / 16 * BALL_SCALE_FACTOR + boxHeight / 2;
                 const offsetZ = cube.origin[2] / 16 * BALL_SCALE_FACTOR + boxDepth / 2;
 
                 mesh.position.set(offsetX, offsetY, offsetZ);
 
-                // boneGroup (親) にメッシュ (子) を追加
                 boneGroup.add(mesh);
             });
         }
         
-        // boneGroupを親モデルに追加
         modelGroup.add(boneGroup);
     });
 
@@ -127,11 +116,11 @@ function buildModelFromJson(json) {
 }
 
 
-// アニメーション JSON を読み込み、アニメーションミキサーを設定
-function loadCacaoAnimation(animPath) { // パスを引数で受け取る
+// アニメーション JSON を読み込み、アニメーションミキサーを設定 (変更なし)
+function loadCacaoAnimation(animPath) { 
     console.log(`[3D LOG] loadCacaoAnimation: アニメーションJSON (${animPath}) のフェッチ開始。`);
 
-    fetch(animPath) // 引数のパスを使用
+    fetch(animPath) 
         .then(response => response.json())
         .then(data => {
             console.log('[3D LOG] アニメーションJSONレスポンス受信。');
@@ -161,9 +150,9 @@ function loadCacaoAnimation(animPath) { // パスを引数で受け取る
                                     
                                     const factor = BALL_SCALE_FACTOR / 16;
                                     
-                                    values.push(pos[0] * factor);  // X
-                                    values.push(pos[1] * factor);  // Y
-                                    values.push(pos[2] * factor);  // Z 
+                                    values.push(pos[0] * factor);  
+                                    values.push(pos[1] * factor);  
+                                    values.push(pos[2] * factor);  
                                 }
                                 
                                 if (times.length > 1 || (times.length === 1 && (boneAnim.position["0.0"] && boneAnim.position["0.0"].length === 3))) {
@@ -211,11 +200,10 @@ function loadCacaoAnimation(animPath) { // パスを引数で受け取る
                     ballMixer.clipAction(clip).setLoop(THREE.LoopOnce, 0); 
                     validClipCount++;
 
-                    // 待機アニメーションを自動で再生
                     if (key === 'animation.taiki') {
                         currentAnimationClip = ballMixer.clipAction(clip);
                         currentAnimationClip.setDuration(animation.animation_length);
-                        currentAnimationClip.setEffectiveTimeScale(0.2); // 待機アニメーションを遅くする
+                        currentAnimationClip.setEffectiveTimeScale(0.2); 
                         currentAnimationClip.play();
                         console.log(`[LOG] [3D LOG] animation.taiki をボールに適用し再生開始 (速度: 0.2)。`);
                     }
@@ -227,7 +215,7 @@ function loadCacaoAnimation(animPath) { // パスを引数で受け取る
 }
 
 
-// ボールを投げるアニメーションを開始
+// ボールを投げるアニメーションを開始 (変更なし)
 function throwBall() {
     console.log('[LOG] [3D LOG] ボール投げ関数呼び出し！');
 
@@ -254,6 +242,7 @@ function throwBall() {
                 if (e.action === throwClip) {
                     console.log('[LOG] [3D LOG] ボールがターゲット位置に到達しました。');
                     
+                    // ここで捕獲判定ロジックを実行する (今回はログのみ)
                     if (Math.random() < 1) { 
                         console.log('[LOG] [3D LOG] 捕獲判定: 成功。');
                         
@@ -278,7 +267,7 @@ function throwBall() {
 }
 
 
-// 3D 環境の初期化
+// 3D 環境の初期化 (変更なし)
 function init3D() {
     scene = new THREE.Scene();
     console.log('[LOG] [3D LOG] 3d. THREE.Scene作成成功。');
@@ -327,35 +316,98 @@ function init3D() {
 
 
 // ボールモデルのロードとアニメーションの開始
-function loadCacaoBall(geoPath, animPath) { // パスを引数で受け取る
+// ★★★ 修正: texturePath を引数として受け取る ★★★
+function loadCacaoBall(geoPath, animPath, texturePath) { 
     console.log(`[LOG] [3D LOG] loadCacaoBall: GeoJSON (${geoPath}) のロード処理開始。`);
     
-    fetch(geoPath) // 引数のGeoJSONパスを使用
+    fetch(geoPath) 
         .then(response => response.json())
         .then(data => {
             console.log(`[LOG] [3D LOG] JSON: ${geoPath} ロード成功。`);
             
-            ballMesh = buildModelFromJson(data);
+            // ★★★ 修正: buildModelFromJsonにtexturePathを渡す ★★★
+            ballMesh = buildModelFromJson(data, texturePath);
             
             ballMesh.position.set(0, -0.5, BALL_START_Z_POSITION);
             scene.add(ballMesh);
             console.log('[LOG] [3D LOG] JSON: ボールをシーンに追加しました。');
             
-            loadCacaoAnimation(animPath); // AnimationJSONパスを渡す
+            loadCacaoAnimation(animPath); 
             
             animate();
         })
         .catch(error => console.error('[ERROR] ジオメトリJSONのロードエラー:', error));
 }
 
+// ★★★ 修正: ball.jsonをロードし、モデルロードを開始する関数 ★★★
+function loadBallDataAndStartLoading(ballId) {
+    
+    // デフォルトパス (フォールバック用)
+    const DEFAULT_GEO = './model.geo.json';
+    const DEFAULT_ANIM = './model.animation.json';
+    const DEFAULT_TEX = './texture.png';
+
+    // キャッシュをチェック
+    const fetchPromise = ballDataCache 
+        ? Promise.resolve(ballDataCache) 
+        : fetch(BALL_DATA_CONFIG_PATH)
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP Error status: ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                // キャッシュには data.balls オブジェクト全体を保存
+                ballDataCache = data.balls; 
+                return ballDataCache;
+            });
+
+    fetchPromise
+        .then(balls => {
+            const modelData = balls[ballId];
+            
+            if (!modelData) {
+                console.error(`[ERROR] ${BALL_DATA_CONFIG_PATH} にID '${ballId}' のボールデータが見つかりません。デフォルトを使用します。`);
+                loadCacaoBall(DEFAULT_GEO, DEFAULT_ANIM, DEFAULT_TEX);
+                return;
+            }
+
+            // ★★★ 修正: キー名を新しい構造に合わせる ★★★
+            const geoPath = modelData.geo_json_path;
+            const animPath = modelData.animation_json_path;
+            const texturePath = modelData.texture_path;
+
+            console.log(`[LOG] [3D LOG] Configロード成功。使用パス: GeoJSON=${geoPath}, AnimationJSON=${animPath}, Texture=${texturePath}`);
+
+            loadCacaoBall(geoPath, animPath, texturePath);
+
+        })
+        .catch(error => {
+            console.error(`[ERROR] ${BALL_DATA_CONFIG_PATH} のロードまたは解析中にエラーが発生しました:`, error);
+            // エラー時もデフォルトで続行
+            loadCacaoBall(DEFAULT_GEO, DEFAULT_ANIM, DEFAULT_TEX);
+        });
+}
+
+
+// レンダリングループ (変更なし)
+function animate() {
+    requestAnimationFrame(animate);
+
+    if (ballMixer) {
+        const delta = clock.getDelta();
+        ballMixer.update(delta);
+    }
+
+    renderer.render(scene, camera);
+}
+
 
 // 外部（HTML）から呼ばれるエントリポイント
 /**
  * 捕獲シーン（3Dビュー）の初期化を開始する関数。
- * HTMLのクリックイベントなどから呼び出されます。
  * @param {object} monsterData - 捕獲対象のモンスター情報を含むデータオブジェクト。
  */
-function startCapture(monsterData) { // monsterDataを引数で受け取る
+function startCapture(monsterData) { 
     console.log('[LOG] [3D LOG] startCapture() 呼び出し: 3Dシーンの初期化を開始します。');
     
     if (typeof THREE === 'undefined') {
@@ -368,16 +420,14 @@ function startCapture(monsterData) { // monsterDataを引数で受け取る
     const container = document.getElementById('threejs-container');
     if (container) {
         
-        // monsterDataからパスを抽出し、ない場合はデフォルト値を使用
-        // GeoJSONのデフォルトパスは、以前の会話の流れから 'model.geo.json' とします。
-        const geoPath = monsterData?.ball_model_paths?.geo_json || './model.geo.json'; 
-        const animPath = monsterData?.ball_model_paths?.animation_json || './model.animation.json';
-
-        console.log(`[LOG] [3D LOG] ロードパス: GeoJSON=${geoPath}, AnimationJSON=${animPath}`);
+        // モンスターデータから ball_id を抽出。ない場合はデフォルトIDを設定。
+        // ※このデフォルトIDは ball.json のキーと一致している必要があります
+        const ballId = monsterData?.default_ball_id || 'standard_cacao_ball'; 
         
-        loadCacaoBall(geoPath, animPath);
+        console.log(`[LOG] [3D LOG] モンスターからボールID: ${ballId} を取得しました。`);
+        
+        loadBallDataAndStartLoading(ballId);
     } else {
-        // init3Dで既にログ出力されていますが、再度注意喚起
         console.warn('[WARNING] #threejs-container が見つからなかったため、3D描画はスキップされました。');
     }
 }
