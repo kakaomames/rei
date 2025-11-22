@@ -1,0 +1,25 @@
+
+{
+  "monsters": {
+    "wild_banana_001": {
+      "name": "ワイルドバナナ",
+      "hp_base": 100,
+      "cp_base": 1500,
+      "iv_attack_min": 0, "iv_attack_max": 31,
+      "iv_hp_min": 0, "iv_hp_max": 31,
+      "iv_defense_min": 0, "iv_defense_max": 31,
+      "tech_id_min": 1, "tech_id_max": 50,
+      "default_ball_id": "standard_cacao_ball"
+    },
+    "angry_gorilla_002": {
+      "name": "怒れるゴリラ",
+      "hp_base": 150,
+      "cp_base": 2500,
+      "iv_attack_min": 10, "iv_attack_max": 31,
+      "iv_hp_min": 5, "iv_hp_max": 25,
+      "iv_defense_min": 10, "iv_defense_max": 31,
+      "tech_id_min": 30, "tech_id_max": 70,
+      "default_ball_id": "standard_cacao_ball"
+    }
+  }
+}
