@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web版ポケモンGO</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/map_ui.css">
+</head>
+<body>
+    <div id="mapid" class="screen active"></div> 
+    
+    <div id="menu-screen" class="screen">
+        <div class="header">メニュー</div>
+        <button id="close-menu-btn">マップに戻る</button>
+    </div>
+    
+    <div id="bag-screen" class="screen">
+        <div class="header">バッグ</div>
+        <button id="close-bag-btn">マップに戻る</button>
+    </div>
+
+    <div id="bottom-menu">
+        <button id="bag-btn">
+            <img src="assets/icons/bag_icon.png" alt="バッグ" />
+        </button>
+        <button id="pokeball-btn">
+            <img src="assets/icons/pokeball_icon.png" alt="メニュー" />
+        </button>
+        <button id="buddy-btn">
+            <img src="assets/icons/buddy_icon.png" alt="相棒" />
+        </button>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
