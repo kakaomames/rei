@@ -1,4 +1,4 @@
-// capture_3d.js (最終アニメーション階層修正版)
+// capture_3d.js (Bedrock JSONモデル対応版)
 
 // --- Three.js グローバル変数 ---
 let scene, camera, renderer, targetMesh, ballMesh;
@@ -71,7 +71,6 @@ function init3D() {
     
     const container = document.getElementById('capture-container');
     if (!container) {
-        // コンテナが見つからなかった場合のエラー処理
         console.error('[3D CRITICAL ERROR] 3a. HTMLにID="capture-container"の要素が見つかりません。描画できません。');
         return; 
     }
@@ -124,72 +123,148 @@ document.getElementById('throw-btn').addEventListener('click', () => {
 });
 
 
-// カカオボールのOBJとMTLを読み込む関数
-function loadCacaoBall() {
-    console.log('[3D LOG] loadCacaoBall: ボールのロード処理開始。');
-    const mtlLoader = new THREE.MTLLoader();
+/**
+ * Bedrock JSONデータからThree.jsのジオメトリとメッシュを構築する関数。
+ * @param {object} json - ball.geo.json のパースされたデータ
+ * @returns {THREE.Group} 構築されたモデルのグループ
+ */
+function buildModelFromJson(json) {
+    console.log('[3D LOG] JSON: ジオメトリ構築開始。');
     
-    mtlLoader.load('./materials.mtl', function(materials) {
-        console.log('[3D LOG] MTLロード成功。OBJロードへ移行。');
-        materials.preload();
-        
-        const objLoader = new THREE.OBJLoader();
-        objLoader.setMaterials(materials);
+    const texture = new THREE.TextureLoader().load('./texture.png');
+    texture.flipY = false; 
 
-        objLoader.load('./model.obj', function(object) {
+    // JSONのtexture_widthとtexture_heightを取得
+    const description = json['minecraft:geometry'][0].description;
+    const texWidth = description.texture_width;
+    const texHeight = description.texture_height;
+
+    // ジオメトリ全体を保持する親グループ（これがアニメーションターゲット "ball" になる）
+    const modelGroup = new THREE.Group();
+    modelGroup.name = 'ball'; 
+
+    // マテリアル（テクスチャを使用）
+    const material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.FrontSide, transparent: true });
+
+    const bones = json['minecraft:geometry'][0].bones;
+    
+    // JSONのすべてのボーンをループ
+    for (const bone of bones) {
+        if (!bone.cubes) continue;
+
+        // ボーン用のグループを作成し、pivotを設定
+        const boneGroup = new THREE.Group();
+        boneGroup.name = bone.name; 
+        
+        // Bedrockのピボットと位置を設定 (1/16単位を考慮)
+        if (bone.pivot) {
+             boneGroup.position.set(bone.pivot[0] / 16, bone.pivot[1] / 16, bone.pivot[2] / 16);
+        }
+
+        // キューブ（BoxGeometry）を構築
+        for (const cube of bone.cubes) {
+            const size = cube.size;
+            const origin = cube.origin;
+            const uv = cube.uv;
+
+            const boxWidth = size[0] / 16;
+            const boxHeight = size[1] / 16;
+            const boxDepth = size[2] / 16;
             
-            // --- ★★★ 核心の修正箇所：OBJを "ball" グループでラップする ★★★ ---
-            // 1. アニメーションが期待する名前 "ball" のグループを作成
-            const ballGroup = new THREE.Group();
-            ballGroup.name = 'ball'; // アニメーションJSONのボーン名と一致させる
-            console.log('[3D LOG] マニュアルグループ: "ball"という名前のGroupを作成しました。');
+            const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+
+            // UV座標をBedrock形式からThree.js形式に変換
+            const uvData = [
+                // Right Face (+X)
+                [uv[0] / texWidth, (uv[1] + size[2]) / texHeight], [uv[0] / texWidth, uv[1] / texHeight], 
+                [(uv[0] + size[2]) / texWidth, uv[1] / texHeight], [(uv[0] + size[2]) / texWidth, (uv[1] + size[2]) / texHeight],
+                // Left Face (-X)
+                [(uv[0] + size[2] + size[0]) / texWidth, (uv[1] + size[2]) / texHeight], [(uv[0] + size[2] + size[0]) / texWidth, uv[1] / texHeight], 
+                [(uv[0] + size[2] + size[0] + size[0]) / texWidth, uv[1] / texHeight], [(uv[0] + size[2] + size[0] + size[0]) / texWidth, (uv[1] + size[2]) / texHeight],
+                // Top Face (+Y)
+                [(uv[0] + size[2]) / texWidth, uv[1] / texHeight], [uv[0] / texWidth, uv[1] / texHeight], 
+                [uv[0] / texWidth, (uv[1] + size[2]) / texHeight], [(uv[0] + size[2]) / texWidth, (uv[1] + size[2]) / texHeight],
+                // Bottom Face (-Y)
+                [(uv[0] + size[2] + size[0]) / texWidth, uv[1] / texHeight], [(uv[0] + size[2] + size[0] + size[2]) / texWidth, uv[1] / texHeight], 
+                [(uv[0] + size[2] + size[0] + size[2]) / texWidth, (uv[1] + size[2]) / texHeight], [(uv[0] + size[2] + size[0]) / texWidth, (uv[1] + size[2]) / texHeight],
+                // Front Face (+Z)
+                [(uv[0] + size[2] + size[0]) / texWidth, (uv[1] + size[2]) / texHeight], [(uv[0] + size[2] + size[0]) / texWidth, uv[1] / texHeight], 
+                [(uv[0] + size[2]) / texWidth, uv[1] / texHeight], [(uv[0] + size[2]) / texWidth, (uv[1] + size[2]) / texHeight],
+                // Back Face (-Z)
+                [(uv[0] + size[2] + size[0] + size[2] + size[0]) / texWidth, (uv[1] + size[2]) / texHeight], [(uv[0] + size[2] + size[0] + size[2] + size[0]) / texWidth, uv[1] / texHeight], 
+                [(uv[0] + size[2] + size[0] + size[2]) / texWidth, uv[1] / texHeight], [(uv[0] + size[2] + size[0] + size[2]) / texWidth, (uv[1] + size[2]) / texHeight],
+            ];
             
-            // 2. OBJLoaderがロードしたオブジェクト全体を、新しく作った "ball" グループの子として追加
-            ballGroup.add(object);
+            // UV属性をジオメトリに設定
+            const uvAttribute = new THREE.BufferAttribute(new Float32Array(uvData.flat()), 2);
+            geometry.setAttribute('uv', uvAttribute);
+
+            const mesh = new THREE.Mesh(geometry, material);
             
-            // 3. ballMesh全体を、この "ball" グループにする
-            ballMesh = ballGroup; 
-            // --- ★★★ 修正箇所ここまで ★★★ ---
+            // 原点を調整してメッシュを配置
+            const offsetX = (origin[0] + size[0] / 2) / 16 - boneGroup.position.x;
+            const offsetY = (origin[1] + size[1] / 2) / 16 - boneGroup.position.y;
+            const offsetZ = (origin[2] + size[2] / 2) / 16 - boneGroup.position.z;
+
+            mesh.position.set(offsetX, offsetY, offsetZ);
+
+            boneGroup.add(mesh);
+        }
+        
+        // 全キューブを構築後、ボーングループをモデルグループに追加
+        modelGroup.add(boneGroup);
+    }
+    
+    console.log('[3D LOG] JSON: ジオメトリ構築完了。');
+    
+    // モデルを中央揃えするために、原点からのオフセットを適用
+    modelGroup.position.y = 0.5; // ボールを地面に浮かせたい場合
+
+    return modelGroup;
+}
+
+
+// JSONファイルからモデルをロードする関数
+function loadCacaoBall() {
+    console.log('[3D LOG] loadCacaoBall: Bedrock JSONのロード処理開始。');
+    
+    // ★★★ ファイル名を './ball.geo.json' に修正 ★★★
+    fetch('./ball.geo.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`JSONファイルのロードに失敗: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('[3D LOG] JSON: ball.geo.json ロード成功。');
             
-            ballMesh.position.set(0, 0, 2);
-            ballMesh.scale.set(0.1, 0.1, 0.1); 
+            // JSONデータから直接Three.jsオブジェクトを構築
+            ballMesh = buildModelFromJson(data); 
+
+            // Bedrockモデルのスケールを調整
+            ballMesh.scale.set(0.5, 0.5, 0.5); // サイズを調整
+            ballMesh.position.set(0, 0, 2); 
             scene.add(ballMesh);
             
-            console.log('[3D LOG] OBJロード成功。ボールをシーンに追加しました。');
+            console.log('[3D LOG] JSON: ボールをシーンに追加しました。');
             
+            // アニメーションを適用
             loadCacaoAnimation();
-
-        }, undefined, function(error) {
-            console.error('[3D ERROR] OBJの読み込み中にエラーが発生しました:', error);
-            // 代替ボールを生成 (OBJエラー時)
+            
+        })
+        .catch(error => {
+            console.error('[3D ERROR] Bedrock JSONの読み込み中にエラーが発生しました:', error);
+            // 代替ボールを生成 (JSONエラー時)
             const ballGeo = new THREE.SphereGeometry(0.3, 32, 32);
             const ballMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
             ballMesh = new THREE.Mesh(ballGeo, ballMat);
             ballMesh.position.set(0, 0, 2); 
             scene.add(ballMesh);
-            console.log('[3D LOG] OBJロード失敗のため、代替の赤い球体をシーンに追加しました。');
+            console.log('[3D LOG] JSONロード失敗のため、代替の赤い球体をシーンに追加しました。');
         });
-    }, undefined, function(error) {
-         console.error('[3D ERROR] MTLの読み込み中にエラーが発生しました:', error);
-         // MTLがなくてもOBJのロードを試みる
-         const objLoader = new THREE.OBJLoader();
-         objLoader.load('./model.obj', function(object) {
-            
-            // --- ★★★ 核心の修正箇所（MTL失敗時も適用） ★★★ ---
-            const ballGroup = new THREE.Group();
-            ballGroup.name = 'ball'; 
-            ballGroup.add(object);
-            ballMesh = ballGroup; 
-            // --- ★★★ 修正箇所ここまで ★★★ ---
-            
-            ballMesh.position.set(0, 0, 2);
-            ballMesh.scale.set(0.1, 0.1, 0.1); 
-            scene.add(ballMesh);
-            console.log('[3D LOG] MTL失敗。テクスチャなしでOBJロード成功。');
-            loadCacaoAnimation();
-         });
-    });
 }
+
 
 // アニメーションJSONを読み込み、アニメーションを開始する関数
 function loadCacaoAnimation() {
@@ -228,7 +303,7 @@ function loadCacaoAnimation() {
                             );
                         }
                         
-                        // トラック名を簡略化: 'ball.rotation' は、ターゲットが'ball'なので'rotation'だけで動作する可能性が高い
+                        // 回転トラックの作成
                         const rotationTrack = new THREE.VectorKeyframeTrack(
                             'rotation', 
                             times, 
@@ -236,6 +311,31 @@ function loadCacaoAnimation() {
                             THREE.InterpolateSmooth
                         );
                         tracks.push(rotationTrack);
+                    }
+                    
+                    // positionトラックの解析と追加
+                    if (animationData.bones && animationData.bones.ball && animationData.bones.ball.position) {
+                        const times = Object.keys(animationData.bones.ball.position).map(t => parseFloat(t) * animationData.animation_length);
+                        
+                        const values = [];
+                        for (const timeKey in animationData.bones.ball.position) {
+                            const [x, y, z] = animationData.bones.ball.position[timeKey];
+                            // Bedrock JSONのpositionは通常単位が1/16ブロック。Three.jsスケールに合わせる。
+                            values.push(
+                                x / 16, 
+                                y / 16, 
+                                z / 16
+                            );
+                        }
+                        
+                        // 位置トラックの作成
+                        const positionTrack = new THREE.VectorKeyframeTrack(
+                            'position', 
+                            times, 
+                            values, 
+                            THREE.InterpolateSmooth
+                        );
+                        tracks.push(positionTrack);
                     }
                     
                     const clip = new THREE.AnimationClip(clipName, animationData.animation_length, tracks);
@@ -291,6 +391,7 @@ function animate3D() {
     const delta = clock ? clock.getDelta() : 0;
     if (mixer) mixer.update(delta); 
 
+    // ターゲットモンスターの浮遊と回転
     if (targetMesh) {
         targetMesh.rotation.y += 0.01;
         targetMesh.rotation.x += 0.005;
@@ -298,12 +399,13 @@ function animate3D() {
     }
 
     if (isBallThrown && ballMesh) {
-        // アニメーションが適用されていれば、positionの更新は不要になる可能性がありますが、
-        // 一旦このまま残します。アニメーションが効けば、この行は影響を受けなくなります。
-        ballMesh.position.z -= 0.3; 
-        ballMesh.position.y += 0.05; 
+        // ボール投げアニメーションが適用されている場合は、以下の手動移動は上書きされます。
+        // ボール投げアニメーションがない場合に備え、手動移動は一旦削除せずに残します。
+        // ballMesh.position.z -= 0.3; 
+        // ballMesh.position.y += 0.05; 
 
-        // 当たり判定
+        // 当たり判定 (アニメーションの終了をトリガーとするか、位置で判定する)
+        // 今回は、手動移動の代わりに、ボールが奥に進んでいることを確認する。
         if (ballMesh.position.z < -4) {
             console.log('[3D LOG] ボールがターゲット位置に到達しました。');
             isBallThrown = false;
