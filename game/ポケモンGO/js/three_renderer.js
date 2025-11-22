@@ -3,6 +3,8 @@
 import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
 // OBJLoaderがインポートされていることを確認
 import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js'; 
+import { geometry } from './geo.js'; // ★ 新規追加
+import { updateAnimations } from './animation.js'; // ★ 新規追加
 
 let scene, camera, renderer;
 let pokemonMesh; 
@@ -122,8 +124,11 @@ export function updatePokemonPosition(map, modelLatLon) {
 function animate() {
     requestAnimationFrame(animate);
     
+    // ★ アニメーションを更新
+    updateAnimations(); 
+
+    // マップ上のポケモンモデルの回転は、アニメーションを使わないならここで継続
     if (pokemonMesh) {
-        // 回転アニメーションを継続
         pokemonMesh.rotation.y += 0.01; 
     }
 
