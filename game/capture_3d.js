@@ -243,7 +243,7 @@ function loadCacaoBall() {
             ballMesh = buildModelFromJson(data); 
 
             // Bedrockモデルのスケールを調整
-            ballMesh.scale.set(0.5, 0.5, 0.5); // サイズを調整
+            ballMesh.scale.set(4.0, 4.0, 4.0); // サイズを調整
             ballMesh.position.set(0, 0, 2); 
             scene.add(ballMesh);
             
