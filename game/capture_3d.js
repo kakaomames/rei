@@ -45,11 +45,10 @@ function buildModelFromJson(json) {
         if (bone.cubes) {
             bone.cubes.forEach(cube => {
                 
-                // ★ Yサイズ補正 (Y=0 の場合に最小厚さ 0.1 を適用)
+                // Yサイズ補正 (Y=0 の場合に最小厚さ 0.1 を適用)
                 const rawSizeY = cube.size[1];
                 const MIN_SIZE_BB_UNIT = 0.1; 
                 
-                // Yサイズが0の場合、最小厚さ 0.1 を使用する
                 const compensatedSizeY = (rawSizeY === 0) ? MIN_SIZE_BB_UNIT : rawSizeY;
 
                 // スケールファクターを適用して Three.js のサイズを計算
@@ -129,10 +128,10 @@ function buildModelFromJson(json) {
 
 
 // アニメーション JSON を読み込み、アニメーションミキサーを設定
-function loadCacaoAnimation() {
-    console.log('[3D LOG] loadCacaoAnimation: アニメーションJSONのフェッチ開始。');
+function loadCacaoAnimation(animPath) { // パスを引数で受け取る
+    console.log(`[3D LOG] loadCacaoAnimation: アニメーションJSON (${animPath}) のフェッチ開始。`);
 
-    fetch('./model.animation.json')
+    fetch(animPath) // 引数のパスを使用
         .then(response => response.json())
         .then(data => {
             console.log('[3D LOG] アニメーションJSONレスポンス受信。');
@@ -164,7 +163,7 @@ function loadCacaoAnimation() {
                                     
                                     values.push(pos[0] * factor);  // X
                                     values.push(pos[1] * factor);  // Y
-                                    values.push(pos[2] * factor);  // Z (すでに負の方向に補正済みを想定)
+                                    values.push(pos[2] * factor);  // Z 
                                 }
                                 
                                 if (times.length > 1 || (times.length === 1 && (boneAnim.position["0.0"] && boneAnim.position["0.0"].length === 3))) {
@@ -233,7 +232,6 @@ function throwBall() {
     console.log('[LOG] [3D LOG] ボール投げ関数呼び出し！');
 
     if (ballMixer) {
-        // 待機アニメーションを停止
         if (currentAnimationClip) {
             currentAnimationClip.stop();
         }
@@ -241,7 +239,6 @@ function throwBall() {
         const throwClip = ballMixer.existingAction('animation.nageru-curb'); 
         
         if (throwClip) {
-            // Z軸の位置を初期位置にリセット
             ballMesh.position.set(0, -0.5, BALL_START_Z_POSITION);
             
             throwClip.reset();
@@ -253,7 +250,6 @@ function throwBall() {
 
             console.log('[LOG] [3D LOG] animation.nageru-curb を適用し再生開始。');
 
-            // アニメーション完了後の処理
             ballMixer.addEventListener('finished', (e) => {
                 if (e.action === throwClip) {
                     console.log('[LOG] [3D LOG] ボールがターゲット位置に到達しました。');
@@ -290,7 +286,7 @@ function init3D() {
     const container = document.getElementById('threejs-container');
     if (!container) {
         console.error('[ERROR] DOM要素 #threejs-container が見つかりません。');
-        return;
+        return; 
     }
     console.log('[LOG] [3D LOG] 3b. コンテナ要素の取得OK。');
 
@@ -301,7 +297,6 @@ function init3D() {
 
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    // レンダラーが既に存在する場合は、重複して追加しないようにする
     if (!container.querySelector('canvas')) {
          container.appendChild(renderer.domElement);
     }
@@ -332,13 +327,13 @@ function init3D() {
 
 
 // ボールモデルのロードとアニメーションの開始
-function loadCacaoBall() {
-    console.log('[LOG] [3D LOG] loadCacaoBall: Bedrock JSONのロード処理開始。');
+function loadCacaoBall(geoPath, animPath) { // パスを引数で受け取る
+    console.log(`[LOG] [3D LOG] loadCacaoBall: GeoJSON (${geoPath}) のロード処理開始。`);
     
-    fetch('./ball.geo.json')
+    fetch(geoPath) // 引数のGeoJSONパスを使用
         .then(response => response.json())
         .then(data => {
-            console.log('[LOG] [3D LOG] JSON: ball.geo.json ロード成功。');
+            console.log(`[LOG] [3D LOG] JSON: ${geoPath} ロード成功。`);
             
             ballMesh = buildModelFromJson(data);
             
@@ -346,7 +341,7 @@ function loadCacaoBall() {
             scene.add(ballMesh);
             console.log('[LOG] [3D LOG] JSON: ボールをシーンに追加しました。');
             
-            loadCacaoAnimation();
+            loadCacaoAnimation(animPath); // AnimationJSONパスを渡す
             
             animate();
         })
@@ -354,26 +349,13 @@ function loadCacaoBall() {
 }
 
 
-// レンダリングループ
-function animate() {
-    requestAnimationFrame(animate);
-
-    if (ballMixer) {
-        const delta = clock.getDelta();
-        ballMixer.update(delta);
-    }
-
-    renderer.render(scene, camera);
-}
-
-
-// ★★★ 修正点: 外部（HTML）から呼ばれるエントリポイントを定義 ★★★
-
+// 外部（HTML）から呼ばれるエントリポイント
 /**
  * 捕獲シーン（3Dビュー）の初期化を開始する関数。
  * HTMLのクリックイベントなどから呼び出されます。
+ * @param {object} monsterData - 捕獲対象のモンスター情報を含むデータオブジェクト。
  */
-function startCapture() {
+function startCapture(monsterData) { // monsterDataを引数で受け取る
     console.log('[LOG] [3D LOG] startCapture() 呼び出し: 3Dシーンの初期化を開始します。');
     
     if (typeof THREE === 'undefined') {
@@ -382,11 +364,24 @@ function startCapture() {
     }
 
     init3D();
-    loadCacaoBall();
+    
+    const container = document.getElementById('threejs-container');
+    if (container) {
+        
+        // monsterDataからパスを抽出し、ない場合はデフォルト値を使用
+        // GeoJSONのデフォルトパスは、以前の会話の流れから 'model.geo.json' とします。
+        const geoPath = monsterData?.ball_model_paths?.geo_json || './model.geo.json'; 
+        const animPath = monsterData?.ball_model_paths?.animation_json || './model.animation.json';
+
+        console.log(`[LOG] [3D LOG] ロードパス: GeoJSON=${geoPath}, AnimationJSON=${animPath}`);
+        
+        loadCacaoBall(geoPath, animPath);
+    } else {
+        // init3Dで既にログ出力されていますが、再度注意喚起
+        console.warn('[WARNING] #threejs-container が見つからなかったため、3D描画はスキップされました。');
+    }
 }
 
-// ボール投げ関数をグローバルに公開し、HTMLのボタンから直接呼び出せるようにします。
+// グローバル公開
 window.throwBall = throwBall; 
-
-// メインのエントリポイントをグローバルに公開します。
 window.startCapture = startCapture;
