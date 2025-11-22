@@ -1,4 +1,4 @@
-// capture_3d.js (Bedrock JSONモデル/アニメーション対応版)
+// capture_3d.js (最終統合版 - Bedrock JSONモデル/アニメーション修正済み)
 
 // --- Three.js グローバル変数 ---
 let scene, camera, renderer, targetMesh, ballMesh;
@@ -59,6 +59,9 @@ function startCapture(data, marker) {
     
     if (!clock) clock = new THREE.Clock();
     
+    // ★★★ 修正箇所1: 捕獲画面開始時にボールをロード/表示する ★★★
+    loadCacaoBall();
+
     animate3D(); 
 }
 
@@ -110,16 +113,26 @@ function init3D() {
 }
 
 
-// --- ボールを投げる処理 ---
+// --- ボールを投げる処理 (修正版) ---
 document.getElementById('throw-btn').addEventListener('click', () => {
-    if (isBallThrown) return;
+    if (isBallThrown || !ballMesh) return;
     console.log('[3D LOG] ボール投げボタンクリック！');
     isBallThrown = true;
     document.getElementById('throw-btn').disabled = true; 
     
-    if (ballMesh) scene.remove(ballMesh);
-    
-    loadCacaoBall(); 
+    // 待機アニメーションを停止し、投げるアニメーションを開始
+    if (allClips['animation.nageru-curb']) {
+        mixer.stopAllAction();
+        const action = mixer.clipAction(allClips['animation.nageru-curb'], ballMesh);
+        action.setLoop(THREE.LoopOnce);
+        action.clampWhenFinished = true; // 終了フレームで停止
+        action.play();
+        console.log('[3D LOG] animation.nageru-curb を適用し再生開始。');
+    } else {
+        console.warn('[3D WARN] animation.nageru-curb クリップが見つかりませんでした。');
+        // アニメーションが見つからない場合、手動で前進させる（フォールバック）
+        ballMesh.position.z -= 0.1; // わずかに前進させることで当たり判定を有効にする
+    }
 });
 
 
@@ -131,6 +144,7 @@ document.getElementById('throw-btn').addEventListener('click', () => {
 function buildModelFromJson(json) {
     console.log('[3D LOG] JSON: ジオメトリ構築開始。');
     
+    // ★ヒント: ボールが灰色の場合、texture.pngにテクスチャが正しく設定されていない可能性があります。
     const texture = new THREE.TextureLoader().load('./texture.png');
     texture.flipY = false; 
 
@@ -217,7 +231,6 @@ function buildModelFromJson(json) {
     
     console.log('[3D LOG] JSON: ジオメトリ構築完了。');
     
-    // モデルを中央揃えするために、原点からのオフセットを適用
     modelGroup.position.y = 0.5; // ボールを地面に浮かせたい場合
 
     return modelGroup;
@@ -228,7 +241,6 @@ function buildModelFromJson(json) {
 function loadCacaoBall() {
     console.log('[3D LOG] loadCacaoBall: Bedrock JSONのロード処理開始。');
     
-    // ファイル名: ball.geo.json
     fetch('./ball.geo.json')
         .then(response => {
             if (!response.ok) {
@@ -243,8 +255,9 @@ function loadCacaoBall() {
             ballMesh = buildModelFromJson(data); 
 
             // Bedrockモデルのスケールを調整
-            ballMesh.scale.set(4.0, 4.0, 4.0); // サイズを調整
-            ballMesh.position.set(0, 0, 2); 
+            ballMesh.scale.set(6.0, 6.0, 6.0); // ★★★ ユーザー指定の6.0を適用 ★★★
+            // 初期位置: モンスター(z=-5)より手前、カメラ(z=5)より奥、地面より少し上(-0.5)
+            ballMesh.position.set(0, -0.5, 2); 
             scene.add(ballMesh);
             
             console.log('[3D LOG] JSON: ボールをシーンに追加しました。');
@@ -259,7 +272,7 @@ function loadCacaoBall() {
             const ballGeo = new THREE.SphereGeometry(0.3, 32, 32);
             const ballMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
             ballMesh = new THREE.Mesh(ballGeo, ballMat);
-            ballMesh.position.set(0, 0, 2); 
+            ballMesh.position.set(0, -0.5, 2); 
             scene.add(ballMesh);
             console.log('[3D LOG] JSONロード失敗のため、代替の赤い球体をシーンに追加しました。');
         });
@@ -375,11 +388,14 @@ function loadCacaoAnimation() {
             // 待機アニメーション (taiki) の実行
             if (allClips['animation.taiki']) {
                 mixer.stopAllAction();
-                // ballMesh自体が 'ball'という名前を持つグループになったため、これがターゲットになる
                 const action = mixer.clipAction(allClips['animation.taiki'], ballMesh); 
                 action.setLoop(THREE.LoopRepeat);
+                
+                // ★★★ 修正箇所2: 待機アニメーションの速度を0.2倍に落とす ★★★
+                action.setEffectiveTimeScale(0.2); 
+                
                 action.play();
-                console.log('[3D LOG] animation.taiki をボールに適用し再生開始。');
+                console.log('[3D LOG] animation.taiki をボールに適用し再生開始 (速度: 0.2)。');
             } else {
                 console.warn('[3D WARN] animation.taiki クリップが見つかりませんでした。');
             }
@@ -427,9 +443,8 @@ function animate3D() {
     }
 
     if (isBallThrown && ballMesh) {
-        // ボール投げアニメーションが適用されている場合は、この位置の変更はアニメーションによって上書きされます。
-        
-        // 当たり判定 (アニメーションの終了をトリガーとするか、位置で判定する)
+        // ボール投げアニメーションが適用されているため、ここでは手動での移動は行いません。
+        // ボールのz座標が-4より奥に行った場合に当たり判定とする。
         if (ballMesh.position.z < -4) {
             console.log('[3D LOG] ボールがターゲット位置に到達しました。');
             isBallThrown = false;
