@@ -11,6 +11,35 @@ const SCREENS = {
     '#bag': document.getElementById('bag-screen'),
 };
 
+// js/main.js (修正部分)
+
+// ... (import 文は省略) ...
+
+// マップが準備できたときに呼び出されるコールバック
+function onMapReady(mapInstance, initialPlayerLocation) {
+    console.log("Map is ready. Starting Three.js integration.");
+    
+    // 1. Three.jsの初期化とOBJモデルの読み込みをキック
+    // マップインスタンスとターゲット位置情報を渡す
+    initThree(mapInstance, TARGET_POKEMON_LOCATION); 
+
+    // 2. Leafletのイベントリスナーを設定
+    function setupMapListeners() {
+        // マップの移動・ズーム時に、ポケモンモデルの位置を再計算して更新
+        mapInstance.on('move', () => {
+            updatePokemonPosition(mapInstance, TARGET_POKEMON_LOCATION);
+        });
+        mapInstance.on('zoom', () => {
+            updatePokemonPosition(mapInstance, TARGET_POKEMON_LOCATION);
+        });
+        
+        // 初回位置設定（initThree内で実行されますが、安全のためここでも呼び出しておきます）
+        updatePokemonPosition(mapInstance, TARGET_POKEMON_LOCATION);
+    }
+    
+    mapInstance.whenReady(setupMapListeners);
+}
+// ... (startApp 関数はそのまま) ...
 // 画面を切り替える関数
 function navigateTo(hash) {
     // 1. 全ての画面を非アクティブにする
