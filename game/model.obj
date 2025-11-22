@@ -1,6 +1,7 @@
 # Made in Blockbench 5.0.4
 mtllib materials.mtl
 
+g ball
 o cube
 v 0.03125 0.03125 0.09375
 v 0.03125 0.03125 -0.09375
