@@ -1,4 +1,4 @@
-// capture_3d.js (最終デバッグ強化版)
+// capture_3d.js (最終アニメーション階層修正版)
 
 // --- Three.js グローバル変数 ---
 let scene, camera, renderer, targetMesh, ballMesh;
@@ -16,7 +16,7 @@ let allClips = {};
 function startCapture(data, marker) { 
     console.log(`[3D LOG] 1. 捕獲画面開始: モンスター (${data.name}) の表示を試みます。`); 
     
-    // THREEオブジェクトの存在確認（LOG 2の次にこれが表示されればOK）
+    // THREEオブジェクトの存在確認
     if (typeof THREE === 'undefined' || typeof THREE.Scene === 'undefined') {
         console.error('[3D CRITICAL ERROR] THREE.jsコアライブラリ(THREE)が見つからないか、不完全です。');
         return;
@@ -111,8 +111,6 @@ function init3D() {
 }
 
 
-// --- (その他関数は省略。前回と同じで問題ありません) ---
-
 // --- ボールを投げる処理 ---
 document.getElementById('throw-btn').addEventListener('click', () => {
     if (isBallThrown) return;
@@ -139,10 +137,24 @@ function loadCacaoBall() {
         objLoader.setMaterials(materials);
 
         objLoader.load('./model.obj', function(object) {
-            ballMesh = object; 
+            
+            // --- ★★★ 核心の修正箇所：OBJを "ball" グループでラップする ★★★ ---
+            // 1. アニメーションが期待する名前 "ball" のグループを作成
+            const ballGroup = new THREE.Group();
+            ballGroup.name = 'ball'; // アニメーションJSONのボーン名と一致させる
+            console.log('[3D LOG] マニュアルグループ: "ball"という名前のGroupを作成しました。');
+            
+            // 2. OBJLoaderがロードしたオブジェクト全体を、新しく作った "ball" グループの子として追加
+            ballGroup.add(object);
+            
+            // 3. ballMesh全体を、この "ball" グループにする
+            ballMesh = ballGroup; 
+            // --- ★★★ 修正箇所ここまで ★★★ ---
+            
             ballMesh.position.set(0, 0, 2);
             ballMesh.scale.set(0.1, 0.1, 0.1); 
             scene.add(ballMesh);
+            
             console.log('[3D LOG] OBJロード成功。ボールをシーンに追加しました。');
             
             loadCacaoAnimation();
@@ -162,7 +174,14 @@ function loadCacaoBall() {
          // MTLがなくてもOBJのロードを試みる
          const objLoader = new THREE.OBJLoader();
          objLoader.load('./model.obj', function(object) {
-            ballMesh = object;
+            
+            // --- ★★★ 核心の修正箇所（MTL失敗時も適用） ★★★ ---
+            const ballGroup = new THREE.Group();
+            ballGroup.name = 'ball'; 
+            ballGroup.add(object);
+            ballMesh = ballGroup; 
+            // --- ★★★ 修正箇所ここまで ★★★ ---
+            
             ballMesh.position.set(0, 0, 2);
             ballMesh.scale.set(0.1, 0.1, 0.1); 
             scene.add(ballMesh);
@@ -209,8 +228,9 @@ function loadCacaoAnimation() {
                             );
                         }
                         
+                        // トラック名を簡略化: 'ball.rotation' は、ターゲットが'ball'なので'rotation'だけで動作する可能性が高い
                         const rotationTrack = new THREE.VectorKeyframeTrack(
-                            'ball.rotation', 
+                            'rotation', 
                             times, 
                             values, 
                             THREE.InterpolateSmooth
@@ -227,6 +247,7 @@ function loadCacaoAnimation() {
             // 待機アニメーション (taiki) の実行
             if (allClips['animation.taiki']) {
                 mixer.stopAllAction();
+                // ballMesh自体が 'ball'という名前を持つグループになったため、これがターゲットになる
                 const action = mixer.clipAction(allClips['animation.taiki'], ballMesh); 
                 action.setLoop(THREE.LoopRepeat);
                 action.play();
@@ -249,13 +270,17 @@ function displayCaptureMessage(message) {
     
     document.getElementById('target-name').style.display = 'none';
     document.getElementById('throw-btn').style.display = 'none'; 
-    document.getElementById('capture-container').querySelector('.bottom-ui').style.display = 'none';
+    const bottomUi = document.getElementById('capture-container').querySelector('.bottom-ui');
+    if(bottomUi) bottomUi.style.display = 'none';
 }
 
 function hideCaptureMessage() {
-    document.getElementById('capture-message-display').style.display = 'none';
+    const msgDiv = document.getElementById('capture-message-display');
+    if(msgDiv) msgDiv.style.display = 'none';
+    
     document.getElementById('target-name').style.display = 'block';
-    document.getElementById('capture-container').querySelector('.bottom-ui').style.display = 'flex'; 
+    const bottomUi = document.getElementById('capture-container').querySelector('.bottom-ui');
+    if(bottomUi) bottomUi.style.display = 'flex'; 
 }
 
 
@@ -273,6 +298,8 @@ function animate3D() {
     }
 
     if (isBallThrown && ballMesh) {
+        // アニメーションが適用されていれば、positionの更新は不要になる可能性がありますが、
+        // 一旦このまま残します。アニメーションが効けば、この行は影響を受けなくなります。
         ballMesh.position.z -= 0.3; 
         ballMesh.position.y += 0.05; 
 
