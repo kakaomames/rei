@@ -1,0 +1,122 @@
+
+
+{
+  "items": {
+    "kizugusuri": {
+      "id": "kizugusuri",
+      "name": "キズぐすり",
+      "description": "HPを20回復する。",
+      "item_type": "recovery",
+      "effect_type": "fixed_value",
+      "value": 20,
+      "icon": "🩹"
+    },
+    "iikizugusuri": {
+      "id": "iikizugusuri",
+      "name": "いいキズぐすり",
+      "description": "HPを50回復する。",
+      "item_type": "recovery",
+      "effect_type": "fixed_value",
+      "value": 50,
+      "icon": "💉"
+    },
+    "totemoiikizugusuri": {
+      "id": "totemoiikizugusuri",
+      "name": "とてもいいキズぐすり",
+      "description": "HPを100回復する。",
+      "item_type": "recovery",
+      "effect_type": "fixed_value",
+      "value": 100,
+      "icon": "💊"
+    },
+    "mantannokusuri": {
+      "id": "mantannokusuri",
+      "name": "まんたんのくすり",
+      "description": "HPを満タンにする。",
+      "item_type": "recovery",
+      "effect_type": "full_heal",
+      "icon": "⭐"
+    },
+    "wazamachine_normal_rand": {
+      "id": "wazamachine_normal_rand",
+      "name": "わざマシンノーマル",
+      "description": "ノーマル技をランダムに変える。",
+      "item_type": "tech_machine",
+      "effect_type": "random_normal",
+      "icon": "💿"
+    },
+    "wazamachine_special_rand": {
+      "id": "wazamachine_special_rand",
+      "name": "わざマシンスペシャル",
+      "description": "スペシャル技をランダムに変える。",
+      "item_type": "tech_machine",
+      "effect_type": "random_special",
+      "icon": "📀"
+    },
+    "superwazamachine_normal_select": {
+      "id": "superwazamachine_normal_select",
+      "name": "スーパーわざマシンノーマル",
+      "description": "ノーマル技を好きな技に変える。",
+      "item_type": "tech_machine",
+      "effect_type": "select_normal",
+      "icon": "💎"
+    },
+    "superwazamachine_special_select": {
+      "id": "superwazamachine_special_select",
+      "name": "スーパーわざマシンスペシャル",
+      "description": "スペシャル技を好きな技に変える。",
+      "item_type": "tech_machine",
+      "effect_type": "select_special",
+      "icon": "✨"
+    },
+    "kizuna_grape": {
+      "id": "kizuna_grape",
+      "name": "ぶどう",
+      "description": "捕獲率を10%上げる。",
+      "item_type": "berry_capture",
+      "capture_rate_bonus": 0.10,
+      "icon": "🍇"
+    },
+    "escape_banana": {
+      "id": "escape_banana",
+      "name": "バナナ",
+      "description": "ボールから抜け出しにくくする。",
+      "item_type": "berry_escape",
+      "escape_rate_reduction": 0.5,
+      "icon": "🍌"
+    },
+    "candy_pineapple": {
+      "id": "candy_pineapple",
+      "name": "パイナップル",
+      "description": "飴を3つ増やす。",
+      "item_type": "berry_reward",
+      "candy_bonus": 3,
+      "icon": "🍍"
+    },
+    "gold_grape": {
+      "id": "gold_grape",
+      "name": "金のぶどう",
+      "description": "捕獲率を20%上げる。",
+      "item_type": "berry_capture",
+      "capture_rate_bonus": 0.20,
+      "icon": "🥇🍇"
+    },
+    "silver_pineapple": {
+      "id": "silver_pineapple",
+      "name": "銀のパイナップル",
+      "description": "捕獲率10%UP、飴4つ増。",
+      "item_type": "berry_multi",
+      "capture_rate_bonus": 0.10,
+      "candy_bonus": 4,
+      "icon": "🥈🍍"
+    },
+    "special_candy": {
+      "id": "special_candy",
+      "name": "スペシャル飴",
+      "description": "好きなモンスターの飴にできる。",
+      "item_type": "candy",
+      "candy_amount": 1,
+      "icon": "🍬"
+    }
+  }
+}
