@@ -22,17 +22,34 @@ canvas {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: white; /* 画面が切り替わったことを示す背景色 */
-    z-index: 30; /* UI/メニュー画面は地図や3Dの上に配置 */
+    /* メニューやバッグ画面は背景色をしっかりつける */
+    background-color: #f8f8f8; /* ポケモンGO風の明るい背景色 */
+    z-index: 30; 
     
-    /* 初期は非表示 */
     display: none;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
 
 .screen.active {
-    display: flex; /* Flexboxで見やすいレイアウトに */
+    display: flex; 
     flex-direction: column;
     opacity: 1;
+}
+
+/* ヘッダーのスタイル追加 */
+.header {
+    width: 100%;
+    padding: 15px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* メニューの内容を中央に配置 */
+#menu-screen {
+    justify-content: center; /* 垂直方向中央 */
+    align-items: center; /* 水平方向中央 */
 }
