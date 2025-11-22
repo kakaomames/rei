@@ -1,4 +1,4 @@
-// capture_3d.js (THREE存在チェック版)
+// capture_3d.js (最終デバッグ強化版)
 
 // --- Three.js グローバル変数 ---
 let scene, camera, renderer, targetMesh, ballMesh;
@@ -9,20 +9,19 @@ let currentMarker = null;
 
 // アニメーション用変数
 let mixer; 
-let clock = new THREE.Clock(); 
+let clock; 
 let allClips = {}; 
 
 // --- 捕獲モード開始 ---
 function startCapture(data, marker) { 
-    console.log(`[3D LOG] 1. 捕獲画面開始: モンスター (${data.name}) の表示を試みます。`); // LOG 1
+    console.log(`[3D LOG] 1. 捕獲画面開始: モンスター (${data.name}) の表示を試みます。`); 
     
-    // ★★★ クリティカルチェック ★★★
-    if (typeof THREE === 'undefined') {
-        // THREEオブジェクトが見つからない場合、すぐにエラーを表示して終了
-        console.error('[3D CRITICAL ERROR] THREE.jsコアライブラリ(THREE)が見つかりません。HTMLの読み込み順/パスを再確認してください。');
+    // THREEオブジェクトの存在確認（LOG 2の次にこれが表示されればOK）
+    if (typeof THREE === 'undefined' || typeof THREE.Scene === 'undefined') {
+        console.error('[3D CRITICAL ERROR] THREE.jsコアライブラリ(THREE)が見つからないか、不完全です。');
         return;
     }
-    console.log('[3D LOG] 2. THREEオブジェクトの存在確認OK。初期化へ進みます。'); // LOG 2
+    console.log('[3D LOG] 2. THREEオブジェクトの存在確認OK。初期化へ進みます。'); 
     
     currentTargetData = data;
     currentMarker = marker;
@@ -46,16 +45,19 @@ function startCapture(data, marker) {
     // JSONから色情報を取得
     const colorCode = parseInt(data.color, 16); 
 
+    console.log('[3D LOG] 4. モンスターメッシュ作成直前。'); 
     const geometry = new THREE.IcosahedronGeometry(1, 1);
     const material = new THREE.MeshStandardMaterial({ color: colorCode, roughness: 0.4, metalness: 0.3 });
     targetMesh = new THREE.Mesh(geometry, material);
     targetMesh.position.set(0, 0, -5); 
     scene.add(targetMesh);
-    console.log('[3D LOG] 4. ターゲットのモンスター（球体）をシーンに追加しました。'); // LOG 4
+    console.log('[3D LOG] 5. ターゲットのモンスター（球体）をシーンに追加しました。'); 
 
     // ボールのリセット
     if (ballMesh) scene.remove(ballMesh);
     isBallThrown = false;
+    
+    if (!clock) clock = new THREE.Clock();
     
     animate3D(); 
 }
@@ -65,10 +67,20 @@ window.startCapture = startCapture;
 
 // --- 3D初期化 (初回一度だけ実行) ---
 function init3D() {
-    console.log('[3D LOG] 3. init3D: 3D初期化開始。'); // LOG 3
+    console.log('[3D LOG] 3. init3D: 3D初期化開始。'); 
+    
     const container = document.getElementById('capture-container');
+    if (!container) {
+        // コンテナが見つからなかった場合のエラー処理
+        console.error('[3D CRITICAL ERROR] 3a. HTMLにID="capture-container"の要素が見つかりません。描画できません。');
+        return; 
+    }
+    console.log('[3D LOG] 3b. コンテナ要素の取得OK。'); 
 
+    console.log('[3D LOG] 3c. THREE.Scene() 実行直前。'); 
     scene = new THREE.Scene();
+    console.log('[3D LOG] 3d. THREE.Scene作成成功。'); 
+    
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 5;
     camera.position.y = 1;
@@ -76,7 +88,7 @@ function init3D() {
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
-    console.log('[3D LOG] init3D: レンダラーをDOMに追加しました。');
+    console.log('[3D LOG] 3e. レンダラーをDOMに追加しました。');
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
@@ -89,15 +101,17 @@ function init3D() {
     scene.add(gridHelper);
     
     mixer = new THREE.AnimationMixer(scene); 
-    console.log('[3D LOG] init3D: 3D初期化完了。');
     
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
+    console.log('[3D LOG] 3z. init3D: 3D初期化完了。');
 }
 
+
+// --- (その他関数は省略。前回と同じで問題ありません) ---
 
 // --- ボールを投げる処理 ---
 document.getElementById('throw-btn').addEventListener('click', () => {
@@ -249,7 +263,7 @@ function hideCaptureMessage() {
 function animate3D() {
     animationId = requestAnimationFrame(animate3D);
 
-    const delta = clock.getDelta();
+    const delta = clock ? clock.getDelta() : 0;
     if (mixer) mixer.update(delta); 
 
     if (targetMesh) {
