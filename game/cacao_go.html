@@ -31,6 +31,11 @@
         </div>
         <button class="d-btn" onclick="moveFake(-0.001, 0)">⬇️</button>
     </div>
+    <div id="main-nav-controls" class="overlay-ui bottom-ui">
+        <button id="nav-center-btn" onclick="showMainUIScreen('menu')" style="background-color: #f6b31c; color: white; border-radius: 50%; width: 60px; height: 60px; font-size: 1.5rem; border: 5px solid #d29400; box-shadow: 0 5px 0 #999;">
+            🏠
+        </button>
+    </div>
 
     <div id="capture-container">
     <div id="threejs-container">
@@ -48,6 +53,57 @@
         </div>
     </div>
     </div>
+    <div id="main-ui-screens" style="display: none;">
+        
+        <header class="screen-header">
+            <h2 id="screen-title"></h2>
+            <button onclick="hideMainUIScreen()" class="close-btn">❌ 閉じる</button>
+        </header>
+
+        <section id="menu-screen" class="ui-screen active-screen">
+            <h3>🏠 メインメニュー</h3>
+            <div class="menu-list">
+                <button onclick="switchScreen('monsters')">🐉 モンスター一覧</button>
+                <button onclick="switchScreen('pokedex')">📘 図鑑</button>
+                <button onclick="switchScreen('items')">🎒 アイテム一覧</button>
+                <button onclick="switchScreen('settings')">⚙️ 設定</button>
+                <button onclick="toggleCapture(true)" style="margin-top: 15px;">🔴 捕獲シーンテスト</button>
+            </div>
+        </section>
+
+        <section id="monsters-screen" class="ui-screen hidden-screen">
+            <h3>🐉 モンスター一覧</h3>
+            <div id="monster-list-view">
+                <p>捕まえたカカオマメモンスターがここに表示されます。</p>
+            </div>
+        </section>
+
+        <section id="pokedex-screen" class="ui-screen hidden-screen">
+            <h3>📘 図鑑</h3>
+            <div id="pokedex-view">
+                <p>モンスターの図鑑情報がここに表示されます。</p>
+            </div>
+        </section>
+
+        <section id="items-screen" class="ui-screen hidden-screen">
+            <h3>🎒 アイテム一覧</h3>
+            <div id="item-list-view">
+                <p>アイテムのリストと使用ボタンがここに表示されます。</p>
+                <div class="item-category">
+                    <h4>💎 回復アイテム (kaihuku-item)</h4>
+                    <button onclick="useItem('kizugusuri', {hp: 50, max_hp: 100})">キズぐすり × 5</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="settings-screen" class="ui-screen hidden-screen">
+            <h3>⚙️ 設定</h3>
+            <div id="settings-view">
+                <p>各種設定オプション</p>
+            </div>
+        </section>
+
+    </div>
     <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script> 
     
     <script src="https://unpkg.com/three@0.160.0/examples/js/loaders/OBJLoader.js"></script>
@@ -55,6 +111,7 @@
     
     <script src="./capture_3d.js"></script>
     <script src="./map_manager.js"></script>
+    <script src="./item.js"></script>
 
 </body>
 </html>
