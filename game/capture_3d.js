@@ -1,4 +1,4 @@
-// capture_3d.js (最終アニメーション対応版)
+// capture_3d.js (アニメーションクリップ対応版 - 最終統合)
 import * as THREE from 'three'; 
 
 // --- Three.js グローバル変数 ---
@@ -11,6 +11,7 @@ let currentMarker = null;     // map_managerから渡されたLeafletマーカ�
 // アニメーション用変数
 let mixer; 
 let clock = new THREE.Clock(); 
+let allClips = {}; // 全アニメーションクリップを格納するオブジェクト
 
 // --- 捕獲モード開始 ---
 // window.startCapture としてグローバルに公開
@@ -76,7 +77,6 @@ function init3D() {
     scene.add(gridHelper);
     
     // アニメーションミキサーの初期化
-    // mixerの初期化はsceneに依存するため、init3D内で行います
     mixer = new THREE.AnimationMixer(scene); 
 
     // リサイズ対応
@@ -104,7 +104,6 @@ document.getElementById('throw-btn').addEventListener('click', () => {
 
 // ★新規追加★ カカオボールのOBJとMTLを読み込む関数
 function loadCacaoBall() {
-    // MTLとOBJのローダーは、HTMLで外部スクリプトとして読み込まれていることを前提とする
     const mtlLoader = new THREE.MTLLoader();
     
     mtlLoader.load('./materials.mtl', function(materials) {
@@ -124,7 +123,7 @@ function loadCacaoBall() {
 
         }, undefined, function(error) {
             console.error('OBJの読み込み中にエラーが発生しました:', error);
-            // デバッグのため、代替ボールを生成
+            // デバッグのため、代替ボールを生成 (OBJエラー時)
             const ballGeo = new THREE.SphereGeometry(0.3, 32, 32);
             const ballMat = new THREE.MeshStandardMaterial({ color: 0xff0000 });
             ballMesh = new THREE.Mesh(ballGeo, ballMat);
@@ -133,7 +132,7 @@ function loadCacaoBall() {
         });
     }, undefined, function(error) {
          console.error('MTLの読み込み中にエラーが発生しました:', error);
-         // MTLがなくてもOBJのロードを試みる（テクスチャなしの単色になる可能性）
+         // MTLがなくてもOBJのロードを試みる
          const objLoader = new THREE.OBJLoader();
          objLoader.load('./model.obj', function(object) {
             ballMesh = object;
@@ -145,16 +144,62 @@ function loadCacaoBall() {
     });
 }
 
-// ★新規追加★ アニメーションJSONを読み込み、アニメーションを開始する関数
+// ★修正・統合★ アニメーションJSONを読み込み、アニメーションを開始する関数
 function loadCacaoAnimation() {
+    // mixerがまだ初期化されていない場合は処理しない
+    if (!mixer) {
+        console.warn("AnimationMixer not initialized. Skipping animation load.");
+        return;
+    }
+    
     fetch('./model.animation.json')
         .then(response => response.json())
         .then(data => {
-            // THREE.AnimationClip.parse は、THREEをグローバルに持つ環境ではTHREE.AnimationClipが使える
-            const clip = THREE.AnimationClip.parse(data);
-            const action = mixer.clipAction(clip, ballMesh); // ボールメッシュにアクションを適用
-            action.setLoop(THREE.LoopRepeat); // ループ設定
-            action.play();
+            // JSONから全てのアニメーションクリップを抽出し、allClipsに格納
+            for (const clipName in data.animations) {
+                if (data.animations.hasOwnProperty(clipName)) {
+                    const animationData = data.animations[clipName];
+                    const tracks = [];
+                    
+                    // Ballの回転トラックを処理 (最も重要な修正点)
+                    if (animationData.bones && animationData.bones.ball && animationData.bones.ball.rotation) {
+                        const times = Object.keys(animationData.bones.ball.rotation).map(t => parseFloat(t) * animationData.animation_length);
+                        
+                        const values = [];
+                        for (const timeKey in animationData.bones.ball.rotation) {
+                            const [x, y, z] = animationData.bones.ball.rotation[timeKey];
+                            // ★Blockbenchの角度(deg)をThree.jsのラジアン(rad)に変換★
+                            values.push(
+                                THREE.MathUtils.degToRad(x), 
+                                THREE.MathUtils.degToRad(y), 
+                                THREE.MathUtils.degToRad(z)
+                            );
+                        }
+                        
+                        // ここで 'ballMesh.rotation' ではなく 'ball.rotation' を使うのは、Blockbenchのエクスポート形式に合わせるためです
+                        const rotationTrack = new THREE.VectorKeyframeTrack(
+                            'ball.rotation', 
+                            times, 
+                            values, 
+                            THREE.InterpolateSmooth
+                        );
+                        tracks.push(rotationTrack);
+                    }
+                    
+                    // Blockbench JSONをThree.jsのクリップとして生成
+                    const clip = new THREE.AnimationClip(clipName, animationData.animation_length, tracks);
+                    allClips[clipName] = clip;
+                }
+            }
+
+            // 待機アニメーション (taiki) の実行
+            if (allClips['animation.taiki']) {
+                mixer.stopAllAction();
+                // ターゲットをballMesh (OBJLoaderが読み込んだGroup) に設定
+                const action = mixer.clipAction(allClips['animation.taiki'], ballMesh); 
+                action.setLoop(THREE.LoopRepeat);
+                action.play();
+            }
         })
         .catch(error => {
             console.error('アニメーションJSONの読み込みまたはパース中にエラーが発生しました:', error);
@@ -168,17 +213,18 @@ function displayCaptureMessage(message) {
     msgDiv.innerText = message;
     msgDiv.style.display = 'block';
     
-    // 3D画面側のターゲット名表示は非表示にする
+    // 3D画面側のUIを非表示にする
     document.getElementById('target-name').style.display = 'none';
-    document.getElementById('throw-btn').style.display = 'none'; // ボール投げボタンも非表示に
-    document.getElementById('capture-container').querySelector('.bottom-ui').style.display = 'none'; // ボールと逃げるボタン全体を非表示
+    document.getElementById('throw-btn').style.display = 'none'; 
+    document.getElementById('capture-container').querySelector('.bottom-ui').style.display = 'none';
 }
 
 function hideCaptureMessage() {
     document.getElementById('capture-message-display').style.display = 'none';
+    // 3D画面側のUIを再表示する
     document.getElementById('target-name').style.display = 'block';
-    document.getElementById('throw-btn').style.display = 'block';
-    document.getElementById('capture-container').querySelector('.bottom-ui').style.display = 'flex'; // 再表示
+    // throw-btnとbottom-uiはstartCaptureで再有効化されるため、ここでは非表示解除のみ
+    document.getElementById('capture-container').querySelector('.bottom-ui').style.display = 'flex'; 
 }
 
 
@@ -196,7 +242,7 @@ function animate3D() {
     }
 
     if (isBallThrown && ballMesh) {
-        // ボールの移動処理 
+        // ボールの移動処理 (アニメーションJSONの"nageru"は使わず、手動で制御)
         ballMesh.position.z -= 0.3; 
         ballMesh.position.y += 0.05; 
 
@@ -206,10 +252,10 @@ function animate3D() {
             cancelAnimationFrame(animationId); // アニメーションを停止
             
             // --- 捕獲判定ロジック ---
-            const captureRate = currentTargetData.capture_rate; // JSONから確率を取得
-            const success = Math.random() < captureRate; // 乱数判定
+            const captureRate = currentTargetData.capture_rate; 
+            const success = Math.random() < captureRate; 
             
-            // シーンからボールを削除
+            // シーンからボールとモンスターを削除
             if (ballMesh) scene.remove(ballMesh);
             if (targetMesh) scene.remove(targetMesh);
             
@@ -217,12 +263,10 @@ function animate3D() {
 
             if (success) {
                 // 捕獲成功！
-                currentMarker.remove(); // マップからモンスターを削除
+                currentMarker.remove(); 
                 
-                // メッセージを中央に表示
                 displayCaptureMessage(`🎉 捕獲成功！${currentTargetData.name} を捕まえた！`);
                 
-                // 3秒後に自動でマップ画面に戻る
                 setTimeout(() => {
                     hideCaptureMessage();
                     window.closeCapture(); 
@@ -230,11 +274,8 @@ function animate3D() {
 
             } else {
                 // 捕獲失敗/逃走！
-                
-                // メッセージを中央に表示
                 displayCaptureMessage(`😢 逃げられた... ${currentTargetData.name} は遠くへ行ってしまった。`);
 
-                // 3秒後に自動でマップ画面に戻る
                 setTimeout(() => {
                     hideCaptureMessage();
                     window.closeCapture(); 
