@@ -1,5 +1,5 @@
 # Made in Blockbench 5.0.4
-mtllib materials.mtl
+# mtllib materials.mtl
 
 o cube
 v 0.06250000000000064 0.1515144323041234 0.3100385737028754
