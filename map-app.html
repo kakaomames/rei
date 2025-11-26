@@ -49,7 +49,7 @@
             // 1. CSSを動的にロード
             const link = document.createElement('link');
             link.rel = 'stylesheet';
-            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            link.href = './leaflet/leaflet.css';
             link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
             link.crossOrigin = '';
             document.head.appendChild(link);
@@ -57,7 +57,7 @@
 
             // 2. JSを動的にロード
             const script = document.createElement('script');
-            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+            script.src = './leaflet/leaflet.js';
             script.integrity = 'sha256-20n6s/rYQk2hWOf9TLhMTFu7QW+K0H8SAzE5X3fVTC0=';
             script.crossOrigin = '';
             
