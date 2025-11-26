@@ -1,24 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>OpenStreetMap + Leaflet Custom Map (Debug Mode)</title>
+    <title>OpenStreetMap</title>
     <meta charset="utf-8">
     <style>
-        /* ⭐ マップ表示に必須なCSS。高さ100%を保証 */
-        html, body, #map {
+        /* ⭐ 1. マップ表示に必須なCSS。高さ100%を保証 */
+        html, body, #map { 
             height: 100%; 
             margin: 0;
             padding: 0;
             overflow: hidden; 
         }
     </style>
-    </head>
+    <link rel="stylesheet" type="text/css" href="./leaflet/leaflet.css" />
+</head>
 <body>
     <div id="map"></div>
+    
+    <script src="./leaflet/leaflet.js"></script> 
 
     <script>
         // ===========================================
-        // グローバル変数とデバッグ用定数
+        // グローバル変数と初期設定
         // ===========================================
         let map;
         let playerMarker;
@@ -27,60 +30,27 @@
         const initialCoords = [35.681236, 139.767125]; 
         const TRANSPARENT_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
-        // ランドマーク/ポケモンのアイコンはダミーURLのままにしておきます
         const LANDMARKS = [
           {"lat": 35.6816, "lng": 139.766, "type": "gym"},
           {"lat": 35.6808, "lng": 139.7675, "type": "pokestop"},
         ];
         const LANDMARK_ICONS = {
-            'gym': 'https://example.com/gym.png',
-            'pokestop': 'https://example.com/pokestop.png'
+            'gym': 'https://example.com/gym.png', // Base64や実際のURLに置き換えてください
+            'pokestop': 'https://example.com/pokestop.png' // Base64や実際のURLに置き換えてください
         };
         const POKEMON_ICONS = {
-            'pikachu': 'https://example.com/pikachu.png',
+            'pikachu': 'https://example.com/pikachu.png', // Base64や実際のURLに置き換えてください
         };
-
-        // ===========================================
-        // 外部スクリプトの動的ロードと遅延関数
-        // ===========================================
-        function loadLeafletDependencies() {
-            console.log("[DEBUG:INIT] 0.5秒の遅延後、Leafletの読み込みを開始します。");
-
-            // 1. CSSを動的にロード
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = './leaflet/leaflet.css';
-            link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
-            link.crossOrigin = '';
-            document.head.appendChild(link);
-            console.log("[DEBUG:LOAD] Leaflet CSSをDOMに追加しました。");
-
-            // 2. JSを動的にロード
-            const script = document.createElement('script');
-            script.src = './leaflet/leaflet.js';
-            script.integrity = 'sha256-20n6s/rYQk2hWOf9TLhMTFu7QW+K0H8SAzE5X3fVTC0=';
-            script.crossOrigin = '';
-            
-            script.onload = () => {
-                console.log("[DEBUG:LOAD] Leaflet JSのロードが完了しました。地図の初期化関数(initMap)を実行します。");
-                initMap(); // ロード完了後に地図を初期化
-            };
-            script.onerror = (e) => {
-                 console.error("[ERROR:LOAD] Leaflet JSのロード中にエラーが発生しました。", e);
-            };
-
-            document.body.appendChild(script);
-        }
 
         // ===========================================
         // Leaflet マップ 初期化関数
         // ===========================================
         function initMap() {
             if (typeof L === 'undefined') {
-                console.error("[ERROR:INIT] L (Leaflet) オブジェクトが見つかりません。ロード失敗の可能性があります。");
+                console.error("[FATAL ERROR] L (Leaflet) オブジェクトが見つかりません。スクリプトの読み込みが失敗している可能性があります。");
                 return;
             }
-            console.log("[DEBUG:INIT] L (Leaflet) オブジェクトを確認しました。マップ初期化開始。");
+            console.log("[DEBUG:INIT] L (Leaflet) オブジェクトを確認。マップ初期化開始。");
 
             try {
                 map = L.map('map').setView(initialCoords, 17);
@@ -94,16 +64,15 @@
 
                 // プレイヤーマーカーの初期化
                 const dummyIcon = L.icon({
-                    iconUrl: TRANSPARENT_IMAGE, // 透明画像を使用
+                    iconUrl: TRANSPARENT_IMAGE,
                     iconSize: [64, 64],
                     iconAnchor: [32, 64]
                 });
                 playerMarker = L.marker(initialCoords, { icon: dummyIcon }).addTo(map);
-                console.log("[DEBUG:INIT] プレイヤーマーカーを初期位置に追加しました。");
-
+                
                 loadLandmarks();
                 
-                // ポケモン生成タイマー
+                // ポケモン生成タイマー (5分ごと)
                 setInterval(() => {
                     if(playerMarker) {
                         const pos = playerMarker.getLatLng();
@@ -123,7 +92,7 @@
             console.log(`[DEBUG:LANDMARK] ランドマーク ${LANDMARKS.length} 件の配置を開始します。`);
             LANDMARKS.forEach(landmark => {
                 const icon = L.icon({
-                    iconUrl: LANDMARK_ICONS[landmark.type] || TRANSPARENT_IMAGE, // 透明画像を使用
+                    iconUrl: LANDMARK_ICONS[landmark.type] || TRANSPARENT_IMAGE, 
                     iconSize: [48, 48],
                     iconAnchor: [24, 24]
                 });
@@ -134,11 +103,11 @@
         }
         
         function spawnRandomPokemon(centerLat, centerLng) {
-            // ... (ランダム座標計算ロジックは省略)
-            // ... (中略) ...
+            const randomAngle = Math.random() * 2 * Math.PI;
+            const randomDistance = Math.random() * 0.0005; 
             
-            const lat = centerLat + (Math.random() * 0.0005 * Math.cos(Math.random() * 2 * Math.PI));
-            const lng = centerLng + (Math.random() * 0.0005 * Math.sin(Math.random() * 2 * Math.PI));
+            const lat = centerLat + randomDistance * Math.cos(randomAngle);
+            const lng = centerLng + randomDistance * Math.sin(randomAngle);
             
             const pokemonNames = Object.keys(POKEMON_ICONS);
             const chosenPokemon = pokemonNames[Math.floor(Math.random() * pokemonNames.length)];
@@ -154,7 +123,6 @@
             
             console.log(`[DEBUG:POKEMON] ${chosenPokemon}を生成しました。15分後に消滅します。`);
             
-            // 15分後に自動消滅
             setTimeout(() => {
                 map.removeLayer(marker); 
                 pokemonMarkers = pokemonMarkers.filter(m => m !== marker); 
@@ -221,8 +189,14 @@
             }
         });
 
-        // ⭐ 0.5秒の遅延を設定してLeafletのロードを開始
-        setTimeout(loadLeafletDependencies, 500);
+        // ===========================================
+        // DOMロードとマップ初期化のトリガー
+        // ===========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("[DEBUG:TRIGGER] DOMContentLoadedを検知しました。500ms後にマップ初期化を実行します。");
+            // 確実な実行のために500msの遅延を維持
+            setTimeout(initMap, 500); 
+        });
         
     </script>
 </body>
