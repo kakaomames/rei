@@ -1,0 +1,101 @@
+/* style.css */
+
+/* --- マップ本体 (最背層: 0) --- */
+/* マップ表示に必須なCSS。高さ100%を保証 */
+html, body, #map { 
+    height: 100%; 
+    margin: 0;
+    padding: 0;
+    overflow: hidden; 
+}
+
+#map {
+    position: absolute; /* positionを指定してz-indexを有効化 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* ⭐ 最背層: 0 */
+}
+
+/* --- ボタン類 (中層: 10) --- */
+/* ボタンを格納するコンテナ（画面下部中央に固定） */
+#button-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%); /* 中央寄せ */
+    display: flex;
+    gap: 15px;
+    z-index: 10; /* ⭐ 中層: 10 */
+}
+
+/* 各ボタンのスタイル */
+.ui-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #3498db; /* 青系 */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px #2980b9; /* 立体感 */
+    transition: all 0.1s ease;
+    min-width: 100px;
+}
+
+.ui-button:active {
+    background-color: #2980b9;
+    box-shadow: 0 1px #2980b9;
+    transform: translate(-50%, 3px); /* 押した時のアニメーション */
+}
+
+/* --- メニュー/アカウント/クエスト画面 (最前層: 20) --- */
+.overlay-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* 黒の半透明で背景を覆い、マップを暗くする */
+    color: white;
+    display: none; /* 初期状態では非表示 (JSで 'flex' に変更して表示) */
+    justify-content: center;
+    align-items: center;
+    z-index: 20; /* ⭐ 最前層: 20 */
+    font-family: sans-serif;
+    text-align: center;
+}
+
+/* オーバーレイ内のコンテンツの基本的なスタイル */
+.overlay-screen > div {
+    padding: 30px;
+    background: rgba(44, 62, 80, 0.95); /* ダークブルーの背景 */
+    border-radius: 10px;
+    max-width: 80%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* --- 閉じるボタン (最最前層: 30) --- */
+.close-button {
+    position: absolute; /* 親要素 .overlay-screen に対して位置を決定 */
+    top: 20px;
+    right: 20px;
+    width: 50px; /* サイズを少し大きく */
+    height: 50px;
+    font-size: 28px;
+    line-height: 50px;
+    text-align: center;
+    background: #e74c3c; /* 赤色 */
+    color: white;
+    border: 3px solid white; /* 白い枠線で強調 */
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 30; /* ⭐ 最最前層: 30 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.2s;
+}
+
+.close-button:hover {
+    background: #c0392b;
+}
