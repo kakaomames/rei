@@ -1,21 +1,21 @@
 // map_logic.js
-// このファイルは index.html で <script type="module" src="./map_logic.js"></script> としてロードされる必要があります
 
 import { spawnPokemonByType } from './pokemon.js'; 
-import { startCaptureMode } from './pokemongo-UI.js'; // ⭐ pokemongo-UI.js からインポート ⭐
+import { startCaptureMode } from './pokemongo-UI.js'; 
+import { getPokestopPopupContent } from './pokestop.js'; // ⭐ pokestop.jsからインポート ⭐
 
 // ===========================================
 // グローバル変数と初期設定
 // ===========================================
 let map;
 let playerMarker;
-// マーカーをグローバルで管理
 let pokemonMarkers = []; 
 let landmarkMarkers = [];
+let pokestopMarkers = {}; // ⭐ ポケストップマーカーをIDで管理するためのオブジェクト ⭐
 
-const LANDMARKS = []; 
-let GYM_DATA = [];
-let POKESTOP_DATA = [];
+// ランドマークデータは他のモジュール（pokestop.jsなど）から参照される可能性があるため export
+export let GYM_DATA = [];
+export let POKESTOP_DATA = []; 
 
 // 初期座標 (相模大野駅周辺の例)
 let initialCoords = [35.5330, 139.4370]; 
@@ -73,7 +73,7 @@ function initMap() {
             attribution: '© OpenStreetMap contributors' 
         }).addTo(map);
         
-        // ⭐ カスタムペインを作成し、Z-index: 5 を設定 ⭐
+        // カスタムペインを作成し、Z-index: 5 を設定
         map.createPane('marker_z5');
         map.getPane('marker_z5').style.zIndex = 5;
         console.log("[DEBUG:INIT] カスタムペイン 'marker_z5' (Z-index: 5) を作成しました。");
@@ -90,7 +90,6 @@ function initMap() {
         loadLandmarks(); // ロード済みのデータを使って配置を実行
         
         // ポケモン生成タイマー (5分ごと)
-        // 初回実行を即座に行うために、即時実行とインターバルを設定
         (function initialSpawn() {
             if(playerMarker) {
                 const pos = playerMarker.getLatLng();
@@ -107,7 +106,6 @@ function initMap() {
 
     } catch (e) {
         console.error("[FATAL ERROR] マップの初期化中に致命的なエラーが発生しました。", e);
-        // マップが消える問題に対処するため、コンソールエラーを確認してください
     }
 }
 
@@ -166,12 +164,31 @@ function loadLandmarks() {
             icon: icon,
             pane: 'marker_z5'
         }).addTo(map);
-        marker.bindPopup(`<b>${stop.name_ja}</b>`);
+        
+        // ⭐ NEW: ポケストップのクールダウンとスピンボタンをポップアップに含める ⭐
+        const initialContent = getPokestopPopupContent(stop.id, stop.name_ja);
+        marker.bindPopup(initialContent);
+
+        // ポップアップが開くたびに内容を最新の状態に更新
+        marker.on('popupopen', function (e) {
+            const latestContent = getPokestopPopupContent(stop.id, stop.name_ja);
+            e.popup.setContent(latestContent);
+        });
+        
         landmarkMarkers.push(marker);
+        pokestopMarkers[stop.id] = marker; // ⭐ IDでマーカーを管理 ⭐
     });
     
     console.log(`[DEBUG:LANDMARK] ランドマークの配置が完了しました。`);
 }
+
+/**
+ * pokestop.js からマーカーを取得するためにグローバルに登録
+ */
+window.getPokestopMarkerById = (stopId) => {
+    return pokestopMarkers[stopId];
+};
+
 
 function spawnRandomPokemon(centerLat, centerLng) {
     // 乱数で生成位置を決定
@@ -192,7 +209,7 @@ function spawnRandomPokemon(centerLat, centerLng) {
     const pokemonId = chosenPokemonObj.id;
     const pokemonName = chosenPokemonObj.japanese;
     
-    const iconUrl = `assets/${pokemonId}.png`;
+    const iconUrl = `./assets/${pokemonId}.png`;
     
     const icon = L.icon({
         iconUrl: iconUrl, 
@@ -205,19 +222,15 @@ function spawnRandomPokemon(centerLat, centerLng) {
         pane: 'marker_z5' 
     }).addTo(map);
     
-    // ⭐ マーカーに緯度・経度情報も追加で付与し、UIに渡す準備をする ⭐
     marker.pokemonData = {
         ...chosenPokemonObj,
         lat: lat,
         lng: lng
     }; 
     
-    // ⭐ マーカークリックイベント: 捕獲モードを開始 ⭐
+    // マーカークリックイベント: 捕獲モードを開始
     marker.on('click', function(e) {
-        // マーカー情報に、そのマーカーを消すための参照を保存しておく
-        this.listRef = this; 
         
-        // 捕獲モードを開始 (pokemongo-UI.jsを呼び出し)
         startCaptureMode(this.pokemonData); 
         
         // 捕獲モード中はマップからマーカーを削除
@@ -302,7 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ランドマークデータをロードし、成功したらマップ初期化を実行
     loadLandmarkData().then(() => {
-        // マップコンテナのdisplayプロパティが'none'になっていないか確認する
         const mapContainer = document.getElementById('map');
         if (mapContainer && mapContainer.style.display === 'none') {
             console.warn("[WARN:MAP] マップコンテナが非表示になっています。強制的に表示します。");
