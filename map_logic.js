@@ -2,31 +2,81 @@
 
 import { spawnPokemonByType } from './pokemon.js'; 
 import { startCaptureMode } from './pokemongo-UI.js'; 
-import { getPokestopPopupContent } from './pokestop.js'; // ⭐ pokestop.jsからインポート ⭐
+import { getPokestopPopupContent } from './pokestop.js'; 
+// POKESTOP_DATA, GYM_DATAはJSONロードが成功した後にローカルで保持するため、
+// ここでpokestop.jsからimportするのはPOKESTOP_DATAの参照のみ。
+// しかし、後で他のモジュールで参照される可能性があるため、外部データとして保持するためにexportする。
 
 // ===========================================
-// グローバル変数と初期設定
+// グローバル変数と定数
 // ===========================================
 let map;
 let playerMarker;
 let pokemonMarkers = []; 
 let landmarkMarkers = [];
-let pokestopMarkers = {}; // ⭐ ポケストップマーカーをIDで管理するためのオブジェクト ⭐
+let pokestopMarkers = {}; 
 
-// ランドマークデータは他のモジュール（pokestop.jsなど）から参照される可能性があるため export
+// ランドマークデータはロード後にここに格納される
 export let GYM_DATA = [];
 export let POKESTOP_DATA = []; 
 
 // 初期座標 (相模大野駅周辺の例)
 let initialCoords = [35.5330, 139.4370]; 
+const ACCESS_RADIUS_M = 100; // アクセス可能半径 100メートル
 
 const TRANSPARENT_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
-let initialIconUrl = TRANSPARENT_IMAGE; 
+// デフォルトのプレイヤーアイコン (URLパラメータで上書き可能)
+let initialIconUrl = './assets/player.png'; 
 
 let LANDMARK_ICONS = {
-    'gym': 'https://example.com/gym.png', 
-    'pokestop': 'https://example.com/pokestop.png' 
+    // URLは相対パスでアセットを参照
+    'gym': './assets/gym.png', 
+    'pokestop': './assets/pokestop.png' 
 };
+
+
+// ===========================================
+// 距離計算とアクセス可能チェック関数
+// ===========================================
+
+/**
+ * 2つの座標間の距離をメートル単位で計算する (ヒャーサインの公式)
+ * @param {number} lat1 座標1 緯度
+ * @param {number} lon1 座標1 経度
+ * @param {number} lat2 座標2 緯度
+ * @param {number} lon2 座標2 経度
+ * @returns {number} 距離 (メートル)
+ */
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // 地球の半径 (メートル)
+    const φ1 = lat1 * Math.PI/180;
+    const φ2 = lat2 * Math.PI/180;
+    const Δφ = (lat2-lat1) * Math.PI/180;
+    const Δλ = (lon2-lon1) * Math.PI/180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    const distance = R * c; // メートル単位の距離
+    return distance;
+}
+
+/**
+ * ランドマークがプレイヤーのアクセス範囲内にあるかチェックする
+ * @param {number} landmarkLat ランドマークの緯度
+ * @param {number} landmarkLng ランドマークの経度
+ * @returns {boolean} アクセス可能であれば true
+ */
+export function isWithinAccessRange(landmarkLat, landmarkLng) {
+    if (!playerMarker) return false;
+    
+    const playerPos = playerMarker.getLatLng();
+    const distance = getDistance(playerPos.lat, playerPos.lng, landmarkLat, landmarkLng);
+    
+    return distance <= ACCESS_RADIUS_M;
+}
 
 
 // ===========================================
@@ -73,7 +123,7 @@ function initMap() {
             attribution: '© OpenStreetMap contributors' 
         }).addTo(map);
         
-        // カスタムペインを作成し、Z-index: 5 を設定
+        // カスタムペインを作成し、Z-index: 5 を設定 (ポケモンやランドマークをプレイヤーより手前に表示するため)
         map.createPane('marker_z5');
         map.getPane('marker_z5').style.zIndex = 5;
         console.log("[DEBUG:INIT] カスタムペイン 'marker_z5' (Z-index: 5) を作成しました。");
@@ -82,7 +132,8 @@ function initMap() {
         const initialIcon = L.icon({
             iconUrl: initialIconUrl, 
             iconSize: [64, 64],
-            iconAnchor: [32, 64]
+            iconAnchor: [32, 64],
+            className: 'player-marker' // CSSでカスタムスタイルを適用
         });
         playerMarker = L.marker(initialCoords, { icon: initialIcon }).addTo(map);
         console.log("[DEBUG:INIT] プレイヤーマーカーを初期位置に追加しました。");
@@ -140,15 +191,21 @@ async function loadLandmarkData() {
 function loadLandmarks() {
     // ジムを配置
     GYM_DATA.forEach(gym => {
+        // チームカラークラスを付与
+        const teamClass = `gym-team-${gym.team.toLowerCase()}`; 
+        
         const icon = L.icon({
-            iconUrl: LANDMARK_ICONS.gym || TRANSPARENT_IMAGE, 
+            iconUrl: LANDMARK_ICONS.gym, 
             iconSize: [48, 48],
-            iconAnchor: [24, 24]
+            iconAnchor: [24, 24],
+            className: `gym-marker ${teamClass}` // チームクラスを適用
         });
+        
         const marker = L.marker([gym.lat, gym.lng], { 
             icon: icon,
             pane: 'marker_z5' 
         }).addTo(map);
+        
         marker.bindPopup(`<b>${gym.name_ja}</b><br>チーム: ${gym.team}`); 
         landmarkMarkers.push(marker);
     });
@@ -156,7 +213,7 @@ function loadLandmarks() {
     // ポケストップを配置
     POKESTOP_DATA.forEach(stop => {
         const icon = L.icon({
-            iconUrl: LANDMARK_ICONS.pokestop || TRANSPARENT_IMAGE, 
+            iconUrl: LANDMARK_ICONS.pokestop, 
             iconSize: [48, 48],
             iconAnchor: [24, 24]
         });
@@ -165,18 +222,16 @@ function loadLandmarks() {
             pane: 'marker_z5'
         }).addTo(map);
         
-        // ⭐ NEW: ポケストップのクールダウンとスピンボタンをポップアップに含める ⭐
-        const initialContent = getPokestopPopupContent(stop.id, stop.name_ja);
-        marker.bindPopup(initialContent);
-
         // ポップアップが開くたびに内容を最新の状態に更新
         marker.on('popupopen', function (e) {
-            const latestContent = getPokestopPopupContent(stop.id, stop.name_ja);
+            // アクセス範囲チェックを行い、ポケストップのポップアップコンテンツを生成
+            const isAccessible = isWithinAccessRange(stop.lat, stop.lng);
+            const latestContent = getPokestopPopupContent(stop.id, stop.name_ja, isAccessible); 
             e.popup.setContent(latestContent);
         });
         
         landmarkMarkers.push(marker);
-        pokestopMarkers[stop.id] = marker; // ⭐ IDでマーカーを管理 ⭐
+        pokestopMarkers[stop.id] = marker; // IDでマーカーを管理
     });
     
     console.log(`[DEBUG:LANDMARK] ランドマークの配置が完了しました。`);
@@ -184,6 +239,7 @@ function loadLandmarks() {
 
 /**
  * pokestop.js からマーカーを取得するためにグローバルに登録
+ * (クールダウン後にポップアップの内容を更新するために利用される)
  */
 window.getPokestopMarkerById = (stopId) => {
     return pokestopMarkers[stopId];
@@ -193,7 +249,7 @@ window.getPokestopMarkerById = (stopId) => {
 function spawnRandomPokemon(centerLat, centerLng) {
     // 乱数で生成位置を決定
     const randomAngle = Math.random() * 2 * Math.PI;
-    const randomDistance = Math.random() * 0.0005; 
+    const randomDistance = Math.random() * 0.0005; // 0m〜約50mの範囲
     
     const lat = centerLat + randomDistance * Math.cos(randomAngle);
     const lng = centerLng + randomDistance * Math.sin(randomAngle);
@@ -231,6 +287,7 @@ function spawnRandomPokemon(centerLat, centerLng) {
     // マーカークリックイベント: 捕獲モードを開始
     marker.on('click', function(e) {
         
+        // 捕獲モードを開始
         startCaptureMode(this.pokemonData); 
         
         // 捕獲モード中はマップからマーカーを削除
@@ -308,10 +365,13 @@ window.addEventListener('message', (event) => {
 });
 
 // ===========================================
-// DOMロードとマップ初期化のトリガー
+// マップ初期化のトリガー (index.htmlから呼び出す)
 // ===========================================
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("[DEBUG:TRIGGER] DOMContentLoadedを検知しました。");
+/**
+ * 外部からマップモジュールの初期化シーケンスを開始するための関数
+ */
+export function initializeMapModule() {
+    console.log("[DEBUG:TRIGGER] Leaflet ロード後の初期化シーケンス開始。");
     
     // ランドマークデータをロードし、成功したらマップ初期化を実行
     loadLandmarkData().then(() => {
@@ -321,7 +381,10 @@ document.addEventListener('DOMContentLoaded', () => {
             mapContainer.style.display = 'block';
         }
         
-        // 確実な実行のために500msの遅延を維持
-        setTimeout(initMap, 500); 
+        initMap(); 
+        console.log("[DEBUG:INIT] initMap() を実行しました。マップが表示されるはずです。");
     });
-});
+}
+
+// グローバルに登録 (index.html から呼び出すため)
+window.initializeMapModule = initializeMapModule;
