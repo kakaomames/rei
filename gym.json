@@ -1,0 +1,92 @@
+[
+    {
+        "id": "gym_001",
+        "name_ja": "相模大野駅前 ペデストリアンデッキ",
+        "lat": 35.5340,
+        "lng": 139.4370,
+        "team": "VALOR",
+        "slots": 6,
+        "is_raid": false
+    },
+    {
+        "id": "gym_002",
+        "name_ja": "相模大野中央公園 噴水広場",
+        "lat": 35.5338,
+        "lng": 139.4445,
+        "team": "INSTINCT",
+        "slots": 4,
+        "is_raid": true
+    },
+    {
+        "id": "gym_003",
+        "name_ja": "相模原市役所 本庁舎 モニュメント",
+        "lat": 35.5683,
+        "lng": 139.3831,
+        "team": "MYSTIC",
+        "slots": 5,
+        "is_raid": false
+    },
+    {
+        "id": "gym_004",
+        "name_ja": "町田駅前 レミィ町田",
+        "lat": 35.5458,
+        "lng": 139.4468,
+        "team": "VALOR",
+        "slots": 6,
+        "is_raid": false
+    },
+    {
+        "id": "gym_005",
+        "name_ja": "麻溝公園 展望台",
+        "lat": 35.5250,
+        "lng": 139.4070,
+        "team": "INSTINCT",
+        "slots": 3,
+        "is_raid": true
+    },
+    {
+        "id": "gym_006",
+        "name_ja": "女子美術大学 相模原キャンパス",
+        "lat": 35.5780,
+        "lng": 139.4140,
+        "team": "MYSTIC",
+        "slots": 5,
+        "is_raid": false
+    },
+    {
+        "id": "gym_007",
+        "name_ja": "Odakyu OX 相模大野店屋上",
+        "lat": 35.5325,
+        "lng": 139.4360,
+        "team": "VALOR",
+        "slots": 6,
+        "is_raid": false
+    },
+    {
+        "id": "gym_008",
+        "name_ja": "淵野辺公園 野球場入口",
+        "lat": 35.5640,
+        "lng": 139.3900,
+        "team": "INSTINCT",
+        "slots": 4,
+        "is_raid": false
+    },
+    {
+        "id": "gym_009",
+        "name_ja": "相模原市立文化会館 エントランス",
+        "lat": 35.5721,
+        "lng": 139.3905,
+        "team": "MYSTIC",
+        "slots": 5,
+        "is_raid": true
+    },
+    {
+        "id": "gym_010",
+        "name_ja": "小田急相模原駅 南口広場",
+        "lat": 35.5350,
+        "lng": 139.4150,
+        "team": "NONE",
+        "slots": 0,
+        "is_raid": false
+    }
+]
