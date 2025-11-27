@@ -1,4 +1,8 @@
 // map_logic.js
+// このファイルは index.html で <script type="module" src="./map_logic.js"></script> としてロードされる必要があります
+
+// ⭐ 追記: pokemon.js から出現ロジックをインポート ⭐
+import { spawnPokemonByType } from './pokemon.js'; 
 
 // ===========================================
 // グローバル変数と初期設定
@@ -8,27 +12,26 @@ let playerMarker;
 let pokemonMarkers = [];
 let landmarkMarkers = [];
 
-// ⭐ 変更: 初期座標をletに変更し、initMapで上書き可能にする
+// 初期座標 (URLパラメータで上書き可能)
 let initialCoords = [35.681236, 139.767125]; 
 
 const TRANSPARENT_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 let initialIconUrl = TRANSPARENT_IMAGE; 
 
-// ⭐ 変更: LANDMARK_ICONSをletに変更し、initMapでURLを上書き可能にする
+// ランドマークアイコン (URLパラメータで上書き可能)
 let LANDMARK_ICONS = {
     'gym': 'https://example.com/gym.png', 
     'pokestop': 'https://example.com/pokestop.png' 
 };
 
-// ランドマークデータ (静的データはそのまま)
+// ランドマークデータ (静的データ)
 const LANDMARKS = [
   {"lat": 35.6816, "lng": 139.766, "type": "gym"},
   {"lat": 35.6808, "lng": 139.7675, "type": "pokestop"},
 ];
 
-const POKEMON_ICONS = {
-    'pikachu': 'https://example.com/pikachu.png', 
-};
+// ⭐ 削除済み: POKEMON_ICONS は ID ベースのURLに置き換えられました ⭐
+
 
 // ===========================================
 // Leaflet マップ 初期化関数
@@ -65,7 +68,6 @@ function initMap() {
         const latParam = urlParams.get('lat');
         const lngParam = urlParams.get('lng');
         if (latParam && lngParam) {
-            // 文字列を浮動小数点数に変換し、初期座標を更新
             const newLat = parseFloat(latParam);
             const newLng = parseFloat(lngParam);
             if (!isNaN(newLat) && !isNaN(newLng)) {
@@ -133,30 +135,49 @@ function loadLandmarks() {
 }
 
 function spawnRandomPokemon(centerLat, centerLng) {
+    // 乱数で生成位置を決定 (プレイヤー周辺 0.0005度以内)
     const randomAngle = Math.random() * 2 * Math.PI;
     const randomDistance = Math.random() * 0.0005; 
     
     const lat = centerLat + randomDistance * Math.cos(randomAngle);
     const lng = centerLng + randomDistance * Math.sin(randomAngle);
     
-    const pokemonNames = Object.keys(POKEMON_ICONS);
-    const chosenPokemon = pokemonNames[Math.floor(Math.random() * pokemonNames.length)];
+    // ⭐ 環境ベースの出現ロジックを使用し、ポケモンオブジェクトを取得 ⭐
+    const chosenPokemonObj = spawnPokemonByType(lat, lng);
+    
+    if (!chosenPokemonObj) {
+        console.warn("[SPAWN] ポケモンの抽選に失敗しました (データ未ロードなど)。");
+        return;
+    }
 
+    const pokemonId = chosenPokemonObj.id;
+    const pokemonName = chosenPokemonObj.japanese;
+    
+    // ⭐ アイコンURLを ID ベースで生成: /assets/[ID].png ⭐
+    const iconUrl = `/rei/assets/${pokemonId}.png`;
+    
     const icon = L.icon({
-        iconUrl: POKEMON_ICONS[chosenPokemon] || TRANSPARENT_IMAGE,
+        iconUrl: iconUrl, 
         iconSize: [40, 40],
         iconAnchor: [20, 20]
     });
     
     const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
+    
+    // ⭐ マーカーにポケモンデータを付与 (次のステップでクリック処理に使用) ⭐
+    marker.pokemonData = chosenPokemonObj; 
+    
     pokemonMarkers.push(marker);
     
-    console.log(`[DEBUG:POKEMON] ${chosenPokemon}を生成しました。15分後に消滅します。`);
+    // マーカーにツールチップで名前を表示
+    marker.bindTooltip(pokemonName, { permanent: true, direction: "bottom" }).openTooltip();
+    
+    console.log(`[DEBUG:POKEMON] ${pokemonName} (ID: ${pokemonId}) を生成しました。15分後に消滅します。`);
     
     setTimeout(() => {
         map.removeLayer(marker); 
         pokemonMarkers = pokemonMarkers.filter(m => m !== marker); 
-        console.log(`[DEBUG:POKEMON] ${chosenPokemon}を消滅させました。`);
+        console.log(`[DEBUG:POKEMON] ${pokemonName}を消滅させました。`);
     }, 15 * 60 * 1000); 
 }
 
