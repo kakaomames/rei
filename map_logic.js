@@ -1,7 +1,6 @@
 // map_logic.js
 // このファイルは index.html で <script type="module" src="./map_logic.js"></script> としてロードされる必要があります
 
-// ⭐ 追記: pokemon.js から出現ロジックをインポート ⭐
 import { spawnPokemonByType } from './pokemon.js'; 
 
 // ===========================================
@@ -11,6 +10,11 @@ let map;
 let playerMarker;
 let pokemonMarkers = [];
 let landmarkMarkers = [];
+
+// ⭐ ランドマークデータは外部JSONからロードするため空で初期化 ⭐
+const LANDMARKS = []; 
+let GYM_DATA = [];
+let POKESTOP_DATA = [];
 
 // 初期座標 (URLパラメータで上書き可能)
 let initialCoords = [35.681236, 139.767125]; 
@@ -24,14 +28,6 @@ let LANDMARK_ICONS = {
     'pokestop': 'https://example.com/pokestop.png' 
 };
 
-// ランドマークデータ (静的データ)
-const LANDMARKS = [
-  {"lat": 35.6816, "lng": 139.766, "type": "gym"},
-  {"lat": 35.6808, "lng": 139.7675, "type": "pokestop"},
-];
-
-// ⭐ 削除済み: POKEMON_ICONS は ID ベースのURLに置き換えられました ⭐
-
 
 // ===========================================
 // Leaflet マップ 初期化関数
@@ -41,28 +37,26 @@ function initMap() {
         console.error("[FATAL ERROR] L (Leaflet) オブジェクトが見つかりません。");
         return;
     }
-    console.log("[DEBUG:INIT] L (Leaflet) オブジェクトを確認。マップ初期化開始。");
+    console.log("[DEBUG:INIT] Leafletオブジェクトを確認。マップ初期化開始。");
 
-    // ⭐ 1. URLクエリパラメータから各種情報を取得するロジック
+    // ⭐ 1. URLクエリパラメータから各種情報を取得するロジック (省略) ⭐
+    // ... (URLパラメータの取得ロジックは変更なし) ...
     try {
         const urlParams = new URLSearchParams(window.location.search);
         
         const myIconParam = urlParams.get('myicon');
         if (myIconParam) {
             initialIconUrl = myIconParam;
-            console.log(`[INIT] URLからプレイヤーアイコン ${initialIconUrl} を取得しました。`);
         }
 
         const gymIconParam = urlParams.get('gymicon');
         if (gymIconParam) {
             LANDMARK_ICONS.gym = gymIconParam;
-            console.log(`[INIT] URLからジムアイコン ${LANDMARK_ICONS.gym} を取得しました。`);
         }
 
         const pokestopIconParam = urlParams.get('pokestopicon');
         if (pokestopIconParam) {
             LANDMARK_ICONS.pokestop = pokestopIconParam;
-            console.log(`[INIT] URLからポケストップアイコン ${LANDMARK_ICONS.pokestop} を取得しました。`);
         }
 
         const latParam = urlParams.get('lat');
@@ -72,18 +66,16 @@ function initMap() {
             const newLng = parseFloat(lngParam);
             if (!isNaN(newLat) && !isNaN(newLng)) {
                 initialCoords = [newLat, newLng];
-                console.log(`[INIT] URLから初期座標 [${newLat}, ${newLng}] を取得しました。`);
-            } else {
-                 console.warn("[INIT WARN] lat/lngパラメータが不正な数値です。初期値を使用します。");
             }
         }
         
     } catch(e) {
         console.error("[INIT ERROR] URLパラメータの解析中にエラー:", e);
     }
+    // ⭐ ---------------------------------------------------- ⭐
 
     try {
-        // ⭐ 2. 更新されたinitialCoordsを使用してマップを初期化
+        // 2. マップ初期化
         map = L.map('map').setView(initialCoords, 17);
         console.log("[DEBUG:INIT] Leafletマップを作成しました。");
         
@@ -91,9 +83,13 @@ function initMap() {
             maxZoom: 19,
             attribution: '© OpenStreetMap contributors' 
         }).addTo(map);
-        console.log("[DEBUG:INIT] OpenStreetMapタイルレイヤーを追加しました。");
+        
+        // ⭐ NEW: カスタムペインを作成し、Z-index: 5 を設定 ⭐
+        map.createPane('marker_z5');
+        map.getPane('marker_z5').style.zIndex = 5;
+        console.log("[DEBUG:INIT] カスタムペイン 'marker_z5' (Z-index: 5) を作成しました。");
 
-        // プレイヤーマーカーの初期化
+        // プレイヤーマーカーの初期化 (デフォルトのZ-indexを使用)
         const initialIcon = L.icon({
             iconUrl: initialIconUrl, 
             iconSize: [64, 64],
@@ -102,7 +98,7 @@ function initMap() {
         playerMarker = L.marker(initialCoords, { icon: initialIcon }).addTo(map);
         console.log("[DEBUG:INIT] プレイヤーマーカーを初期位置に追加しました。");
 
-        loadLandmarks();
+        loadLandmarks(); // ロード済みのデータを使って配置を実行
         
         // ポケモン生成タイマー (5分ごと)
         setInterval(() => {
@@ -118,42 +114,91 @@ function initMap() {
 }
 
 // ===========================================
+// 外部データロードロジック
+// ===========================================
+/**
+ * 外部JSONファイルからジムとポケストップのデータを非同期でロードする
+ */
+async function loadLandmarkData() {
+    try {
+        const [gymRes, stopRes] = await Promise.all([
+            fetch('./gym.json'),
+            fetch('./pokestop.json')
+        ]);
+
+        if (!gymRes.ok || !stopRes.ok) {
+            throw new Error("ランドマークJSONのロードに失敗しました。");
+        }
+
+        GYM_DATA = await gymRes.json();
+        POKESTOP_DATA = await stopRes.json();
+        
+        console.log(`[LANDMARK] ジムデータ ${GYM_DATA.length} 件、ポケストップデータ ${POKESTOP_DATA.length} 件をロードしました。`);
+
+    } catch (error) {
+        console.error("[LANDMARK ERROR] ランドマークデータのロード中にエラー:", error);
+    }
+}
+
+
+// ===========================================
 // ランドマーク/ポケモン配置ロジック
 // ===========================================
 function loadLandmarks() {
-    console.log(`[DEBUG:LANDMARK] ランドマーク ${LANDMARKS.length} 件の配置を開始します。`);
-    LANDMARKS.forEach(landmark => {
+    // ジムを配置
+    GYM_DATA.forEach(gym => {
         const icon = L.icon({
-            iconUrl: LANDMARK_ICONS[landmark.type] || TRANSPARENT_IMAGE, 
+            iconUrl: LANDMARK_ICONS.gym || TRANSPARENT_IMAGE, 
             iconSize: [48, 48],
             iconAnchor: [24, 24]
         });
-        const marker = L.marker([landmark.lat, landmark.lng], { icon: icon }).addTo(map);
+        const marker = L.marker([gym.lat, gym.lng], { 
+            icon: icon,
+            // ⭐ Z-index 5 ペインを指定 ⭐
+            pane: 'marker_z5' 
+        }).addTo(map);
+        marker.bindPopup(`<b>${gym.name_ja}</b><br>チーム: ${gym.team}`); 
         landmarkMarkers.push(marker);
-        console.log(`[DEBUG:LANDMARK] ${landmark.type}を配置 (Lat: ${landmark.lat})`);
     });
+
+    // ポケストップを配置
+    POKESTOP_DATA.forEach(stop => {
+        const icon = L.icon({
+            iconUrl: LANDMARK_ICONS.pokestop || TRANSPARENT_IMAGE, 
+            iconSize: [48, 48],
+            iconAnchor: [24, 24]
+        });
+        const marker = L.marker([stop.lat, stop.lng], { 
+            icon: icon,
+            // ⭐ Z-index 5 ペインを指定 ⭐
+            pane: 'marker_z5'
+        }).addTo(map);
+        marker.bindPopup(`<b>${stop.name_ja}</b>`);
+        landmarkMarkers.push(marker);
+    });
+    
+    console.log(`[DEBUG:LANDMARK] ランドマークの配置が完了しました。`);
 }
 
 function spawnRandomPokemon(centerLat, centerLng) {
-    // 乱数で生成位置を決定 (プレイヤー周辺 0.0005度以内)
+    // 乱数で生成位置を決定
     const randomAngle = Math.random() * 2 * Math.PI;
     const randomDistance = Math.random() * 0.0005; 
     
     const lat = centerLat + randomDistance * Math.cos(randomAngle);
     const lng = centerLng + randomDistance * Math.sin(randomAngle);
     
-    // ⭐ 環境ベースの出現ロジックを使用し、ポケモンオブジェクトを取得 ⭐
     const chosenPokemonObj = spawnPokemonByType(lat, lng);
     
     if (!chosenPokemonObj) {
-        console.warn("[SPAWN] ポケモンの抽選に失敗しました (データ未ロードなど)。");
+        console.warn("[SPAWN] ポケモンの抽選に失敗しました。");
         return;
     }
 
     const pokemonId = chosenPokemonObj.id;
     const pokemonName = chosenPokemonObj.japanese;
     
-    // ⭐ アイコンURLを ID ベースで生成: /assets/[ID].png ⭐
+    // アイコンURLを ID ベースで生成: /assets/[ID].png
     const iconUrl = `/rei/assets/${pokemonId}.png`;
     
     const icon = L.icon({
@@ -162,9 +207,12 @@ function spawnRandomPokemon(centerLat, centerLng) {
         iconAnchor: [20, 20]
     });
     
-    const marker = L.marker([lat, lng], { icon: icon }).addTo(map);
+    const marker = L.marker([lat, lng], { 
+        icon: icon,
+        // ⭐ Z-index 5 ペインを指定 ⭐
+        pane: 'marker_z5' 
+    }).addTo(map);
     
-    // ⭐ マーカーにポケモンデータを付与 (次のステップでクリック処理に使用) ⭐
     marker.pokemonData = chosenPokemonObj; 
     
     pokemonMarkers.push(marker);
@@ -184,14 +232,14 @@ function spawnRandomPokemon(centerLat, centerLng) {
 // ===========================================
 // マーカー/マップ更新ロジック (postMessage受信時)
 // ===========================================
+// ... (updateSpriteMarker, updateMapView 関数は変更なし) ...
+
 function updateSpriteMarker(lat, lng, imageData) {
     console.log(`[DEBUG:MSG] UPDATE_SPRITEを受信しました。Lat:${lat}, Lon:${lng}`);
     const newPos = [lat, lng];
     
     if (playerMarker) {
         playerMarker.setLatLng(newPos);
-
-        // imageData（URLまたはBase64）があればアイコンを更新
         if (imageData && imageData.length > 50) { 
             const customIcon = L.icon({
                 iconUrl: imageData,
@@ -201,7 +249,6 @@ function updateSpriteMarker(lat, lng, imageData) {
             playerMarker.setIcon(customIcon);
             console.log("[DEBUG:MSG] スプライトアイコンを更新しました。");
         }
-        
         map.panTo(newPos);
         console.log("[DEBUG:MSG] マップをプレイヤーの位置にセンタリングしました。");
     }
@@ -211,8 +258,6 @@ function updateMapView(lat, lng, radius) {
      console.log(`[DEBUG:MSG] UPDATE_MAP_VIEWを受信しました。Lat:${lat}, Lon:${lng}, Radius:${radius}`);
      const newCenter = [lat, lng];
      map.panTo(newCenter);
-
-     // ズームレベルの計算 (radiusが大きいほどズームアウト)
      const zoomLevel = Math.max(12, Math.min(19, Math.floor(-Math.log2(radius) + 11)));
      map.setZoom(zoomLevel);
      console.log(`[DEBUG:MSG] ズームレベルを ${zoomLevel} に設定しました。`);
@@ -242,10 +287,14 @@ window.addEventListener('message', (event) => {
 });
 
 // ===========================================
-// DOMロードとマップ初期化のトリガー
+// DOMロードとマップ初期化のトリガー (修正)
 // ===========================================
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("[DEBUG:TRIGGER] DOMContentLoadedを検知しました。500ms後にマップ初期化を実行します。");
-    // 確実な実行のために500msの遅延を維持
-    setTimeout(initMap, 500); 
+    console.log("[DEBUG:TRIGGER] DOMContentLoadedを検知しました。");
+    
+    // ⭐ ランドマークデータをロードし、成功したらマップ初期化を実行 ⭐
+    loadLandmarkData().then(() => {
+        // 確実な実行のために500msの遅延を維持
+        setTimeout(initMap, 500); 
+    });
 });
