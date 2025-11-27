@@ -41,7 +41,11 @@
         <button id="account-button" class="ui-button" onclick="openOverlay('account-screen')">アカウント</button>
         <button id="quest-button" class="ui-button" onclick="openOverlay('quest-screen')">クエスト</button>
     </div>
-    
+    <div id="capture-ui" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: white; display: none; z-index: 25;">
+    </div>
+
+<script type="module" src="./pokemon.js"></script>
+<script type="module" src="./pokemongo-UI.js"></script>
     <script src="./leaflet/leaflet.js"></script> 
     
     <script src="./map_logic.js"></script> 
