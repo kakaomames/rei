@@ -9,72 +9,72 @@
     <link rel="stylesheet" type="text/css" href="./leaflet/leaflet.css" />
 </head>
 <body>
-    
-    <div id="menu-screen" class="overlay-screen">
-        <div>
-            <h2>メニュー画面 (Z: 20)</h2>
-            <p>設定やオプションを表示します。</p>
-            <button class="close-button" onclick="closeOverlay('menu-screen')">❌</button> 
-        </div>
-    </div>
-    
-    <div id="account-screen" class="overlay-screen">
-        <div>
-            <h2>アカウント画面 (Z: 20)</h2>
-            <p>プレイヤー情報や図鑑を表示します。</p>
-            <button class="close-button" onclick="closeOverlay('account-screen')">❌</button>
-        </div>
-    </div>
-    
-    <div id="quest-screen" class="overlay-screen">
-        <div>
-            <h2>クエスト画面 (Z: 20)</h2>
-            <p>今日のタスクやリサーチを表示します。</p>
-            <button class="close-button" onclick="closeOverlay('quest-screen')">❌</button>
-        </div>
-    </div>
 
-    <div id="map"></div>
+    <div id="map" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;"></div>
 
-    <div id="button-bar">
-        <button id="menu-button" class="ui-button" onclick="openOverlay('menu-screen')">メニュー</button>
-        <button id="account-button" class="ui-button" onclick="openOverlay('account-screen')">アカウント</button>
-        <button id="quest-button" class="ui-button" onclick="openOverlay('quest-screen')">クエスト</button>
-    </div>
-    <div id="capture-ui" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: white; display: none; z-index: 25;">
-    </div>
+    
     <div id="pokemon-box-ui" style="position: absolute; top: 10px; right: 10px; z-index: 20; padding: 10px; background-color: rgba(0, 0, 0, 0.5); border-radius: 10px; max-width: 300px;">
+        </div>
+
+    <button id="menu-button" onclick="window.openMenu()" 
+        style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 15; padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 25px; background-color: #4CAF50; color: white; border: 3px solid #38703a;">
+        メニュー
+    </button>
+    
+    
+    <div id="capture-ui" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: white; display: none; z-index: 25;">
+        </div>
+
+    <div id="main-menu" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); display: none; z-index: 30; color: white;">
+        
+        <button onclick="window.closeMenu()" style="position: absolute; top: 20px; right: 20px; font-size: 24px; background: none; border: none; color: white; cursor: pointer;">
+            ❌
+        </button>
+
+        <div id="menu-options" style="text-align: center; padding-top: 50px;">
+            <h1 style="margin-bottom: 40px;">メインメニュー</h1>
+            <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 30px;">
+                <button onclick="window.showPokemonList()" class="menu-item">ポケモン</button>
+                <button onclick="alert('道具画面（後で実装）');" class="class menu-item">道具</button>
+                <button onclick="alert('ショップ画面（後で実装）');" class="menu-item">ショップ</button>
+                <button onclick="alert('図鑑画面（後で実装）');" class="menu-item">図鑑</button>
+                <button onclick="alert('対戦画面（後で実装）');" class="menu-item">対戦</button>
+                <button onclick="window.showSettings()" class="menu-item">設定</button>
+            </div>
+        </div>
+
+        <div id="pokemon-list-container" class="sub-menu-content" style="display: none; padding: 20px; overflow-y: auto; height: 100%;"></div>
+        <div id="settings-container" class="sub-menu-content" style="display: none; padding: 20px;"></div>
+
     </div>
 
-<script type="module" src="./pokemon.js"></script>
-<script type="module" src="./pokemongo-UI.js"></script>
-    <script src="./leaflet/leaflet.js"></script> 
     
-    <script src="./map_logic.js"></script> 
-    
-    <script>
-        /**
-         * 指定されたIDのオーバーレイ画面を表示する
-         * @param {string} screenId - 表示する画面のDOM ID
-         */
-        function openOverlay(screenId) {
-            const screenElement = document.getElementById(screenId);
-            if (screenElement) {
-                screenElement.style.display = 'flex'; // flexを使って中央寄せを有効化
-            }
-        }
+    <style>
+    .menu-item {
+        padding: 15px 25px;
+        font-size: 16px;
+        background-color: #333;
+        color: white;
+        border: 2px solid #555;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .menu-item:hover {
+        background-color: #555;
+    }
+    .sub-menu-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95); /* メニューオプションより濃い背景 */
+    }
+    </style>
 
-        /**
-         * 指定されたIDのオーバーレイ画面を非表示にする (マップに戻る)
-         * @param {string} screenId - 非表示にする画面のDOM ID
-         */
-        function closeOverlay(screenId) {
-            const screenElement = document.getElementById(screenId);
-            if (screenElement) {
-                screenElement.style.display = 'none';
-            }
-        }
-    </script>
-
+    <script type="module" src="./pokemon.js"></script>
+    <script type="module" src="./pokemongo-UI.js"></script>
+    <script type="module" src="./map_logic.js"></script>
 </body>
 </html>
