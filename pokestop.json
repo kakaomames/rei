@@ -1,0 +1,107 @@
+[
+    {
+        "id": "stop_101",
+        "name_ja": "ボーノ相模大野 イベント広場",
+        "lat": 35.5328,
+        "lng": 139.4368,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_102",
+        "name_ja": "大野神社 参道入り口",
+        "lat": 35.5390,
+        "lng": 139.4390,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_103",
+        "name_ja": "相模大野駅 北口モニュメント",
+        "lat": 35.5342,
+        "lng": 139.4365,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_104",
+        "name_ja": "相模大野 銀座商店街入口",
+        "lat": 35.5345,
+        "lng": 139.4378,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_105",
+        "name_ja": "相模大野 中央図書館",
+        "lat": 35.5350,
+        "lng": 139.4430,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_106",
+        "name_ja": "東林間駅前 ロータリー",
+        "lat": 35.5300,
+        "lng": 139.4470,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_107",
+        "name_ja": "県立相模原公園 正門",
+        "lat": 35.5220,
+        "lng": 139.4005,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_108",
+        "name_ja": "相模大野駅 南口広場 噴水",
+        "lat": 35.5320,
+        "lng": 139.4375,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_109",
+        "name_ja": "小田急相模原駅 階段アート",
+        "lat": 35.5355,
+        "lng": 139.4160,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_110",
+        "name_ja": "境川遊歩道 桜並木碑",
+        "lat": 35.5450,
+        "lng": 139.4500,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_111",
+        "name_ja": "鵜野森公園 野球場入口",
+        "lat": 35.5510,
+        "lng": 139.4300,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_112",
+        "name_ja": "矢部駅前 ポスト",
+        "lat": 35.5790,
+        "lng": 139.3840,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_113",
+        "name_ja": "古淵駅 西側バス停",
+        "lat": 35.5660,
+        "lng": 139.4140,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_114",
+        "name_ja": "東海大学 相模高校 正門",
+        "lat": 35.5150,
+        "lng": 139.3950,
+        "last_spun_time": 0
+    },
+    {
+        "id": "stop_115",
+        "name_ja": "桜美林大学 町田キャンパス 正門",
+        "lat": 35.5800,
+        "lng": 139.4520,
+        "last_spun_time": 0
+    }
+]
