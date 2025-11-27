@@ -1,101 +1,156 @@
-/* style.css */
+/* map-appv2.css */
 
-/* --- マップ本体 (最背層: 0) --- */
-/* マップ表示に必須なCSS。高さ100%を保証 */
-html, body, #map { 
-    height: 100%; 
+/* ===========================================
+   1. グローバル・リセットとテーマ共通スタイル
+   =========================================== */
+
+/* bodyタグにテーマクラスが付与されます: 
+   - .light-mode (デフォルト) 
+   - .dark-mode */
+
+body {
     margin: 0;
     padding: 0;
-    overflow: hidden; 
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    transition: background-color 0.5s, color 0.5s; /* テーマ切り替え時のアニメーション */
+    overflow: hidden; /* スクロールバーを非表示 */
 }
 
+/* リンクやボタンのベーススタイル */
+a, button {
+    cursor: pointer;
+}
+
+/* ===========================================
+   2. ダークモード (.dark-mode) 定義
+   =========================================== */
+.dark-mode {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.dark-mode h1, .dark-mode h2, .dark-mode h3, .dark-mode h4 {
+    color: #ffffff;
+}
+
+.dark-mode button:not(#menu-button):not(.menu-item) {
+    background-color: #444;
+    color: #fff;
+    border: 1px solid #666;
+}
+
+/* 捕獲UI (capture-ui) のダークモード対応 */
+.dark-mode #capture-ui {
+    background-color: #2c2c2c !important; 
+    color: #e0e0e0;
+}
+.dark-mode #capture-ui h2 {
+    color: #ffffff;
+}
+
+/* ポケモンリストのアイテム */
+.dark-mode #pokemon-list-container div[style*="background-color: #222"] {
+    background-color: #444 !important;
+    border-color: #666 !important;
+}
+
+/* ===========================================
+   3. ライトモード (.light-mode) 定義 (デフォルト)
+   =========================================== */
+.light-mode {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.light-mode #capture-ui {
+    background-color: white !important;
+    color: #333;
+}
+
+/* ポケモンリストのアイテム */
+.light-mode #pokemon-list-container div[style*="background-color: #222"] {
+    background-color: #eee !important;
+    border-color: #aaa !important;
+    color: #333;
+}
+
+/* ===========================================
+   4. マップ関連スタイル (Leaflet)
+   =========================================== */
 #map {
-    position: absolute; /* positionを指定してz-indexを有効化 */
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 0; /* ⭐ 最背層: 0 */
 }
 
-/* --- ボタン類 (中層: 10) --- */
-/* ボタンを格納するコンテナ（画面下部中央に固定） */
-#button-bar {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%); /* 中央寄せ */
-    display: flex;
-    gap: 15px;
-    z-index: 10; /* ⭐ 中層: 10 */
-}
-
-/* 各ボタンのスタイル */
-.ui-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    background-color: #3498db; /* 青系 */
-    color: white;
+/* Leafletマーカーのツールチップ (ポケモン名) のスタイル */
+.leaflet-tooltip {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    color: #333 !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    padding: 2px 8px !important;
     font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px #2980b9; /* 立体感 */
-    transition: all 0.1s ease;
-    min-width: 100px;
+    white-space: nowrap;
+    opacity: 1 !important; /* 常に見えるように */
 }
 
-.ui-button:active {
-    background-color: #2980b9;
-    box-shadow: 0 1px #2980b9;
-    transform: translate(-50%, 3px); /* 押した時のアニメーション */
-}
+/* ===========================================
+   5. メニュー UI (メインメニューとサブメニュー)
+   =========================================== */
 
-/* --- メニュー/アカウント/クエスト画面 (最前層: 20) --- */
-.overlay-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85); /* 黒の半透明で背景を覆い、マップを暗くする */
+/* メインメニュー内のボタン共通スタイル */
+.menu-item {
+    padding: 15px 25px;
+    font-size: 16px;
+    background-color: #333;
     color: white;
-    display: none; /* 初期状態では非表示 (JSで 'flex' に変更して表示) */
-    justify-content: center;
-    align-items: center;
-    z-index: 20; /* ⭐ 最前層: 20 */
-    font-family: sans-serif;
-    text-align: center;
-}
-
-/* オーバーレイ内のコンテンツの基本的なスタイル */
-.overlay-screen > div {
-    padding: 30px;
-    background: rgba(44, 62, 80, 0.95); /* ダークブルーの背景 */
-    border-radius: 10px;
-    max-width: 80%;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-/* --- 閉じるボタン (最最前層: 30) --- */
-.close-button {
-    position: absolute; /* 親要素 .overlay-screen に対して位置を決定 */
-    top: 20px;
-    right: 20px;
-    width: 50px; /* サイズを少し大きく */
-    height: 50px;
-    font-size: 28px;
-    line-height: 50px;
-    text-align: center;
-    background: #e74c3c; /* 赤色 */
-    color: white;
-    border: 3px solid white; /* 白い枠線で強調 */
-    border-radius: 50%;
+    border: 2px solid #555;
+    border-radius: 8px;
     cursor: pointer;
-    z-index: 30; /* ⭐ 最最前層: 30 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-    transition: background-color 0.2s;
+    transition: background-color 0.3s;
+    flex-grow: 1; /* flexコンテナ内で均等に広がる */
+    max-width: 150px;
+}
+.menu-item:hover {
+    background-color: #555;
 }
 
-.close-button:hover {
-    background: #c0392b;
+/* メインメニュー内のサブコンテンツ領域 */
+.sub-menu-content {
+    /* HTMLで指定されているスタイルを補完 */
+    color: white; 
+}
+
+/* ポケモンリストの「戻る」ボタン */
+#pokemon-list-container button,
+#settings-container button {
+    background-color: #555;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+}
+
+/* ===========================================
+   6. その他のUI (設定画面など)
+   =========================================== */
+
+/* 設定画面のセレクトボックスのスタイルを調整 */
+#settings-container select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #aaa;
+    font-size: 16px;
+    width: 100%; /* 親要素 (max-width: 400px) に合わせる */
+    box-sizing: border-box;
+}
+
+/* ダークモード時の設定UIの調整 */
+.dark-mode #settings-container select {
+    background-color: #555;
+    color: #fff;
+    border-color: #777;
 }
