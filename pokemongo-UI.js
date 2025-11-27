@@ -1,6 +1,7 @@
 // pokemongo-UI.js
 
-import { updateSetting, getCurrentTheme } from './settings.js'; // ⭐ settings.jsからインポート ⭐
+import { updateSetting, getCurrentTheme } from './settings.js';
+import { getInventory, ITEMS } from './item.js'; // ⭐ NEW: item.jsからインポート ⭐
 
 // ポケモンの捕獲ベース確率 (仮設定)
 const BASE_CATCH_RATE = 0.5;
@@ -74,7 +75,7 @@ function renderCaptureUI(pokemonData, message = "") {
         <div style="text-align: center; padding: 20px;">
             <h2>野生の ${pokemonData.japanese} が現れた！</h2>
             <p style="color: red;">${message}</p>
-            <img src="./assets/${pokemonData.id}.png" alt="${pokemonData.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
+            <img src="/assets/${pokemonData.id}.png" alt="${pokemonData.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
             <p>タイプ: ${pokemonData.types.join(' / ')}</p>
             
             <div style="margin-top: 30px;">
@@ -137,7 +138,7 @@ function handleCatchSuccess(pokemonData) {
         <div style="text-align: center; padding: 50px; background-color: #e8f5e9;">
             <h2 style="color: green;">🎉 ${caughtPokemon.japanese} を捕獲成功！ 🎉</h2>
             <h3>CP: ${caughtPokemon.cp}</h3>
-            <img src="./assets/${caughtPokemon.id}.png" alt="${caughtPokemon.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
+            <img src="/assets/${caughtPokemon.id}.png" alt="${caughtPokemon.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
             <p>新しい仲間がボックスに加わりました！</p>
             <button onclick="window.exitCaptureMode()" style="padding: 10px 30px; margin-top: 20px;">
                 マップに戻る
@@ -190,6 +191,7 @@ export function openMenu() {
     document.getElementById('menu-options').style.display = 'block';
     document.getElementById('pokemon-list-container').style.display = 'none';
     document.getElementById('settings-container').style.display = 'none';
+    document.getElementById('inventory-container').style.display = 'none'; // ⭐ NEW: 道具画面も非表示に ⭐
 }
 
 /**
@@ -208,6 +210,7 @@ export function showPokemonList() {
     
     document.getElementById('menu-options').style.display = 'none';
     document.getElementById('settings-container').style.display = 'none';
+    document.getElementById('inventory-container').style.display = 'none'; // ⭐ NEW: 道具画面を非表示に ⭐
     document.getElementById('pokemon-list-container').style.display = 'block';
 
     renderPokemonList();
@@ -221,9 +224,24 @@ export function showSettings() {
     
     document.getElementById('menu-options').style.display = 'none';
     document.getElementById('pokemon-list-container').style.display = 'none';
+    document.getElementById('inventory-container').style.display = 'none'; // ⭐ NEW: 道具画面を非表示に ⭐
     document.getElementById('settings-container').style.display = 'block';
     
     renderSettings();
+}
+
+/**
+ * ⭐ NEW: 道具（インベントリ）画面を表示する ⭐
+ */
+export function showInventory() {
+    console.log("[UI] 道具（インベントリ）画面を表示します。");
+    
+    document.getElementById('menu-options').style.display = 'none';
+    document.getElementById('pokemon-list-container').style.display = 'none';
+    document.getElementById('settings-container').style.display = 'none';
+    document.getElementById('inventory-container').style.display = 'block'; // ⭐ NEW: 道具画面を表示 ⭐
+    
+    renderInventory();
 }
 
 
@@ -248,7 +266,7 @@ function renderPokemonList() {
 
     const pokemonHtml = box.map(p => `
         <div style="width: 150px; text-align: center; padding: 10px; border: 1px solid #555; border-radius: 5px; margin: 10px; background-color: #222;">
-            <img src="./assets/${p.id}.png" alt="${p.japanese}" style="width: 100px; height: 100px;">
+            <img src="/assets/${p.id}.png" alt="${p.japanese}" style="width: 100px; height: 100px;">
             <h4 style="margin: 5px 0 0;">${p.japanese}</h4>
             <p style="font-size: 14px; color: #ffeb3b;">CP: ${p.cp}</p>
             <p style="font-size: 12px; color: #aaa;">ID: ${p.uniqueId.substring(0, 6)}...</p>
@@ -263,6 +281,49 @@ function renderPokemonList() {
         </div>
     `;
 }
+
+/**
+ * ⭐ NEW: 道具（インベントリ）画面を描画する ⭐
+ */
+function renderInventory() {
+    const inventoryContainer = document.getElementById('inventory-container');
+    const inventory = getInventory();
+    
+    const itemsKeys = Object.keys(inventory).sort();
+    
+    if (itemsKeys.length === 0) {
+        inventoryContainer.innerHTML = `
+            <h2 style="text-align: center; margin-top: 50px;">道具箱は空です... 😱</h2>
+            <button onclick="window.openMenu()" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px;">⬅ 戻る</button>
+        `;
+        return;
+    }
+
+    const itemHtml = itemsKeys.map(id => {
+        const itemInfo = ITEMS[id.toUpperCase()]; // item.jsで定義したアイテム情報
+        const count = inventory[id];
+        
+        return `
+            <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #555; width: 100%; max-width: 600px; margin: 0 auto;">
+                <img src="/assets/items/${id}.png" alt="${itemInfo.name_ja}" style="width: 50px; height: 50px; margin-right: 20px; background-color: #444; border-radius: 5px;">
+                <div style="flex-grow: 1;">
+                    <h4 style="margin: 0; font-size: 18px;">${itemInfo.name_ja}</h4>
+                    <p style="margin: 5px 0 0; font-size: 12px; color: #aaa;">${itemInfo.description_ja}</p>
+                </div>
+                <span style="font-size: 24px; font-weight: bold; color: #ffeb3b;">x ${count}</span>
+            </div>
+        `;
+    }).join('');
+
+    inventoryContainer.innerHTML = `
+        <h2 style="text-align: center;">道具 (${itemsKeys.length}種類)</h2>
+        <button onclick="window.openMenu()" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px;">⬅ 戻る</button>
+        <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px; padding-bottom: 80px;">
+            ${itemHtml}
+        </div>
+    `;
+}
+
 
 /**
  * 設定画面を描画する
@@ -315,13 +376,13 @@ export function renderPokemonBoxUI() {
 
     const pokemonHtml = recentThree.map(p => `
         <div style="display: flex; flex-direction: column; align-items: center; margin: 0 5px; background-color: rgba(255, 255, 255, 0.9); border-radius: 5px; padding: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.3);">
-            <img src="./assets/${p.id}.png" alt="${p.japanese}" style="width: 70px; height: 70px;">
+            <img src="/assets/${p.id}.png" alt="${p.japanese}" style="width: 70px; height: 70px;">
             <span style="font-size: 12px; font-weight: bold; color: #333; margin-top: 2px;">CP: ${p.cp}</span>
         </div>
     `).join('');
 
     boxContainer.innerHTML = `
-        <h3 style="color: white; margin-bottom: 5px;">🔥 マイボックス </h3>
+        <h3 style="color: white; margin-bottom: 5px;">🔥 マイボックス (最新3体)</h3>
         <div style="display: flex; justify-content: flex-start;">
             ${pokemonHtml}
         </div>
@@ -339,11 +400,11 @@ window.openMenu = openMenu;
 window.closeMenu = closeMenu;
 window.showPokemonList = showPokemonList;
 window.showSettings = showSettings;
-window.updateSetting = updateSetting; // settings.jsの関数をグローバル登録
+window.showInventory = showInventory; // ⭐ NEW: 道具画面の表示をグローバル登録 ⭐
+window.updateSetting = updateSetting; 
 window.renderPokemonBoxUI = renderPokemonBoxUI;
 
 // 初期ロード時にボックスUIを一度描画する
 document.addEventListener('DOMContentLoaded', () => {
-    // 確実にマップやUIがロードされた後に実行
     setTimeout(renderPokemonBoxUI, 1000); 
 });
