@@ -1,6 +1,6 @@
 // map_logic.js
 // このファイルは index.html で <script type="module" src="./map_logic.js"></script> としてロードされる必要があります
-
+import { startCaptureMode } from './pokemongo-UI.js';
 import { spawnPokemonByType } from './pokemon.js'; 
 
 // ===========================================
@@ -212,10 +212,27 @@ function spawnRandomPokemon(centerLat, centerLng) {
         // ⭐ Z-index 5 ペインを指定 ⭐
         pane: 'marker_z5' 
     }).addTo(map);
+    // ⭐ 修正: マーカーに緯度・経度情報も追加で付与 ⭐
+    marker.pokemonData = {
+        ...chosenPokemonObj,
+        lat: lat,
+        lng: lng
+    };
+
     
-    marker.pokemonData = chosenPokemonObj; 
+    marker.on('click', function(e) {
+        // マーカーを消滅させる前に捕獲モードを開始
+        startCaptureMode(this.pokemonData); 
+        
+        // マーカーをマップから削除（捕獲または逃走後に削除）
+        map.removeLayer(this); 
+        pokemonMarkers = pokemonMarkers.filter(m => m !== this);
+        console.log(`[EVENT] ${this.pokemonData.japanese} マーカーを一時的に削除しました。`);
+    });
+    // ⭐ -------------------------------------- ⭐
     
     pokemonMarkers.push(marker);
+
     
     // マーカーにツールチップで名前を表示
     marker.bindTooltip(pokemonName, { permanent: true, direction: "bottom" }).openTooltip();
