@@ -1,0 +1,39 @@
+{
+  "BALLS": {
+    "POKEBALL": {
+      "id": "pokeball",
+      "japanese": "モンスターボール",
+      "description_ja": "ポケモンを捕まえるために作られた一般的なボール。",
+      "catch_rate_multiplier": 1.0,
+      "img_file": "monster-ball.png"
+    },
+    "SUPERBALL": {
+      "id": "superball",
+      "japanese": "スーパーボール",
+      "description_ja": "モンスターボールよりも少し性能の良いボール。",
+      "catch_rate_multiplier": 1.5,
+      "img_file": "super-ball.png"
+    },
+    "HYPERBALL": {
+      "id": "hyperball",
+      "japanese": "ハイパーボール",
+      "description_ja": "非常に高性能なボール。",
+      "catch_rate_multiplier": 2.0,
+      "img_file": "hyper-ball.png"
+    }
+  },
+  "RECOVERY": {
+    "POTION": {
+      "id": "potion",
+      "japanese": "キズぐすり",
+      "description_ja": "ポケモンのHPを少し回復する。",
+      "recover_value": 20
+    },
+    "REVIVE": {
+      "id": "revive",
+      "japanese": "げんきのかけら",
+      "description_ja": "ひんし状態のポケモンを回復する。",
+      "recover_value": "HALF"
+    }
+  }
+}
