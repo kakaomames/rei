@@ -75,7 +75,7 @@ function renderCaptureUI(pokemonData, message = "") {
         <div style="text-align: center; padding: 20px;">
             <h2>野生の ${pokemonData.japanese} が現れた！</h2>
             <p style="color: red;">${message}</p>
-            <img src="/assets/${pokemonData.id}.png" alt="${pokemonData.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
+            <img src="./assets/${pokemonData.id}.png" alt="${pokemonData.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
             <p>タイプ: ${pokemonData.types.join(' / ')}</p>
             
             <div style="margin-top: 30px;">
@@ -138,7 +138,7 @@ function handleCatchSuccess(pokemonData) {
         <div style="text-align: center; padding: 50px; background-color: #e8f5e9;">
             <h2 style="color: green;">🎉 ${caughtPokemon.japanese} を捕獲成功！ 🎉</h2>
             <h3>CP: ${caughtPokemon.cp}</h3>
-            <img src="/assets/${caughtPokemon.id}.png" alt="${caughtPokemon.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
+            <img src="./assets/${caughtPokemon.id}.png" alt="${caughtPokemon.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
             <p>新しい仲間がボックスに加わりました！</p>
             <button onclick="window.exitCaptureMode()" style="padding: 10px 30px; margin-top: 20px;">
                 マップに戻る
@@ -266,7 +266,7 @@ function renderPokemonList() {
 
     const pokemonHtml = box.map(p => `
         <div style="width: 150px; text-align: center; padding: 10px; border: 1px solid #555; border-radius: 5px; margin: 10px; background-color: #222;">
-            <img src="/assets/${p.id}.png" alt="${p.japanese}" style="width: 100px; height: 100px;">
+            <img src="./assets/${p.id}.png" alt="${p.japanese}" style="width: 100px; height: 100px;">
             <h4 style="margin: 5px 0 0;">${p.japanese}</h4>
             <p style="font-size: 14px; color: #ffeb3b;">CP: ${p.cp}</p>
             <p style="font-size: 12px; color: #aaa;">ID: ${p.uniqueId.substring(0, 6)}...</p>
@@ -305,7 +305,7 @@ function renderInventory() {
         
         return `
             <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #555; width: 100%; max-width: 600px; margin: 0 auto;">
-                <img src="/assets/items/${id}.png" alt="${itemInfo.name_ja}" style="width: 50px; height: 50px; margin-right: 20px; background-color: #444; border-radius: 5px;">
+                <img src="./assets/items/${id}.png" alt="${itemInfo.name_ja}" style="width: 50px; height: 50px; margin-right: 20px; background-color: #444; border-radius: 5px;">
                 <div style="flex-grow: 1;">
                     <h4 style="margin: 0; font-size: 18px;">${itemInfo.name_ja}</h4>
                     <p style="margin: 5px 0 0; font-size: 12px; color: #aaa;">${itemInfo.description_ja}</p>
@@ -376,7 +376,7 @@ export function renderPokemonBoxUI() {
 
     const pokemonHtml = recentThree.map(p => `
         <div style="display: flex; flex-direction: column; align-items: center; margin: 0 5px; background-color: rgba(255, 255, 255, 0.9); border-radius: 5px; padding: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.3);">
-            <img src="/assets/${p.id}.png" alt="${p.japanese}" style="width: 70px; height: 70px;">
+            <img src="./assets/${p.id}.png" alt="${p.japanese}" style="width: 70px; height: 70px;">
             <span style="font-size: 12px; font-weight: bold; color: #333; margin-top: 2px;">CP: ${p.cp}</span>
         </div>
     `).join('');
