@@ -33,20 +33,22 @@
         </button>
 
         <div id="menu-options" style="text-align: center; padding-top: 50px;">
-            <h1 style="margin-bottom: 40px;">メインメニュー</h1>
-            <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 30px;">
-                <button onclick="window.showPokemonList()" class="menu-item">ポケモン</button>
-                <button onclick="alert('道具画面（後で実装）');" class="class menu-item">道具</button>
-                <button onclick="alert('ショップ画面（後で実装）');" class="menu-item">ショップ</button>
-                <button onclick="alert('図鑑画面（後で実装）');" class="menu-item">図鑑</button>
-                <button onclick="alert('対戦画面（後で実装）');" class="menu-item">対戦</button>
-                <button onclick="window.showSettings()" class="menu-item">設定</button>
-            </div>
+        <h1 style="margin-bottom: 40px;">メインメニュー</h1>
+        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 30px;">
+            <button onclick="window.showPokemonList()" class="menu-item">ポケモン</button>
+            
+            <button onclick="window.showInventory()" class="menu-item">道具</button>
+            
+            <button onclick="alert('ショップ画面（後で実装）');" class="menu-item">ショップ</button>
+            <button onclick="alert('図鑑画面（後で実装）');" class="menu-item">図鑑</button>
+            <button onclick="alert('対戦画面（後で実装）');" class="menu-item">対戦</button>
+            <button onclick="window.showSettings()" class="menu-item">設定</button>
         </div>
+    </div>
 
-        <div id="pokemon-list-container" class="sub-menu-content" style="display: none; padding: 20px; overflow-y: auto; height: 100%;"></div>
-        <div id="settings-container" class="sub-menu-content" style="display: none; padding: 20px;"></div>
-
+    <div id="pokemon-list-container" class="sub-menu-content" style="display: none; padding: 20px; overflow-y: auto; height: 100%;"></div>
+    <div id="settings-container" class="sub-menu-content" style="display: none; padding: 20px;"></div>
+    <div id="inventory-container" class="sub-menu-content" style="display: none; padding: 20px; overflow-y: auto; height: 100%;"></div>
     </div>
 
     
