@@ -4,28 +4,46 @@
     <title>Jack Smith Game: 子供のための無料のオンライン鍛冶屋シムビデオゲーム</title>
     <meta name="description" content="ジャック・スミスは鍛冶屋のシミュレーションゲームです。お客様の注文を受けて、正しい武器の種類を選択し、金属を注ぎます。その後、各ファイターは、剣の柄や矢の整列とともに、鍛造スキルを採点します。剣はハンマーで叩く活動で評価され、弓は伸びがどれだけ均一であるかで評価されます。すべての武器が作られた後、戦闘機は獣を攻撃します。ほとんどの戦闘活動は自動的ですが、武器の品質によって、戦闘機が戦う期間と、すべての敵を倒すかどうかが決まります。敵が攻撃されるたびに、彼らはその上にマウスをスクロールすることで在庫のために拾うことができる戦利品を落とすことがあります。数日後、軍隊を助けるために敵に定期的に発砲できる大砲を手に入れます。ゲームを進めるにつれて、新しい武器のロックを解除し、より強力な敵と対峙します。数日後、剣のグリップ、矢、盾、ポール、ガード、キャップ、オアなどの追加用品を購入できるショップのロックを解除します。このゲームはもともとAdobe Flashアプリケーションとして構築されました。最新のウェブブラウザでHTMLキャンバスモードでレンダリングするために、Rufflesテクノロジープラグインを使用してサイトに公開しました。Microsoft Edge、Apple Safari、Google Chrome、Mozilla Firefox、Operaなどの最新のWebブラウザはすべてサポートしているはずです。このゲームは、Microsoft Windowsデスクトップコンピュータ、Apple OSX Macコンピュータ、iOSを搭載したタブレットやiPadやiPhoneなどの携帯電話、Google Chromebookなどのラップトップ、Google Androidを搭載したSamsungなどのメーカーの多くの種類の携帯電話など、ほぼすべてのタイプのコンピューティングデバイスで動作します。このゲームはかなり詳細であるため、キーボードと接続されたマウスを備えたデスクトップデバイスでプレイするのが最適です。">
     <link rel="canonical" href="https://www.culinaryschools.org/kids-games/jack-smith/">
- 
-    <!--<style>/* 🎨 追加: HTMLとBODYの余白をなくし、画面全体を占めるように設定 */
-    html, body, {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden; /* 意図しないスクロールバーの発生を防ぎます */
-    }
-	#thegame {
-        width: 100%; /* 親要素（body）の幅全体を使う */
-        height: 100%; /* 親要素（body）の高さ全体を使う */
-        display: flex;
-        justify-content: center; /* 中央寄せ */
-        align-items: center; /* 中央寄せ */
-    }
-		
-ruffle-player {
-    width: 100%; /* 親要素 (#thegame) の幅全体 */
-    height: 100%; /* 親要素 (#thegame) の高さ全体 */
+ <style>
+/* 🎨 画面全体を使うための基本設定 */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* 意図しないスクロールバーを非表示にする */
+    background-color: #000; /* ゲームの背景が黒い場合を想定し、コンテナの背景も黒くする */
 }
-    </style>-->
+
+/* 🕹️ ゲームコンテナ: 画面全体を占有し、コンテンツを中央に配置 */
+#thegame {
+    width: 100%; 
+    height: 100%; 
+    display: flex; /* Flexboxで中央寄せを容易にする */
+    justify-content: center; /* 水平方向の中央寄せ */
+    align-items: center; /* 垂直方向の中央寄せ */
+}
+    
+/* 🖼️ Ruffle Player（ゲーム本体）の設定 */
+ruffle-player {
+    /* ゲームのアスペクト比を維持しつつ、コンテナ内で最大化する */
+    max-width: 100%; 
+    max-height: 100%;
+    width: auto; /* Ruffle configの scale: "exactfit" があるため、基本は auto でRuffleに任せる */
+    height: auto;
+}
+
+/* 🚫 no-jsセクション (noscriptタグ内) の可読性を確保 */
+noscript {
+    padding: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+    display: block;
+    box-sizing: border-box;
+    overflow-y: auto; /* 内容が長い場合にスクロールできるようにする */
+    height: 100%;
+}
+</style>
  
 <script>
    function stayCalm() {
