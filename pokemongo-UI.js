@@ -1,9 +1,11 @@
 // pokemongo-UI.js
 
+import { updateSetting, getCurrentTheme } from './settings.js'; // ⭐ settings.jsからインポート ⭐
+
 // ポケモンの捕獲ベース確率 (仮設定)
 const BASE_CATCH_RATE = 0.5;
 
-// ⭐ NEW: ローカルストレージのキー ⭐
+// ローカルストレージのキー
 const CATCHED_POKEMON_KEY = 'pokemon_go_caught_box';
 
 // ===========================================
@@ -12,12 +14,10 @@ const CATCHED_POKEMON_KEY = 'pokemon_go_caught_box';
 
 /**
  * ローカルストレージから捕獲済みポケモンリストを取得する
- * @returns {Array<object>} 捕獲済みポケモンデータの配列
  */
 function getPokemonBox() {
     try {
         const storedData = localStorage.getItem(CATCHED_POKEMON_KEY);
-        // データがない場合は空配列、ある場合はパースして返す
         return storedData ? JSON.parse(storedData) : [];
     } catch (e) {
         console.error("[STORAGE ERROR] ローカルストレージからの読み込みに失敗しました。", e);
@@ -27,7 +27,6 @@ function getPokemonBox() {
 
 /**
  * 捕獲したポケモンをローカルストレージに保存する
- * @param {object} pokemonData 保存するポケモンのデータ（CP付き）
  */
 function savePokemonToBox(pokemonData) {
     const box = getPokemonBox();
@@ -41,14 +40,13 @@ function savePokemonToBox(pokemonData) {
 }
 
 // ===========================================
-// メインUI関数
+// メインUI関数 (捕獲モード)
 // ===========================================
 
 /**
  * 捕獲画面のUI要素を作成し、マップを非表示にして表示する
  */
 export function startCaptureMode(pokemonData) {
-    // ... (省略: 既存の startCaptureMode の中身は変更なし) ...
     console.log(`[UI] 捕獲モードを開始します。ターゲット: ${pokemonData.japanese} (ID: ${pokemonData.id})`);
 
     const mapContainer = document.getElementById('map');
@@ -66,7 +64,6 @@ export function startCaptureMode(pokemonData) {
     renderCaptureUI(pokemonData);
 }
 
-// ... (省略: renderCaptureUI, throwPokeBall 関数は変更なし) ...
 /**
  * 捕獲UIの初期画面を描画する
  */
@@ -115,35 +112,27 @@ export function throwPokeBall(pokemonId) {
     }
 }
 
-// ===========================================
-// 捕獲結果処理
-// ===========================================
-
 /**
  * 捕獲成功時の処理 (CPを付与し、保存、UI更新)
  */
 function handleCatchSuccess(pokemonData) {
-    // ⭐ NEW: CPを決定し、データに追加 ⭐
     const minCp = 10;
     const maxCp = 1500;
     const cpRange = maxCp - minCp;
-    // CPをランダムに決定 (ここでは単純な乱数を使用)
     const cp = Math.floor(Math.random() * cpRange) + minCp; 
     
     const caughtPokemon = {
         ...pokemonData,
         cp: cp,
         caughtTime: Date.now(),
-        uniqueId: Math.random().toString(36).substring(2) // 識別用ID
+        uniqueId: Math.random().toString(36).substring(2) 
     };
 
-    // ローカルストレージに保存
     savePokemonToBox(caughtPokemon);
 
     console.log(`[SUCCESS] ${caughtPokemon.japanese} (CP:${caughtPokemon.cp}) を捕獲しました！`);
     const captureContainer = document.getElementById('capture-ui');
     
-    // 捕獲成功UIを表示し、マップに戻るボタンのみにする
     captureContainer.innerHTML = `
         <div style="text-align: center; padding: 50px; background-color: #e8f5e9;">
             <h2 style="color: green;">🎉 ${caughtPokemon.japanese} を捕獲成功！ 🎉</h2>
@@ -156,12 +145,11 @@ function handleCatchSuccess(pokemonData) {
         </div>
     `;
     
-    // 成功時にボックスUIを更新するトリガー
     renderPokemonBoxUI();
 }
 
 /**
- * 捕獲失敗時の処理 (UI更新: ポケモンはそのまま残る)
+ * 捕獲失敗時の処理
  */
 function handleCatchFailure(pokemonData) {
     console.log(`[FAILURE] ${pokemonData.japanese} は逃げ出した...！`);
@@ -169,7 +157,6 @@ function handleCatchFailure(pokemonData) {
     const message = "ポケモンはボールから飛び出してしまいました！";
     renderCaptureUI(pokemonData, message);
 }
-
 
 /**
  * 捕獲画面を非表示にし、マップ画面に戻る
@@ -185,27 +172,140 @@ export function exitCaptureMode() {
     }
     window.currentPokemonData = null;
     
-    // マップに戻った時もボックスUIを更新
     renderPokemonBoxUI();
 }
 
 // ===========================================
-// ⭐ NEW: ボックスUI描画ロジック ⭐
+// メインメニュー制御
 // ===========================================
+
+/**
+ * メインメニュー画面を開く
+ */
+export function openMenu() {
+    console.log("[UI] メインメニューを開きます。");
+    document.getElementById('main-menu').style.display = 'block';
+    
+    // メニュー選択肢エリアに戻し、サブ画面を非表示にする
+    document.getElementById('menu-options').style.display = 'block';
+    document.getElementById('pokemon-list-container').style.display = 'none';
+    document.getElementById('settings-container').style.display = 'none';
+}
+
+/**
+ * メインメニュー画面を閉じる
+ */
+export function closeMenu() {
+    console.log("[UI] メインメニューを閉じます。");
+    document.getElementById('main-menu').style.display = 'none';
+}
+
+/**
+ * ポケモン一覧画面を表示する
+ */
+export function showPokemonList() {
+    console.log("[UI] ポケモンボックス一覧を表示します。");
+    
+    document.getElementById('menu-options').style.display = 'none';
+    document.getElementById('settings-container').style.display = 'none';
+    document.getElementById('pokemon-list-container').style.display = 'block';
+
+    renderPokemonList();
+}
+
+/**
+ * 設定画面を表示する
+ */
+export function showSettings() {
+    console.log("[UI] 設定画面を表示します。");
+    
+    document.getElementById('menu-options').style.display = 'none';
+    document.getElementById('pokemon-list-container').style.display = 'none';
+    document.getElementById('settings-container').style.display = 'block';
+    
+    renderSettings();
+}
+
+
+// ===========================================
+// UI描画ロジック
+// ===========================================
+
+/**
+ * ボックスの内容を一覧として描画する
+ */
+function renderPokemonList() {
+    const listContainer = document.getElementById('pokemon-list-container');
+    const box = getPokemonBox();
+    
+    if (box.length === 0) {
+        listContainer.innerHTML = `
+            <h2 style="text-align: center; margin-top: 50px;">ボックスにポケモンはいません 🥺</h2>
+            <button onclick="window.openMenu()" style="margin-top: 30px; padding: 10px 20px;">戻る</button>
+        `;
+        return;
+    }
+
+    const pokemonHtml = box.map(p => `
+        <div style="width: 150px; text-align: center; padding: 10px; border: 1px solid #555; border-radius: 5px; margin: 10px; background-color: #222;">
+            <img src="./assets/${p.id}.png" alt="${p.japanese}" style="width: 100px; height: 100px;">
+            <h4 style="margin: 5px 0 0;">${p.japanese}</h4>
+            <p style="font-size: 14px; color: #ffeb3b;">CP: ${p.cp}</p>
+            <p style="font-size: 12px; color: #aaa;">ID: ${p.uniqueId.substring(0, 6)}...</p>
+        </div>
+    `).join('');
+
+    listContainer.innerHTML = `
+        <h2 style="text-align: center;">ポケモン一覧 (${box.length}匹)</h2>
+        <button onclick="window.openMenu()" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px;">⬅ 戻る</button>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; padding-bottom: 80px;">
+            ${pokemonHtml}
+        </div>
+    `;
+}
+
+/**
+ * 設定画面を描画する
+ */
+function renderSettings() {
+    const settingsContainer = document.getElementById('settings-container');
+    
+    const currentLang = localStorage.getItem('setting_lang') || '日本語';
+    const currentTheme = getCurrentTheme();
+    
+    settingsContainer.innerHTML = `
+        <h2 style="text-align: center;">設定</h2>
+        <button onclick="window.openMenu()" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px;">⬅ 戻る</button>
+        
+        <div style="max-width: 400px; margin: 50px auto; padding: 20px; background-color: #333; border-radius: 10px;">
+            
+            <h3 style="margin-top: 0;">言語</h3>
+            <select id="setting-language" onchange="window.updateSetting('lang', this.value)">
+                <option value="日本語" ${currentLang === '日本語' ? 'selected' : ''}>日本語</option>
+                <option value="English" ${currentLang === 'English' ? 'selected' : ''}>English</option>
+            </select>
+            
+            <h3 style="margin-top: 30px;">テーマ</h3>
+            <select id="setting-theme" onchange="window.updateSetting('theme', this.value)">
+                <option value="light" ${currentTheme === 'light' ? 'selected' : ''}>ライト</option>
+                <option value="dark" ${currentTheme === 'dark' ? 'selected' : ''}>ダーク</option>
+            </select>
+            <p style="font-size: 12px; color: #aaa; margin-top: 10px;">(テーマ変更は設定ファイルを介して<body>のクラスを切り替えます)</p>
+        </div>
+    `;
+}
 
 /**
  * ボックスの内容を取得し、画面右上のUIに表示する
  */
 export function renderPokemonBoxUI() {
-    const boxContainer = document.getElementById('pokemon-box-ui'); // index.htmlにこのIDが必要
+    const boxContainer = document.getElementById('pokemon-box-ui'); 
     if (!boxContainer) {
-        console.error("[UI ERROR] 'pokemon-box-ui'コンテナが見つかりません。");
+        // ... (エラー処理)
         return;
     }
     
     const box = getPokemonBox();
-    
-    // 最新の3体を取得 (UIの要件)
     const recentThree = box.slice(-3).reverse(); 
 
     if (recentThree.length === 0) {
@@ -213,7 +313,6 @@ export function renderPokemonBoxUI() {
         return;
     }
 
-    // 3体表示のUIを構築
     const pokemonHtml = recentThree.map(p => `
         <div style="display: flex; flex-direction: column; align-items: center; margin: 0 5px; background-color: rgba(255, 255, 255, 0.9); border-radius: 5px; padding: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.3);">
             <img src="./assets/${p.id}.png" alt="${p.japanese}" style="width: 70px; height: 70px;">
@@ -222,19 +321,28 @@ export function renderPokemonBoxUI() {
     `).join('');
 
     boxContainer.innerHTML = `
-        <h3 style="color: white; margin-bottom: 5px;">🔥 マイボックス</h3>
+        <h3 style="color: white; margin-bottom: 5px;">🔥 マイボックス </h3>
         <div style="display: flex; justify-content: flex-start;">
             ${pokemonHtml}
         </div>
     `;
 }
 
-// 捕獲画面のボタンから直接呼び出すために、グローバルに登録
+
+// ===========================================
+// グローバル登録 (重要)
+// ===========================================
+window.startCaptureMode = startCaptureMode;
 window.exitCaptureMode = exitCaptureMode;
 window.throwPokeBall = throwPokeBall;
-window.renderPokemonBoxUI = renderPokemonBoxUI; // 外部から呼び出し可能にする
+window.openMenu = openMenu;
+window.closeMenu = closeMenu;
+window.showPokemonList = showPokemonList;
+window.showSettings = showSettings;
+window.updateSetting = updateSetting; // settings.jsの関数をグローバル登録
+window.renderPokemonBoxUI = renderPokemonBoxUI;
 
-// ⭐ 初期ロード時にボックスUIを一度描画する (initMapから呼ばれる必要あり) ⭐
+// 初期ロード時にボックスUIを一度描画する
 document.addEventListener('DOMContentLoaded', () => {
     // 確実にマップやUIがロードされた後に実行
     setTimeout(renderPokemonBoxUI, 1000); 
