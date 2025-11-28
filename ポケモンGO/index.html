@@ -14,7 +14,7 @@
             padding: 0; 
             overflow: hidden; 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-user-select: none; /* テキスト選択禁止 (アプリ風に) */
+            -webkit-user-select: none;
             user-select: none;
         }
         .menu-item {
@@ -141,9 +141,9 @@
     <script src="./app.js" defer></script> 
     
     <script>
-        // JSのロードに1秒の遅延をかける（ユーザー指定）
         setTimeout(() => {
             if ('serviceWorker' in navigator) {
+                // Service Workerのパスは./でOK
                 navigator.serviceWorker.register('./service-worker.js')
                     .then(reg => console.log('Service Worker: 登録成功 (Scope: ' + reg.scope + ')'))
                     .catch(error => console.log('Service Worker: 登録失敗', error));
