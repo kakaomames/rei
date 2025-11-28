@@ -1,0 +1,115 @@
+/*
+ * マインクラフト風の配色とスタイルを適用
+ */
+
+:root {
+    /* マインクラフト風の変数カラー */
+    --mc-green: #5aa743;        /* 明るい緑 (ボタンの背景など) */
+    --mc-brown: #3f2a1b;        /* 濃い茶色 (影の色) */
+    --mc-yellow: #fff364;       /* タイトルや選択肢のハイライト色 */
+    --mc-gray: #c6c6c6;         /* ボタンの枠の色 */
+    --mc-text-color: #ffffff;   /* テキストの色 */
+}
+
+/*
+ * --------------------------------
+ * 1. ベース設定 (フォントと背景)
+ * --------------------------------
+ */
+
+body {
+    /* ピクセルフォントが理想的。例: 'Press Start 2P', monospace */
+    font-family: monospace; 
+    
+    /* 背景を暗めの色にして、UIを際立たせる */
+    background-color: #202020;
+    
+    /* 画面全体を中央揃えにする設定 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    text-align: center;
+    padding: 30px;
+}
+
+/*
+ * --------------------------------
+ * 2. タイトルと説明文
+ * --------------------------------
+ */
+
+h1 {
+    color: var(--mc-yellow);
+    /* マイクラのロゴのような、影付きのテキストを再現 */
+    text-shadow: 4px 4px 0 var(--mc-brown);
+    font-size: 40px;
+    margin-bottom: 20px;
+}
+
+.description {
+    color: var(--mc-text-color);
+    font-size: 18px;
+    margin-bottom: 40px;
+}
+
+/*
+ * --------------------------------
+ * 3. メニューボタンのスタイル
+ * --------------------------------
+ */
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column; /* ボタンを縦に並べる */
+    gap: 15px; /* ボタン間のスペース */
+    width: 300px; /* メニューの幅を固定 */
+    margin: 0 auto;
+}
+
+.button {
+    /* ボタンの共通スタイル */
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none; /* 下線を消す */
+    color: var(--mc-text-color);
+    font-size: 20px;
+    
+    /* 枠線と背景 */
+    border: 2px solid var(--mc-gray);
+    background-color: var(--mc-green);
+    
+    /* 立体感を出すための影 */
+    box-shadow: 0 4px 0 0 var(--mc-brown);
+    
+    /* マウスオーバー時のアニメーション用 */
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+/* マウスオーバー時のホバー効果 (影が持ち上がる) */
+.button:hover {
+    background-color: #70d554; /* 少し明るい緑に */
+    cursor: pointer;
+}
+
+/* クリック時 (影を消してボタンが沈んだように見せる) */
+.button:active {
+    transform: translateY(4px); /* 下に4px移動 */
+    box-shadow: 0 0 0 0 var(--mc-brown); /* 影を消す */
+}
+
+/*
+ * --------------------------------
+ * 4. クレジット
+ * --------------------------------
+ */
+
+.credits {
+    color: var(--mc-gray);
+    font-size: 14px;
+    margin-top: 50px;
+}
