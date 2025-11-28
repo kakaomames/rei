@@ -1,7 +1,12 @@
 // pokemon.js
+console.log("🔥 [POKEMON_JS] ファイルの実行を開始しました。");
 
 // データを格納するグローバル変数
 let POKEMON_DATA = { typeBoosts: {}, pokemonList: [] };
+let MY_POKEMON_LIST = []; // プレイヤーが捕獲したポケモンリスト
+
+// ⭐ ローカルストレージのキー ⭐
+const MY_POKEMON_KEY = 'my_pokemon_list';
 
 // ⭐ 福島市役所の緯度 (これより北を寒い場所と定義)
 const FUKUSHIMA_CITY_HALL_LAT = 37.7505;
@@ -20,10 +25,13 @@ async function loadPokemonData() {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         POKEMON_DATA = await response.json();
-        console.log("[POKEMON_JS] ポケモンデータとブースト値をロードしました。");
+        console.log("✅ [POKEMON_JS] ポケモンデータとブースト値をロードしました。");
+        
+        // データのロード後にプレイヤーのリストもロードする
+        loadMyPokemonList(); 
         
     } catch (error) {
-        console.error("[POKEMON_JS ERROR] ポケモンデータのロードに失敗しました:", error);
+        console.error("🚨 [POKEMON_JS ERROR] ポケモンデータのロードに失敗しました:", error);
     }
 }
 
@@ -31,7 +39,119 @@ async function loadPokemonData() {
 loadPokemonData();
 
 // ===========================================
-// 環境判定ロジック
+// プレイヤーのポケモン管理ロジック
+// ===========================================
+
+/**
+ * ローカルストレージからプレイヤーのポケモンリストを取得し、グローバル変数に設定する
+ */
+function loadMyPokemonList() {
+    try {
+        const storedData = localStorage.getItem(MY_POKEMON_KEY);
+        // ⭐ 初期データがない場合はダミーを生成 ⭐
+        if (storedData) {
+            MY_POKEMON_LIST = JSON.parse(storedData);
+        } else if (POKEMON_DATA.pokemonList.length > 0) {
+            // データが空の場合、最初のポケモンを初期アバターとして追加
+            const initialPokemon = POKEMON_DATA.pokemonList[0];
+            MY_POKEMON_LIST = [{
+                ...initialPokemon,
+                cp: 300,
+                maxHp: 50,
+                currentHp: 50,
+                uniqueId: 'player_start_01'
+            }];
+            console.log(`[PLAYER LIST] 初期ポケモン (${initialPokemon.japanese}) を追加しました。`);
+        }
+        console.log(`[PLAYER LIST] プレイヤーのポケモンリストをロードしました。合計: ${MY_POKEMON_LIST.length} 匹`);
+        saveMyPokemonList(); // 初回ロード時またはダミー生成時に保存
+    } catch (e) {
+        console.error("[PLAYER LIST ERROR] ポケモンリストの読み込みに失敗しました。", e);
+        MY_POKEMON_LIST = [];
+    }
+}
+
+/**
+ * プレイヤーのポケモンリストをローカルストレージに保存する
+ */
+function saveMyPokemonList() {
+    try {
+        localStorage.setItem(MY_POKEMON_KEY, JSON.stringify(MY_POKEMON_LIST));
+    } catch (e) {
+        console.error("[PLAYER LIST ERROR] ポケモンリストの書き込みに失敗しました。", e);
+    }
+}
+
+/**
+ * プレイヤーが捕まえたポケモンリストを返す
+ * @returns {Array<Object>} ポケモンオブジェクトの配列
+ */
+export function getMyPokemonList() {
+    // 常に最新の状態を返す
+    return MY_POKEMON_LIST;
+}
+
+/**
+ * 捕獲に成功したポケモンをリストに追加する
+ * @param {Object} caughtPokemon 捕獲されたポケモンのデータ (id, japanese, typesなど)
+ */
+window.catchPokemon = (caughtPokemon) => {
+    // CPとHPをランダムに決定
+    const cp = Math.floor(Math.random() * 500) + 100;
+    const maxHp = Math.floor(cp / 5);
+    
+    const newPokemon = {
+        ...caughtPokemon,
+        cp: cp,
+        maxHp: maxHp,
+        currentHp: maxHp, // 満タンHPでゲット
+        uniqueId: 'p' + Date.now() + Math.floor(Math.random() * 1000) // ユニークIDを付与
+    };
+
+    MY_POKEMON_LIST.push(newPokemon);
+    saveMyPokemonList();
+    
+    console.log(`[CATCH] ${newPokemon.japanese} (CP:${cp}) をリストに追加しました。`);
+    // ⭐ 次にUIの道具箱やリストの更新を呼び出すべき
+    // (UIモジュールは循環参照を避けるため直接呼び出さないが、alert等で通知)
+    window.renderPokemonBoxUI(); // pokemongo-UI.js でグローバル登録されている前提
+};
+
+/**
+ * プレイヤーのポケモンのHPを更新する (戦闘や回復時)
+ * @param {string} uniqueId ポケモンのユニークID
+ * @param {number} changeAmount HPの増減量 (例: ダメージはマイナス値, 回復はプラス値)
+ */
+export function updatePokemonHp(uniqueId, changeAmount) {
+    const pokemonIndex = MY_POKEMON_LIST.findIndex(p => p.uniqueId === uniqueId);
+    
+    if (pokemonIndex !== -1) {
+        const p = MY_POKEMON_LIST[pokemonIndex];
+        
+        // 変更後のHPを計算し、0〜最大HPの間に収める
+        const newHp = Math.min(p.maxHp, Math.max(0, p.currentHp + changeAmount));
+        
+        MY_POKEMON_LIST[pokemonIndex].currentHp = newHp;
+        saveMyPokemonList();
+        
+        const action = changeAmount < 0 ? 'ダメージ' : '回復';
+        console.log(`[HP UPDATE] ${p.japanese} (${p.uniqueId}) のHPが ${changeAmount} 変化しました。残り: ${newHp}/${p.maxHp}`);
+        
+        // UIのリスト表示も更新が必要
+        if (window.showPokemonList) window.showPokemonList();
+    } else {
+        console.warn(`[HP UPDATE WARNING] ユニークID ${uniqueId} のポケモンが見つかりませんでした。`);
+    }
+    // ⭐ p.currentHp の値を毎回出力 ⭐
+    const newHp = MY_POKEMON_LIST[pokemonIndex]?.currentHp;
+    if (newHp !== undefined) {
+        print(`p.currentHp:${newHp}`);
+    }
+}
+
+
+// ===========================================
+// 環境判定ロジック (提供されたコード)
 // ===========================================
 
 /**
@@ -75,7 +195,7 @@ function determineEnvironment(lat, lng) {
 }
 
 // ===========================================
-// ポケモン出現ロジック
+// ポケモン出現ロジック (提供されたコード)
 // ===========================================
 
 /**
@@ -94,9 +214,11 @@ export function spawnPokemonByType(lat, lng) {
 
     const environments = determineEnvironment(lat, lng);
     // デフォルトブースト (DEFAULTのブースト値は1.0) を初期値とする
-    const boosts = { ...POKEMON_DATA.typeBoosts.DEFAULT }; 
+    // ⭐ POKEMON_DATA.typeBoosts.DEFAULT の存在を前提とします
+    const defaultBoosts = POKEMON_DATA.typeBoosts.DEFAULT || {};
+    const boosts = { ...defaultBoosts }; 
 
-    // 環境に基づいてブースト値を合成する (ブースト値を乗算して効果を累積)
+    // 2. 環境に基づいてブースト値を合成する (ブースト値を乗算して効果を累積)
     environments.forEach(env => {
         const envBoosts = POKEMON_DATA.typeBoosts[env];
         if (envBoosts) {
@@ -109,7 +231,7 @@ export function spawnPokemonByType(lat, lng) {
     
     console.log("計算されたタイプブースト:", boosts);
     
-    // 2. 重み付きリストの作成 (複合タイプ対応)
+    // 3. 重み付きリストの作成 (複合タイプ対応)
     const weightedPokemonList = [];
     let totalWeight = 0;
 
@@ -133,7 +255,7 @@ export function spawnPokemonByType(lat, lng) {
         totalWeight += finalWeight; // 合計重みの更新
     });
 
-    // 3. 乱数で抽選
+    // 4. 乱数で抽選
     const randomNumber = Math.random() * totalWeight;
     console.log(`[SPAWN] 総重み: ${totalWeight}, 抽選値: ${randomNumber}`);
 
@@ -141,10 +263,21 @@ export function spawnPokemonByType(lat, lng) {
     for (const item of weightedPokemonList) {
         if (randomNumber >= item.startRange && randomNumber < item.startRange + item.weight) {
             console.log(`[SPAWN] ポケモンを抽選: ${item.pokemon.japanese} (タイプ: ${item.pokemon.types.join('/')}, 重み: ${item.weight})`);
-            return item.pokemon;
+            
+            // ⭐ 捕獲時のデータ構造に必要な情報を含めて返す
+            return {
+                ...item.pokemon,
+                cp: Math.floor(Math.random() * 800) + 50, // 野生ポケモンのCPを付与
+                maxHp: Math.floor(Math.random() * 100) + 10,
+            };
         }
     }
     
     // 念のため、抽選に失敗した場合のフォールバック (リストからランダムに選択)
-    return POKEMON_DATA.pokemonList[Math.floor(Math.random() * POKEMON_DATA.pokemonList.length)];
+    const fallbackPokemon = POKEMON_DATA.pokemonList[Math.floor(Math.random() * POKEMON_DATA.pokemonList.length)];
+    return {
+        ...fallbackPokemon,
+        cp: Math.floor(Math.random() * 800) + 50, 
+        maxHp: Math.floor(Math.random() * 100) + 10,
+    };
 }
