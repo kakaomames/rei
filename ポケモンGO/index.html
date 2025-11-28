@@ -4,8 +4,10 @@
     <title>Pokemon GO Web Edition (SPA)</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <meta name="description" content="カカオマメが開発した、Webブラウザで動作するポケモンGOクローンアプリ。地図、GPS追跡、環境に応じたポケモン出現ロジックを搭載。">
     <meta name="keywords" content="ポケモンGO, Pokemon GO, Webアプリ, SPA, Flask, マップ, GPS, カカオマメ">
+    
     <link rel="stylesheet" type="text/css" href="../leaflet/leaflet.css" />
     <link rel="stylesheet" type="text/css" href="./map-appv2.css" />
     
@@ -59,6 +61,24 @@
             cursor: pointer;
             font-size: 16px;
         }
+        
+        /* 捕獲時のボール揺れアニメーション */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake-animation {
+            animation: shake 0.5s infinite;
+        }
     </style>
 </head>
 <body>
@@ -79,10 +99,30 @@
         </button>
     </div>
     
-    <div id="capture-ui" class="view-hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: white; z-index: 25; text-align: center; padding-top: 50px;">
-        <h1>ポケモン捕獲画面 🎯</h1>
-        <p>（ボールを投げるロジックを後で追加！）</p>
-        <button onclick="window.navigate('/');" class="back-to-menu-button" style="position: static; margin-top: 20px;">マップに戻る</button>
+    <div id="capture-ui" class="view-hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f0f0f0; z-index: 25; text-align: center; color: #333;">
+    
+        <div style="padding: 20px; background-color: #fff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <h1>野生のポケモンが出現！ 🚨</h1>
+            <div id="capture-target-info" style="margin: 20px auto; padding: 10px; border: 2px solid #ccc; width: fit-content; border-radius: 10px; background-color: #e0e0e0;">
+                <p>ロード中...</p>
+            </div>
+        </div>
+        
+        <div style="position: fixed; bottom: 0; width: 100%; background-color: #333; padding: 15px 0;">
+            <h2 style="color: white; margin-top: 0;">ボールを選択して捕獲！</h2>
+            <div id="ball-selection" style="display: flex; justify-content: center; gap: 20px;">
+                <button class="ball-button" onclick="attemptCapture('POKEBALL')" style="background: none; border: none; cursor: pointer;">
+                    <img src="../assets/item/1.png" alt="モンスターボール" style="width: 50px;"><br>
+                    <span style="color: white;">モンスターボール</span>
+                </button>
+                <button class="ball-button" onclick="attemptCapture('SUPERBALL')" style="background: none; border: none; cursor: pointer;">
+                    <img src="../assets/item/2.png" alt="スーパーボール" style="width: 50px;"><br>
+                    <span style="color: white;">スーパーボール</span>
+                </button>
+            </div>
+        </div>
+        
+        <button onclick="window.navigate('/');" class="back-to-menu-button">逃げる/マップに戻る</button>
     </div>
 
     <div id="main-menu" class="view-hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); z-index: 30; color: white;">
