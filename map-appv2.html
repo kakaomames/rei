@@ -5,11 +5,14 @@
     <meta charset="utf-8">
     
     <link rel="stylesheet" type="text/css" href="./map-appv2.css" />
-    
     <link rel="stylesheet" type="text/css" href="./leaflet/leaflet.css" />
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIINfQSD83IuKj8hQeP+6NDyZ1+3H4qYQJc="
+        crossorigin=""/>
 </head>
 <body>
-    <script src="./leaflet/leaflet.js"></script>
+    
     <div id="map" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;"></div>
 
     
@@ -52,6 +55,7 @@
 
     
     <style>
+    /* ... 既存のスタイル ... */
     .menu-item {
         padding: 15px 25px;
         font-size: 16px;
@@ -75,47 +79,40 @@
     }
     </style>
 
- <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script type="module" src="./map_logic.js"></script>
-<script type="module" src="./api.js"></script>
-
-<script type="module" src="./pokemon.js"></script>
-<script type="module" src="./pokemongo-UI.js"></script>
-<script type="module" src="./item.js"></script>
-<script type="module" src="./settings.js"></script>
-<script type="module" src="./pokestop.js"></script>
-
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20n6a4yIw3C68nBCV2N5CDaS5zADkSh1EhFjM0wW5lY="
+        crossorigin=""></script>
+    
+    <script type="module" src="./settings.js"></script>
+    <script type="module" src="./pokemon.js"></script>
+    <script type="module" src="./item.js"></script>
+    <script type="module" src="./gym.js"></script>
+    <script type="module" src="./pokestop.js"></script>
+    <script type="module" src="./pokemongo-UI.js"></script>
+    <script type="module" src="./api.js"></script>
     <script type="module" src="./map_logic.js"></script>
-<script type="module" src="./api.js"></script> 
-<script>
-    console.log("🔑 [T1. HTML] 最終スクリプトブロックの実行を開始。");
+    
+    <script>
+        console.log("🔑 [T1. HTML] 最終スクリプトブロックの実行を開始。");
 
-    // Leafletのロードが完了したことを確認し、イベントを発火する関数
-    function checkLeafletAndDispatch() {
-        if (typeof L !== 'undefined') {
-            console.log("🔥 LeafletのLオブジェクトが検出されました。初期化イベントをディスパッチします。");
-            const event = new CustomEvent('leafletReadyForModule');
-            document.dispatchEvent(event);
-            return true;
-        }
-        return false;
-    }
-    
-    // 💡 2秒待機を復活！
-    // モジュールがグローバルに登録されていないか、イベントを逃した場合に強制的に初期化を試行
-    setTimeout(() => {
-        if (typeof L !== 'undefined') {
-            console.warn("⏳ [T_FALLBACK] 2秒待機終了。Leafletが存在します。イベント発火を再試行します。");
-            // Leafletは存在するが、イベントが処理されていない可能性に備えて、イベント発火を再度試みる
-            checkLeafletAndDispatch(); 
-        } else {
-             console.error("🚨 [T_TIMEOUT] 2秒待機後もLオブジェクトが見つかりませんでした。");
-        }
-    }, 1000); // 2秒遅延をかける
-    
-    // DOMがロードされたらすぐにイベントチェックを開始 (ポーリングは不要)
-    document.addEventListener('DOMContentLoaded', checkLeafletAndDispatch);
-    console.log("🔑 [T1.1] DOMContentLoadedリスナーと2秒遅延タイマーを設定しました。");
-</script>
+        // LeafletのLオブジェクトの有無に関わらず、DOMロード完了時点でイベントを発火させる
+        // map_logic.js はこのイベントにリスナーを設定済み
+        document.addEventListener('DOMContentLoaded', function() {
+             console.log("🔥 DOMContentLoaded: Lオブジェクトをチェックし、初期化イベントをディスパッチします。");
+             
+             // Leafletのロードは完了しているはずだが、念のためLが存在するか確認
+             if (typeof L !== 'undefined') {
+                const event = new CustomEvent('leafletReadyForModule');
+                document.dispatchEvent(event);
+                console.log("✅ leafletReadyForModule イベントを発火しました。");
+            } else {
+                console.error("🚨 L (Leaflet) オブジェクトが見つかりません。パスを確認してください。");
+            }
+        });
+        
+        // 🚨 注意: 以前の2秒遅延のポーリングロジックは、DOMContentLoadedイベントリスナーがあるため不要です。
+        // モジュールロードの仕組み上、DOMContentLoaded後に全てのモジュールが実行されるため、これで十分です。
+        console.log("🔑 [T1.1] DOMContentLoadedリスナーを設定しました。");
+    </script>
 </body>
 </html>
