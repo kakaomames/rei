@@ -447,9 +447,13 @@ function startMapInitializationSequence() {
     });
 }
 
-// ⭐ NEW: カスタムイベントをリッスンし、初期化を開始する
+
 document.addEventListener('leafletReadyForModule', startMapInitializationSequence);
 console.log("🔑 [T5. EVENT] leafletReadyForModule イベントリスナーを登録しました。");
-// 外部からの呼び出しに備えてグローバルに登録
-// window.initializeMapModule = initializeMapModule;
-// console.log("🔑 [T5. REGISTER] window.initializeMapModule に関数を登録しました。");
+
+// 2. 登録完了後、Lがすでに定義されているかチェック (イベントを逃した場合の対応)
+if (typeof L !== 'undefined') {
+    // Lがあるのにイベントが来ていない（間に合わなかった）場合は、ここで直接初期化を開始する
+    console.warn("⚠️ [FALLBACK] Lオブジェクトは既に存在します。イベントリスナーが間に合わなかったため、フォールバックで直接初期化を開始します。");
+    startMapInitializationSequence();
+}
