@@ -164,6 +164,7 @@ async function preloadMasterData() {
 }
 
 function initMap() {
+    console.log(`[MAP_INIT] initMap関数が呼び出されました。`);
     map = L.map('map').setView([currentLat, currentLng], 16);
     console.log(`map:${map}`);
 
