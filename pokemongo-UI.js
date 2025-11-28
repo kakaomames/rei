@@ -138,7 +138,7 @@ function handleCatchSuccess(pokemonData) {
         <div style="text-align: center; padding: 50px; background-color: #e8f5e9;">
             <h2 style="color: green;">🎉 ${caughtPokemon.japanese} を捕獲成功！ 🎉</h2>
             <h3>CP: ${caughtPokemon.cp}</h3>
-            <img src="./assets/${caughtPokemon.id}.png" alt="${caughtPokemon.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
+            <img src="./assets/button_icon_M${caughtPokemon.id}.png" alt="${caughtPokemon.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
             <p>新しい仲間がボックスに加わりました！</p>
             <button onclick="window.exitCaptureMode()" style="padding: 10px 30px; margin-top: 20px;">
                 マップに戻る
@@ -266,7 +266,7 @@ function renderPokemonList() {
 
     const pokemonHtml = box.map(p => `
         <div style="width: 150px; text-align: center; padding: 10px; border: 1px solid #555; border-radius: 5px; margin: 10px; background-color: #222;">
-            <img src="./assets/${p.id}.png" alt="${p.japanese}" style="width: 100px; height: 100px;">
+            <img src="./assets/button_icon_M${p.id}.png" alt="${p.japanese}" style="width: 100px; height: 100px;">
             <h4 style="margin: 5px 0 0;">${p.japanese}</h4>
             <p style="font-size: 14px; color: #ffeb3b;">CP: ${p.cp}</p>
             <p style="font-size: 12px; color: #aaa;">ID: ${p.uniqueId.substring(0, 6)}...</p>
@@ -376,7 +376,7 @@ export function renderPokemonBoxUI() {
 
     const pokemonHtml = recentThree.map(p => `
         <div style="display: flex; flex-direction: column; align-items: center; margin: 0 5px; background-color: rgba(255, 255, 255, 0.9); border-radius: 5px; padding: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.3);">
-            <img src="./assets/${p.id}.png" alt="${p.japanese}" style="width: 70px; height: 70px;">
+            <img src="./assets/button_icon_M${p.id}.png" alt="${p.japanese}" style="width: 70px; height: 70px;">
             <span style="font-size: 12px; font-weight: bold; color: #333; margin-top: 2px;">CP: ${p.cp}</span>
         </div>
     `).join('');
