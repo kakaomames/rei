@@ -1,410 +1,453 @@
 // pokemongo-UI.js
+console.log("🔥 [UI:START] pokemongo-UI.js ファイルの実行を開始しました。");
 
-import { updateSetting, getCurrentTheme } from './settings.js';
-import { getInventory, ITEMS } from './item.js'; // ⭐ NEW: item.jsからインポート ⭐
-
-// ポケモンの捕獲ベース確率 (仮設定)
-const BASE_CATCH_RATE = 0.5;
-
-// ローカルストレージのキー
-const CATCHED_POKEMON_KEY = 'pokemon_go_caught_box';
+import { getInventory, getPokemonById, useItem, getPokemonName, ITEMS } from './item.js';
+import { getMyPokemonList, updatePokemonHp } from './pokemon.js';
+import { executeAttack, getGymDefenders } from './gym.js';
+import { getCurrentTheme } from './settings.js';
 
 // ===========================================
-// ローカルストレージ (ボックス) 管理関数
+// グローバルUI要素のキャッシュ
 // ===========================================
-
-/**
- * ローカルストレージから捕獲済みポケモンリストを取得する
- */
-function getPokemonBox() {
-    try {
-        const storedData = localStorage.getItem(CATCHED_POKEMON_KEY);
-        return storedData ? JSON.parse(storedData) : [];
-    } catch (e) {
-        console.error("[STORAGE ERROR] ローカルストレージからの読み込みに失敗しました。", e);
-        return [];
-    }
-}
-
-/**
- * 捕獲したポケモンをローカルストレージに保存する
- */
-function savePokemonToBox(pokemonData) {
-    const box = getPokemonBox();
-    box.push(pokemonData);
-    try {
-        localStorage.setItem(CATCHED_POKEMON_KEY, JSON.stringify(box));
-        console.log(`[STORAGE] ${pokemonData.japanese} (CP:${pokemonData.cp}) をボックスに保存しました。`);
-    } catch (e) {
-        console.error("[STORAGE ERROR] ローカルストレージへの書き込みに失敗しました。", e);
-    }
-}
+const UI_ELEMENTS = {
+    mainMenu: document.getElementById('main-menu'),
+    captureUI: document.getElementById('capture-ui'),
+    pokemonBoxUI: document.getElementById('pokemon-box-ui'),
+    pokemonListContainer: document.getElementById('pokemon-list-container'),
+    settingsContainer: document.getElementById('settings-container'),
+    inventoryContainer: document.getElementById('inventory-container'),
+    map: document.getElementById('map'),
+    menuButton: document.getElementById('menu-button'),
+};
 
 // ===========================================
-// メインUI関数 (捕獲モード)
+// UI制御 - メニュー開閉
 // ===========================================
 
 /**
- * 捕獲画面のUI要素を作成し、マップを非表示にして表示する
+ * メインメニューを開く
  */
-export function startCaptureMode(pokemonData) {
-    console.log(`[UI] 捕獲モードを開始します。ターゲット: ${pokemonData.japanese} (ID: ${pokemonData.id})`);
-
-    const mapContainer = document.getElementById('map');
-    const captureContainer = document.getElementById('capture-ui'); 
-
-    if (!mapContainer || !captureContainer) {
-        console.error("[UI ERROR] 'map'または'capture-ui'コンテナが見つかりません。");
-        return;
-    }
-
-    window.currentPokemonData = pokemonData; 
-    mapContainer.style.display = 'none';
-    captureContainer.style.display = 'block';
-
-    renderCaptureUI(pokemonData);
-}
+window.openMenu = () => {
+    UI_ELEMENTS.mainMenu.style.display = 'block';
+    UI_ELEMENTS.menuButton.style.display = 'none';
+    
+    // 開いたときにデフォルトで道具箱を表示
+    window.showInventory(); 
+};
 
 /**
- * 捕獲UIの初期画面を描画する
+ * メインメニューを閉じる
  */
-function renderCaptureUI(pokemonData, message = "") {
-    const captureContainer = document.getElementById('capture-ui');
+window.closeMenu = () => {
+    UI_ELEMENTS.mainMenu.style.display = 'none';
+    UI_ELEMENTS.menuButton.style.display = 'block';
     
-    captureContainer.innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-            <h2>野生の ${pokemonData.japanese} が現れた！</h2>
-            <p style="color: red;">${message}</p>
-            <img src="./assets/${pokemonData.id}.png" alt="${pokemonData.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
-            <p>タイプ: ${pokemonData.types.join(' / ')}</p>
-            
-            <div style="margin-top: 30px;">
-                <button onclick="window.throwPokeBall('${pokemonData.id}')" style="padding: 10px 20px; font-size: 16px; background-color: #f44336; color: white; border: none; cursor: pointer;">
-                    モンスターボールを投げる 🔴
-                </button>
-                <button onclick="window.exitCaptureMode()" style="padding: 10px 20px; font-size: 16px; margin-left: 10px; background-color: #ccc; border: none; cursor: pointer;">
-                    逃げる (マップに戻る) 🏃
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-/**
- * モンスターボールを投げる処理。捕獲成否を判定する。
- */
-export function throwPokeBall(pokemonId) {
-    const targetPokemon = window.currentPokemonData;
-    if (!targetPokemon || targetPokemon.id != pokemonId) {
-        console.error("[CATCH ERROR] 捕獲対象のポケモンデータが見つかりません。");
-        return;
-    }
+    // 全てのサブメニューを非表示にする
+    document.querySelectorAll('.sub-menu-content').forEach(el => {
+        el.style.display = 'none';
+    });
     
-    const normalizedId = targetPokemon.id / 151; 
-    const finalCatchRate = BASE_CATCH_RATE * (1 - (normalizedId * 0.3)); 
-    const randomNumber = Math.random();
-    
-    console.log(`[CATCH] 捕獲率: ${finalCatchRate.toFixed(4)}, 乱数: ${randomNumber.toFixed(4)}`);
-
-    if (randomNumber < finalCatchRate) {
-        handleCatchSuccess(targetPokemon);
-    } else {
-        handleCatchFailure(targetPokemon);
-    }
-}
-
-/**
- * 捕獲成功時の処理 (CPを付与し、保存、UI更新)
- */
-function handleCatchSuccess(pokemonData) {
-    const minCp = 10;
-    const maxCp = 1500;
-    const cpRange = maxCp - minCp;
-    const cp = Math.floor(Math.random() * cpRange) + minCp; 
-    
-    const caughtPokemon = {
-        ...pokemonData,
-        cp: cp,
-        caughtTime: Date.now(),
-        uniqueId: Math.random().toString(36).substring(2) 
-    };
-
-    savePokemonToBox(caughtPokemon);
-
-    console.log(`[SUCCESS] ${caughtPokemon.japanese} (CP:${caughtPokemon.cp}) を捕獲しました！`);
-    const captureContainer = document.getElementById('capture-ui');
-    
-    captureContainer.innerHTML = `
-        <div style="text-align: center; padding: 50px; background-color: #e8f5e9;">
-            <h2 style="color: green;">🎉 ${caughtPokemon.japanese} を捕獲成功！ 🎉</h2>
-            <h3>CP: ${caughtPokemon.cp}</h3>
-            <img src="./assets/button_icon_M${caughtPokemon.id}.png" alt="${caughtPokemon.japanese}" style="width: 150px; height: 150px; margin: 20px 0;">
-            <p>新しい仲間がボックスに加わりました！</p>
-            <button onclick="window.exitCaptureMode()" style="padding: 10px 30px; margin-top: 20px;">
-                マップに戻る
-            </button>
-        </div>
-    `;
-    
-    renderPokemonBoxUI();
-}
-
-/**
- * 捕獲失敗時の処理
- */
-function handleCatchFailure(pokemonData) {
-    console.log(`[FAILURE] ${pokemonData.japanese} は逃げ出した...！`);
-    
-    const message = "ポケモンはボールから飛び出してしまいました！";
-    renderCaptureUI(pokemonData, message);
-}
-
-/**
- * 捕獲画面を非表示にし、マップ画面に戻る
- */
-export function exitCaptureMode() {
-    console.log("[UI] 捕獲モードを終了し、マップに戻ります。");
-    const mapContainer = document.getElementById('map');
-    const captureContainer = document.getElementById('capture-ui');
-
-    if (mapContainer && captureContainer) {
-        mapContainer.style.display = 'block';
-        captureContainer.style.display = 'none';
-    }
-    window.currentPokemonData = null;
-    
-    renderPokemonBoxUI();
-}
-
-// ===========================================
-// メインメニュー制御
-// ===========================================
-
-/**
- * メインメニュー画面を開く
- */
-export function openMenu() {
-    console.log("[UI] メインメニューを開きます。");
-    document.getElementById('main-menu').style.display = 'block';
-    
-    // メニュー選択肢エリアに戻し、サブ画面を非表示にする
+    // メニューオプションを再表示
     document.getElementById('menu-options').style.display = 'block';
-    document.getElementById('pokemon-list-container').style.display = 'none';
-    document.getElementById('settings-container').style.display = 'none';
-    document.getElementById('inventory-container').style.display = 'none'; // ⭐ NEW: 道具画面も非表示に ⭐
-}
+};
+
 
 /**
- * メインメニュー画面を閉じる
+ * サブメニューを表示し、他のサブメニューとメインオプションを非表示にする
+ * @param {HTMLElement} container 表示するサブメニューコンテナ
  */
-export function closeMenu() {
-    console.log("[UI] メインメニューを閉じます。");
-    document.getElementById('main-menu').style.display = 'none';
-}
-
-/**
- * ポケモン一覧画面を表示する
- */
-export function showPokemonList() {
-    console.log("[UI] ポケモンボックス一覧を表示します。");
-    
+function showSubMenu(container) {
+    document.querySelectorAll('.sub-menu-content').forEach(el => {
+        el.style.display = 'none';
+    });
     document.getElementById('menu-options').style.display = 'none';
-    document.getElementById('settings-container').style.display = 'none';
-    document.getElementById('inventory-container').style.display = 'none'; // ⭐ NEW: 道具画面を非表示に ⭐
-    document.getElementById('pokemon-list-container').style.display = 'block';
-
-    renderPokemonList();
+    container.style.display = 'block';
 }
-
-/**
- * 設定画面を表示する
- */
-export function showSettings() {
-    console.log("[UI] 設定画面を表示します。");
-    
-    document.getElementById('menu-options').style.display = 'none';
-    document.getElementById('pokemon-list-container').style.display = 'none';
-    document.getElementById('inventory-container').style.display = 'none'; // ⭐ NEW: 道具画面を非表示に ⭐
-    document.getElementById('settings-container').style.display = 'block';
-    
-    renderSettings();
-}
-
-/**
- * ⭐ NEW: 道具（インベントリ）画面を表示する ⭐
- */
-export function showInventory() {
-    console.log("[UI] 道具（インベントリ）画面を表示します。");
-    
-    document.getElementById('menu-options').style.display = 'none';
-    document.getElementById('pokemon-list-container').style.display = 'none';
-    document.getElementById('settings-container').style.display = 'none';
-    document.getElementById('inventory-container').style.display = 'block'; // ⭐ NEW: 道具画面を表示 ⭐
-    
-    renderInventory();
-}
-
 
 // ===========================================
-// UI描画ロジック
+// UI制御 - 道具箱表示
 // ===========================================
 
 /**
- * ボックスの内容を一覧として描画する
- */
-function renderPokemonList() {
-    const listContainer = document.getElementById('pokemon-list-container');
-    const box = getPokemonBox();
-    
-    if (box.length === 0) {
-        listContainer.innerHTML = `
-            <h2 style="text-align: center; margin-top: 50px;">ボックスにポケモンはいません 🥺</h2>
-            <button onclick="window.openMenu()" style="margin-top: 30px; padding: 10px 20px;">戻る</button>
-        `;
-        return;
-    }
-
-    const pokemonHtml = box.map(p => `
-        <div style="width: 150px; text-align: center; padding: 10px; border: 1px solid #555; border-radius: 5px; margin: 10px; background-color: #222;">
-            <img src="./assets/button_icon_M${p.id}.png" alt="${p.japanese}" style="width: 100px; height: 100px;">
-            <h4 style="margin: 5px 0 0;">${p.japanese}</h4>
-            <p style="font-size: 14px; color: #ffeb3b;">CP: ${p.cp}</p>
-            <p style="font-size: 12px; color: #aaa;">ID: ${p.uniqueId.substring(0, 6)}...</p>
-        </div>
-    `).join('');
-
-    listContainer.innerHTML = `
-        <h2 style="text-align: center;">ポケモン一覧 (${box.length}匹)</h2>
-        <button onclick="window.openMenu()" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px;">⬅ 戻る</button>
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; padding-bottom: 80px;">
-            ${pokemonHtml}
-        </div>
-    `;
-}
-
-/**
- * ⭐ NEW: 道具（インベントリ）画面を描画する ⭐
- */
-function renderInventory() {
-    const inventoryContainer = document.getElementById('inventory-container');
-    const inventory = getInventory();
-    
-    const itemsKeys = Object.keys(inventory).sort();
-    
-    if (itemsKeys.length === 0) {
-        inventoryContainer.innerHTML = `
-            <h2 style="text-align: center; margin-top: 50px;">道具箱は空です... 😱</h2>
-            <button onclick="window.openMenu()" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px;">⬅ 戻る</button>
-        `;
-        return;
-    }
-
-    const itemHtml = itemsKeys.map(id => {
-        const itemInfo = ITEMS[id.toUpperCase()]; // item.jsで定義したアイテム情報
-        const count = inventory[id];
-        
-        return `
-            <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #555; width: 100%; max-width: 600px; margin: 0 auto;">
-                <img src="./assets/items/${id}.png" alt="${itemInfo.name_ja}" style="width: 50px; height: 50px; margin-right: 20px; background-color: #444; border-radius: 5px;">
-                <div style="flex-grow: 1;">
-                    <h4 style="margin: 0; font-size: 18px;">${itemInfo.name_ja}</h4>
-                    <p style="margin: 5px 0 0; font-size: 12px; color: #aaa;">${itemInfo.description_ja}</p>
-                </div>
-                <span style="font-size: 24px; font-weight: bold; color: #ffeb3b;">x ${count}</span>
-            </div>
-        `;
-    }).join('');
-
-    inventoryContainer.innerHTML = `
-        <h2 style="text-align: center;">道具 (${itemsKeys.length}種類)</h2>
-        <button onclick="window.openMenu()" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px;">⬅ 戻る</button>
-        <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px; padding-bottom: 80px;">
-            ${itemHtml}
-        </div>
-    `;
-}
-
-
-/**
- * 設定画面を描画する
- */
-function renderSettings() {
-    const settingsContainer = document.getElementById('settings-container');
-    
-    const currentLang = localStorage.getItem('setting_lang') || '日本語';
-    const currentTheme = getCurrentTheme();
-    
-    settingsContainer.innerHTML = `
-        <h2 style="text-align: center;">設定</h2>
-        <button onclick="window.openMenu()" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px;">⬅ 戻る</button>
-        
-        <div style="max-width: 400px; margin: 50px auto; padding: 20px; background-color: #333; border-radius: 10px;">
-            
-            <h3 style="margin-top: 0;">言語</h3>
-            <select id="setting-language" onchange="window.updateSetting('lang', this.value)">
-                <option value="日本語" ${currentLang === '日本語' ? 'selected' : ''}>日本語</option>
-                <option value="English" ${currentLang === 'English' ? 'selected' : ''}>English</option>
-            </select>
-            
-            <h3 style="margin-top: 30px;">テーマ</h3>
-            <select id="setting-theme" onchange="window.updateSetting('theme', this.value)">
-                <option value="light" ${currentTheme === 'light' ? 'selected' : ''}>ライト</option>
-                <option value="dark" ${currentTheme === 'dark' ? 'selected' : ''}>ダーク</option>
-            </select>
-            <p style="font-size: 12px; color: #aaa; margin-top: 10px;">(テーマ変更は設定ファイルを介して<body>のクラスを切り替えます)</p>
-        </div>
-    `;
-}
-
-/**
- * ボックスの内容を取得し、画面右上のUIに表示する
+ * 道具箱UIを更新・表示する
+ * (マップ上のコンパクト表示と、メニュー内の詳細表示を兼ねる)
  */
 export function renderPokemonBoxUI() {
-    const boxContainer = document.getElementById('pokemon-box-ui'); 
-    if (!boxContainer) {
-        // ... (エラー処理)
+    const inventory = getInventory();
+    let ballCount = inventory['POKEBALL'] || 0;
+    
+    // マップ上のコンパクト表示 (右上のUI)
+    UI_ELEMENTS.pokemonBoxUI.innerHTML = `
+        <p style="margin: 0; font-size: 1.2em;">
+            ⚾️ ボール: ${ballCount}
+        </p>
+    `;
+}
+
+/**
+ * メニュー内で道具リストを表示する
+ */
+window.showInventory = () => {
+    showSubMenu(UI_ELEMENTS.inventoryContainer);
+    const inventory = getInventory();
+    
+    let html = `
+        <h2>道具箱</h2>
+        <button onclick="window.closeSubMenu()">戻る</button>
+        <div style="margin-top: 20px;">
+    `;
+    
+    // インベントリの中身をリスト表示
+    for (const [itemId, count] of Object.entries(inventory)) {
+        const itemInfo = ITEMS[itemId];
+        if (count > 0 && itemInfo) {
+            html += `
+                <div style="display: flex; justify-content: space-between; padding: 10px; margin-bottom: 5px; border-bottom: 1px solid #555;">
+                    <span>${itemInfo.name_ja} (${itemInfo.type})</span>
+                    <span>所持数: ${count}</span>
+                </div>
+            `;
+        }
+    }
+    
+    html += `</div>`;
+    UI_ELEMENTS.inventoryContainer.innerHTML = html;
+};
+
+// ===========================================
+// UI制御 - ポケモンリスト表示
+// ===========================================
+
+/**
+ * ポケモンリストUIを更新・表示する
+ */
+window.showPokemonList = () => {
+    showSubMenu(UI_ELEMENTS.pokemonListContainer);
+    const pokemonList = getMyPokemonList();
+    
+    let html = `
+        <h2>ポケモンリスト (${pokemonList.length} 匹)</h2>
+        <button onclick="window.closeSubMenu()">戻る</button>
+        <div style="margin-top: 20px; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+    `;
+    
+    // ポケモンをタイル表示
+    pokemonList.forEach(p => {
+        // テーマによって色を動的に変更
+        const bgColor = getCurrentTheme() === 'dark' ? '#444' : '#eee';
+        const textColor = getCurrentTheme() === 'dark' ? 'white' : 'black';
+        
+        html += `
+            <div style="background-color: ${bgColor}; padding: 10px; border-radius: 8px; border: 1px solid #777; color: ${textColor}; text-align: center;">
+                <b>${p.japanese}</b>
+                <p style="margin: 5px 0;">CP ${p.cp}</p>
+                <p style="margin: 5px 0; color: ${p.currentHp / p.maxHp > 0.3 ? 'green' : 'red'};">HP: ${p.currentHp}/${p.maxHp}</p>
+                <button onclick="alert('${p.japanese} の詳細情報 (後で実装)')" style="width: 100%;">詳細</button>
+            </div>
+        `;
+    });
+    
+    html += `</div>`;
+    UI_ELEMENTS.pokemonListContainer.innerHTML = html;
+};
+
+
+// ===========================================
+// UI制御 - 捕獲モード
+// ===========================================
+
+let currentTargetPokemon = null;
+
+/**
+ * ポケモンとの遭遇時に捕獲UIに切り替える
+ * @param {Object} pokemonData 遭遇したポケモンのデータ
+ */
+export function startCaptureMode(pokemonData) {
+    currentTargetPokemon = pokemonData;
+    
+    // マップとメニューを隠す
+    UI_ELEMENTS.map.style.display = 'none';
+    UI_ELEMENTS.menuButton.style.display = 'none';
+    
+    // 捕獲UIを表示
+    UI_ELEMENTS.captureUI.style.display = 'flex';
+    UI_ELEMENTS.captureUI.style.flexDirection = 'column';
+    UI_ELEMENTS.captureUI.style.alignItems = 'center';
+    UI_ELEMENTS.captureUI.style.justifyContent = 'center';
+    
+    renderCaptureUI(pokemonData);
+    console.log(`[CAPTURE] 捕獲モードを開始: ${pokemonData.japanese}`);
+}
+
+/**
+ * 捕獲UIのコンテンツをレンダリングする
+ * @param {Object} pokemonData 捕獲対象のポケモンのデータ
+ */
+function renderCaptureUI(pokemonData) {
+    const inventory = getInventory();
+    const pokeballCount = inventory['POKEBALL'] || 0;
+    
+    let captureContent = `
+        <h2 style="color: ${getCurrentTheme() === 'dark' ? 'white' : 'black'};">野生の ${pokemonData.japanese} が現れた！</h2>
+        <img src="./assets/button_icon_M${pokemonData.id}.png" alt="${pokemonData.japanese}" style="width: 150px; height: 150px; margin: 20px;">
+        <p>CP: ${pokemonData.cp}</p>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <h3>道具を使う:</h3>
+            <p>モンスターボール: ${pokeballCount} 個</p>
+            <button 
+                onclick="window.throwPokeball()" 
+                ${pokeballCount === 0 ? 'disabled' : ''}
+                style="padding: 10px 20px; font-size: 16px; margin-right: 15px;"
+            >
+                モンスターボールを投げる
+            </button>
+            <button onclick="window.fleeFromCapture()" style="background-color: #d32f2f; color: white; padding: 10px 20px;">
+                逃げる
+            </button>
+        </div>
+        <div id="capture-message" style="margin-top: 20px; font-weight: bold;"></div>
+    `;
+    
+    UI_ELEMENTS.captureUI.innerHTML = captureContent;
+}
+
+/**
+ * モンスターボールを投げる処理
+ */
+window.throwPokeball = () => {
+    if (!currentTargetPokemon) return;
+    
+    const messageEl = document.getElementById('capture-message');
+    
+    // 1. モンスターボールを消費
+    const usedSuccessfully = useItem('POKEBALL', 1); // item.jsで実装されることを想定
+    
+    if (!usedSuccessfully) {
+        messageEl.textContent = '❌ モンスターボールが足りません！';
+        renderCaptureUI(currentTargetPokemon); // UIを更新してボール数を0にする
         return;
     }
     
-    const box = getPokemonBox();
-    const recentThree = box.slice(-3).reverse(); 
+    // 2. 捕獲判定 (CPとランダム性を考慮した簡易ロジック)
+    const captureChance = 1 - (currentTargetPokemon.cp / 3000) + (Math.random() * 0.3);
+    
+    if (captureChance > 0.6) {
+        // 捕獲成功
+        const caughtPokemon = { ...currentTargetPokemon };
+        // pokemon.jsの捕獲ロジックを呼び出す (pokemon.jsで実装されることを想定)
+        // window.catchPokemon(caughtPokemon); 
+        
+        messageEl.textContent = `🎉 捕獲成功！ ${caughtPokemon.japanese} をゲットしました！`;
+        
+        // 1.5秒後に捕獲モードを終了
+        setTimeout(() => {
+            endCaptureMode(true, caughtPokemon.japanese);
+        }, 1500);
+        
+    } else {
+        // 捕獲失敗
+        messageEl.textContent = '💔 逃げられてしまいました...';
+        
+        // 1.5秒後に捕獲モードを終了
+        setTimeout(() => {
+            endCaptureMode(false, currentTargetPokemon.japanese);
+        }, 1500);
+    }
+    
+    renderCaptureUI(currentTargetPokemon); // UIを更新
+    renderPokemonBoxUI(); // 道具箱も更新
+};
 
-    if (recentThree.length === 0) {
-        boxContainer.innerHTML = `<p style="color: white; padding: 10px;">ボックスは空です 🥚</p>`;
+/**
+ * 捕獲モードから逃げる
+ */
+window.fleeFromCapture = () => {
+    endCaptureMode(false, currentTargetPokemon ? currentTargetPokemon.japanese : 'ポケモン');
+};
+
+/**
+ * 捕獲モードを終了し、マップ画面に戻る
+ * @param {boolean} caught 捕獲に成功したか
+ * @param {string} pokemonName ポケモンの名前
+ */
+function endCaptureMode(caught, pokemonName) {
+    if (caught) {
+        alert(`🎉 ${pokemonName} を捕獲しました！`);
+    } else {
+        alert(`😭 ${pokemonName} に逃げられました...`);
+    }
+    
+    currentTargetPokemon = null;
+    UI_ELEMENTS.captureUI.style.display = 'none';
+    UI_ELEMENTS.map.style.display = 'block';
+    UI_ELEMENTS.menuButton.style.display = 'block';
+}
+
+// ===========================================
+// UI制御 - バトルモード
+// ===========================================
+
+let currentGymId = null;
+let currentDefenderIndex = 0;
+let battlePlayerTeam = [];
+
+/**
+ * ジムバトルUIに切り替える
+ * @param {string} gymId ジムのID
+ * @param {Array<Object>} defenders 防衛ポケモンのリスト
+ * @param {Array<Object>} playerTeam プレイヤーの戦えるポケモンリスト
+ */
+export function renderBattleUI(gymId, defenders, playerTeam) {
+    currentGymId = gymId;
+    currentDefenderIndex = 0;
+    battlePlayerTeam = playerTeam.filter(p => p.currentHp > 0); // HPのあるポケモンのみ
+
+    if (defenders.length === 0 || battlePlayerTeam.length === 0) {
+        alert("バトル開始に必要なポケモンがいません。");
         return;
     }
 
-    const pokemonHtml = recentThree.map(p => `
-        <div style="display: flex; flex-direction: column; align-items: center; margin: 0 5px; background-color: rgba(255, 255, 255, 0.9); border-radius: 5px; padding: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.3);">
-            <img src="./assets/button_icon_M${p.id}.png" alt="${p.japanese}" style="width: 70px; height: 70px;">
-            <span style="font-size: 12px; font-weight: bold; color: #333; margin-top: 2px;">CP: ${p.cp}</span>
-        </div>
-    `).join('');
+    // マップとメニューを隠す
+    UI_ELEMENTS.map.style.display = 'none';
+    UI_ELEMENTS.menuButton.style.display = 'none';
+    UI_ELEMENTS.captureUI.style.display = 'none'; // 捕獲UIは非表示
+    
+    // バトルUIは #capture-ui を流用する
+    UI_ELEMENTS.captureUI.style.display = 'flex';
+    
+    updateBattleScreen();
+}
 
-    boxContainer.innerHTML = `
-        <h3 style="color: white; margin-bottom: 5px;">🔥 マイボックス (最新3体)</h3>
-        <div style="display: flex; justify-content: flex-start;">
-            ${pokemonHtml}
+/**
+ * バトル画面のHPやステータスを更新する
+ */
+function updateBattleScreen() {
+    if (!currentGymId) return;
+
+    const defenders = getGymDefenders(currentGymId);
+    const currentDefender = defenders[currentDefenderIndex];
+    const playerPokemon = battlePlayerTeam[0]; // 常に最初のポケモンと仮定
+
+    if (!currentDefender || !playerPokemon) {
+        endBattle(defenders.every(d => d.currentHp <= 0));
+        return;
+    }
+
+    const html = `
+        <h2 style="color: red;">🔥 ジムバトル中: ${currentDefender.japanese} (CP ${currentDefender.cp})</h2>
+        
+        <div style="display: flex; justify-content: space-around; width: 80%; margin: 20px auto;">
+            <div style="text-align: center;">
+                <h3>防衛側</h3>
+                <img src="./assets/button_icon_M${currentDefender.id}.png" style="width: 100px;">
+                <p>HP: ${currentDefender.currentHp}/${currentDefender.maxHp}</p>
+                <div style="width: 80px; height: 10px; background-color: gray; margin: 0 auto;">
+                    <div style="width: ${(currentDefender.currentHp / currentDefender.maxHp) * 100}%; height: 100%; background-color: red;"></div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <h3>プレイヤー側</h3>
+                <img src="./assets/button_icon_M${playerPokemon.id}.png" style="width: 100px;">
+                <p>HP: ${playerPokemon.currentHp}/${playerPokemon.maxHp}</p>
+                <div style="width: 80px; height: 10px; background-color: gray; margin: 0 auto;">
+                    <div style="width: ${(playerPokemon.currentHp / playerPokemon.maxHp) * 100}%; height: 100%; background-color: green;"></div>
+                </div>
+            </div>
         </div>
+
+        <div id="battle-log" style="margin: 20px; padding: 10px; border: 1px solid #ccc; min-height: 50px; background-color: rgba(0,0,0,0.1);">
+            戦闘開始！
+        </div>
+
+        <button onclick="window.performAttack()" style="padding: 15px 30px; font-size: 20px; background-color: #007bff; color: white; border-radius: 5px;">
+            アタック！
+        </button>
+        <button onclick="endBattle(false, '逃走')" style="background-color: #d32f2f; color: white; margin-top: 15px; padding: 8px 15px;">
+            逃げる
+        </button>
     `;
+    
+    UI_ELEMENTS.captureUI.innerHTML = html;
+}
+
+/**
+ * 攻撃ボタンが押されたときの処理
+ */
+window.performAttack = () => {
+    const defenders = getGymDefenders(currentGymId);
+    const currentDefender = defenders[currentDefenderIndex];
+    const playerPokemon = battlePlayerTeam[0];
+
+    // gym.js のバトルロジックを呼び出す
+    const result = executeAttack(currentGymId, playerPokemon, currentDefender);
+
+    const logEl = document.getElementById('battle-log');
+    let logMessage = '';
+
+    // ログメッセージの生成
+    logMessage += `\n${playerPokemon.japanese} が ${currentDefender.japanese} に ${result.playerDamage} ダメージを与えた！`;
+    logMessage += `\n${currentDefender.japanese} の反撃！ ${playerPokemon.japanese} は ${result.defenderDamage} ダメージを受けた。`;
+    
+    logEl.textContent = logMessage;
+    
+    // HPが0になったポケモンを処理
+    if (result.status === 'DEFEATED') {
+        logEl.textContent += `\n✅ ${currentDefender.japanese} を倒した！`;
+        currentDefenderIndex++; // 次の防衛ポケモンへ
+    } else if (result.status === 'FAINTED') {
+        logEl.textContent += `\n❌ ${playerPokemon.japanese} はひんしになった...`;
+        battlePlayerTeam.shift(); // ひんしになったポケモンをチームから除外
+    }
+
+    // 0.5秒遅延させてHPバーを更新し、次の状態をチェック
+    setTimeout(() => {
+        updateBattleScreen();
+    }, 500);
+};
+
+/**
+ * バトルを終了し、マップに戻る
+ * @param {boolean} won プレイヤーが勝利したか
+ * @param {string} reason 終了理由 (例: '逃走')
+ */
+function endBattle(won, reason = '') {
+    if (won) {
+        alert("🎉 ジムバトルに勝利しました！");
+    } else if (reason === '逃走') {
+        alert("🏃 バトルから逃げました。");
+    } else {
+        alert("💔 ジムバトルに敗北しました... (あなたのポケモンが全滅)");
+    }
+
+    currentGymId = null;
+    currentDefenderIndex = 0;
+    battlePlayerTeam = [];
+    
+    // マップとメニューを再表示
+    UI_ELEMENTS.captureUI.style.display = 'none';
+    UI_ELEMENTS.map.style.display = 'block';
+    UI_ELEMENTS.menuButton.style.display = 'block';
+    
+    // 道具箱UIをリフレッシュ
+    renderPokemonBoxUI();
 }
 
 
 // ===========================================
-// グローバル登録 (重要)
+// 初期化
 // ===========================================
-window.startCaptureMode = startCaptureMode;
-window.exitCaptureMode = exitCaptureMode;
-window.throwPokeBall = throwPokeBall;
-window.openMenu = openMenu;
-window.closeMenu = closeMenu;
-window.showPokemonList = showPokemonList;
-window.showSettings = showSettings;
-window.showInventory = showInventory; // ⭐ NEW: 道具画面の表示をグローバル登録 ⭐
-window.updateSetting = updateSetting; 
-window.renderPokemonBoxUI = renderPokemonBoxUI;
-
-// 初期ロード時にボックスUIを一度描画する
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(renderPokemonBoxUI, 1000); 
+    // ページのロード時に一度UIをレンダリングしておく
+    renderPokemonBoxUI();
+    
+    // 補助関数をグローバルに登録
+    window.closeSubMenu = () => {
+        document.getElementById('menu-options').style.display = 'block';
+        document.querySelectorAll('.sub-menu-content').forEach(el => {
+            el.style.display = 'none';
+        });
+    };
 });
+console.log("🔥 [UI:END] pokemongo-UI.js の定義が完了しました。");
