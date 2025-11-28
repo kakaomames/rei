@@ -87,14 +87,14 @@
     // LeafletのLオブジェクトと、モジュール内の関数がロードされるのを待つ
     
     // 1000ミリ秒 (1秒) 遅延させて initializeMapModule を実行する
-    setTimeout(() => {
-        if (typeof L !== 'undefined' && typeof window.initializeMapModule !== 'undefined') {
-            console.log("✅ [TRIGGER] Leafletとモジュールを確認。1秒遅延後にマップ初期化を開始します。");
-            window.initializeMapModule();
-        } else {
-            console.error("🚨 [FATAL ERROR] L (Leaflet) または initializeMapModule が未定義です。マップ初期化をスキップします。");
-        }
-    }, 1000);
+    // setTimeout(() => {
+        // if (typeof L !== 'undefined' && typeof window.initializeMapModule !== 'undefined') {
+        //    console.log("✅ [TRIGGER] Leafletとモジュールを確認。1秒遅延後にマップ初期化を開始します。");
+        //    window.initializeMapModule();
+        // } else {
+        //   console.error("🚨 [FATAL ERROR] L (Leaflet) または initializeMapModule が未定義です。マップ初期化をスキップします。");
+       //  }
+    // }, 1000);
     </script>
 </body>
 </html>
