@@ -630,13 +630,14 @@ function attemptCapture(itemKey) {
 }
 
 // **********************************
-// 6. アプリケーション起動
+// 6. アプリケーション起動 (修正版)
 // **********************************
 
-document.addEventListener('DOMContentLoaded', async () => {
-    // ⬇️ 修正箇所: setTimeout(100) のラッパーを削除し、直接実行に戻す ⬇️
-    
-    console.log("--- app.js 起動処理開始 (DOMContentLoaded + HTMLロード遅延後) ---"); 
+/**
+ * アプリケーションの初期起動処理
+ */
+async function startApp() {
+    console.log("--- app.js 起動処理開始 (即時実行) ---"); 
 
     await preloadMasterData();
     
@@ -650,8 +651,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.navigate(initialPath, false);
     
     console.log("--- app.js 起動処理完了 ---"); 
-    
-    // ⬆️ 修正箇所終わり ⬆️
+}
+// ページロード時に即座に実行する (DOMの準備はHTMLの遅延ロードで担保されているため)
+startApp();
 });
 
 
