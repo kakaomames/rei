@@ -278,8 +278,7 @@ function loadGymsAndPokestops(lat, lng) {
             const validSpots = data.filter(item => typeof item === 'object' && item.pm_id);
 
             validSpots.forEach(spot => {
-                const type = spot.pm_type; 
-                // JSON.parseがUnicodeエスケープを自動処理
+                const type = spot.pm_type; // '2'がポケストップ、'3'がジム
                 const name = spot.pm_name; 
                 const spotLat = parseFloat(spot.pm_lat);
                 const spotLng = parseFloat(spot.pm_lng);
@@ -301,9 +300,16 @@ function loadGymsAndPokestops(lat, lng) {
                     popupAnchor: [1, -34]
                 });
 
-                L.marker([spotLat, spotLng], { icon: customIcon })
+                const marker = L.marker([spotLat, spotLng], { icon: customIcon })
                     .bindPopup(popupContent)
                     .addTo(pokestopGymLayer);
+                    
+                // ポケストップ(type === '2')にクリックイベントを追加
+                if (type === '2') { 
+                    marker.on('click', () => {
+                        handlePokestopSpin(marker, name);
+                    });
+                }
             });
         })
         .catch(error => {
@@ -623,6 +629,22 @@ function attemptCapture(itemKey) {
 }
 
 // **********************************
+// 6. アプリケーション起動
+// **********************************
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await preloadMasterData();
+    // 道具在庫の初期化
+    initializeInventory();
+    initMap();
+    
+    // 初期化時、ブラウザの絶対パスを渡してビューを決定
+    const initialPath = window.location.pathname + window.location.search;
+    window.navigate(initialPath, false);
+});
+
+
+// **********************************
 // 7. ローカルストレージ管理
 // **********************************
 
@@ -707,16 +729,91 @@ console.log(`initializeInventory関数定義済み`);
 
 
 // **********************************
-// 6. アプリケーション起動
+// 8. ポケストップ/ジム操作ロジック (新設)
 // **********************************
 
-document.addEventListener('DOMContentLoaded', async () => {
-    await preloadMasterData();
-    // 道具在庫の初期化
-    initializeInventory();
-    initMap();
+/**
+ * ポケストップを回したときのランダムな道具取得ロジック
+ * @returns {Object} 取得した道具キーと数のマップ (例: { "POKEBALL": 3, "SUPERBALL": 1 })
+ */
+function getPokestopRewards() {
+    const rewards = {};
+    // ポケモンボール、スーパーボール、キズぐすり、げんきのかけらを候補とする
+    const possibleItems = ["POKEBALL", "POKEBALL", "POKEBALL", "SUPERBALL", "POTION", "REVIVE"];
+    const numItems = Math.floor(Math.random() * 4) + 2; // 2〜5個の道具を取得
+
+    console.log(`ポケストップ報酬: 道具を ${numItems} 個抽選します`); 
+
+    for (let i = 0; i < numItems; i++) {
+        const itemKey = possibleItems[Math.floor(Math.random() * possibleItems.length)];
+        rewards[itemKey] = (rewards[itemKey] || 0) + 1;
+    }
     
-    // 初期化時、ブラウザの絶対パスを渡してビューを決定
-    const initialPath = window.location.pathname + window.location.search;
-    window.navigate(initialPath, false);
-});
+    const rewardsJson = JSON.stringify(rewards);
+    console.log(`獲得した報酬:${rewardsJson}`); 
+    return rewards;
+}
+console.log(`getPokestopRewards関数定義済み`);
+
+/**
+ * 道具の報酬を在庫に追加し、ローカルストレージに保存する
+ * @param {Object} rewards - 獲得した道具キーと数のマップ
+ * @returns {Object} 更新後の在庫マップ
+ */
+function addRewardsToInventory(rewards) {
+    let inventoryCounts = loadInventoryCounts();
+    let updatedCounts = 0;
+
+    for (const itemKey in rewards) {
+        const count = rewards[itemKey];
+        // 既存の在庫に加算
+        inventoryCounts[itemKey] = (inventoryCounts[itemKey] || 0) + count;
+        updatedCounts += count;
+    }
+    
+    saveInventoryCounts(inventoryCounts);
+    console.log(`道具在庫に ${updatedCounts} 個のアイテムが追加されました。`); 
+    return inventoryCounts;
+}
+console.log(`addRewardsToInventory関数定義済み`);
+
+/**
+ * ポケストップをタップしたときの処理
+ * @param {L.Marker} marker - タップされたポケストップのマーカーオブジェクト
+ * @param {string} name - ポケストップの名前
+ */
+function handlePokestopSpin(marker, name) {
+    // 既にクールタイムでロックされている場合は無視
+    if (marker.options.isLocked) return; 
+    
+    // 報酬を取得し、在庫に追加
+    const rewards = getPokestopRewards();
+    addRewardsToInventory(rewards);
+    
+    // ポップアップを更新して報酬を表示
+    let rewardsHtml = '';
+    for (const itemKey in rewards) {
+        rewardsHtml += `<li>${itemKey} x ${rewards[itemKey]}</li>`;
+    }
+
+    const newPopupContent = `
+        <b>${name}</b><br>
+        <p style="color: green;">アイテムゲット！🎉</p>
+        <ul style="padding-left: 15px;">${rewardsHtml}</ul>
+        <small style="color: red;">(クールタイム中)</small>
+    `;
+    
+    marker.setPopupContent(newPopupContent).openPopup();
+
+    // クールタイム（60秒間）を設定
+    marker.options.isLocked = true;
+    console.log(`ポケストップ ${name} をロックしました。`); 
+
+    setTimeout(() => {
+        marker.options.isLocked = false;
+        // ポップアップを元の表示に戻す
+        marker.setPopupContent(`<b>${name}</b><br>タイプ: ポケストップ 🔵`);
+        console.log(`ポケストップ ${name} のロックを解除しました。`); 
+    }, 60000); // 60秒のクールタイム
+}
+console.log(`handlePokestopSpin関数定義済み`);
