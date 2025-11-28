@@ -634,24 +634,23 @@ function attemptCapture(itemKey) {
 // **********************************
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // ⬇️ 修正箇所: 全ての処理を setTimeout でラップし、遅延させる ⬇️
-    setTimeout(async () => {
-        console.log("--- app.js 起動処理開始 (100ms遅延後) ---"); 
+    // ⬇️ 修正箇所: setTimeout(100) のラッパーを削除し、直接実行に戻す ⬇️
+    
+    console.log("--- app.js 起動処理開始 (DOMContentLoaded + HTMLロード遅延後) ---"); 
 
-        await preloadMasterData();
-        
-        // 道具在庫の初期化
-        initializeInventory();
-        
-        initMap(); // Leafletマップを初期化
-        
-        // 初期化時、ブラウザの絶対パスを渡してビューを決定
-        const initialPath = window.location.pathname + window.location.search;
-        window.navigate(initialPath, false);
-        
-        console.log("--- app.js 起動処理完了 ---"); 
-        
-    }, 10); // 100ミリ秒の遅延
+    await preloadMasterData();
+    
+    // 道具在庫の初期化
+    initializeInventory();
+    
+    initMap(); // Leafletマップを初期化
+    
+    // 初期化時、ブラウザの絶対パスを渡してビューを決定
+    const initialPath = window.location.pathname + window.location.search;
+    window.navigate(initialPath, false);
+    
+    console.log("--- app.js 起動処理完了 ---"); 
+    
     // ⬆️ 修正箇所終わり ⬆️
 });
 
