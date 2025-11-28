@@ -30,6 +30,10 @@ let wildPokemonLayer = L.layerGroup();
 // マスターデータ (出現ロジック用)
 let pokemonMasterData = null; 
 
+// ローカルストレージのキー
+const POKEMON_STORAGE_KEY = 'kakaomame_pokemons'; 
+console.log(`POKEMON_STORAGE_KEY:${POKEMON_STORAGE_KEY}`);
+
 // 現在捕獲対象のポケモン
 let currentWildPokemon = null; 
 console.log(`currentWildPokemon:${currentWildPokemon}`);
@@ -85,7 +89,9 @@ function renderView(path) {
             const targetEl = document.querySelector(`#sub-menu-container [data-path="${subPath}"]`);
             if (targetEl) {
                 targetEl.classList.remove('view-hidden');
-                if (subPath === '/menu/pokemon') loadPokemonList();
+                // ⬇️ 修正: ポケモンリスト表示時にローカルストレージからデータをロード ⬇️
+                if (subPath === '/menu/pokemon') loadPokemonList(); 
+                // ⬆️ 修正終わり ⬆️
                 if (subPath === '/menu/inventory') loadInventory();
             }
         }
@@ -133,7 +139,7 @@ window.navigate = function(logicalPath, pushState = true) {
 
 // ブラウザの戻る/進むボタンが押された時の処理
 window.addEventListener('popstate', () => {
-    // 修正: クエリパラメータも含めたURL全体をnavigateに渡す
+    // クエリパラメータも含めたURL全体をnavigateに渡す
     const fullPath = window.location.pathname + window.location.search;
     window.navigate(fullPath, false);
 });
@@ -176,7 +182,7 @@ function initMap() {
 }
 
 function getMyIconUrl() {
-    // クエリパラメータからmyiconの値を取得 (修正済みのため、これでOK)
+    // クエリパラメータからmyiconの値を取得
     const urlParams = new URLSearchParams(window.location.search);
     const customUrl = urlParams.get('myicon');
     
@@ -375,7 +381,7 @@ function loadWildPokemon(lat, lng) {
                 .bindPopup(`野生の ${selectedPokemon.japanese} が出現！`);
                 
             pikaMarker.on('click', () => {
-                // 修正: クリックされたポケモンの情報を currentWildPokemon に保存
+                // クリックされたポケモンの情報を currentWildPokemon に保存
                 currentWildPokemon = selectedPokemon;
                 console.log(`捕獲対象を設定: ${currentWildPokemon.japanese}`);
                 
@@ -386,7 +392,7 @@ function loadWildPokemon(lat, lng) {
     }
 }
 
-// ポケモンリストのロード (静的JSON使用)
+// ポケモンリストのロード (ローカルストレージ使用)
 async function loadPokemonList() {
     const container = document.getElementById('pokemon-list-content');
     container.innerHTML = '<p style="text-align: center;">...ロード中...</p>';
@@ -395,18 +401,14 @@ async function loadPokemonList() {
         const response = await fetch('../pokemon.json');
         const masterData = await response.json();
         
-        // デモデータ (変更なし)
-        const userPokemon = [
-            { id: 25, cp: 850 }, 
-            { id: 1, cp: 420 },  
-            { id: 4, cp: 710 },  
-        ];
+        // ⬇️ 修正: ローカルストレージからデータをロード ⬇️
+        const userPokemons = loadUserPokemons();
         
         const getPokemonInfo = (id) => masterData.pokemonList.find(p => p.id === id);
 
-        let html = '<h3>所持ポケモン (' + userPokemon.length + '匹)</h3><div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">';
+        let html = '<h3>所持ポケモン (' + userPokemons.length + '匹)</h3><div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">';
         
-        userPokemon.forEach(p => {
+        userPokemons.forEach(p => {
             const info = getPokemonInfo(p.id);
             const name = info ? info.japanese : '不明なポケモン';
             
@@ -422,7 +424,7 @@ async function loadPokemonList() {
         html += '</div>';
 
         container.innerHTML = html;
-        console.log(`Pokemon Master Data Loaded: ${masterData.comment}`);
+        console.log(`ローカルストレージからポケモンデータ ${userPokemons.length} 匹をロードしました。`);
         
     } catch (error) {
         container.innerHTML = `<p style="color: red;">ポケモンデータのロードに失敗しました: ${error}</p>`;
@@ -543,13 +545,27 @@ function attemptCapture(itemKey) {
     
     setTimeout(() => {
         if (isCaught) {
+            
+            // ⬇️ 修正: 捕獲したポケモンをローカルストレージに保存 ⬇️
+            const userPokemons = loadUserPokemons();
+            const newPokemon = { 
+                id: currentWildPokemon.id, 
+                cp: Math.floor(Math.random() * 1000) + 10, // CPをランダム生成
+                nickname: currentWildPokemon.japanese 
+            };
+            userPokemons.push(newPokemon);
+            saveUserPokemons(userPokemons);
+            
+            console.log(`新しいポケモンをリストに追加: ${newPokemon.nickname} (CP:${newPokemon.cp})`); // 値を出力
+            // ⬆️ 修正終わり ⬆️
+            
             infoDiv.innerHTML = `
                 <img src="../assets/item/1.png" alt="モンスターボール" class="shake-animation" style="width: 80px;">
                 <h2 style="color: green;">🎉 ゲットだぜ！🎉</h2>
                 <p>${currentWildPokemon.japanese} を捕まえた！</p>
                 <button onclick="window.navigate('/');" class="back-to-menu-button" style="position: static;">マップに戻る</button>
             `;
-            // TODO: ここでローカルストレージにポケモンを保存するロジックを追加
+            
             currentWildPokemon = null; // 捕獲完了
         } else {
             infoDiv.innerHTML = `
@@ -562,6 +578,40 @@ function attemptCapture(itemKey) {
     }, 3000); // 3秒後に結果を表示
 }
 
+// **********************************
+// 7. ローカルストレージ管理 (新設)
+// **********************************
+
+/**
+ * ローカルストレージから所持ポケモンリストを読み込む
+ * @returns {Array<Object>} 所持ポケモンの配列
+ */
+function loadUserPokemons() {
+    try {
+        const storedData = localStorage.getItem(POKEMON_STORAGE_KEY);
+        // JSONをパースし、失敗した場合は空の配列を返す
+        return storedData ? JSON.parse(storedData) : [];
+    } catch (error) {
+        console.error('ローカルストレージからの読み込みに失敗:', error);
+        return [];
+    }
+}
+console.log(`loadUserPokemons関数定義済み`);
+
+/**
+ * 所持ポケモンリストをローカルストレージに保存する
+ * @param {Array<Object>} pokemons - 保存する所持ポケモンの配列
+ */
+function saveUserPokemons(pokemons) {
+    try {
+        localStorage.setItem(POKEMON_STORAGE_KEY, JSON.stringify(pokemons));
+        console.log(`所持ポケモンリストを保存しました。総数: ${pokemons.length}`);
+    } catch (error) {
+        console.error('ローカルストレージへの書き込みに失敗:', error);
+    }
+}
+console.log(`saveUserPokemons関数定義済み`);
+
 
 // **********************************
 // 6. アプリケーション起動
@@ -572,7 +622,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     initMap();
     
     // 初期化時、ブラウザの絶対パスを渡してビューを決定
-    // window.location.pathname + window.location.search で完全なURLを渡す
     const initialPath = window.location.pathname + window.location.search;
     window.navigate(initialPath, false);
 });
