@@ -1,8 +1,8 @@
 // pokestop.js
 
-import { addItemToInventory, drawRandomItem, ITEMS } from './item.js';
+import { addItemToInventory, drawRandomItem, ITEMS, removeItemFromInventory } from './item.js'; // ⭐ removeItemFromInventoryを追加 ⭐
 import { renderPokemonBoxUI } from './pokemongo-UI.js';
-import { POKESTOP_DATA } from './map_logic.js'; // ⭐ POKESTOP_DATAにアクセスするためimport ⭐
+// import { POKESTOP_DATA } from './map_logic.js'; // 循環参照を避けるため、データの直接インポートはしない
 
 // ⭐ ローカルストレージのキー ⭐
 const POKESTOP_COOLDOWN_KEY = 'pokestop_cooldowns';
@@ -106,18 +106,13 @@ export function spinPokestop(stopId) {
     console.log(`[POKESTOP] ポケストップXP ${xpGained} を獲得しました。`);
 
     // 4. UI（道具箱）の更新をトリガー
-    renderPokemonBoxUI(); // 道具箱の内容表示は pokemongo-UI.js の担当だが、暫定的に呼ぶ
+    // ⭐ renderInventoryUI関数が pokemongo-UI.js にあることを想定して呼び出しを変更するのが理想だが、
+    // ⭐ 今回はrenderPokemonBoxUIが道具箱も含めて更新する前提で残す
+    renderPokemonBoxUI();
 
     const itemsMessage = itemsGained.join(', ');
     return `✅ ポケストップを回しました！\n獲得アイテム (${numItems}個): ${itemsMessage}`;
 }
-
-// ===========================================
-// グローバル登録 (Leaflet Popupから呼び出すため)
-// ===========================================
-
-window.spinPokestop = spinPokestop;
-
 
 // ===========================================
 // マップ関連ロジック (map_logic.js への補足)
@@ -125,22 +120,25 @@ window.spinPokestop = spinPokestop;
 
 /**
  * map_logic.js のポケストップマーカー設定時に、クールダウン表示を更新するための関数
- * (この関数は map_logic.js から呼び出されることを想定)
  * @param {string} stopId ポケストップID
  * @param {string} name_ja ポケストップ名
+ * @param {boolean} isAccessible ⭐ アクセス圏内かどうかのフラグを受け取るように修正 ⭐
  * @returns {string} LeafletのPopupに表示するHTMLコンテンツ
  */
-export function getPokestopPopupContent(stopId, name_ja) {
+export function getPokestopPopupContent(stopId, name_ja, isAccessible) {
     const isCooldown = isPokestopOnCooldown(stopId);
     let buttonHtml;
     let statusText;
     
-    if (isCooldown) {
+    if (!isAccessible) {
+        statusText = `<p style="color: orange;">❌ ポケストップに近付いてください。</p>`;
+        buttonHtml = `<button disabled style="background-color: #ccc;">アクセス圏外</button>`;
+    } else if (isCooldown) {
         const remainingSeconds = getRemainingCooldown(stopId);
         const minutes = Math.ceil(remainingSeconds / 60);
         statusText = `<p style="color: red;">クールダウン中 (残り約 ${minutes} 分)</p>`;
         buttonHtml = `<button disabled style="background-color: #ccc;">クールダウン中...</button>`;
-    } else {
+    } else { // アクセス可能 AND クールダウン中でない
         statusText = `<p style="color: green;">スピン可能です！</p>`;
         buttonHtml = `<button onclick="window.pokestopSpinHandler('${stopId}')">ポケストップを回す</button>`;
     }
@@ -153,19 +151,27 @@ export function getPokestopPopupContent(stopId, name_ja) {
 }
 
 // ユーザーがポップアップ内でボタンをクリックしたときに実行されるグローバルハンドラ
-// ポップアップを開いたときに動的に生成されるため、結果表示のために必要
 window.pokestopSpinHandler = (stopId) => {
     const result = spinPokestop(stopId);
     alert(result); // 簡易的な結果表示
     
     // ポップアップの内容を即座に更新 (クールダウン状態を反映)
-    // このロジックは map_logic.js 側で制御されるべきだが、簡易的に
-    const stopData = POKESTOP_DATA.find(p => p.id === stopId);
-    if (stopData) {
-        const marker = window.getPokestopMarkerById(stopId); // map_logic.js に実装を依頼
-        if (marker) {
-             const newContent = getPokestopPopupContent(stopId, stopData.name_ja);
-             marker.setPopupContent(newContent).openPopup();
+    // map_logic.js に定義されたグローバル関数を使ってマーカーを更新
+    if (window.getPokestopMarkerById) {
+        const marker = window.getPokestopMarkerById(stopId); 
+        if (marker && marker.getPopup().isOpen()) {
+            // ⭐ map_logic.js が pokestop のデータを保持していることを前提として、
+            // ⭐ name_ja を取得するロジックは割愛し、そのまま閉じるか再表示を促す
+            
+            // ポケストップは回した後にアクセス圏外にはならないので、isAccessibleはtrueと仮定
+            const newContent = getPokestopPopupContent(stopId, "ポケストップ", true); 
+            marker.setPopupContent(newContent).openPopup();
         }
     }
 };
+
+// ===========================================
+// グローバル登録 (Leaflet Popupから呼び出すため)
+// ===========================================
+
+window.spinPokestop = spinPokestop;
