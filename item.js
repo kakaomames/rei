@@ -1,118 +1,152 @@
 // item.js
+console.log("🔥 [ITEM_JS] ファイルの実行を開始しました。");
+
+// データを格納するグローバル変数
+let ITEMS = {}; // アイテム情報 (JSONからロード)
 
 // ⭐ ローカルストレージのキー ⭐
-const INVENTORY_KEY = 'pokemon_go_inventory';
+const INVENTORY_KEY = 'player_inventory';
 
 // ===========================================
-// アイテム定義
+// アイテムデータのロード (非同期)
 // ===========================================
 
 /**
- * ゲーム内のすべてのアイテムを定義
+ * 外部の item.json ファイルからデータを非同期でロードする
  */
-export const ITEMS = {
-    POKEBALL: {
-        id: 'pokeball',
-        name_ja: 'モンスターボール',
-        description_ja: 'ポケモンを捕獲するための基本的なボール',
-        rate: 0.7 // 出現率の重み (後述の抽選で利用)
-    },
-    POTION: {
-        id: 'potion',
-        name_ja: 'キズぐすり',
-        description_ja: 'ポケモンのHPを回復する',
-        rate: 0.2
-    },
-    REVIVE: {
-        id: 'revive',
-        name_ja: 'げんきのかけら',
-        description_ja: 'ひんし状態のポケモンを復活させる',
-        rate: 0.1
+async function loadItemData() {
+    try {
+        // ⭐ 開発環境に合わせてパスを調整してください ⭐
+        const response = await fetch('./item.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        // JSONをオブジェクトとして展開
+        const data = await response.json(); 
+        
+        // ITEMS グローバル変数にセット
+        // アイテムIDをキーとしてアクセスできるように変換する
+        data.items.forEach(item => {
+            ITEMS[item.id.toUpperCase()] = item;
+        });
+        
+        console.log("✅ [ITEM_JS] アイテムデータをロードしました。");
+        // アイテムデータのロード後にインベントリもロード
+        loadInventory(); 
+        
+    } catch (error) {
+        console.error("🚨 [ITEM_JS ERROR] アイテムデータのロードに失敗しました:", error);
     }
-};
+}
+
+// データの初期ロードを実行
+loadItemData();
 
 // ===========================================
-// インベントリ (道具箱) 管理関数
+// インベントリ管理ロジック
 // ===========================================
 
 /**
- * ローカルストレージからインベントリ（道具箱）の内容を取得する
- * @returns {Object<string, number>} { 'pokeball': 10, 'potion': 5, ... } の形式
+ * ローカルストレージからインベントリ（道具箱）を取得する
+ * @returns {Object<string, number>} インベントリの内容 { ITEM_ID: count, ... }
  */
 export function getInventory() {
     try {
         const storedData = localStorage.getItem(INVENTORY_KEY);
-        // データがない場合は、初期状態でモンスターボールをいくつか持たせる
-        return storedData ? JSON.parse(storedData) : { 
-            pokeball: 20 
-        };
+        return storedData ? JSON.parse(storedData) : {};
     } catch (e) {
-        console.error("[INVENTORY ERROR] ローカルストレージからの読み込みに失敗しました。", e);
-        return { pokeball: 20 };
+        console.error("[INVENTORY ERROR] インベントリの読み込みに失敗しました。", e);
+        return {};
     }
 }
 
 /**
- * インベントリ全体をローカルストレージに保存する
- * @param {Object} inventory 保存するインベントリオブジェクト
+ * インベントリをローカルストレージに保存する
+ * @param {Object} inventory 保存するインベントリデータ
  */
 function saveInventory(inventory) {
     try {
         localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
     } catch (e) {
-        console.error("[INVENTORY ERROR] ローカルストレージへの書き込みに失敗しました。", e);
+        console.error("[INVENTORY ERROR] インベントリの書き込みに失敗しました。", e);
     }
 }
 
 /**
- * 指定されたアイテムを指定された数だけインベントリに追加する
- * @param {string} itemId ITEMSオブジェクトに存在するアイテムID
- * @param {number} count 追加する数 (デフォルトは1)
- * @returns {Object} 更新後のインベントリ
+ * ページロード時にインベントリをロードし、初期アイテムを付与する
+ */
+function loadInventory() {
+    let inventory = getInventory();
+
+    // 初回ロード時、またはインベントリが空の場合、初期アイテムを付与
+    if (Object.keys(inventory).length === 0) {
+        // ⭐ 初期アイテム: モンスターボール 50個
+        if (ITEMS['POKEBALL']) {
+             inventory['POKEBALL'] = 50;
+        } else {
+             // データロードエラーの場合のフォールバック
+             inventory['POKEBALL'] = 50; 
+        }
+        
+        saveInventory(inventory);
+        console.log("[INVENTORY] 初期アイテムを付与しました。");
+    }
+    
+    // UIの道具箱も更新 (pokemongo-UI.jsでグローバル登録されていることを前提)
+    if (window.renderPokemonBoxUI) {
+        window.renderPokemonBoxUI();
+    }
+}
+
+/**
+ * インベントリにアイテムを追加する
+ * @param {string} itemId アイテムのID (大文字)
+ * @param {number} count 追加する数
  */
 export function addItemToInventory(itemId, count = 1) {
+    if (!ITEMS[itemId]) {
+        console.warn(`[ITEM] 不明なアイテムID: ${itemId}`);
+        return;
+    }
+    
     const inventory = getInventory();
     
-    // アイテムIDが存在するか確認
-    if (!ITEMS[itemId.toUpperCase()]) {
-        console.warn(`[INVENTORY] 未定義のアイテムID: ${itemId}`);
-        return inventory;
-    }
-
-    // 既存の数に加算
     const currentCount = inventory[itemId] || 0;
     inventory[itemId] = currentCount + count;
     
     saveInventory(inventory);
-    console.log(`[INVENTORY] ${ITEMS[itemId.toUpperCase()].name_ja} を ${count} 個追加しました。合計: ${inventory[itemId]}`);
-    return inventory;
+    console.log(`[INVENTORY] ${ITEMS[itemId].name_ja} を ${count} 個追加しました。合計: ${inventory[itemId]}`);
 }
 
 /**
- * 指定されたアイテムを指定された数だけインベントリから減らす
- * @param {string} itemId ITEMSオブジェクトに存在するアイテムID
- * @param {number} count 減らす数 (デフォルトは1)
- * @returns {boolean} 成功/失敗
+ * インベントリからアイテムを消費/削除する
+ * @param {string} itemId アイテムのID (大文字)
+ * @param {number} count 消費する数
+ * @returns {boolean} 消費が成功したかどうか
  */
-export function removeItemFromInventory(itemId, count = 1) {
+export function useItem(itemId, count = 1) {
     const inventory = getInventory();
-    
-    const currentCount = inventory[itemId] || 0;
-    
-    if (currentCount < count) {
-        console.warn(`[INVENTORY] ${ITEMS[itemId.toUpperCase()].name_ja} の数が不足しています。現在: ${currentCount}`);
+
+    if (!inventory[itemId] || inventory[itemId] < count) {
+        console.warn(`[INVENTORY] ${ITEMS[itemId] ? ITEMS[itemId].name_ja : itemId} が足りません。所持: ${inventory[itemId] || 0}`);
         return false;
     }
 
-    inventory[itemId] = currentCount - count;
-    
-    // 数が0になったらエントリを削除しても良い
-    if (inventory[itemId] === 0) {
+    // ⭐ NEW: 毎回値を決定時に出力 ⭐
+    inventory[itemId] -= count;
+    print(`inventory[${itemId}]:${inventory[itemId]}`);
+
+    if (inventory[itemId] <= 0) {
         delete inventory[itemId];
     }
 
     saveInventory(inventory);
-    console.log(`[INVENTORY] ${ITEMS[itemId.toUpperCase()].name_ja} を ${count} 個消費しました。残り: ${inventory[itemId]}`);
+    
+    // UIの道具箱も更新 (pokemongo-UI.jsでグローバル登録されていることを前提)
+    if (window.renderPokemonBoxUI) {
+        window.renderPokemonBoxUI();
+    }
+    
     return true;
 }
 
@@ -122,32 +156,73 @@ export function removeItemFromInventory(itemId, count = 1) {
 // ===========================================
 
 /**
- * 定義された重みに基づいてアイテムをランダムに抽選する
- * @returns {string} 抽選されたアイテムID
+ * ポケストップで手に入るアイテムを重み付き抽選で決定する
+ * @returns {string} 抽選されたアイテムのID
  */
 export function drawRandomItem() {
-    let totalRate = 0;
-    const itemRates = [];
-    
-    // 全アイテムの重みを合計し、抽選リストを作成
-    for (const key in ITEMS) {
-        if (ITEMS.hasOwnProperty(key)) {
-            const item = ITEMS[key];
-            totalRate += item.rate;
-            itemRates.push({ id: item.id, rate: item.rate });
-        }
-    }
-
-    let randomValue = Math.random() * totalRate;
-
-    // 抽選
-    for (const item of itemRates) {
-        if (randomValue < item.rate) {
-            return item.id;
-        }
-        randomValue -= item.rate;
+    if (Object.keys(ITEMS).length === 0) {
+        console.warn("[DRAW] アイテムデータがロードされていません。デフォルトでモンスターボールを返します。");
+        return 'POKEBALL';
     }
     
-    // 保険 (通常は到達しない)
-    return ITEMS.POKEBALL.id;
+    // 抽選対象となるアイテムのリストを作成 (タイプ:'BALL' または 'HEAL' のアイテムを対象とする)
+    const availableItems = Object.values(ITEMS).filter(item => 
+        item.type === 'BALL' || item.type === 'HEAL'
+    );
+    
+    if (availableItems.length === 0) return 'POKEBALL';
+    
+    let totalWeight = 0;
+    
+    // 重み付きリストを作成（JSONデータに weight があることを前提とする）
+    const weightedList = availableItems.map(item => {
+        const weight = item.weight || 1; // weightが未定義の場合は1とする
+        const startRange = totalWeight;
+        totalWeight += weight;
+        return { item, weight, startRange };
+    });
+    
+    const randomNumber = Math.random() * totalWeight;
+
+    // 抽選を実行
+    for (const itemEntry of weightedList) {
+        if (randomNumber >= itemEntry.startRange && randomNumber < itemEntry.startRange + itemEntry.weight) {
+            return itemEntry.item.id.toUpperCase();
+        }
+    }
+    
+    // フォールバック
+    return availableItems[0].id.toUpperCase();
+}
+
+
+// ===========================================
+// アイテム情報取得 (外部参照用)
+// ===========================================
+
+/**
+ * アイテムの情報を取得する
+ * @returns {Object} 全アイテム情報のオブジェクト
+ */
+export function getAllItems() {
+    return ITEMS;
+}
+
+/**
+ * アイテムIDから日本語名を取得する
+ * @param {string} itemId アイテムID
+ * @returns {string} 日本語名
+ */
+export function getPokemonName(itemId) {
+    const item = ITEMS[itemId];
+    return item ? item.name_ja : '不明なアイテム';
+}
+
+/**
+ * アイテムIDからアイテムオブジェクト全体を取得する
+ * @param {string} itemId アイテムID
+ * @returns {Object | undefined} アイテムオブジェクト
+ */
+export function getPokemonById(itemId) {
+    return ITEMS[itemId];
 }
