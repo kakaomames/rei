@@ -85,32 +85,37 @@
 <script type="module" src="./settings.js"></script>
 <script type="module" src="./pokestop.js"></script>
 
-    <script>
-    // Leafletのロードが完了したことを確認する関数
-    function checkLeafletReady() {
+    <script type="module" src="./map_logic.js"></script>
+<script type="module" src="./api.js"></script> 
+<script>
+    console.log("🔑 [T1. HTML] 最終スクリプトブロックの実行を開始。");
+
+    // Leafletのロードが完了したことを確認し、イベントを発火する関数
+    function checkLeafletAndDispatch() {
         if (typeof L !== 'undefined') {
             console.log("🔥 LeafletのLオブジェクトが検出されました。初期化イベントをディスパッチします。");
-            // カスタムイベントを作成
             const event = new CustomEvent('leafletReadyForModule');
             document.dispatchEvent(event);
             return true;
         }
         return false;
     }
-
-    // Leafletのロードをポーリングで待機 (フォールバックとロード時間を考慮)
-    if (!checkLeafletReady()) {
-        let count = 0;
-        const intervalId = setInterval(() => {
-            if (checkLeafletReady() || count > 100) { // 最大1秒 (10ms * 100)
-                clearInterval(intervalId);
-                if (count > 100) {
-                     console.error("🚨 1秒待機しましたが、L (Leaflet) は未定義です。ローカルまたはCDNのロードに失敗しました。");
-                }
-            }
-            count++;
-        }, 10);
-    }
+    
+    // 💡 2秒待機を復活！
+    // モジュールがグローバルに登録されていないか、イベントを逃した場合に強制的に初期化を試行
+    setTimeout(() => {
+        if (typeof L !== 'undefined') {
+            console.warn("⏳ [T_FALLBACK] 2秒待機終了。Leafletが存在します。イベント発火を再試行します。");
+            // Leafletは存在するが、イベントが処理されていない可能性に備えて、イベント発火を再度試みる
+            checkLeafletAndDispatch(); 
+        } else {
+             console.error("🚨 [T_TIMEOUT] 2秒待機後もLオブジェクトが見つかりませんでした。");
+        }
+    }, 1000); // 2秒遅延をかける
+    
+    // DOMがロードされたらすぐにイベントチェックを開始 (ポーリングは不要)
+    document.addEventListener('DOMContentLoaded', checkLeafletAndDispatch);
+    console.log("🔑 [T1.1] DOMContentLoadedリスナーと2秒遅延タイマーを設定しました。");
 </script>
 </body>
 </html>
