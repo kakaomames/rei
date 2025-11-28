@@ -28,16 +28,13 @@ export async function fetchLandmarkDataFromApi(lat, lng) {
         const gyms = [];
         const pokestops = [];
 
-        // pm_typeに基づいてデータを振り分け
+        // pm_typeに基づいてデータを振り分け (pm_type: "2"がジム、"3"がポケストップ)
         allLandmarks.forEach(item => {
             if (item.pm_type === "2") {
-                // pm_typeが"2"ならジム
                 gyms.push(item);
             } else if (item.pm_type === "3") {
-                // pm_typeが"3"ならポケストップ
                 pokestops.push(item);
             }
-            // その他のpm_type（例: 1=ポケモン）は今回は無視
         });
         
         console.log(`[API:SUCCESS] APIからデータを取得: ジム ${gyms.length} 件、ポケストップ ${pokestops.length} 件。`);
