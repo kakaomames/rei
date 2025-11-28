@@ -12,7 +12,7 @@ const views = {
 };
 const subMenuViews = document.querySelectorAll('#sub-menu-container .sub-menu-content');
 const menuOptions = document.getElementById('menu-options');
-
+console.log(`views定義済み`);
 
 // 現在のプレイヤーの位置情報 (初期値: 東京駅付近)
 let currentLat = 35.681236;
@@ -30,12 +30,17 @@ let wildPokemonLayer = L.layerGroup();
 // マスターデータ (出現ロジック用)
 let pokemonMasterData = null; 
 
+// ⬇️ 追加: 現在捕獲対象のポケモン ⬇️
+let currentWildPokemon = null; 
+console.log(`currentWildPokemon:${currentWildPokemon}`);
+
 // **********************************
 // 2. ビュー切り替え (History API)
 // **********************************
 
 // ⬇️ GitHub Pagesのサブディレクトリをベースパスとして設定 ⬇️
 const BASE_PATH = '/rei/ポケモンGO';
+console.log(`BASE_PATH:${BASE_PATH}`);
 // ⬆️ BASE_PATH 終わり ⬆️
 
 /**
@@ -45,7 +50,6 @@ const BASE_PATH = '/rei/ポケモンGO';
 function renderView(path) {
     // URL全体からBASE_PATH以降の論理パスを取得 (例: /menu, /capture, /)
     const logicalPath = path.startsWith(BASE_PATH) ? path.substring(BASE_PATH.length).replace(/\/$/, '') || '/' : path.replace(/\/$/, '');
-
     console.log(`現在の論理パス: ${logicalPath} にビューを切り替え`);
     
     // 全てのメインビューを非表示にする
@@ -59,6 +63,12 @@ function renderView(path) {
     if (views[logicalPath]) {
         views[logicalPath].classList.add('view-active');
         document.getElementById('ui-overlay').style.display = (logicalPath === '/' || logicalPath === '/capture') ? 'block' : 'none';
+
+        // ⬇️ 修正: 捕獲画面に切り替わる際にUIを更新 ⬇️
+        if (logicalPath === '/capture') {
+            updateCaptureUI();
+        }
+        // ⬆️ 修正終わり ⬆️
 
     } else if (logicalPath.startsWith('/menu')) {
         views['/menu'].classList.add('view-active');
@@ -140,6 +150,7 @@ async function preloadMasterData() {
 
 function initMap() {
     map = L.map('map').setView([currentLat, currentLng], 16);
+    console.log(`map:${map}`);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
@@ -181,9 +192,12 @@ function onLocationFound(e) {
         myLocationMarker.remove();
         myLocationAccuracyCircle.remove();
     }
+    console.log(`currentLat:${currentLat}`);
+    console.log(`currentLng:${currentLng}`);
 
     myLocationMarker = L.marker([lat, lng], {icon: myIcon}).addTo(map)
         .bindPopup('あなたの現在地 (精度: 約' + Math.round(radius) + 'm)').openPopup();
+    console.log(`myLocationMarker:${myLocationMarker}`);
 
     myLocationAccuracyCircle = L.circle([lat, lng], {
         radius: radius,
@@ -191,6 +205,7 @@ function onLocationFound(e) {
         fillColor: '#1E90FF',
         fillOpacity: 0.2
     }).addTo(map);
+    console.log(`myLocationAccuracyCircle:${myLocationAccuracyCircle}`);
 
     loadWildPokemon(lat, lng);
 }
@@ -282,6 +297,7 @@ function calculateWeightedPokemonList(environmentKey) {
         });
 
         const finalWeight = 1.0 * cumulativeBoost;
+        console.log(`ポケモン:${pokemon.japanese}, 重み:${finalWeight}`);
 
         if (finalWeight > 0) {
             weightedList.push({
@@ -290,17 +306,20 @@ function calculateWeightedPokemonList(environmentKey) {
             });
         }
     });
-
+    console.log(`weightedList.length:${weightedList.length}`);
     return weightedList;
 }
 
 function getPokemonByWeightedRandom(weightedList) {
     const totalWeight = weightedList.reduce((sum, item) => sum + item.weight, 0);
+    console.log(`totalWeight:${totalWeight}`);
     let randomValue = Math.random() * totalWeight;
+    console.log(`randomValue:${randomValue}`);
 
     for (const item of weightedList) {
         randomValue -= item.weight;
         if (randomValue <= 0) {
+            console.log(`選択されたポケモン:${item.pokemon.japanese}`);
             return item.pokemon;
         }
     }
@@ -346,6 +365,11 @@ function loadWildPokemon(lat, lng) {
                 .bindPopup(`野生の ${selectedPokemon.japanese} が出現！`);
                 
             pikaMarker.on('click', () => {
+                // ⬇️ 修正: クリックされたポケモンの情報を currentWildPokemon に保存 ⬇️
+                currentWildPokemon = selectedPokemon;
+                console.log(`捕獲対象を設定: ${currentWildPokemon.japanese}`);
+                
+                // 捕獲画面へ遷移
                 window.navigate('/capture');
             });
         }
@@ -370,7 +394,7 @@ async function loadPokemonList() {
         
         const getPokemonInfo = (id) => masterData.pokemonList.find(p => p.id === id);
 
-        let html = '<h3>所持ポケモン (' + userPokemon.length + '匹)</h3><div style="display: flex; flex-wrap: wrap; gap: 10px;">';
+        let html = '<h3>所持ポケモン (' + userPokemon.length + '匹)</h3><div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;">';
         
         userPokemon.forEach(p => {
             const info = getPokemonInfo(p.id);
@@ -411,11 +435,14 @@ async function loadInventory() {
             "POTION": 15,
             "REVIVE": 5
         };
+        console.log(`userItemCounts:${Object.keys(userItemCounts).length}種類`);
 
         let html = '<h3>バッグの中身</h3><ul>';
         
+        // 道具のカテゴリーを走査
         for (const categoryKey in itemData) {
             html += `<h4>${categoryKey}</h4>`;
+            // 道具アイテムを走査
             for (const itemKey in itemData[categoryKey]) {
                 const item = itemData[categoryKey][itemKey];
                 const count = userItemCounts[itemKey] || 0; 
@@ -446,7 +473,88 @@ async function loadInventory() {
 
 
 // **********************************
-// 5. アプリケーション起動
+// 5. 捕獲画面とロジック
+// **********************************
+
+/**
+ * 捕獲画面の情報を更新する
+ */
+function updateCaptureUI() {
+    const infoDiv = document.getElementById('capture-target-info');
+
+    if (!currentWildPokemon) {
+        infoDiv.innerHTML = '<p style="color: red;">エラー: 捕獲対象のポケモンがいません。</p>';
+        console.log(`エラー: 捕獲対象がいません`);
+        return;
+    }
+
+    const pokeId = currentWildPokemon.id;
+    const name = currentWildPokemon.japanese;
+    const iconPath = `../assets/button_icon_M${pokeId}.png`;
+    console.log(`捕獲UI更新対象:${name}`);
+
+    infoDiv.innerHTML = `
+        <img src="${iconPath}" alt="${name}" style="width: 80px; height: 80px;"><br>
+        <h2>${name}</h2>
+        <p>野生の ${name} が現れた！</p>
+    `;
+
+    // ボール選択UIをリセット（捕獲判定後に再表示するため）
+    const ballSelection = document.getElementById('ball-selection');
+    ballSelection.style.display = 'flex';
+}
+
+/**
+ * 捕獲判定ロジックを実行する
+ * @param {string} itemKey - 使用するボールのキー (e.g., 'POKEBALL', 'SUPERBALL')
+ */
+function attemptCapture(itemKey) {
+    if (!currentWildPokemon) return;
+    
+    console.log(`捕獲開始: ${currentWildPokemon.japanese} に ${itemKey} を使用`);
+    
+    // ボールUIを非表示
+    document.getElementById('ball-selection').style.display = 'none';
+
+    const infoDiv = document.getElementById('capture-target-info');
+    infoDiv.innerHTML = `<h2 style="color: blue;">${itemKey === 'SUPERBALL' ? 'スーパーボール' : 'モンスターボール'}が飛んでいった！...</h2>`;
+
+    // 簡易的な捕獲成功率 (デモ)
+    // モンスターボール: 40%, スーパーボール: 60% と仮定
+    let baseCatchRate = 0.4; 
+    if (itemKey === 'SUPERBALL') {
+        baseCatchRate = 0.6;
+    }
+    console.log(`baseCatchRate:${baseCatchRate}`);
+
+    // 捕獲判定
+    const isCaught = Math.random() < baseCatchRate;
+    console.log(`isCaught:${isCaught}`);
+    
+    setTimeout(() => {
+        if (isCaught) {
+            infoDiv.innerHTML = `
+                <img src="../assets/item/1.png" alt="モンスターボール" class="shake-animation" style="width: 80px;">
+                <h2 style="color: green;">🎉 ゲットだぜ！🎉</h2>
+                <p>${currentWildPokemon.japanese} を捕まえた！</p>
+                <button onclick="window.navigate('/');" class="back-to-menu-button" style="position: static;">マップに戻る</button>
+            `;
+            // TODO: ここでローカルストレージにポケモンを保存するロジックを追加
+            currentWildPokemon = null; // 捕獲完了
+        } else {
+            infoDiv.innerHTML = `
+                <img src="../assets/button_icon_M${currentWildPokemon.id}.png" alt="ポケモン" style="width: 80px;">
+                <h2 style="color: red;">逃げられた... 😥</h2>
+                <p>野生の ${currentWildPokemon.japanese} はボールから飛び出してしまった！</p>
+                <button onclick="window.navigate('/');" class="back-to-menu-button" style="position: static;">マップに戻る</button>
+            `;
+        }
+    }, 3000); // 3秒後に結果を表示
+}
+
+
+// **********************************
+// 6. アプリケーション起動
 // **********************************
 
 document.addEventListener('DOMContentLoaded', async () => {
