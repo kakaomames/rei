@@ -30,7 +30,7 @@ let wildPokemonLayer = L.layerGroup();
 // マスターデータ (出現ロジック用)
 let pokemonMasterData = null; 
 
-// ⬇️ 追加: 現在捕獲対象のポケモン ⬇️
+// 現在捕獲対象のポケモン
 let currentWildPokemon = null; 
 console.log(`currentWildPokemon:${currentWildPokemon}`);
 
@@ -38,18 +38,23 @@ console.log(`currentWildPokemon:${currentWildPokemon}`);
 // 2. ビュー切り替え (History API)
 // **********************************
 
-// ⬇️ GitHub Pagesのサブディレクトリをベースパスとして設定 ⬇️
+// GitHub Pagesのサブディレクトリをベースパスとして設定
 const BASE_PATH = '/rei/ポケモンGO';
 console.log(`BASE_PATH:${BASE_PATH}`);
-// ⬆️ BASE_PATH 終わり ⬆️
 
 /**
  * パスに基づいてビューを切り替える
- * @param {string} path - History APIから渡された絶対パス (例: /rei/ポケモンGO/menu)
+ * @param {string} path - History APIから渡された絶対パス (例: /rei/ポケモンGO/menu?myicon=...)
  */
 function renderView(path) {
+    // pathからクエリパラメータを分離
+    const pathWithoutQuery = path.split('?')[0];
+    
     // URL全体からBASE_PATH以降の論理パスを取得 (例: /menu, /capture, /)
-    const logicalPath = path.startsWith(BASE_PATH) ? path.substring(BASE_PATH.length).replace(/\/$/, '') || '/' : path.replace(/\/$/, '');
+    const logicalPath = pathWithoutQuery.startsWith(BASE_PATH) 
+        ? pathWithoutQuery.substring(BASE_PATH.length).replace(/\/$/, '') || '/' 
+        : pathWithoutQuery.replace(/\/$/, '');
+    
     console.log(`現在の論理パス: ${logicalPath} にビューを切り替え`);
     
     // 全てのメインビューを非表示にする
@@ -64,11 +69,9 @@ function renderView(path) {
         views[logicalPath].classList.add('view-active');
         document.getElementById('ui-overlay').style.display = (logicalPath === '/' || logicalPath === '/capture') ? 'block' : 'none';
 
-        // ⬇️ 修正: 捕獲画面に切り替わる際にUIを更新 ⬇️
         if (logicalPath === '/capture') {
             updateCaptureUI();
         }
-        // ⬆️ 修正終わり ⬆️
 
     } else if (logicalPath.startsWith('/menu')) {
         views['/menu'].classList.add('view-active');
@@ -99,18 +102,23 @@ function renderView(path) {
 }
 
 /**
- * History APIを使ってURLを移動し、ビューを切り替える
+ * History APIを使ってURLを移動し、ビューを切り替える (クエリパラメータを保持)
  * @param {string} logicalPath - 移動先の論理パス (例: /menu, /capture)
  * @param {boolean} pushState - history.pushStateを呼び出すか (デフォルト: true)
  */
 window.navigate = function(logicalPath, pushState = true) {
-    // ユーザーが渡す論理パスを正規化
-    const normalizedLogicalPath = logicalPath.replace(/\/$/, '') || '/';
+    // ユーザーが渡す論理パスを正規化 (パス部分のみ)
+    const pathPart = logicalPath.split('?')[0].replace(/\/$/, '') || '/';
     
-    // History APIに渡す絶対パスを作成: /rei/ポケモンGO + /menu
-    const newAbsolutePath = BASE_PATH + normalizedLogicalPath;
+    // 既存のクエリパラメータを抽出
+    const currentQuery = window.location.search;
+    console.log(`currentQuery:${currentQuery}`);
+    
+    // History APIに渡す新しい絶対URLパスを作成: BASE_PATH + pathPart + currentQuery
+    const newAbsolutePath = BASE_PATH + pathPart + currentQuery;
+    console.log(`newAbsolutePath:${newAbsolutePath}`);
 
-    console.log(`論理パス: ${normalizedLogicalPath}`);
+    console.log(`論理パス: ${pathPart}`);
     console.log(`絶対URLパス: ${newAbsolutePath}`);
     
     if (pushState) {
@@ -119,14 +127,15 @@ window.navigate = function(logicalPath, pushState = true) {
         console.log(`history.pushState実行: ${newAbsolutePath}`);
     }
     
-    // renderViewに絶対パスを渡す
+    // renderViewに絶対パスを渡す (renderView側でクエリパラメータは無視される)
     renderView(newAbsolutePath);
 }
 
 // ブラウザの戻る/進むボタンが押された時の処理
 window.addEventListener('popstate', () => {
-    // popstateイベントではブラウザがセットした絶対パスが使われる
-    window.navigate(window.location.pathname, false);
+    // 修正: クエリパラメータも含めたURL全体をnavigateに渡す
+    const fullPath = window.location.pathname + window.location.search;
+    window.navigate(fullPath, false);
 });
 
 
@@ -167,6 +176,7 @@ function initMap() {
 }
 
 function getMyIconUrl() {
+    // クエリパラメータからmyiconの値を取得 (修正済みのため、これでOK)
     const urlParams = new URLSearchParams(window.location.search);
     const customUrl = urlParams.get('myicon');
     
@@ -182,7 +192,7 @@ function onLocationFound(e) {
     currentLng = lng;
 
     const myIcon = L.icon({
-        iconUrl: getMyIconUrl(),
+        iconUrl: getMyIconUrl(), // クエリパラメータから取得
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34]
@@ -365,7 +375,7 @@ function loadWildPokemon(lat, lng) {
                 .bindPopup(`野生の ${selectedPokemon.japanese} が出現！`);
                 
             pikaMarker.on('click', () => {
-                // ⬇️ 修正: クリックされたポケモンの情報を currentWildPokemon に保存 ⬇️
+                // 修正: クリックされたポケモンの情報を currentWildPokemon に保存
                 currentWildPokemon = selectedPokemon;
                 console.log(`捕獲対象を設定: ${currentWildPokemon.japanese}`);
                 
@@ -562,5 +572,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initMap();
     
     // 初期化時、ブラウザの絶対パスを渡してビューを決定
-    window.navigate(window.location.pathname, false);
+    // window.location.pathname + window.location.search で完全なURLを渡す
+    const initialPath = window.location.pathname + window.location.search;
+    window.navigate(initialPath, false);
 });
