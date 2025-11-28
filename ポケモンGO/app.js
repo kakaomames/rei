@@ -651,7 +651,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         console.log("--- app.js 起動処理完了 ---"); 
         
-    }, 100); // 100ミリ秒の遅延
+    }, 10); // 100ミリ秒の遅延
     // ⬆️ 修正箇所終わり ⬆️
 });
 
