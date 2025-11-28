@@ -20,19 +20,50 @@
       "description_ja": "非常に高性能なボール。",
       "catch_rate_multiplier": 2.0,
       "img_file": "hyper-ball.png"
+    },
+    "MASTERBALL": {
+      "id": "masterball",
+      "japanese": "マスターボール",
+      "description_ja": "絶対に捕まえるボール。",
+      "catch_rate_multiplier": 100.0,
+      "img_file": "master-ball.png"
     }
   },
   "RECOVERY": {
     "POTION": {
       "id": "potion",
       "japanese": "キズぐすり",
-      "description_ja": "ポケモンのHPを少し回復する。",
+      "description_ja": "ポケモンのHPを20回復する。",
       "recover_value": 20
+    },
+    "POTION2": {
+      "id": "potion2",
+      "japanese": "良いキズぐすり",
+      "description_ja": "ポケモンのHPを50回復する。",
+      "recover_value": 50
+    },
+    "POTION3": {
+      "id": "potion3",
+      "japanese": "すごいキズぐすり",
+      "description_ja": "ポケモンのHPを200回復する。",
+      "recover_value": 200
+    },
+    "POTION4": {
+      "id": "potion4",
+      "japanese": "マンタンのぐすり",
+      "description_ja": "ポケモンのHPを最大まで回復する。",
+      "recover_value": 200000000
     },
     "REVIVE": {
       "id": "revive",
       "japanese": "げんきのかけら",
       "description_ja": "ひんし状態のポケモンを回復する。",
+      "recover_value": "HALF"
+    },
+    "REVIVE2": {
+      "id": "revive2",
+      "japanese": "げんきのかたまり",
+      "description_ja": "ひんし状態のポケモンを全回復する。",
       "recover_value": "HALF"
     }
   }
