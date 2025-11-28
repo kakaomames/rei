@@ -114,6 +114,7 @@
         script.src = 'app.js';
         document.body.appendChild(script);
         console.log("--- app.js 動的ロード開始 ---");
+        initMap();
     }, 1000); 
 
     // この遅延により、app.js 内の DOMContentLoaded イベント内の setTimeout(100) は不要になります。
