@@ -3,7 +3,6 @@
 import { spawnPokemonByType } from './pokemon.js'; 
 import { startCaptureMode } from './pokemongo-UI.js'; 
 import { getPokestopPopupContent } from './pokestop.js'; 
-// pokestop.js からのインポートは必要に応じて追加してください。
 
 // ===========================================
 // グローバル変数と定数
@@ -24,7 +23,7 @@ const ACCESS_RADIUS_M = 100; // アクセス可能半径 100メートル
 
 const TRANSPARENT_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 // デフォルトのプレイヤーアイコン (URLパラメータで上書き可能)
-let initialIconUrl = './assets/男子(中～高).png'; // 前回までの統一パスに修正 
+let initialIconUrl = './assets/男子(中～高).png';
 
 let LANDMARK_ICONS = {
     // URLは相対パスでアセットを参照
@@ -38,12 +37,7 @@ let LANDMARK_ICONS = {
 // ===========================================
 
 /**
- * 2つの座標間の距離をメートル単位で計算する (ヒャーサインの公式)
- * @param {number} lat1 座標1 緯度
- * @param {number} lon1 座標1 経度
- * @param {number} lat2 座標2 緯度
- * @param {number} lon2 座標2 経度
- * @returns {number} 距離 (メートル)
+ * 2つの座標間の距離をメートル単位で計算する
  */
 function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371e3; // 地球の半径 (メートル)
@@ -63,9 +57,6 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
 /**
  * ランドマークがプレイヤーのアクセス範囲内にあるかチェックする
- * @param {number} landmarkLat ランドマークの緯度
- * @param {number} landmarkLng ランドマークの経度
- * @returns {boolean} アクセス可能であれば true
  */
 export function isWithinAccessRange(landmarkLat, landmarkLng) {
     if (!playerMarker) return false;
@@ -87,7 +78,7 @@ function initMap() {
     }
     console.log("[DEBUG:INIT] Leafletオブジェクトを確認。マップ初期化開始。");
 
-    // ⭐ 1. URLクエリパラメータから各種情報を取得するロジック ⭐
+    // 1. URLクエリパラメータから各種情報を取得するロジック
     try {
         const urlParams = new URLSearchParams(window.location.search);
         
@@ -123,7 +114,7 @@ function initMap() {
         
         // カスタムペインを作成し、Z-indexを設定
         map.createPane('marker_z5');
-        // ⭐ 修正: Z-indexを600に設定し、ランドマークをタイルレイヤーより手前に表示 ⭐
+        // ⭐ Z-indexを600に設定 (ランドマークをタイルレイヤーより手前に表示) ⭐
         map.getPane('marker_z5').style.zIndex = 600; 
         console.log("[DEBUG:INIT] カスタムペイン 'marker_z5' (Z-index: 600) を作成しました。");
 
@@ -132,7 +123,7 @@ function initMap() {
             iconUrl: initialIconUrl, 
             iconSize: [64, 64],
             iconAnchor: [32, 64],
-            className: 'player-marker' // CSSでカスタムスタイルを適用
+            className: 'player-marker'
         });
         playerMarker = L.marker(initialCoords, { icon: initialIcon }).addTo(map);
         console.log("[DEBUG:INIT] プレイヤーマーカーを初期位置に追加しました。");
@@ -154,6 +145,9 @@ function initMap() {
             }
         }, 5 * 60 * 1000); 
 
+        // ⭐ NEW: GPSトラッキングを開始し、プレイヤーを移動可能にする ⭐
+        startPlayerLocationTracking();
+
     } catch (e) {
         console.error("[FATAL ERROR] マップの初期化中に致命的なエラーが発生しました。", e);
     }
@@ -173,7 +167,6 @@ async function loadLandmarkData() {
             throw new Error("ランドマークJSONのロードに失敗しました。");
         }
 
-        // ⭐ GYM_DATA と POKESTOP_DATA を export された変数に格納 ⭐
         GYM_DATA = await gymRes.json();
         POKESTOP_DATA = await stopRes.json();
         
@@ -191,14 +184,13 @@ async function loadLandmarkData() {
 function loadLandmarks() {
     // ジムを配置
     GYM_DATA.forEach(gym => {
-        // チームカラークラスを付与
         const teamClass = `gym-team-${gym.team.toLowerCase()}`; 
         
         const icon = L.icon({
             iconUrl: LANDMARK_ICONS.gym, 
             iconSize: [48, 48],
             iconAnchor: [24, 24],
-            className: `gym-marker ${teamClass}` // チームクラスを適用
+            className: `gym-marker ${teamClass}`
         });
         
         const marker = L.marker([gym.lat, gym.lng], { 
@@ -224,7 +216,6 @@ function loadLandmarks() {
         
         // ポップアップが開くたびに内容を最新の状態に更新
         marker.on('popupopen', function (e) {
-            // アクセス範囲チェックを行い、ポケストップのポップアップコンテンツを生成
             const isAccessible = isWithinAccessRange(stop.lat, stop.lng);
             const latestContent = getPokestopPopupContent(stop.id, stop.name_ja, isAccessible); 
             e.popup.setContent(latestContent);
@@ -239,7 +230,6 @@ function loadLandmarks() {
 
 /**
  * pokestop.js からマーカーを取得するためにグローバルに登録
- * (クールダウン後にポップアップの内容を更新するために利用される)
  */
 window.getPokestopMarkerById = (stopId) => {
     return pokestopMarkers[stopId];
@@ -267,7 +257,6 @@ function spawnRandomPokemon(centerLat, centerLng) {
     const lat = centerLat + randomDistance * Math.cos(randomAngle);
     const lng = centerLng + randomDistance * Math.sin(randomAngle);
     
-    // 環境ベースの出現ロジックを使用
     const chosenPokemonObj = spawnPokemonByType(lat, lng);
     
     if (!chosenPokemonObj) {
@@ -296,18 +285,17 @@ function spawnRandomPokemon(centerLat, centerLng) {
         ...chosenPokemonObj,
         lat: lat,
         lng: lng,
-        uniqueId: Math.random().toString(36).substring(2) // 捕獲モードの削除用ID
+        uniqueId: Math.random().toString(36).substring(2)
     }; 
     
     // マーカークリックイベント: 捕獲モードを開始
     marker.on('click', function(e) {
         
-        // 捕獲モードを開始
         startCaptureMode(this.pokemonData); 
         
         // 捕獲モード中はマップからマーカーを削除
         if (removePokemonMarker(this)) {
-             console.log(`[EVENT] ${this.pokemonData.japanese} マーカーをマップから削除しました (捕獲モード移行)。`);
+             // ログは removePokemonMarker 内で出力済み
         }
     });
     
@@ -323,6 +311,70 @@ function spawnRandomPokemon(centerLat, centerLng) {
         }
     }, 15 * 60 * 1000); 
 }
+
+// ===========================================
+// GPSとプレイヤー移動ロジック (NEW)
+// ===========================================
+
+/**
+ * GPSの位置情報取得を開始し、プレイヤーマーカーを更新する
+ */
+export function startPlayerLocationTracking() {
+    if ("geolocation" in navigator) {
+        console.log("[GPS] 位置情報トラッキングを開始します...");
+        
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        };
+
+        const watchId = navigator.geolocation.watchPosition((position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const newPos = [lat, lng];
+
+            console.log(`[GPS:UPDATE] プレイヤー位置を更新: Lat:${lat}, Lng:${lng}`);
+
+            if (playerMarker && map) {
+                // プレイヤーマーカーを新しい位置に移動
+                playerMarker.setLatLng(newPos); 
+                // マップの中心をプレイヤーに合わせる
+                map.panTo(newPos, { animate: true, duration: 1.0 }); 
+                
+                // ポケモンやポケストップとのインタラクションチェックをトリガー
+                checkInteractionOnMove(newPos);
+            }
+        }, (error) => {
+            console.error("[GPS:ERROR] 位置情報の取得に失敗しました:", error.message);
+        }, options);
+        
+        window.gpsWatchId = watchId;
+
+    } else {
+        console.error("[GPS:ERROR] お使いのブラウザは位置情報APIをサポートしていません。");
+    }
+}
+
+/**
+ * プレイヤーの移動時にインタラクションをチェックする
+ */
+function checkInteractionOnMove(playerLatlng) {
+    // プレイヤーが移動したら、全てのポケストップとの距離をチェックする
+    const pokestops = Object.values(pokestopMarkers);
+    const playerPos = L.latLng(playerLatlng[0], playerLatlng[1]);
+
+    pokestops.forEach(marker => {
+        if (!marker._map) return; // マーカーがマップ上にない場合はスキップ
+        
+        const distance = playerPos.distanceTo(marker.getLatLng()); 
+        if (distance <= ACCESS_RADIUS_M) {
+            // 例: ポケストップにアクセス可能範囲に入った場合
+            // console.log(`[INTERACT] ポケストップ ${marker.options.id} の近くにいます。`);
+        }
+    });
+}
+
 
 // ===========================================
 // マーカー/マップ更新ロジック (postMessage受信時)
