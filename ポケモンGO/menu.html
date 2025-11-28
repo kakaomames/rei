@@ -1,195 +1,108 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <title>Pokemon GO Web Edition (SPA)</title>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <meta name="description" content="カカオマメが開発した、Webブラウザで動作するポケモンGOクローンアプリ。地図、GPS追跡、環境に応じたポケモン出現ロジックを搭載。">
-    <meta name="keywords" content="ポケモンGO, Pokemon GO, Webアプリ, SPA, Flask, マップ, GPS, カカオマメ">
-    
-    <link rel="stylesheet" type="text/css" href="../leaflet/leaflet.css" />
-    <link rel="stylesheet" type="text/css" href="./map-appv2.css" />
-    
+    <title>メニュー</title>
     <style>
-        body { 
-            margin: 0; 
-            padding: 0; 
-            overflow: hidden; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-user-select: none;
-            user-select: none;
+        body {
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .menu-item {
-            padding: 15px 25px;
-            font-size: 16px;
-            background-color: #333;
+        .menu-header {
+            width: 100%;
+            background-color: #555;
             color: white;
-            border: 2px solid #555;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        .back-button {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .menu-content {
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        #menu-options button {
+            display: block;
+            width: 80%;
+            max-width: 300px;
+            margin: 15px auto;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ccc;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
-            min-width: 100px;
-            box-shadow: 0 4px #1a1a1a;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        .menu-item:active {
-            box-shadow: 0 1px #1a1a1a;
-            transform: translateY(3px);
+        #menu-options button:hover {
+            background-color: #e0e0e0;
         }
-        .menu-item:hover { background-color: #555; }
         .sub-menu-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        .view-active { display: block !important; }
-        .view-hidden { display: none !important; }
-        
-        /* メニューの戻るボタン装飾 */
-        .back-to-menu-button {
-            position: absolute; 
-            bottom: 20px; 
-            left: 20px; 
-            padding: 10px 20px;
-            background-color: #f44336;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
-        /* 捕獲時のボール揺れアニメーション */
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-        .shake-animation {
-            animation: shake 0.5s infinite;
+        .view-hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
-    
-    <script src="../leaflet/leaflet.js"></script>
-
-    <div id="map" class="view-active" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;"></div>
-
-    <div id="ui-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none;">
-        
-        <div id="pokemon-box-ui" style="position: absolute; top: 10px; right: 10px; z-index: 20; padding: 10px; background-color: rgba(0, 0, 0, 0.5); border-radius: 10px; max-width: 300px; color: white; pointer-events: auto;">
-            <p>今日の相棒: ピカチュウ (CP 300)</p>
-        </div>
-
-        <button id="menu-button" onclick="window.navigate('/menu');" 
-            style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 15; padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 25px; background-color: #4CAF50; color: white; border: 3px solid #38703a; pointer-events: auto;">
-            メニュー
-        </button>
-    </div>
-    
-    <div id="capture-ui" class="view-hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #f0f0f0; z-index: 25; text-align: center; color: #333;">
-    
-        <div style="padding: 20px; background-color: #fff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-            <h1>野生のポケモンが出現！ 🚨</h1>
-            <div id="capture-target-info" style="margin: 20px auto; padding: 10px; border: 2px solid #ccc; width: fit-content; border-radius: 10px; background-color: #e0e0e0;">
-                <p>ロード中...</p>
-            </div>
-        </div>
-        
-        <div style="position: fixed; bottom: 0; width: 100%; background-color: #333; padding: 15px 0;">
-            <h2 style="color: white; margin-top: 0;">ボールを選択して捕獲！</h2>
-            <div id="ball-selection" style="display: flex; justify-content: center; gap: 20px;">
-                <button class="ball-button" onclick="attemptCapture('POKEBALL')" style="background: none; border: none; cursor: pointer;">
-                    <img src="../assets/item/1.png" alt="モンスターボール" style="width: 50px;"><br>
-                    <span style="color: white;">モンスターボール</span>
-                </button>
-                <button class="ball-button" onclick="attemptCapture('SUPERBALL')" style="background: none; border: none; cursor: pointer;">
-                    <img src="../assets/item/2.png" alt="スーパーボール" style="width: 50px;"><br>
-                    <span style="color: white;">スーパーボール</span>
-                </button>
-            </div>
-        </div>
-        
-        <button onclick="window.navigate('/');" class="back-to-menu-button">逃げる/マップに戻る</button>
+    <div class="menu-header">
+        <button class="back-button" onclick="window.parent.navigate('/');">←</button>
+        <h2>メインメニュー</h2>
     </div>
 
-    <div id="main-menu" class="view-hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); z-index: 30; color: white;">
+    <div class="menu-content" id="sub-menu-container">
         
-        <button onclick="window.navigate('/');" style="position: absolute; top: 20px; right: 20px; font-size: 24px; background: none; border: none; color: white; cursor: pointer;">
-            ❌
-        </button>
-
-        <div id="menu-options" style="text-align: center; padding-top: 50px;">
-            <h1 style="margin-bottom: 40px;">メインメニュー</h1>
-            <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 30px;">
-                <button onclick="window.navigate('/menu/pokemon');" class="menu-item">ポケモン</button>
-                <button onclick="window.navigate('/menu/inventory');" class="menu-item">道具</button>
-                <button onclick="window.navigate('/menu/quest');" class="menu-item">クエスト</button>
-                <button onclick="window.navigate('/menu/account');" class="menu-item">アカウント</button>
-                <button onclick="alert('ショップ画面（後で実装）');" class="menu-item">ショップ</button>
-                <button onclick="alert('図鑑画面（後で実装）');" class="menu-item">図鑑</button>
-                <button onclick="alert('対戦画面（後で実装）');" class="menu-item">対戦</button>
-                <button onclick="window.navigate('/menu/settings');" class="menu-item">設定</button>
-            </div>
+        <div id="menu-options">
+            <button onclick="window.parent.navigate('/menu/pokemon');">
+                ポケモン
+            </button>
+            <button onclick="window.parent.navigate('/menu/inventory');">
+                どうぐ
+            </button>
+            <button onclick="alert('設定機能は未実装です');">
+                設定
+            </button>
         </div>
 
-        <div id="sub-menu-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-            
-            <div id="pokemon-list-container" data-path="/menu/pokemon" class="sub-menu-content view-hidden">
-                <h2 style="padding: 20px; text-align: center;">ポケモンリスト 🎒</h2>
-                <div id="pokemon-list-content" style="padding: 0 20px;"></div>
-                <button onclick="window.navigate('/menu');" class="back-to-menu-button">メニューに戻る</button>
-            </div>
-            
-            <div id="inventory-container" data-path="/menu/inventory" class="sub-menu-content view-hidden">
-                <h2 style="padding: 20px; text-align: center;">道具バッグ 🛍️</h2>
-                <div id="inventory-content" style="padding: 0 20px;"></div>
-                <button onclick="window.navigate('/menu');" class="back-to-menu-button">メニューに戻る</button>
-            </div>
-            
-            <div id="quest-container" data-path="/menu/quest" class="sub-menu-content view-hidden">
-                <h2 style="padding: 20px; text-align: center;">クエスト 📝</h2>
-                <p style="padding: 20px; text-align: center;">デイリー/フィールドリサーチなどが表示されます</p>
-                <button onclick="window.navigate('/menu');" class="back-to-menu-button">メニューに戻る</button>
-            </div>
-            
-            <div id="account-container" data-path="/menu/account" class="sub-menu-content view-hidden">
-                <h2 style="padding: 20px; text-align: center;">アカウント情報 👤</h2>
-                <p style="padding: 20px; text-align: center;">トレーナー名、レベル、XPなどが表示されます</p>
-                <button onclick="window.navigate('/menu');" class="back-to-menu-button">メニューに戻る</button>
-            </div>
-            
-            <div id="settings-container" data-path="/menu/settings" class="sub-menu-content view-hidden">
-                <h2 style="padding: 20px; text-align: center;">設定 ⚙️</h2>
-                <p style="padding: 20px; text-align: center;">サウンド、プライバシー設定など</p>
-                <button onclick="window.navigate('/menu');" class="back-to-menu-button">メニューに戻る</button>
-            </div>
+        <div class="sub-menu-content view-hidden" data-path="/menu/pokemon">
+            <button onclick="window.parent.navigate('/menu');">← メニューに戻る</button>
+            <div id="pokemon-list-content" style="margin-top: 20px;">
+                </div>
         </div>
+
+        <div class="sub-menu-content view-hidden" data-path="/menu/inventory">
+            <button onclick="window.parent.navigate('/menu');">← メニューに戻る</button>
+            <div id="inventory-content" style="margin-top: 20px;">
+                </div>
+        </div>
+        
     </div>
-    
-    <script src="./app.js" defer></script> 
-    
-    <script>
-        setTimeout(() => {
-            if ('serviceWorker' in navigator) {
-                // Service Workerのパスは./でOK
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('Service Worker: 登録成功 (Scope: ' + reg.scope + ')'))
-                    .catch(error => console.log('Service Worker: 登録失敗', error));
-            }
-        }, 1000); 
-    </script>
 </body>
 </html>
+    
+ 
