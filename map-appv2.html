@@ -85,18 +85,32 @@
 <script type="module" src="./settings.js"></script>
 <script type="module" src="./pokestop.js"></script>
 
-    <!--<script>
-    // LeafletのLオブジェクトと、モジュール内の関数がロードされるのを待つ
+    <script>
+    // 💡 待機処理をポーリング（短い間隔でチェック）に切り替え、
+    // L と initializeMapModule の両方が定義されるのを待ちます。
     
-    // 1000ミリ秒 (1秒) 遅延させて initializeMapModule を実行する
-     setTimeout(() => {
-         if (typeof L !== 'undefined' && typeof window.initializeMapModule !== 'undefined') {
-            console.log("✅ [TRIGGER] Leafletとモジュールを確認。1秒遅延後にマップ初期化を開始します。");
+    let checkCount = 0;
+    const maxChecks = 100; // 最大1秒間 (10ms * 100) チェックする
+
+    function tryInitialize() {
+        if (typeof L !== 'undefined' && typeof window.initializeMapModule === 'function') {
+            console.log("✅ [TRIGGER] Leafletとモジュール登録を確認。マップ初期化を開始します。");
+            // ログが失われないよう、L のチェックは initializeMapModule の中ではなく、ここで行う
             window.initializeMapModule();
-         } else {
-           console.error("🚨 [FATAL ERROR] L (Leaflet) または initializeMapModule が未定義です。マップ初期化をスキップします。");
-         }
-     }, 1000);
-    </script>-->
+        } else if (checkCount < maxChecks) {
+            checkCount++;
+            // 10ミリ秒ごとに再チェック
+            setTimeout(tryInitialize, 10); 
+        } else {
+            console.error("🚨 [FATAL ERROR] 1秒間待機しましたが、L (Leaflet) または initializeMapModule が未定義のままです。");
+        }
+    }
+
+    // ページロードまたはDOM構築が完了したら待機を開始
+    window.addEventListener('load', tryInitialize); 
+    // または、DOMContentLoaded でも試せます
+    // document.addEventListener('DOMContentLoaded', tryInitialize);
+
+</script>
 </body>
 </html>
