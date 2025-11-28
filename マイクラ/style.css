@@ -113,3 +113,44 @@ h1 {
     font-size: 14px;
     margin-top: 50px;
 }
+
+/* style.css に以下のスタイルを追加 */
+
+/* -------------------------------- */
+/* 5. ロゴとスプラッシュテキスト */
+/* -------------------------------- */
+
+#game-logo {
+    /* ロゴ画像のサイズを調整 */
+    max-width: 90%;
+    height: auto;
+    /* h1 の代わりにロゴを使用するため、マージンを調整 */
+    margin-bottom: 20px; 
+}
+
+.splash-text {
+    /* スプラッシュテキストの見た目 */
+    color: var(--mc-yellow);
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 var(--mc-brown);
+    
+    /* マイクラのスプラッシュテキストのように傾ける */
+    transform: rotate(-10deg);
+    
+    /* 絶対位置でタイトル（ロゴ）の近くに配置する設定 */
+    position: absolute;
+    top: 50%; /* 垂直位置を調整 */
+    left: 55%; /* 水平位置を調整 */
+    
+    /* 親要素 (今回は body) に相対位置を設定する必要がある */
+    /* ただし、ここではシンプルに絶対位置で調整しています */
+}
+
+/* container の position を relative にすると、splash-text の配置がしやすくなります */
+.container {
+    /* 既存の style.css に追加: これにより、子要素の absolute 配置の基準点になります */
+    position: relative; 
+    text-align: center;
+    padding: 30px;
+}
