@@ -33,6 +33,8 @@ let pokemonMasterData = null;
 // ローカルストレージのキー
 const POKEMON_STORAGE_KEY = 'kakaomame_pokemons'; 
 console.log(`POKEMON_STORAGE_KEY:${POKEMON_STORAGE_KEY}`);
+const ITEM_STORAGE_KEY = 'kakaomame_inventory';
+console.log(`ITEM_STORAGE_KEY:${ITEM_STORAGE_KEY}`);
 
 // 現在捕獲対象のポケモン
 let currentWildPokemon = null; 
@@ -89,9 +91,7 @@ function renderView(path) {
             const targetEl = document.querySelector(`#sub-menu-container [data-path="${subPath}"]`);
             if (targetEl) {
                 targetEl.classList.remove('view-hidden');
-                // ⬇️ 修正: ポケモンリスト表示時にローカルストレージからデータをロード ⬇️
                 if (subPath === '/menu/pokemon') loadPokemonList(); 
-                // ⬆️ 修正終わり ⬆️
                 if (subPath === '/menu/inventory') loadInventory();
             }
         }
@@ -236,7 +236,10 @@ function onLocationError(e) {
 // 4. データロードと出現ロジック
 // **********************************
 
-// ポケストップ/ジムのロード (API使用)
+/**
+ * ポケストップ/ジムのロード (API使用)
+ * APIがHTMLタグで囲まれたJSONを返す問題に対処する修正済みバージョン
+ */
 function loadGymsAndPokestops(lat, lng) {
     pokestopGymLayer.clearLayers();
     pokestopGymLayer.addTo(map);
@@ -245,8 +248,30 @@ function loadGymsAndPokestops(lat, lng) {
     console.log(`APIコール (ポケストップ/ジム): ${apiUrl}`);
 
     fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
+        // response.json() の代わりに response.text() を使用
+        .then(response => response.text())
+        .then(textData => {
+            console.log(`APIから取得した生のデータ: ${textData.substring(0, 100)}...`);
+            
+            // 正規表現を使って、[ と ] で囲まれたJSON配列部分を抽出
+            // /s フラグは . が改行文字にもマッチするようにする (非貪欲マッチ)
+            const match = textData.match(/\[.*?\]/s); 
+            
+            if (!match) {
+                console.error('APIレスポンスから有効なJSON配列を抽出できませんでした。');
+                return;
+            }
+            
+            let data;
+            try {
+                // 抽出した文字列をJSONとしてパース
+                data = JSON.parse(match[0]);
+            } catch (e) {
+                console.error('抽出した文字列のJSONパースに失敗しました:', e);
+                console.log(`抽出された文字列の先頭: ${match[0].substring(0, 100)}...`);
+                return;
+            }
+
             console.log(`取得データ数: ${data.length} 件`);
             if (!Array.isArray(data)) return;
             
@@ -254,7 +279,8 @@ function loadGymsAndPokestops(lat, lng) {
 
             validSpots.forEach(spot => {
                 const type = spot.pm_type; 
-                const name = spot.pm_name;
+                // JSON.parseがUnicodeエスケープを自動処理
+                const name = spot.pm_name; 
                 const spotLat = parseFloat(spot.pm_lat);
                 const spotLng = parseFloat(spot.pm_lng);
 
@@ -401,7 +427,7 @@ async function loadPokemonList() {
         const response = await fetch('../pokemon.json');
         const masterData = await response.json();
         
-        // ⬇️ 修正: ローカルストレージからデータをロード ⬇️
+        // ローカルストレージからデータをロード
         const userPokemons = loadUserPokemons();
         
         const getPokemonInfo = (id) => masterData.pokemonList.find(p => p.id === id);
@@ -431,7 +457,7 @@ async function loadPokemonList() {
     }
 }
 
-// 道具バッグのロード (静的JSON使用)
+// 道具バッグのロード (ローカルストレージ使用)
 async function loadInventory() {
     const container = document.getElementById('inventory-content');
     container.innerHTML = '<p style="text-align: center;">...ロード中...</p>';
@@ -440,13 +466,8 @@ async function loadInventory() {
         const response = await fetch('../item.json');
         const itemData = await response.json();
         
-        // デモデータ (変更なし)
-        const userItemCounts = {
-            "POKEBALL": 50,
-            "SUPERBALL": 20,
-            "POTION": 15,
-            "REVIVE": 5
-        };
+        // ローカルストレージから在庫数をロード
+        const userItemCounts = loadInventoryCounts(); 
         console.log(`userItemCounts:${Object.keys(userItemCounts).length}種類`);
 
         let html = '<h3>バッグの中身</h3><ul>';
@@ -457,9 +478,10 @@ async function loadInventory() {
             // 道具アイテムを走査
             for (const itemKey in itemData[categoryKey]) {
                 const item = itemData[categoryKey][itemKey];
+                // ローカルストレージの在庫数を使用
                 const count = userItemCounts[itemKey] || 0; 
                 
-                if (count > 0) {
+                if (count >= 0) { // 在庫が0以上なら表示する
                     // アセットパスは../assets/を維持
                     const iconPath = `../assets/item/${item.id}.png`;
                     
@@ -476,7 +498,7 @@ async function loadInventory() {
         html += '</ul>';
 
         container.innerHTML = html;
-        console.log(`itemData keys: ${Object.keys(itemData).join(', ')}`);
+        console.log(`アイテム在庫データロード完了`);
 
     } catch (error) {
         container.innerHTML = `<p style="color: red;">アイテムデータのロードに失敗しました: ${error}</p>`;
@@ -523,6 +545,30 @@ function updateCaptureUI() {
 function attemptCapture(itemKey) {
     if (!currentWildPokemon) return;
     
+    // ⬇️ 道具の在庫確認と消費 ⬇️
+    let inventoryCounts = loadInventoryCounts();
+    const currentCount = inventoryCounts[itemKey] || 0;
+    console.log(`${itemKey}の現在在庫:${currentCount}`); 
+
+    if (currentCount <= 0) {
+        const infoDiv = document.getElementById('capture-target-info');
+        infoDiv.innerHTML = `
+            <h2 style="color: orange;">在庫がありません！ 😭</h2>
+            <p>${itemKey === 'POKEBALL' ? 'モンスターボール' : 'スーパーボール'}がありません。</p>
+            <button onclick="window.navigate('/');" class="back-to-menu-button" style="position: static;">マップに戻る</button>
+        `;
+        console.log(`在庫切れのため捕獲失敗`);
+        // ボール選択UIを非表示
+        document.getElementById('ball-selection').style.display = 'none';
+        return; 
+    }
+
+    // 在庫を1減らす
+    inventoryCounts[itemKey] = currentCount - 1;
+    saveInventoryCounts(inventoryCounts);
+    console.log(`${itemKey}を消費しました。残り:${inventoryCounts[itemKey]}`); 
+    // ⬆️ 道具の在庫確認と消費終わり ⬆️
+
     console.log(`捕獲開始: ${currentWildPokemon.japanese} に ${itemKey} を使用`);
     
     // ボールUIを非表示
@@ -532,7 +578,6 @@ function attemptCapture(itemKey) {
     infoDiv.innerHTML = `<h2 style="color: blue;">${itemKey === 'SUPERBALL' ? 'スーパーボール' : 'モンスターボール'}が飛んでいった！...</h2>`;
 
     // 簡易的な捕獲成功率 (デモ)
-    // モンスターボール: 40%, スーパーボール: 60% と仮定
     let baseCatchRate = 0.4; 
     if (itemKey === 'SUPERBALL') {
         baseCatchRate = 0.6;
@@ -546,7 +591,7 @@ function attemptCapture(itemKey) {
     setTimeout(() => {
         if (isCaught) {
             
-            // ⬇️ 修正: 捕獲したポケモンをローカルストレージに保存 ⬇️
+            // 捕獲したポケモンをローカルストレージに保存
             const userPokemons = loadUserPokemons();
             const newPokemon = { 
                 id: currentWildPokemon.id, 
@@ -556,8 +601,7 @@ function attemptCapture(itemKey) {
             userPokemons.push(newPokemon);
             saveUserPokemons(userPokemons);
             
-            console.log(`新しいポケモンをリストに追加: ${newPokemon.nickname} (CP:${newPokemon.cp})`); // 値を出力
-            // ⬆️ 修正終わり ⬆️
+            console.log(`新しいポケモンをリストに追加: ${newPokemon.nickname} (CP:${newPokemon.cp})`); 
             
             infoDiv.innerHTML = `
                 <img src="../assets/item/1.png" alt="モンスターボール" class="shake-animation" style="width: 80px;">
@@ -579,7 +623,7 @@ function attemptCapture(itemKey) {
 }
 
 // **********************************
-// 7. ローカルストレージ管理 (新設)
+// 7. ローカルストレージ管理
 // **********************************
 
 /**
@@ -612,6 +656,55 @@ function saveUserPokemons(pokemons) {
 }
 console.log(`saveUserPokemons関数定義済み`);
 
+/**
+ * ローカルストレージから道具在庫を読み込む
+ * @returns {Object} 道具キーと数のマップ (例: { "POKEBALL": 50, "SUPERBALL": 20 })
+ */
+function loadInventoryCounts() {
+    try {
+        const storedData = localStorage.getItem(ITEM_STORAGE_KEY);
+        // JSONをパースし、失敗した場合は空のオブジェクトを返す
+        return storedData ? JSON.parse(storedData) : {};
+    } catch (error) {
+        console.error('道具在庫の読み込みに失敗:', error);
+        return {};
+    }
+}
+console.log(`loadInventoryCounts関数定義済み`);
+
+/**
+ * 道具在庫をローカルストレージに保存する
+ * @param {Object} counts - 保存する道具キーと数のマップ
+ */
+function saveInventoryCounts(counts) {
+    try {
+        localStorage.setItem(ITEM_STORAGE_KEY, JSON.stringify(counts));
+        console.log(`道具在庫を保存しました。`);
+    } catch (error) {
+        console.error('道具在庫の書き込みに失敗:', error);
+    }
+}
+console.log(`saveInventoryCounts関数定義済み`);
+
+/**
+ * 道具在庫が存在しない場合、初期在庫を設定する
+ */
+function initializeInventory() {
+    const counts = loadInventoryCounts();
+    if (Object.keys(counts).length === 0) {
+        // 在庫がない場合、初期値を設定
+        const initialCounts = {
+            "POKEBALL": 50,
+            "SUPERBALL": 20,
+            "POTION": 15, 
+            "REVIVE": 5
+        };
+        saveInventoryCounts(initialCounts);
+        console.log("初期道具在庫を設定しました。"); 
+    }
+}
+console.log(`initializeInventory関数定義済み`);
+
 
 // **********************************
 // 6. アプリケーション起動
@@ -619,6 +712,8 @@ console.log(`saveUserPokemons関数定義済み`);
 
 document.addEventListener('DOMContentLoaded', async () => {
     await preloadMasterData();
+    // 道具在庫の初期化
+    initializeInventory();
     initMap();
     
     // 初期化時、ブラウザの絶対パスを渡してビューを決定
