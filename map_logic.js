@@ -411,6 +411,45 @@ export function initializeMapModule() {
     });
 }
 
+// map_logic.js の一番最後 (postMessage リスナーブロックの次)
+
+// 🚨 T5. REGISTER と initializeMapModule 関数の定義は全て削除！ 🚨
+
+// ===========================================
+// モジュール初期化のトリガー (イベントリスナー)
+// ===========================================
+
+/**
+ * マップモジュールの初期化シーケンスを開始するプライベート関数
+ */
+function startMapInitializationSequence() {
+    console.log("🔑 [T4. CALL] leafletReadyForModuleイベントを受信。初期化シーケンス開始。");
+    
+    // LのチェックはHTML側で行っているが、念のため再度チェック
+    if (typeof L === 'undefined') {
+        console.error("🚨 [FATAL ERROR] イベント受信後も L (Leaflet) オブジェクトが見つかりません。");
+        return;
+    }
+
+    // ランドマークデータをロードし、成功したらマップ初期化を実行
+    loadLandmarkData(initialCoords[0], initialCoords[1]).then(({ gyms, pokestops }) => {
+        console.log("🔑 [T4.1] ランドマークデータ取得完了。initMapを呼び出します。");
+        
+        const mapContainer = document.getElementById('map');
+        if (mapContainer && mapContainer.style.display === 'none') {
+            mapContainer.style.display = 'block';
+        }
+        
+        initMap(gyms, pokestops); 
+        console.log("🔑 [T4.2] マップ初期化シーケンス完了。");
+    }).catch(e => {
+        console.error("🚨 [ERROR] ランドマークデータ取得中にエラーが発生しました:", e);
+    });
+}
+
+// ⭐ NEW: カスタムイベントをリッスンし、初期化を開始する
+document.addEventListener('leafletReadyForModule', startMapInitializationSequence);
+console.log("🔑 [T5. EVENT] leafletReadyForModule イベントリスナーを登録しました。");
 // 外部からの呼び出しに備えてグローバルに登録
-window.initializeMapModule = initializeMapModule;
-console.log("🔑 [T5. REGISTER] window.initializeMapModule に関数を登録しました。");
+// window.initializeMapModule = initializeMapModule;
+// console.log("🔑 [T5. REGISTER] window.initializeMapModule に関数を登録しました。");
