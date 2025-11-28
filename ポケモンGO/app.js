@@ -636,7 +636,7 @@ function attemptCapture(itemKey) {
 /**
  * アプリケーションの初期起動処理
  */
-async function startApp() {
+function startApp() {
     console.log("--- app.js 起動処理開始 (即時実行) ---"); 
 
     await preloadMasterData();
