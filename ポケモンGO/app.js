@@ -179,6 +179,9 @@ function initMap() {
         const center = map.getCenter();
         loadGymsAndPokestops(center.lat, center.lng);
     });
+    
+    // マップ初期化後、念のためサイズを再計算
+    setTimeout(() => map.invalidateSize(), 100); 
 }
 
 function getMyIconUrl() {
@@ -238,7 +241,6 @@ function onLocationError(e) {
 
 /**
  * ポケストップ/ジムのロード (API使用)
- * APIがHTMLタグで囲まれたJSONを返す問題に対処する修正済みバージョン
  */
 function loadGymsAndPokestops(lat, lng) {
     pokestopGymLayer.clearLayers();
@@ -254,7 +256,6 @@ function loadGymsAndPokestops(lat, lng) {
             console.log(`APIから取得した生のデータ: ${textData.substring(0, 100)}...`);
             
             // 正規表現を使って、[ と ] で囲まれたJSON配列部分を抽出
-            // /s フラグは . が改行文字にもマッチするようにする (非貪欲マッチ)
             const match = textData.match(/\[.*?\]/s); 
             
             if (!match) {
@@ -561,7 +562,7 @@ function attemptCapture(itemKey) {
         infoDiv.innerHTML = `
             <h2 style="color: orange;">在庫がありません！ 😭</h2>
             <p>${itemKey === 'POKEBALL' ? 'モンスターボール' : 'スーパーボール'}がありません。</p>
-            <button onclick="window.navigate('/');" class="back-to-menu-button" style="position: static;">マップに戻る</button>
+            <button onclick="window.parent.navigate('/');" class="back-to-menu-button" style="position: static;">マップに戻る</button>
         `;
         console.log(`在庫切れのため捕獲失敗`);
         // ボール選択UIを非表示
@@ -613,7 +614,7 @@ function attemptCapture(itemKey) {
                 <img src="../assets/item/1.png" alt="モンスターボール" class="shake-animation" style="width: 80px;">
                 <h2 style="color: green;">🎉 ゲットだぜ！🎉</h2>
                 <p>${currentWildPokemon.japanese} を捕まえた！</p>
-                <button onclick="window.navigate('/');" class="back-to-menu-button" style="position: static;">マップに戻る</button>
+                <button onclick="window.parent.navigate('/');" class="back-to-menu-button" style="position: static;">マップに戻る</button>
             `;
             
             currentWildPokemon = null; // 捕獲完了
@@ -622,7 +623,7 @@ function attemptCapture(itemKey) {
                 <img src="../assets/button_icon_M${currentWildPokemon.id}.png" alt="ポケモン" style="width: 80px;">
                 <h2 style="color: red;">逃げられた... 😥</h2>
                 <p>野生の ${currentWildPokemon.japanese} はボールから飛び出してしまった！</p>
-                <button onclick="window.navigate('/');" class="back-to-menu-button" style="position: static;">マップに戻る</button>
+                <button onclick="window.parent.navigate('/');" class="back-to-menu-button" style="position: static;">マップに戻る</button>
             `;
         }
     }, 3000); // 3秒後に結果を表示
@@ -633,14 +634,25 @@ function attemptCapture(itemKey) {
 // **********************************
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await preloadMasterData();
-    // 道具在庫の初期化
-    initializeInventory();
-    initMap();
-    
-    // 初期化時、ブラウザの絶対パスを渡してビューを決定
-    const initialPath = window.location.pathname + window.location.search;
-    window.navigate(initialPath, false);
+    // ⬇️ 修正箇所: 全ての処理を setTimeout でラップし、遅延させる ⬇️
+    setTimeout(async () => {
+        console.log("--- app.js 起動処理開始 (100ms遅延後) ---"); 
+
+        await preloadMasterData();
+        
+        // 道具在庫の初期化
+        initializeInventory();
+        
+        initMap(); // Leafletマップを初期化
+        
+        // 初期化時、ブラウザの絶対パスを渡してビューを決定
+        const initialPath = window.location.pathname + window.location.search;
+        window.navigate(initialPath, false);
+        
+        console.log("--- app.js 起動処理完了 ---"); 
+        
+    }, 100); // 100ミリ秒の遅延
+    // ⬆️ 修正箇所終わり ⬆️
 });
 
 
@@ -729,7 +741,7 @@ console.log(`initializeInventory関数定義済み`);
 
 
 // **********************************
-// 8. ポケストップ/ジム操作ロジック (新設)
+// 8. ポケストップ/ジム操作ロジック
 // **********************************
 
 /**
