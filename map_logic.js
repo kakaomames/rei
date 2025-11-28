@@ -3,7 +3,7 @@
 import { spawnPokemonByType } from './pokemon.js'; 
 import { startCaptureMode } from './pokemongo-UI.js'; 
 import { getPokestopPopupContent } from './pokestop.js'; 
-// ⭐ NEW: API連携モジュールから関数をインポート ⭐
+// ⭐ API連携モジュールから関数をインポート ⭐
 import { fetchLandmarkDataFromApi } from './api.js'; 
 
 // ===========================================
@@ -14,8 +14,6 @@ let playerMarker;
 let pokemonMarkers = []; 
 let landmarkMarkers = [];
 let pokestopMarkers = {}; 
-
-// ⭐ REMOVED: GYM_DATA / POKESTOP_DATA は api.js から直接ロードして利用するため削除 ⭐
 
 // 初期座標
 let initialCoords = [35.5330, 139.4370]; 
@@ -73,14 +71,18 @@ export function isWithinAccessRange(landmarkLat, landmarkLng) {
 // ===========================================
 // Leaflet マップ 初期化関数
 // ===========================================
-function initMap() {
+/**
+ * Leafletマップを初期化し、イベントリスナーをセットアップする
+ * @param {Array<Object>} initialGyms 初回ロードするジムデータ
+ * @param {Array<Object>} initialPokestops 初回ロードするポケストップデータ
+ */
+function initMap(initialGyms, initialPokestops) {
     if (typeof L === 'undefined') {
         console.error("[FATAL ERROR] L (Leaflet) オブジェクトが見つかりません。");
         return;
     }
     console.log("[DEBUG:INIT] Leafletオブジェクトを確認。マップ初期化開始。");
 
-    // 1. URLクエリパラメータから各種情報を取得するロジック
     try {
         const urlParams = new URLSearchParams(window.location.search);
         // ... (URLパラメータ解析ロジックは省略) ...
@@ -113,10 +115,8 @@ function initMap() {
         playerMarker = L.marker(initialCoords, { icon: initialIcon }).addTo(map);
         console.log("[DEBUG:INIT] プレイヤーマーカーを初期位置に追加しました。");
 
-        // 初回ランドマークロード (非同期処理)
-        loadLandmarkData(initialCoords[0], initialCoords[1]).then(({ gyms, pokestops }) => {
-            loadLandmarks(gyms, pokestops); // 修正: ロードしたデータを渡す
-        });
+        // 初回ランドマーク配置
+        loadLandmarks(initialGyms, initialPokestops);
         
         // ポケモン生成タイマー (5分ごと)
         (function initialSpawn() {
@@ -151,7 +151,7 @@ function initMap() {
  * @returns {{gyms: Array<Object>, pokestops: Array<Object>}}
  */
 async function loadLandmarkData(lat, lng) {
-    // ⭐ api.js からデータを取得する関数を呼び出す ⭐
+    // api.js からデータを取得する関数を呼び出す
     return await fetchLandmarkDataFromApi(lat, lng);
 }
 
@@ -167,7 +167,6 @@ async function loadLandmarkData(lat, lng) {
 function loadLandmarks(gyms, pokestops) {
     // ジムを配置
     gyms.forEach(gym => {
-        // チームカラークラスを付与 (teamプロパティはAPIレスポンスに含まれないためダミー)
         const teamClass = `gym-team-none`; 
         
         const icon = L.icon({
@@ -177,12 +176,12 @@ function loadLandmarks(gyms, pokestops) {
             className: `gym-marker ${teamClass}`
         });
         
-        const marker = L.marker([gym.pm_lat, gym.pm_lng], { // ⭐ 修正: pm_lat, pm_lng を使用 ⭐
+        const marker = L.marker([gym.pm_lat, gym.pm_lng], { 
             icon: icon,
             pane: 'marker_z5' 
         }).addTo(map);
         
-        marker.bindPopup(`<b>${gym.pm_name}</b><br>ID: ${gym.pm_id}`); // ⭐ 修正: pm_name を使用 ⭐
+        marker.bindPopup(`<b>${gym.pm_name}</b><br>ID: ${gym.pm_id}`); 
         landmarkMarkers.push(marker);
     });
 
@@ -193,14 +192,14 @@ function loadLandmarks(gyms, pokestops) {
             iconSize: [48, 48],
             iconAnchor: [24, 24]
         });
-        const marker = L.marker([stop.pm_lat, stop.pm_lng], { // ⭐ 修正: pm_lat, pm_lng を使用 ⭐
+        const marker = L.marker([stop.pm_lat, stop.pm_lng], { 
             icon: icon,
             pane: 'marker_z5'
         });
         
         marker.on('popupopen', function (e) {
             const isAccessible = isWithinAccessRange(stop.pm_lat, stop.pm_lng);
-            const latestContent = getPokestopPopupContent(stop.pm_id, stop.pm_name, isAccessible); // ⭐ 修正: pm_id, pm_name を使用 ⭐
+            const latestContent = getPokestopPopupContent(stop.pm_id, stop.pm_name, isAccessible); 
             e.popup.setContent(latestContent);
         });
         
@@ -250,8 +249,6 @@ async function updateLandmarksOnMove() {
 window.getPokestopMarkerById = (stopId) => {
     return pokestopMarkers[stopId];
 };
-
-// ... (removePokemonMarker 関数、spawnRandomPokemon 関数は省略なし) ...
 
 /**
  * ポケモンマーカーの削除関数 (pokemongo-UI.jsから呼び出される)
@@ -357,7 +354,7 @@ export function startPlayerLocationTracking() {
                 playerMarker.setLatLng(newPos); 
                 map.panTo(newPos, { animate: true, duration: 1.0 }); 
                 
-                // ⭐ ランドマークの更新頻度チェック ⭐
+                // ランドマークの更新頻度チェック
                 const currentTime = Date.now();
                 if (currentTime - lastUpdateTime > UPDATE_INTERVAL_MS) {
                     console.log("[GPS:LANDMARK] 5秒経過、ランドマークを更新します。");
@@ -453,27 +450,32 @@ window.addEventListener('message', (event) => {
 });
 
 // ===========================================
-// マップ初期化のトリガー (index.htmlから呼び出す)
+// マップ初期化のトリガー (自己実行ロジック) ⭐ 修正後の最終ブロック ⭐
 // ===========================================
-/**
- * 外部からマップモジュールの初期化シーケンスを開始するための関数
- */
-export function initializeMapModule() {
-    console.log("[DEBUG:TRIGGER] Leaflet ロード後の初期化シーケンス開始。");
+
+function startInitialMapSequence() {
+     if (typeof L === 'undefined') {
+        // Lが未定義の場合、ここで処理を中断し、HTML側の問題（ロード順）であることを示す
+        console.error("🚨 [FATAL ERROR] L (Leaflet) オブジェクトが見つかりません。マップ初期化をスキップします。HTMLのLeafletロード順を確認してください。");
+        return;
+    }
+
+    console.log("[DEBUG:TRIGGER] Leaflet オブジェクトを確認。マップ初期化シーケンスを開始します。");
     
     // ランドマークデータをロードし、成功したらマップ初期化を実行
     // この時点で playerMarker は存在しないため、初期座標を渡す
-    loadLandmarkData(initialCoords[0], initialCoords[1]).then(() => {
+    loadLandmarkData(initialCoords[0], initialCoords[1]).then(({ gyms, pokestops }) => {
         const mapContainer = document.getElementById('map');
         if (mapContainer && mapContainer.style.display === 'none') {
             console.warn("[WARN:MAP] マップコンテナが非表示になっています。強制的に表示します。");
             mapContainer.style.display = 'block';
         }
         
-        initMap(); 
+        // initMap() に初回ロードしたデータを渡す
+        initMap(gyms, pokestops); 
         console.log("[DEBUG:INIT] initMap() を実行しました。マップが表示されるはずです。");
     });
 }
 
-// グローバルに登録 (index.html から呼び出すため)
-window.initializeMapModule = initializeMapModule;
+// モジュールロード完了と同時に実行を開始
+startInitialMapSequence();
