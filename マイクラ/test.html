@@ -1,3 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ウェブマイクラ！ - プレイ</title>
+    <link rel="stylesheet" href="style.css"> 
+    <style>
+        /* play.html専用のスタイル。 */
+        body {
+            overflow: hidden; 
+        }
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/PointerLockControls.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const delayInMilliseconds = 1000; // 1秒遅延
+
+            console.log(`[LOG] game.js の読み込みを ${delayInMilliseconds}ms 遅延します...`);
+            
+            setTimeout(() => {
+                const gameScript = document.createElement('script');
+                gameScript.src = 'game.js';
+                // gameScript.async = true; // 必要に応じて非同期フラグを追加
+                document.body.appendChild(gameScript);
+                console.log("[LOG] game.js の遅延読み込みを開始しました。");
+            }, delayInMilliseconds);
+        });
+    </script>
+    <script src="addon.js"></script>
+
 <script>
   // addon.js
 
@@ -439,3 +486,5 @@ console.log("==> game.js 実行開始トリガー"); // デバッグログ
 init();
 console.log("==> init() 呼び出し完了"); // デバッグログ
 </script>
+  </body>
+</html>
