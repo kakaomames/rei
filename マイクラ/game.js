@@ -61,13 +61,13 @@ function loadTextureFromBase64(base64) {
  * ローカルストレージに保存されたカスタムアドオンを読み込む
  */
 async function loadCustomAddons() {
-    console.log("カスタムアドオンの読み込みを開始...");
+    console.log("[LOG] カスタムアドオンの読み込みを開始...");
     
     const addonIndex = getStorageJson(ADDON_INDEX_KEY);
     const activeUUIDs = Object.keys(addonIndex);
 
     if (activeUUIDs.length === 0) {
-        console.log("アクティブなカスタムアドオンは見つかりませんでした。");
+        console.log("[LOG] アクティブなカスタムアドオンは見つかりませんでした。");
         return;
     }
 
@@ -76,7 +76,7 @@ async function loadCustomAddons() {
         
         if (Object.keys(packData).length === 0) continue;
 
-        console.log(`パック「${addonIndex[uuid]}」のデータを解析中...`);
+        console.log(`[LOG] パック「${addonIndex[uuid]}」のデータを解析中...`);
 
         for (const filePath in packData) {
             if (filePath === 'manifest') {
@@ -93,7 +93,7 @@ async function loadCustomAddons() {
             if (extension === 'png' || extension === 'jpg') {
                 // テクスチャ（画像ファイル）の処理
                 const texture = loadTextureFromBase64(base64Data);
-                ASSET_MANAGER[filePath] = texture; // ASSET_MANAGER['textures/block/dirt.png']
+                ASSET_MANAGER[filePath] = texture;
                 
             } else if (extension === 'json') {
                 // JSONファイルの処理（モデル、ブロック定義など）
@@ -109,19 +109,22 @@ async function loadCustomAddons() {
         }
     }
 
-    console.log("全カスタムアドオンの読み込み完了。");
+    console.log("[LOG] 全カスタムアドオンの読み込み完了。");
 }
 
 // ------------------------------------
 // 4. 初期化関数 (init)
 // ------------------------------------
 async function init() {
+    console.log("[LOG] --- init() 開始 ---"); // デバッグログ
+
     // 🚀 アドオン読み込みを最初に行う
     await loadCustomAddons(); 
 
     // 🌍 シーンの作成
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb); // 空の色
+    scene.background = new THREE.Color(0xff0000); // 確認用: 赤
+    // scene.background = new THREE.Color(0x87ceeb); // 本来の空の色
 
     // 💡 光源の追加
     const ambientLight = new THREE.AmbientLight(0x404040); 
@@ -151,13 +154,6 @@ async function init() {
         controls.lock(); 
     });
 
-    controls.addEventListener('lock', function() {
-        console.log("Pointer Locked");
-    });
-    controls.addEventListener('unlock', function() {
-        console.log("Pointer Unlocked");
-    });
-
     scene.add(controls.getObject()); 
 
     // キーボードイベントリスナーの追加
@@ -170,6 +166,8 @@ async function init() {
     // 初期ワールド生成とアニメーション開始
     createVoxelWorld();
     animate();
+
+    console.log("[LOG] --- init() 完了 ---"); // デバッグログ
 }
 
 // ------------------------------------
@@ -185,10 +183,10 @@ function createVoxelWorld() {
     if (ASSET_MANAGER[DIRT_PATH]) {
         const dirtTexture = ASSET_MANAGER[DIRT_PATH];
         material = new THREE.MeshLambertMaterial({ map: dirtTexture });
-        console.log("カスタムテクスチャ (Dirt) を適用しました。");
+        console.log("[LOG] カスタムテクスチャ (Dirt) を適用しました。");
     } else {
         material = new THREE.MeshLambertMaterial({ color: 0x5aa743 });
-        console.log("カスタムテクスチャが見つかりません。デフォルトの緑色を使用します。");
+        console.log("[LOG] カスタムテクスチャが見つかりません。デフォルトの緑色を使用します。");
     }
 
     // 地面を生成 (11x11の範囲)
@@ -283,4 +281,6 @@ function animate() {
 // ------------------------------------
 // 8. 実行
 // ------------------------------------
+console.log("==> game.js 実行開始トリガー"); // デバッグログ
 init();
+console.log("==> init() 呼び出し完了"); // デバッグログ
