@@ -1,5 +1,5 @@
 {
-  "BALLS": {
+  "BALLS": [{
     "POKEBALL": {
       "id": "pokeball",
       "japanese": "モンスターボール",
@@ -27,7 +27,7 @@
       "description_ja": "絶対に捕まえるボール。",
       "catch_rate_multiplier": 100.0,
       "img_file": "master-ball.png"
-    }
+    }]
   },
   "RECOVERY": {
     "POTION": {
