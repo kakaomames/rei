@@ -1,70 +1,70 @@
 {
-  "BALLS": [{
-    "POKEBALL": [{
+  "BALLS": {
+    "POKEBALL": {
       "id": "pokeball",
       "japanese": "モンスターボール",
       "description_ja": "ポケモンを捕まえるために作られた一般的なボール。",
       "catch_rate_multiplier": 1.0,
       "img_file": "monster-ball.png"
-    }],
-    "SUPERBALL": [{
+    },
+    "SUPERBALL": {
       "id": "superball",
       "japanese": "スーパーボール",
       "description_ja": "モンスターボールよりも少し性能の良いボール。",
       "catch_rate_multiplier": 1.5,
       "img_file": "super-ball.png"
-    }],
-    "HYPERBALL": [{
+    },
+    "HYPERBALL": {
       "id": "hyperball",
       "japanese": "ハイパーボール",
       "description_ja": "非常に高性能なボール。",
       "catch_rate_multiplier": 2.0,
       "img_file": "hyper-ball.png"
-    }],
-    "MASTERBALL": [{
+    },
+    "MASTERBALL": {
       "id": "masterball",
       "japanese": "マスターボール",
       "description_ja": "絶対に捕まえるボール。",
       "catch_rate_multiplier": 100.0,
       "img_file": "master-ball.png"
-    }]
-  }],
-  "RECOVERY": [{
-    "POTION": [{
+    }
+  },
+  "RECOVERY": {
+    "POTION": {
       "id": "potion",
       "japanese": "キズぐすり",
       "description_ja": "ポケモンのHPを20回復する。",
       "recover_value": 20
-    }],
-    "POTION2": [{
+    },
+    "POTION2": {
       "id": "potion2",
       "japanese": "良いキズぐすり",
       "description_ja": "ポケモンのHPを50回復する。",
       "recover_value": 50
-    }],
-    "POTION3": [{
+    },
+    "POTION3": {
       "id": "potion3",
       "japanese": "すごいキズぐすり",
       "description_ja": "ポケモンのHPを200回復する。",
       "recover_value": 200
-    }],
-    "POTION4": [{
+    },
+    "POTION4": {
       "id": "potion4",
       "japanese": "マンタンのぐすり",
       "description_ja": "ポケモンのHPを最大まで回復する。",
       "recover_value": 200000000
-    }],
-    "REVIVE": [{
+    },
+    "REVIVE": {
       "id": "revive",
       "japanese": "げんきのかけら",
       "description_ja": "ひんし状態のポケモンを回復する。",
       "recover_value": "HALF"
-    }],
-    "REVIVE2": [{
+    },
+    "REVIVE2": {
       "id": "revive2",
       "japanese": "げんきのかたまり",
       "description_ja": "ひんし状態のポケモンを全回復する。",
       "recover_value": "HALF"
-    }]
+    }
   }
 }
