@@ -408,7 +408,7 @@
     <div id="message">GPSを起動しています...</div>
     <button id="menu-button" onclick="loadView('menu')">メニューを開く</button>
 
-    <script src="/rei/leaflet/leaflet.js"></script> 
+<script src="/rei/leaflet/leaflet.js"></script> 
     
     <script>
         // ----------------------------------------------------
@@ -448,7 +448,7 @@
         let playerMarker = null; 
         let isInitialLoad = true;
         
-        // --- マーカー定義の更新 (最新修正箇所) ---
+        // --- マーカー定義 ---
         const playerIcon = L.icon({
             iconUrl: MY_ICON_PATH,
             iconSize: [30, 30],
@@ -472,7 +472,7 @@
         // -----------------------------------------------
 
 
-        // 2. マーカー配置とAPI連携 (中略)
+        // 2. マーカー配置とAPI連携
         function spawnRandomPokemon(centerLat, centerLng, numPokemon = 5) {
             pokemonLayer.clearLayers(); 
             const POKEMON_RADIUS_M = 100;
@@ -536,21 +536,31 @@
             fetchPokestopData(currentLat, currentLng);
         }
 
-        // 3. GPS/マップイベント (中略)
+        // 3. GPS/マップイベント (GPS追従ロジック修正済み)
         map.on('locationfound', (e) => {
             const latlng = e.latlng;
+            
+            // 常にプレイヤーマーカーの位置を更新するロジック (GPS追従の核)
             if (playerMarker) {
                 playerMarker.setLatLng(latlng);
+                console.log(`✅ GPS座標更新: ${latlng.lat}, ${latlng.lng}`); // ログで確認
             } else {
                 playerMarker = L.marker(latlng, { icon: playerIcon }).addTo(map)
                     .bindPopup("現在のあなたの位置").openPopup();
             }
+            
+            // 初回ロード時のみ実行するロジック
             if (isInitialLoad) {
                 map.setView(latlng, map.getZoom() < 16 ? 16 : map.getZoom()); 
                 startPokemonApp(latlng.lat, latlng.lng);
-                isInitialLoad = false;
+                isInitialLoad = false; 
                 messageDiv.textContent = 'GPS追跡開始。周辺のポケモンとジムを配置したぞ！';
                 setTimeout(() => { messageDiv.style.display = 'none'; }, 3000);
+            }
+            
+            // SPAビューが開いていない場合、プレイヤーを中央に寄せ続ける
+            if (spaContainer.style.display === 'none' && !map.dragging.enabled()) {
+                map.panTo(latlng, { animate: true, duration: 1 });
             }
         });
 
@@ -565,6 +575,7 @@
         });
 
         map.on('moveend', () => {
+            // SPAビューが開いているか、ズームレベルが低い場合は更新しない
             if (window.location.hash.slice(1) !== '') { return; }
             if (map.getZoom() < 14) { return; }
             const center = map.getCenter();
@@ -607,7 +618,7 @@
                 if (targetView) {
                     targetView.style.display = 'block';
                     
-                    // ポケモン詳細/捕獲ビューのパラメータ更新 (クエリパラメータを優先)
+                    // ポケモン詳細/捕獲ビューのパラメータ更新
                     if (viewName === 'pokemon' || viewName === 'hokaku') {
                         const name = params.pokemonname || getQueryParam('pokemonname', '不明なポケモン');
                         const cp = params.cp || getQueryParam('cp', '???');
@@ -619,10 +630,9 @@
                              document.getElementById('pokemon-detail-cp').textContent = `CP: ${cp}`;
                              document.getElementById('pokemon-detail-hp').textContent = `HP: ${hp}`;
                              
-                             // pokemonビューに遷移するたびにリストを再描画
-                             if (viewName === 'pokemon' && typeof renderPokemonList === 'function') {
-                                 integrateAndClearCaughtData();
-                                 renderPokemonList();
+                             if (viewName === 'pokemon' && typeof integrateAndClearCaughtData === 'function') {
+                                 integrateAndClearCaughtData(); // データの統合
+                                 renderPokemonList(); // リストの再描画
                              }
                         }
                         // hokaku.html の IDを更新
@@ -639,9 +649,9 @@
                     }
 
                     // itemビューに遷移するたびにリストを再描画
-                    if (viewName === 'item' && typeof renderInventory === 'function') {
-                         integrateAndClearDroppedItems();
-                         renderInventory();
+                    if (viewName === 'item' && typeof integrateAndClearDroppedItems === 'function') {
+                         integrateAndClearDroppedItems(); // データの統合
+                         renderInventory(); // リストの再描画
                     }
 
                     if (viewName === 'ar') {
@@ -670,6 +680,7 @@
             
             if (initialView === '') {
                 messageDiv.style.display = 'block';
+                // LeafletのlocateでGPS追跡を開始
                 map.locate({ setView: true, watch: true, maxZoom: 18, enableHighAccuracy: true, timeout: 10000 });
             } else {
                  messageDiv.style.display = 'none';
