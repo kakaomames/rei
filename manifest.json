@@ -1,0 +1,21 @@
+{
+  "name": "Web版 3Dビューア",
+  "short_name": "3Dビューア",
+  "description": "ドラッグ＆ドロップでOBJをロードできるPWA。",
+  "start_url": "/rei/db/3Dオブジェクトの表示v4.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f0f0f0",
+  "icons": [
+    {
+      "src": "/rei/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/rei/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
