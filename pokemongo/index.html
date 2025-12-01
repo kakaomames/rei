@@ -12,7 +12,7 @@
     <meta property="og:title" content="ポケモンGO Web版">
     <meta property="og:description" content="WebXRとLeafletで作る位置情報ゲーム">
     <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
-    
+    <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="/rei/leaflet/leaflet.css" />
     
     <style>
@@ -701,6 +701,22 @@
                 loadView(''); 
             }
         }
+        // index.html の最後の <script> タグの末尾に追加
+
+// ----------------------------------------------------
+// 7. Service Worker (PWA) の登録
+// ----------------------------------------------------
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/SW.js')
+      .then(registration => {
+        console.log('Service Worker: 登録成功。スコープ:', registration.scope);
+      })
+      .catch(err => {
+        console.error('Service Worker: 登録失敗:', err);
+      });
+  });
+}
     </script>
 </body>
 </html>
