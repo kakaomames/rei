@@ -1,0 +1,389 @@
+curl -X GET "https://api.example.com/report" \
+-H "Accept: text/html" \
+-d @- <<'EOF'
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gemini programming隊 公式技術レポート: 副詞的用法の不定詞（The Adverbial Infinitive）に関する詳細な解説と応用事例。学習用、開発用資料。">
+    <meta name="keywords" content="不定詞, 副詞的用法, 福祉的用法, 英語文法, 技術レポート, プログラミング隊, Gemini">
+    <meta name="author" content="Gemini programming隊 隊長">
+    <meta name="generator" content="Gemini AI">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>【技術レポート】副詞的用法の不定詞に関する考察と応用 | Gemini programming隊</title>
+    <link rel="icon" href="https://kakaomames.github.io/rei/logo.png" type="image/png">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: #f4f7f6; color: #333; }
+        .container { max-width: 900px; margin: auto; background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        h1 { color: #007bff; border-bottom: 3px solid #007bff; padding-bottom: 10px; margin-top: 0; }
+        h2 { color: #0056b3; border-left: 5px solid #0056b3; padding-left: 10px; margin-top: 30px; }
+        h3 { color: #333; border-bottom: 1px dashed #ccc; padding-bottom: 5px; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #e9ecef; color: #495057; font-weight: bold; }
+        .logo-header { display: flex; align-items: center; margin-bottom: 20px; }
+        .logo-header img { height: 40px; margin-right: 15px; }
+        blockquote { border-left: 5px solid #ffc107; padding: 10px 20px; background-color: #fff9e6; margin: 20px 0; }
+        .highlight { background-color: #e0f7fa; padding: 10px; border-radius: 5px; }
+        .math { font-style: italic; font-weight: bold; color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="logo-header">
+            <img src="https://kakaomames.github.io/rei/logo.png" alt="Gemini programming隊 ロゴ">
+            <h1>📄 隊内技術レポート: 副詞的用法の不定詞に関する考察と応用</h1>
+        </header>
+
+        <p><strong>作成者:</strong> Gemini programming隊 隊長 (AI Gemini Flash 2.5)</p>
+        <p><strong>作成日:</strong> 2025年12月1日</p>
+        
+        <hr>
+
+        <h2>1. 要旨 (Abstract)</h2>
+        <p>本レポートは、英語の**不定詞（Infinitive: to + 動詞の原形）**が持つ三つの主要な用法のうち、最も多様な表現を可能にする**副詞的用法**に焦点を当て、その機能、意味、および応用例を詳細に解説する。副詞的用法は、**目的、原因・理由、結果、判断の根拠、条件**など、多岐にわたる文脈情報を補完し、英語の表現力を格段に向上させる鍵となる。本資料は、隊員の技術的な英語理解力向上を目的とした公式な知識ベースとして機能する。</p>
+
+        <hr>
+
+        <h2>2. 序論: 不定詞の基本構造と副詞の機能</h2>
+
+        <h3>2.1. 不定詞の形式</h3>
+        <p>不定詞は常に <span class="math">to + 動詞の原形</span> の形で表される。</p>
+        $$ \text{Infinitive} = \text{to} + \text{Base Form of Verb} $$
+
+        <h3>2.2. 副詞（Adverb）の基本的な機能</h3>
+        <p>副詞とは、主に<strong>動詞、形容詞、または他の副詞</strong>を修飾し、時、場所、様態、程度、理由などの情報（付加情報）を付け加える品詞である。<strong>副詞的用法の不定詞</strong>は、この副詞と同じ働きを、「〜するために」「〜して」といった具体的な意味を伴って行う。</p>
+
+        <hr>
+
+        <h2>3. 本論: 副詞的用法の主要な分類（福祉的用法）</h2>
+        <p>副詞的用法は、提供する情報（意味）によって以下の5つに分類され、これらはしばしば学習上の目的で「福祉的用法」とも呼ばれる。</p>
+
+        <h3>3.1. 目的（Purpose）：〜するために</h3>
+        <p>行動の意図や目的を示す最も一般的な用法。</p>
+        <ul>
+            <li><strong>基本形:</strong> 主節 (行動) + <strong>to + V</strong> (目的)</li>
+            <li><strong>強調表現:</strong> <strong>in order to</strong> + V、<strong>so as to</strong> + V</li>
+        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>例文 (English)</th>
+                    <th>例文 (Japanese)</th>
+                    <th>解説</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>I went to the station <strong>to buy a ticket</strong>.</td>
+                    <td>私は切符を<strong>買うために</strong>駅へ行きました。</td>
+                    <td>動詞 *went* の行動の目的を示しています。</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>She is studying hard <strong>to pass the exam</strong>.</td>
+                    <td>彼女は試験に<strong>合格するために</strong>一生懸命勉強しています。</td>
+                    <td>動詞 *studying* の目的を示しています。</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>They saved money <strong>in order to travel</strong> around the world.</td>
+                    <td>彼らは世界中を<strong>旅するために</strong>お金を貯めました。</td>
+                    <td>*in order to* で目的をより明確に強調しています。</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Please speak clearly <strong>so as to be understood</strong>.</td>
+                    <td><strong>理解されるように</strong>、はっきり話してください。</td>
+                    <td>*so as to* は目的の強調と、受動態の不定詞を伴う例です。</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>We must work together <strong>not to fail</strong> this project.</td>
+                    <td>このプロジェクトに<strong>失敗しないように</strong>、私たちは協力しなければなりません。</td>
+                    <td>目的の否定形は <strong>not to</strong> を使用します。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>3.2. 原因・理由（Cause or Reason for Emotion）：〜して</h3>
+        <p>主語の感情や状態の<strong>原因・理由</strong>を示す用法。感情を表す形容詞（happy, glad, sad, sorry, surprised, disappointedなど）の直後に置かれる。</p>
+        <ul>
+            <li><strong>基本形:</strong> S + V + 感情を表す形容詞 + <strong>to + V</strong> (原因)</li>
+        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>例文 (English)</th>
+                    <th>例文 (Japanese)</th>
+                    <th>解説</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>6</td>
+                    <td>I am glad <strong>to see you</strong> again.</td>
+                    <td>再びあなたに<strong>会えて</strong>嬉しいです。</td>
+                    <td>感情 *glad* の原因を示しています。</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>She was shocked <strong>to hear the bad news</strong>.</td>
+                    <td>彼女はその悪いニュースを<strong>聞いて</strong>ショックを受けました。</td>
+                    <td>感情 *shocked* の原因を示しています。</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>They were disappointed <strong>to find the store closed</strong>.</td>
+                    <td>彼らはその店が閉まっているのを<strong>見つけて</strong>がっかりしました。</td>
+                    <td>感情 *disappointed* の原因を示しています。</td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td>He seems very angry <strong>to be treated</strong> like that.</td>
+                    <td>そのように扱われ<strong>て</strong>、彼はとても怒っているようです。</td>
+                    <td>感情 *angry* の原因を示し、受動態の不定詞が使われています。</td>
+                </tr>
+                <tr>
+                    <td>10</td>
+                    <td>We are sorry <strong>to trouble you</strong> so late at night.</td>
+                    <td>こんな夜遅くに、<strong>お手数をおかけして</strong>申し訳ありません。</td>
+                    <td>謝罪の感情 *sorry* の原因を示しています。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>3.3. 結果（Result）：〜した結果、〜になる</h3>
+        <p>主節の動作や出来事の<strong>結果</strong>を示す用法。意図しない、または後に判明した結果を述べることが多い。</p>
+        <ul>
+            <li><strong>Only to V:</strong> 「<strong>結局〜しただけ</strong>」「<strong>〜したが、むなしくも〜だった</strong>」という残念な結果を示す慣用表現。</li>
+        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>例文 (English)</th>
+                    <th>例文 (Japanese)</th>
+                    <th>解説</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>11</td>
+                    <td>He lived <strong>to be</strong> 100 years old.</td>
+                    <td>彼は<strong>100歳になるまで</strong>生きました。</td>
+                    <td>*lived* という行動の結果を示しています。</td>
+                </tr>
+                <tr>
+                    <td>12</td>
+                    <td>She woke up <strong>to find herself</strong> famous.</td>
+                    <td>彼女は目を覚ます<strong>と</strong>、自分が有名になっているのを知りました。</td>
+                    <td>*woke up* の行動がもたらした驚くべき結果です。</td>
+                </tr>
+                <tr>
+                    <td>13</td>
+                    <td>He hurried to the airport, <strong>only to miss</strong> his flight.</td>
+                    <td>彼は空港へ急ぎましたが、<strong>結局</strong>フライトに<strong>乗り遅れただけでした</strong>。</td>
+                    <td>*only to V* が期待外れの残念な結果を強調しています。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>3.4. 判断の根拠（Reason for Judgment）：〜するなんて</h3>
+        <p>主節で述べられた<strong>判断</strong>や<strong>推量</strong>（must be, cannot be, would beなど）の<strong>根拠・理由</strong>を示す用法。</p>
+        <ul>
+            <li><strong>基本形:</strong> S + V (判断・推量) + 形容詞 (性質) + <strong>to + V</strong> (根拠)</li>
+        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>例文 (English)</th>
+                    <th>例文 (Japanese)</th>
+                    <th>解説</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>16</td>
+                    <td>You must be very smart <strong>to solve</strong> that difficult problem.</td>
+                    <td>あの難しい問題を<strong>解くなんて</strong>、あなたはとても賢いに違いない。</td>
+                    <td>*must be smart* という判断の根拠を示しています。</td>
+                </tr>
+                <tr>
+                    <td>17</td>
+                    <td>She was careless <strong>to forget</strong> her passport.</td>
+                    <td>パスポートを<strong>忘れるとは</strong>、彼女は不注意だった。</td>
+                    <td>*was careless* という判断の根拠を示しています。</td>
+                </tr>
+                <tr>
+                    <td>18</td>
+                    <td>It would be kind of you <strong>to help</strong> him with his luggage.</td>
+                    <td>彼の荷物を<strong>手伝ってあげるなんて</strong>、あなたは親切でしょうね。</td>
+                    <td>*would be kind* という推量の根拠を示しています。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>3.5. 条件（Condition）：もし〜するなら</h3>
+        <p><strong>仮定や条件</strong>を示す用法。主に文頭に置かれ、硬い文語的な表現となる。</p>
+        <ul>
+            <li><strong>基本形:</strong> <strong>To + V</strong> (条件), + S + would/could/might + V (主節)</li>
+        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>例文 (English)</th>
+                    <th>例文 (Japanese)</th>
+                    <th>解説</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>21</td>
+                    <td><strong>To see him</strong> now, you would never recognize him.</td>
+                    <td><strong>今</strong>彼を<strong>見るとすれば</strong>、あなたは決して彼だと分からないでしょう。</td>
+                    <td>条件 *If you saw him now* の代わりとして機能しています。</td>
+                </tr>
+                <tr>
+                    <td>22</td>
+                    <td><strong>To hear her speak</strong>, you might think she is a native speaker.</td>
+                    <td>彼女が話すのを<strong>聞くならば</strong>、あなたは彼女がネイティブスピーカーだと思うかもしれません。</td>
+                    <td>*If you heard her speak* という条件を示しています。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr>
+
+        <h2>4. 発展: 特殊な用法と関連表現の深掘り</h2>
+
+        <h3>4.1. 形容詞を修飾する用法 (程度・範囲)</h3>
+        <p>形容詞が示す性質の<strong>程度</strong>や<strong>適用範囲</strong>を示す。</p>
+        <ul>
+            <li><strong>基本形:</strong> S + be + 形容詞 + <strong>to + V</strong> (程度・適用範囲)</li>
+        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>例文 (English)</th>
+                    <th>例文 (Japanese)</th>
+                    <th>解説</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>24</td>
+                    <td>This book is difficult <strong>to read</strong>.</td>
+                    <td>この本は<strong>読むには</strong>難しい。</td>
+                    <td>*difficult* という性質の適用範囲を示しています。</td>
+                </tr>
+                <tr>
+                    <td>25</td>
+                    <td>The water is safe <strong>to drink</strong>.</td>
+                    <td>その水は<strong>飲むには</strong>安全です。</td>
+                    <td>*safe* という性質の適用範囲を示しています。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>4.2. <strong>too... to V</strong>（否定的な程度）</h3>
+        <p><strong>「あまりに〜すぎて、Vできない」</strong>という、<strong>否定的な結果</strong>を伴う程度を表す慣用表現。</p>
+        <ul>
+            <li><strong>構文:</strong> S + V + <strong>too</strong> + 形容詞/副詞 + <strong>to + V</strong></li>
+        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>例文 (English)</th>
+                    <th>例文 (Japanese)</th>
+                    <th>解説</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>28</td>
+                    <td>The box is <strong>too heavy to carry</strong>.</td>
+                    <td>その箱は<strong>重すぎて</strong>（私には）<strong>運べません</strong>。</td>
+                    <td>運ぶには重すぎるという程度を示し、否定的な結果を示します。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>4.3. <strong>enough... to V</strong>（肯定的な程度）</h3>
+        <p><strong>「Vするのに十分〜だ」</strong>という、<strong>肯定的な結果</strong>を伴う程度を表す慣用表現。</p>
+        <ul>
+            <li><strong>構文:</strong> S + V + 形容詞/副詞 + <strong>enough to + V</strong></li>
+        </ul>
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>例文 (English)</th>
+                    <th>例文 (Japanese)</th>
+                    <th>解説</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>30</td>
+                    <td>She is tall <strong>enough to reach</strong> the shelf.</td>
+                    <td>彼女は棚に<strong>届くほど</strong>背が高いです。</td>
+                    <td>届くのに十分なほど背が高いという程度を示しています。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>4.4. 独立不定詞 (Independent Infinitive)</h3>
+        <p>不定詞が文頭に置かれ、<strong>文全体を修飾</strong>し、書き手の態度や意見を示す慣用的な表現。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>例文 (English)</th>
+                    <th>例文 (Japanese)</th>
+                    <th>解説</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>32</td>
+                    <td><strong>To be honest</strong>, I don't agree with the plan.</td>
+                    <td><strong>正直に言うと</strong>、私はその計画に賛成しません。</td>
+                    <td>後に続く文全体に対する話し手の態度を示します。</td>
+                </tr>
+                <tr>
+                    <td>33</td>
+                    <td><strong>To make matters worse</strong>, it started raining heavily.</td>
+                    <td><strong>さらに困ったことに</strong>、雨が激しく降り始めました。</td>
+                    <td>状況を悪化させる要素を付け加えます。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr>
+
+        <h2>5. 結論: まとめと応用</h2>
+
+        <p class="highlight">副詞的用法の不定詞は、英文に奥行きと詳細な文脈情報（時、理由、目的、結果など）を加える、非常に強力な文法ツールである。</p>
+        <ul>
+            <li><strong>最重要</strong>：**目的**（〜するために）</li>
+            <li><strong>感情</strong>：**原因・理由**（〜して）</li>
+            <li><strong>ストーリー</strong>：**結果**（〜した結果）</li>
+            <li><strong>推量</strong>：**判断の根拠**（〜するなんて）</li>
+        </ul>
+        <p>この知識を活かし、プログラミング隊の文書作成や英語での技術コミュニケーション能力を向上させることを期待する。</p>
+
+        <footer>
+            <p style="text-align: center; margin-top: 50px; font-size: 0.8em; color: #777;">&copy; 2025 Gemini programming隊 公式レポート</p>
+        </footer>
+    </div>
+</body>
+</html>
