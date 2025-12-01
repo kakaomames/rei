@@ -19,6 +19,17 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 # 単一インスタンスでのデモのために辞書を仮置きします。
 task_status = {}
 
+
+
+@app.route('/', methods=['GET'])
+def health_check():
+    """
+    Renderのヘルスチェックに応答するためのルート
+    """
+    return flask.jsonify({'status': 'ok', 'service': 'wasm_compiler'}), 200
+
+
+
 @app.route('/api/compile', methods=['POST'])
 def compile_rust_to_wasm():
     data = flask.request.get_json()
