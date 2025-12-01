@@ -2,128 +2,210 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Three.js OBJローディングテスト - Gemini Programming隊</title>
+    <title>SPA Three.js OBJ Drag & Drop - Gemini Programming隊</title>
     <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-        #loading {
+        body { margin: 0; overflow: hidden; font-family: sans-serif; }
+        /* 描画エリア */
+        #container { position: absolute; width: 100%; height: 100%; }
+        /* ドラッグ＆ドロップエリア */
+        #upload {
             position: absolute;
-            top: 50%;
+            top: 50px;
             left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 24px;
-            color: #333;
-            background: #fff;
-            padding: 10px 20px;
-            border-radius: 5px;
-            z-index: 100;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 100px;
+            border: 2px dashed #007bff;
+            background-color: rgba(240, 248, 255, 0.8);
+            color: #007bff;
+            text-align: center;
+            line-height: 100px;
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        /* ドラッグオーバー時のスタイル */
+        #upload.dragover {
+            border-color: #28a745;
+            background-color: rgba(214, 255, 222, 0.9);
+            color: #28a745;
+        }
+        /* ロードメッセージ */
+        #message {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            text-align: center;
+            z-index: 20;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="loading">OBJファイルをロード中...</div>
+    <div id="container"></div>
+    <div id="upload">ここにOBJファイルをドラッグ＆ドロップ</div>
+    <div id="message"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/OBJLoader.js"></script>
 
     <script>
+        // ----------------------------------------------------
+        // Service Workerの登録処理
+        // ----------------------------------------------------
+        if ('serviceWorker' in navigator) {
+            // Service Workerファイル自体は別途必要だが、ここでは登録処理のみ記述
+            // GitHub Pagesでホストする場合、SW.jsはルートに配置するのが一般的
+            // ここではSWファイルパスを'sw.js'と仮定する
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker 登録成功:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('Service Worker 登録失敗:', error);
+                });
+        }
+        // SPAとして機能させるための基本的なルーター処理もここに追加可能だが、
+        // 今回はOBJローディングに焦点を当てて省略する。
+    </script>
+
+    <script>
         // =========================================================
-        // 1. 環境設定
+        // Three.js 環境設定
         // =========================================================
+        const container = document.getElementById('container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
+        
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        // 背景色の設定
+        container.appendChild(renderer.domElement);
         scene.background = new THREE.Color(0xf0f0f0);
+        camera.position.z = 5;
 
-        // ライトの追加 (オブジェクトが見えるようにする)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // 全体光
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7); // 太陽光のような光
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
         directionalLight.position.set(5, 10, 7.5);
         scene.add(directionalLight);
 
-        camera.position.z = 5;
+        let currentModel = null; // 現在のモデルを保持する変数
+        const messageDiv = document.getElementById('message');
+        const uploadDiv = document.getElementById('upload');
 
         // =========================================================
-        // 2. URLクエリパラメータからOBJのパスを取得
+        // モデルの描画関数
         // =========================================================
+        function displayModel(object) {
+            // 既存のモデルを削除
+            if (currentModel) {
+                scene.remove(currentModel);
+            }
 
-        /**
-         * URLクエリから指定されたパラメータの値を取得する関数
-         * @param {string} name - 取得したいパラメータ名 (例: 'modelUrl')
-         * @returns {string|null} パラメータの値
-         */
-        function getQueryParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
+            // オブジェクトのサイズを調整し、中心に配置
+            const box = new THREE.Box3().setFromObject(object);
+            const center = box.getCenter(new THREE.Vector3());
+            object.position.sub(center);
+
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 3 / maxDim; // 最大サイズを3ユニットに収める
+            object.scale.set(scale, scale, scale);
+
+            scene.add(object);
+            currentModel = object;
+
+            messageDiv.style.display = 'none';
+            uploadDiv.textContent = 'ドラッグ＆ドロップで新しいOBJをアップロード';
         }
 
-        const objUrl = getQueryParam('modelUrl');
-        console.log(`objUrl:${objUrl}`) // Pythonのルールに従って出力
+        // =========================================================
+        // ドラッグ＆ドロップ処理
+        // =========================================================
+        
+        // デフォルト動作のキャンセル (ファイルを開くのを防ぐ)
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
 
-        if (!objUrl) {
-            document.getElementById('loading').textContent = 'エラー: ?modelUrl= パラメータでOBJファイルのURLを指定してください。';
-        } else {
-            // =========================================================
-            // 3. OBJファイルのロードと描画
-            // =========================================================
-            const loader = new THREE.OBJLoader();
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // ドラッグオーバー時の視覚的フィードバック
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadDiv.addEventListener(eventName, () => uploadDiv.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadDiv.addEventListener(eventName, () => uploadDiv.classList.remove('dragover'), false);
+        });
+
+        // ドロップ時のファイル処理
+        uploadDiv.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            // ファイルが1つ以上あるか確認
+            if (files.length === 0) return;
             
-            loader.load(
-                // リソースのURL
-                objUrl,
-                // ロード完了時のコールバック
-                (object) => {
-                    // オブジェクトのサイズを調整し、中心に配置
-                    const box = new THREE.Box3().setFromObject(object);
-                    const center = box.getCenter(new THREE.Vector3());
-                    object.position.sub(center); // 原点に移動
+            const objFile = Array.from(files).find(file => file.name.toLowerCase().endsWith('.obj'));
+            
+            // OBJファイルが見つからない場合は処理を中止
+            if (!objFile) {
+                messageDiv.textContent = 'エラー: OBJファイルが見つかりません。';
+                messageDiv.style.display = 'block';
+                return;
+            }
 
-                    // サイズが大きすぎる場合にスケールダウンする
-                    const size = box.getSize(new THREE.Vector3());
-                    const maxDim = Math.max(size.x, size.y, size.z);
-                    const scale = 3 / maxDim; // 最大サイズを3ユニットに収める
-                    object.scale.set(scale, scale, scale);
+            messageDiv.textContent = `ファイルをロード中: ${objFile.name}`;
+            messageDiv.style.display = 'block';
+            uploadDiv.textContent = 'ロード中...';
 
-                    scene.add(object);
-                    document.getElementById('loading').textContent = 'ロード完了！';
-                    setTimeout(() => {
-                        document.getElementById('loading').style.display = 'none';
-                    }, 1000); // 1秒後に非表示
-                },
-                // ロード進捗時のコールバック
-                (xhr) => {
-                    const progress = Math.round(xhr.loaded / xhr.total * 100);
-                    document.getElementById('loading').textContent = `OBJファイルをロード中... ${progress}%`;
-                },
-                // ロードエラー時のコールバック
-                (error) => {
-                    console.error('OBJロード中にエラーが発生しました:', error);
-                    document.getElementById('loading').textContent = 'エラー: OBJファイルのロードに失敗しました。URLを確認してください。';
+            const reader = new FileReader();
+            
+            // ファイルの読み込み完了後
+            reader.onload = (event) => {
+                const loader = new THREE.OBJLoader();
+                const objData = event.target.result;
+
+                try {
+                    // テキストとして読み込んだOBJデータを解析
+                    const object = loader.parse(objData);
+                    // 解析結果を描画
+                    displayModel(object);
+                } catch (error) {
+                    console.error('OBJファイルの解析に失敗しました:', error);
+                    messageDiv.textContent = 'エラー: OBJファイルの形式が正しくありません。';
                 }
-            );
+            };
+            
+            // ファイルをテキストとして読み込む
+            reader.readAsText(objFile);
         }
-
+        
         // =========================================================
-        // 4. アニメーションループ
+        // アニメーションループ
         // =========================================================
-
         function animate() {
             requestAnimationFrame(animate);
-            // ロードしたオブジェクトがあれば回転させるなど、アニメーション処理を追加できる
-            // if (scene.children.length > 2) { // ライトとアンビエントライトを除いたオブジェクト
-            //     scene.children[scene.children.length - 1].rotation.y += 0.005;
-            // }
-
+            if (currentModel) {
+                currentModel.rotation.y += 0.005; // モデルを自動で回転させる
+            }
             renderer.render(scene, camera);
         }
         animate();
 
-        // 5. ウィンドウサイズ変更時の対応
+        // ウィンドウサイズ変更時の対応
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
