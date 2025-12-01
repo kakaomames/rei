@@ -1,0 +1,28 @@
+# Render Blueprint の設定
+# Renderのルートディレクトリに配置することで、自動的に認識されます。
+services:
+  # Web Service の定義
+  - type: web
+    name: wasm-compiler-server
+    # Dockerfile を使用してビルド
+    dockerfilePath: Dockerfile 
+    # Dockerfile があるディレクトリ
+    context: .
+    # Render環境で必要な環境変数を設定 (Vercelのフロントエンドで使うため)
+    envVars:
+      - key: PORT
+        value: "8000" # Gunicornがリッスンするポート
+      # 必要に応じてシークレットキーなどをここに設定
+      - key: PYTHON_VERSION
+        value: 3.11.x
+    
+    # 起動コマンド
+    # Gunicornを使って app.py の 'app' インスタンスを起動
+    startCommand: gunicorn --bind 0.0.0.0:8000 app:app
+    
+    # Renderのプラン (コンパイルはCPUを使うため、Standard以上のプランを推奨)
+    plan: free
+    
+    # ビルド時に必要な設定
+    # 必要なパッケージをインストールするための requirements.txt が必要
+    autoDeploy: true # Git push で自動デプロイ
