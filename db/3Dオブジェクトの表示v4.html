@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Three.js OBJローディングテスト - Gemini Programming隊</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #333;
+            background: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">OBJファイルをロード中...</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/OBJLoader.js"></script>
+
+    <script>
+        // =========================================================
+        // 1. 環境設定
+        // =========================================================
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 背景色の設定
+        scene.background = new THREE.Color(0xf0f0f0);
+
+        // ライトの追加 (オブジェクトが見えるようにする)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // 全体光
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7); // 太陽光のような光
+        directionalLight.position.set(5, 10, 7.5);
+        scene.add(directionalLight);
+
+        camera.position.z = 5;
+
+        // =========================================================
+        // 2. URLクエリパラメータからOBJのパスを取得
+        // =========================================================
+
+        /**
+         * URLクエリから指定されたパラメータの値を取得する関数
+         * @param {string} name - 取得したいパラメータ名 (例: 'modelUrl')
+         * @returns {string|null} パラメータの値
+         */
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        const objUrl = getQueryParam('modelUrl');
+        console.log(`objUrl:${objUrl}`) // Pythonのルールに従って出力
+
+        if (!objUrl) {
+            document.getElementById('loading').textContent = 'エラー: ?modelUrl= パラメータでOBJファイルのURLを指定してください。';
+        } else {
+            // =========================================================
+            // 3. OBJファイルのロードと描画
+            // =========================================================
+            const loader = new THREE.OBJLoader();
+            
+            loader.load(
+                // リソースのURL
+                objUrl,
+                // ロード完了時のコールバック
+                (object) => {
+                    // オブジェクトのサイズを調整し、中心に配置
+                    const box = new THREE.Box3().setFromObject(object);
+                    const center = box.getCenter(new THREE.Vector3());
+                    object.position.sub(center); // 原点に移動
+
+                    // サイズが大きすぎる場合にスケールダウンする
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 3 / maxDim; // 最大サイズを3ユニットに収める
+                    object.scale.set(scale, scale, scale);
+
+                    scene.add(object);
+                    document.getElementById('loading').textContent = 'ロード完了！';
+                    setTimeout(() => {
+                        document.getElementById('loading').style.display = 'none';
+                    }, 1000); // 1秒後に非表示
+                },
+                // ロード進捗時のコールバック
+                (xhr) => {
+                    const progress = Math.round(xhr.loaded / xhr.total * 100);
+                    document.getElementById('loading').textContent = `OBJファイルをロード中... ${progress}%`;
+                },
+                // ロードエラー時のコールバック
+                (error) => {
+                    console.error('OBJロード中にエラーが発生しました:', error);
+                    document.getElementById('loading').textContent = 'エラー: OBJファイルのロードに失敗しました。URLを確認してください。';
+                }
+            );
+        }
+
+        // =========================================================
+        // 4. アニメーションループ
+        // =========================================================
+
+        function animate() {
+            requestAnimationFrame(animate);
+            // ロードしたオブジェクトがあれば回転させるなど、アニメーション処理を追加できる
+            // if (scene.children.length > 2) { // ライトとアンビエントライトを除いたオブジェクト
+            //     scene.children[scene.children.length - 1].rotation.y += 0.005;
+            // }
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // 5. ウィンドウサイズ変更時の対応
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
+</body>
+</html>
