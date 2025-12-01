@@ -1,0 +1,73 @@
+<div class="pokestop-content">
+    <h2>ポケストップ画面</h2>
+    <p>ポケストップの詳細情報やアイテムが表示されます。</p>
+    
+    <button onclick="spinPokestop()">ポケストップを回す！</button>
+    
+    <div id="dropped-items-display" style="margin-top: 20px;">
+        </div>
+    
+    <button id="collect-button" onclick="collectAndGoToItem()" style="display:none;">アイテムを回収し、インベントリへ</button>
+    <button onclick="loadView('')">マップに戻る</button>
+
+    <script>
+        // --- pokestop.html の LocalStorage 処理 ---
+        const TEMP_ITEM_KEY = 'DROPPED_ITEMS_TEMP'; // 一時データキー
+        const AVAILABLE_ITEMS = [
+            { name: "モンスターボール", min: 3, max: 7 },
+            { name: "きずぐすり", min: 1, max: 3 },
+            { name: "げんきのかけら", min: 0, max: 2 },
+            { name: "ナナのみ", min: 1, max: 4 }
+        ];
+
+        let droppedItems = []; // 今回出現したアイテムを保持するローカル変数
+
+        /**
+         * ランダムなアイテムと個数を生成し、一時保存する
+         */
+        function spinPokestop() {
+            // 前回のアイテムをクリア
+            droppedItems = [];
+            const display = document.getElementById('dropped-items-display');
+            display.innerHTML = "<h4>✨ アイテムが出現しました！</h4>";
+            
+            const numItems = Math.floor(Math.random() * 3) + 2; // 2〜4種類
+            
+            for (let i = 0; i < numItems; i++) {
+                const itemType = AVAILABLE_ITEMS[Math.floor(Math.random() * AVAILABLE_ITEMS.length)];
+                const count = Math.floor(Math.random() * (itemType.max - itemType.min + 1)) + itemType.min;
+                
+                if (count > 0) {
+                    droppedItems.push({ name: itemType.name, count: count });
+                    display.innerHTML += `<p>・${itemType.name}を ${count} 個獲得</p>`;
+                }
+            }
+
+            if (droppedItems.length > 0) {
+                // 1. 獲得データをJSON文字列にして一時保存
+                try {
+                    localStorage.setItem(TEMP_ITEM_KEY, JSON.stringify(droppedItems));
+                    console.log(`✅ ${TEMP_ITEM_KEY} に獲得アイテムを一時保存しました。`);
+                    document.getElementById('collect-button').style.display = 'block';
+                } catch (e) {
+                    console.error("LocalStorageへの保存中にエラーが発生しました:", e);
+                }
+            } else {
+                display.innerHTML += "<p>残念ながら何も出ませんでした...</p>";
+                document.getElementById('collect-button').style.display = 'none';
+            }
+        }
+
+        /**
+         * アイテムを回収し、item.htmlへ遷移する
+         */
+        function collectAndGoToItem() {
+            if (typeof loadView === 'function') {
+                loadView('item'); // item.htmlへ遷移
+            }
+        }
+        
+        // 初回ロード時にボタンを隠す
+        document.getElementById('collect-button').style.display = 'none';
+    </script>
+</div>
