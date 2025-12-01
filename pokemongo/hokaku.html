@@ -1,0 +1,47 @@
+<div class="hokaku-content">
+    <h2>ポケモン捕獲成功！🎉</h2>
+    <p>野生のポケモンを捕まえました！捕獲データを一時保存しています。</p>
+    
+    <p>捕獲ポケモンID: <span id="captured-id">...</span></p>
+    <p>CP: <span id="captured-cp">...</span></p>
+    
+    <button onclick="saveAndGoToPokemon()">図鑑へ移動し、データを整理する</button>
+    <button onclick="loadView('')">マップに戻る</button>
+
+    <script>
+        // --- hokaku.html の LocalStorage 処理 ---
+        const TEMP_POKE_KEY_HOKAKU = 'CAUGHT_POKEMON_TEMP';
+
+        // 捕獲されたポケモンの仮データ生成 (マップ画面からパラメータが渡されない場合のデフォルト)
+        // 注意: 実際の値は index.html の loadView 関数内で上書きされる
+        const caughtPokemon = {
+            id: Math.floor(Math.random() * 151) + 1,
+            name: "捕獲ポケモン",
+            cp: Math.floor(Math.random() * 2500) + 10,
+            hp: Math.floor(Math.random() * 100),
+            timestamp: new Date().toISOString()
+        };
+
+        // DOM要素を更新（デフォルトまたは上書きされた値）
+        document.getElementById('captured-id').textContent = caughtPokemon.id;
+        document.getElementById('captured-cp').textContent = caughtPokemon.cp;
+
+
+        function saveAndGoToPokemon() {
+            try {
+                // 1. 捕獲データをJSON文字列にして一時保存
+                const pokemonJson = JSON.stringify(caughtPokemon);
+                localStorage.setItem(TEMP_POKE_KEY_HOKAKU, pokemonJson);
+                console.log(`✅ ${TEMP_POKE_KEY_HOKAKU} にデータを保存しました。`);
+
+                // 2. pokemon.htmlへ遷移 (pokemon.html側でデータを読み込み、リストに統合し、一時データをクリアする)
+                if (typeof loadView === 'function') {
+                    loadView('pokemon');
+                }
+            } catch (e) {
+                console.error("LocalStorageへの保存中にエラーが発生しました:", e);
+                alert("データの保存に失敗しました。");
+            }
+        }
+    </script>
+</div>
