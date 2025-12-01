@@ -54,4 +54,4 @@ COPY . .
 
 # RenderのWeb Serviceとして、Gunicornを使ってFlaskアプリケーションを起動
 # 環境変数 PORT (render.yamlで8000に設定) を使用する
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"]
+CMD ["gunicorn", "--timeout", "600", "--bind", "0.0.0.0:8000", "app:app"]
