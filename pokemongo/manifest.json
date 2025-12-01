@@ -1,0 +1,21 @@
+{
+  "name": "ポケモンGO Web版",
+  "short_name": "WebMon",
+  "description": "Gemini programming隊によるWebXRを使ったポケモンGOクローン",
+  "start_url": "/rei/pokemongo/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#306EE6",
+  "icons": [
+    {
+      "src": "https://kakaomames.github.io/rei/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://kakaomames.github.io/rei/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
