@@ -1,0 +1,103 @@
+<div class="item-content">
+    <h2>アイテムインベントリ (持ち物)</h2>
+    
+    <p id="integration-status" style="color: green;">アイテムのデータ統合が完了しました。</p>
+    
+    <hr>
+    
+    <h3>所持アイテム一覧</h3>
+    <ul id="player-inventory-ul">
+        <li>アイテムデータがありません。</li>
+    </ul>
+    
+    <button onclick="loadView('')">マップに戻る</button>
+    
+    <script>
+        // --- item.html の LocalStorage 処理 ---
+        const TEMP_ITEM_KEY_ITEM = 'DROPPED_ITEMS_TEMP'; // ポケストップからのデータキー
+        const INVENTORY_KEY = 'PLAYER_INVENTORY'; // 永続インベントリのデータキー
+
+        function loadInventory() {
+            try {
+                const listJson = localStorage.getItem(INVENTORY_KEY);
+                return listJson ? JSON.parse(listJson) : [];
+            } catch (e) {
+                console.error("インベントリの読み込みに失敗しました:", e);
+                return [];
+            }
+        }
+
+        function saveInventory(inventory) {
+            try {
+                localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+            } catch (e) {
+                console.error("インベントリの保存に失敗しました:", e);
+            }
+        }
+
+        /**
+         * 一時アイテムデータ統合とクリアの処理を実行する
+         */
+        function integrateAndClearDroppedItems() {
+            const droppedDataJson = localStorage.getItem(TEMP_ITEM_KEY_ITEM);
+            const statusElement = document.getElementById('integration-status');
+
+            if (droppedDataJson) {
+                try {
+                    const droppedItems = JSON.parse(droppedDataJson);
+                    let inventory = loadInventory();
+                    
+                    // アイテムを統合
+                    droppedItems.forEach(item => {
+                        const existingItemIndex = inventory.findIndex(inv => inv.name === item.name);
+                        
+                        if (existingItemIndex !== -1) {
+                            // 既存のアイテムがある場合、個数を加算
+                            inventory[existingItemIndex].count += item.count;
+                        } else {
+                            // 新しいアイテムの場合、リストに追加
+                            inventory.push(item);
+                        }
+                    });
+                    
+                    saveInventory(inventory);
+                    // 完了後、一時データをクリア
+                    localStorage.removeItem(TEMP_ITEM_KEY_ITEM);
+
+                    statusElement.textContent = "✅ ポケストップからのアイテムをインベントリに統合しました！";
+                } catch (e) {
+                    console.error("アイテムデータの統合中にエラーが発生しました:", e);
+                    statusElement.textContent = "❌ アイテムデータの統合に失敗しました。";
+                }
+            } else {
+                statusElement.textContent = "インベントリをチェックしています。";
+            }
+        }
+
+        /**
+         * インベントリをHTMLにレンダリングする
+         */
+        function renderInventory() {
+            const inventory = loadInventory();
+            const ul = document.getElementById('player-inventory-ul');
+            ul.innerHTML = ''; 
+            
+            if (inventory.length === 0) {
+                ul.innerHTML = '<li>現在、アイテムは持っていません。</li>';
+                return;
+            }
+
+            inventory.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = `▶️ ${item.name}: ${item.count} 個`;
+                ul.appendChild(li);
+            });
+        }
+        
+        // --- 実行ロジック ---
+        // ページが表示された際に統合とレンダリングを実行する
+        // (index.html の loadView 関数からも呼ばれるが、ここにも記述)
+        integrateAndClearDroppedItems();
+        renderInventory();
+    </script>
+</div>
