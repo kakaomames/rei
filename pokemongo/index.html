@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ポケモンGO Web版 - Gemini programming隊</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#306EE6">
+    <meta name="description" content="Gemini programming隊によるWebXR/Leafletを使用したポケモンGOクローン">
+    <meta name="keywords" content="Pokemon, Go, WebXR, AR, Leaflet, OpenStreetMap, Gemini programming隊">
+    <meta property="og:title" content="ポケモンGO Web版">
+    <meta property="og:description" content="WebXRとLeafletで作る位置情報ゲーム">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    
+    <link rel="stylesheet" href="/rei/leaflet/leaflet.css" />
+    
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
+        #map { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 10; }
+        #spa-container { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            background: #fff; 
+            z-index: 20; 
+            display: none; 
+            padding: 20px; 
+            overflow: auto; 
+        }
+        #message {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            z-index: 10000;
+            display: none;
+            text-align: center;
+        }
+        .pokemon-marker div, .pokestop-marker div, .gym-marker div {
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            line-height: 1;
+        }
+        .pokemon-marker div { background: red; border-radius: 50%; width: 40px; height: 40px; line-height: 40px; }
+        .pokestop-marker div { background: blue; border-radius: 50%; width: 30px; height: 30px; line-height: 30px; }
+        .gym-marker div { background: yellowgreen; border-radius: 5px; width: 40px; height: 40px; line-height: 40px; }
+        
+        /* プレイヤーマーカーのカスタムスタイル */
+        .player-marker div {
+            width: 30px; 
+            height: 30px; 
+            background: #306EE6;
+            border-radius: 50%; 
+            border: 3px solid white; 
+            box-shadow: 0 0 10px rgba(0, 0, 255, 0.7);
+            z-index: 9999;
+        }
+        
+        #menu-button {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 50;
+        }
+        
+        /* AR View Styles */
+        #ar-view {
+            position: relative;
+            background: black; /* AR開始前の背景 */
+            padding: 0;
+        }
+        #ar-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+        #ar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100; /* Three.jsキャンバスの上 */
+            pointer-events: none; /* デフォルトで透過 */
+        }
+        #ar-overlay > * {
+            pointer-events: auto; /* ボタンなどはクリック可能にする */
+        }
+    </style>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div id="spa-container">
+        <div id="menu-view" style="display: none;">
+            <h2>メニュー</h2>
+            <p>現在のアプリバージョン: 0.1</p>
+            <button onclick="loadView('')">マップに戻る</button>
+            <br><br>
+            <button onclick="loadView('ar')">🔥 ARモード開始 (WebXRテスト) 🔥</button>
+        </div>
+        
+        <div id="ar-view" style="display: none;">
+            <canvas id="ar-canvas"></canvas>
+            <div id="ar-overlay">
+                <p id="ar-status" style="color: white; margin: 10px;">ARトラッキング中...</p>
+                <button onclick="exitARMode()" style="position: absolute; top: 10px; right: 10px;">マップに戻る</button>
+                <div style="position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); color: white; text-align: center;">
+                    <p>野生のポケモン ID: 25</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="message">GPSを起動しています...</div>
+    <button id="menu-button" onclick="loadView('menu')">メニューを開く</button>
+
+    <script src="/rei/leaflet/leaflet.js"></script> 
+    
+    <script>
+        const messageDiv = document.getElementById('message');
+        const spaContainer = document.getElementById('spa-container');
+        
+        // Service Worker登録 (省略: 前回のコードを参照)
+        
+        // Utility Functions
+        function getQueryParam(name, defaultValue) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name) || defaultValue;
+        }
+
+        // ----------------------------------------------------
+        // 1. マップ初期化とレイヤーグループの定義
+        // ----------------------------------------------------
+        const centerLat = parseFloat(getQueryParam('lat', 35.4651));
+        const centerLng = parseFloat(getQueryParam('lng', 139.6222));
+        const initialZoom = parseInt(getQueryParam('zoom', 15));
+        
+        const map = L.map('map', {
+            center: [centerLat, centerLng],
+            zoom: initialZoom
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        const pokemonLayer = L.layerGroup().addTo(map);
+        const pokestopLayer = L.layerGroup().addTo(map);
+        let playerMarker = null; 
+        
+        const playerIcon = L.divIcon({
+            className: 'player-marker',
+            html: '<div></div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        // ----------------------------------------------------
+        // 2. マーカー配置とAPI連携 (再配置関数)
+        // ----------------------------------------------------
+
+        function spawnRandomPokemon(centerLat, centerLng, numPokemon = 5) {
+            pokemonLayer.clearLayers(); 
+            const POKEMON_RADIUS_M = 100;
+            const EARTH_RADIUS_M = 6371000; 
+            const pokemonIcon = L.divIcon({ className: 'pokemon-marker', html: '<div>P</div>', iconSize: [40, 40], iconAnchor: [20, 20] });
+
+            for (let i = 0; i < numPokemon; i++) {
+                // (省略: 座標計算ロジック)
+                const randomDistanceM = Math.sqrt(Math.random()) * POKEMON_RADIUS_M; 
+                const randomAngleRad = Math.random() * 2 * Math.PI;
+                const dLat = (randomDistanceM / EARTH_RADIUS_M) * (180 / Math.PI) * Math.cos(randomAngleRad);
+                const dLng = (randomDistanceM / EARTH_RADIUS_M) * (180 / Math.PI) * Math.sin(randomAngleRad) / Math.cos(centerLat * (Math.PI / 180));
+                const newLat = centerLat + dLat;
+                const newLng = centerLng + dLng;
+
+                L.marker([newLat, newLng], {icon: pokemonIcon})
+                    .addTo(pokemonLayer)
+                    .bindPopup(`野生のポケモン #${i+1} (${Math.round(randomDistanceM)}m)<br><button onclick="loadView('ar')">ARで見る</button>`); // ARボタン追加
+            }
+            console.log(`${numPokemon}匹のポケモンを再配置。`);
+        }
+        
+        const pokestopIcon = L.divIcon({ className: 'pokestop-marker', html: '<div>S</div>', iconSize: [30, 30], iconAnchor: [15, 15] });
+        const gymIcon = L.divIcon({ className: 'gym-marker', html: '<div>G</div>', iconSize: [40, 40], iconAnchor: [20, 20] });
+        
+        function createPokestopMarker(item) {
+            const lat = parseFloat(item.pm_lat);
+            const lng = parseFloat(item.pm_lng);
+            const name = item.pm_name;
+            const type = item.pm_type;
+
+            let icon, typeName;
+            if (type === "2") { icon = pokestopIcon; typeName = "ポケストップ"; } 
+            else if (type === "3") { icon = gymIcon; typeName = "ジム"; }
+            else { return; }
+            if (isNaN(lat) || isNaN(lng)) { return; }
+
+            L.marker([lat, lng], { icon: icon })
+                .addTo(pokestopLayer)
+                .bindPopup(`<b>${typeName}</b><br>${name}`);
+        }
+
+        async function fetchPokestopData(lat, lng) {
+            pokestopLayer.clearLayers(); 
+            const POKESTOP_API_URL_BASE = 'https://xeroxapp032.vercel.app/api/listget';
+            const apiUrl = `${POKESTOP_API_URL_BASE}?lat=${lat}&lng=${lng}`;
+            
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error(`API呼び出しエラー: ${response.status}`);
+                const data = await response.json();
+                
+                if (Array.isArray(data)) {
+                    data.forEach(item => { createPokestopMarker(item); });
+                } 
+            } catch (error) {
+                console.error("ポケストップ/ジムデータ取得失敗:", error);
+            }
+        }
+        
+        function startPokemonApp(currentLat, currentLng) {
+            spawnRandomPokemon(currentLat, currentLng);
+            fetchPokestopData(currentLat, currentLng);
+        }
+
+        // ----------------------------------------------------
+        // 3. GPS追跡イベントハンドラ
+        // ----------------------------------------------------
+        let isInitialLoad = true;
+        
+        map.on('locationfound', (e) => {
+            const latlng = e.latlng;
+            
+            if (playerMarker) {
+                playerMarker.setLatLng(latlng);
+            } else {
+                playerMarker = L.marker(latlng, { icon: playerIcon }).addTo(map)
+                    .bindPopup("現在のあなたの位置").openPopup();
+            }
+
+            if (isInitialLoad) {
+                map.setView(latlng, map.getZoom() < 16 ? 16 : map.getZoom()); 
+                startPokemonApp(latlng.lat, latlng.lng);
+                isInitialLoad = false;
+                
+                messageDiv.textContent = 'GPS追跡開始。周辺のポケモンとジムを配置したぞ！';
+                setTimeout(() => { messageDiv.style.display = 'none'; }, 3000);
+            }
+        });
+
+        map.on('locationerror', (e) => {
+            console.error('GPSエラー:', e.message);
+            messageDiv.textContent = `エラー: GPSをオンにするか、アクセスを許可してください。代わりにデフォルト位置をロードします。`;
+            
+            if (isInitialLoad) {
+                startPokemonApp(centerLat, centerLng);
+                isInitialLoad = false;
+                setTimeout(() => { messageDiv.style.display = 'none'; }, 5000);
+            }
+        });
+
+        // ----------------------------------------------------
+        // 4. マップ移動イベント (moveend)
+        // ----------------------------------------------------
+        function handleMapUpdate() {
+            if (window.location.hash.slice(1) !== '') {
+                return;
+            }
+            if (map.getZoom() < 14) {
+                 messageDiv.textContent = 'ズームインしてください。';
+                 messageDiv.style.display = 'block';
+                 setTimeout(() => { messageDiv.style.display = 'none'; }, 2000);
+                 return;
+            }
+
+            const center = map.getCenter();
+            console.log(`マップ移動完了！新座標で再ロード: Lat=${center.lat.toFixed(5)}, Lng=${center.lng.toFixed(5)}`);
+            
+            startPokemonApp(center.lat, center.lng);
+        }
+
+        map.on('moveend', handleMapUpdate);
+
+
+        // ----------------------------------------------------
+        // 5. SPAルーティング
+        // ----------------------------------------------------
+        function loadView(viewName) {
+            const views = {
+                'menu': document.getElementById('menu-view'),
+                'ar': document.getElementById('ar-view')
+            };
+            
+            // 全てのビューを非表示に
+            Object.values(views).forEach(v => {
+                if(v) v.style.display = 'none';
+            });
+
+            if (viewName === '') {
+                // マップモード
+                spaContainer.style.display = 'none';
+                map.style.display = 'block';
+                document.getElementById('menu-button').style.display = 'block';
+                // ARセッションが残っていたら終了させる
+                if (arRenderer && arRenderer.xr.getSession()) {
+                    exitARMode(false); // マップに戻る処理は不要
+                }
+                // マップに戻ったので、GPS追跡を再開 (map.locateがwatch:trueで動いているため自動で再開するはず)
+            } else {
+                // SPAモード
+                map.style.display = 'none';
+                spaContainer.style.display = 'block';
+                document.getElementById('menu-button').style.display = 'none';
+                
+                const targetView = views[viewName];
+                if (targetView) {
+                    targetView.style.display = 'block';
+                    if (viewName === 'ar') {
+                        enterARMode();
+                    }
+                }
+            }
+            
+            // URLハッシュを更新
+            window.location.hash = viewName;
+        }
+
+        window.addEventListener('hashchange', () => {
+            loadView(window.location.hash.slice(1));
+        });
+
+        // ----------------------------------------------------
+        // 6. アプリケーション初期起動
+        // ----------------------------------------------------
+        window.addEventListener('load', () => {
+            loadView(window.location.hash.slice(1));
+            
+            if (window.location.hash.slice(1) === '') {
+                messageDiv.style.display = 'block';
+                // GPS追跡を開始
+                map.locate({
+                    setView: true, 
+                    watch: true,   
+                    maxZoom: 18,   
+                    enableHighAccuracy: true, 
+                    timeout: 10000 
+                });
+            } else {
+                 messageDiv.style.display = 'none';
+            }
+        });
+        
+        // ----------------------------------------------------
+        // 7. ARモード（WebXR + Three.js）の実装
+        // ----------------------------------------------------
+        let arRenderer, arScene, arCamera;
+
+        const POKEMON_ID_TO_DISPLAY = 25; 
+        const POKEMON_ICON_PATH = `/rei/assets/button_icon_M${POKEMON_ID_TO_DISPLAY}.png`;
+        const POKEMON_PLANE_SIZE = 0.5;
+
+        function initARScene() {
+            const arCanvas = document.getElementById('ar-canvas');
+            if (!arCanvas) return;
+            
+            arRenderer = new THREE.WebGLRenderer({ 
+                canvas: arCanvas, 
+                antialias: true, 
+                alpha: true 
+            });
+            arRenderer.setPixelRatio(window.devicePixelRatio);
+            arRenderer.setSize(window.innerWidth, window.innerHeight);
+            arRenderer.xr.enabled = true; 
+
+            arScene = new THREE.Scene();
+            arCamera = new THREE.PerspectiveCamera(); 
+
+            const light = new THREE.AmbientLight(0xffffff, 1.0);
+            arScene.add(light);
+
+            // ポケモンアイコンの平面表示ロジック
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.load(
+                POKEMON_ICON_PATH,
+                
+                function (texture) {
+                    const geometry = new THREE.PlaneGeometry(POKEMON_PLANE_SIZE, POKEMON_PLANE_SIZE);
+                    const material = new THREE.MeshBasicMaterial({
+                        map: texture,
+                        side: THREE.DoubleSide,
+                        transparent: true,
+                        alphaTest: 0.5
+                    });
+
+                    const pokemonPlane = new THREE.Mesh(geometry, material);
+                    
+                    // 0.5メートル前方に、地面に垂直に立てて配置
+                    pokemonPlane.position.set(0, 0.01, -0.5); 
+                    pokemonPlane.rotation.x = -Math.PI / 2; 
+
+                    arScene.add(pokemonPlane);
+                    console.log("ARシーンにポケモン平面を配置しました。");
+                },
+                undefined, 
+                function (error) {
+                    console.error('テクスチャの読み込みに失敗しました:', error);
+                }
+            );
+            
+            function renderLoop(time) {
+                arRenderer.render(arScene, arCamera);
+            }
+            
+            arRenderer.setAnimationLoop(renderLoop);
+        }
+
+        function enterARMode() {
+            if (!navigator.xr) {
+                // HTTPS環境でない、またはデバイス非対応のエラーをユーザーに通知
+                alert('隊員！WebXR（AR）はHTTPS接続のAR対応モバイルデバイスでのみ利用可能です。');
+                return;
+            }
+            
+            initARScene();
+            
+            navigator.xr.requestSession('immersive-ar', { 
+                requiredFeatures: ['local', 'hit-test', 'dom-overlay'], // local参照空間を必須に
+                optionalFeatures: ['dom-overlay'],
+                domOverlay: { root: document.getElementById('ar-overlay') } 
+            })
+            .then(session => {
+                arRenderer.xr.setSession(session);
+                document.getElementById('ar-status').textContent = "ARセッション開始。周囲を動いてみよう！";
+            })
+            .catch(error => {
+                console.error("ARセッション開始に失敗:", error);
+                document.getElementById('ar-status').textContent = `ARエラー: ${error.message}`;
+                // ARビューから抜ける
+                exitARMode(true); 
+            });
+        }
+
+        // 引数にマップに戻るかどうかのフラグを追加
+        function exitARMode(returnToMap = true) {
+            if (arRenderer && arRenderer.xr.getSession()) {
+                arRenderer.xr.getSession().end();
+            }
+            if (arRenderer) {
+                arRenderer.setAnimationLoop(null);
+                arRenderer = null;
+            }
+            
+            if(returnToMap) {
+                loadView(''); // マップ画面に戻る
+            }
+        }
+    </script>
+</body>
+</html>
