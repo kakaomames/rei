@@ -27,7 +27,6 @@
             background: #fff; 
             z-index: 20; 
             display: none; 
-            padding: 20px; 
             overflow: auto; 
         }
         #message {
@@ -43,17 +42,6 @@
             display: none;
             text-align: center;
         }
-        .pokemon-marker div, .pokestop-marker div, .gym-marker div {
-            text-align: center;
-            font-weight: bold;
-            color: white;
-            line-height: 1;
-        }
-        .pokemon-marker div { background: red; border-radius: 50%; width: 40px; height: 40px; line-height: 40px; }
-        .pokestop-marker div { background: blue; border-radius: 50%; width: 30px; height: 30px; line-height: 30px; }
-        .gym-marker div { background: yellowgreen; border-radius: 5px; width: 40px; height: 40px; line-height: 40px; }
-        
-        /* プレイヤーマーカーのカスタムスタイル */
         .player-marker div {
             width: 30px; 
             height: 30px; 
@@ -75,30 +63,12 @@
             z-index: 50;
         }
         
-        /* AR View Styles */
-        #ar-view {
-            position: relative;
-            background: black; /* AR開始前の背景 */
-            padding: 0;
-        }
-        #ar-canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            position: absolute;
-        }
-        #ar-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 100; /* Three.jsキャンバスの上 */
-            pointer-events: none; /* デフォルトで透過 */
-        }
-        #ar-overlay > * {
-            pointer-events: auto; /* ボタンなどはクリック可能にする */
-        }
+        /* AR/SPA共通スタイル */
+        .spa-content { padding: 20px; }
+        #ar-view { position: relative; background: black; padding: 0; width: 100%; height: 100%; }
+        #ar-canvas { display: block; width: 100%; height: 100%; position: absolute; }
+        #ar-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
+        #ar-overlay > * { pointer-events: auto; }
     </style>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -107,12 +77,310 @@
     <div id="map"></div>
     
     <div id="spa-container">
-        <div id="menu-view" style="display: none;">
+        
+        <div id="menu-view" style="display: none;" class="spa-content">
             <h2>メニュー</h2>
-            <p>現在のアプリバージョン: 0.1</p>
+            <p>現在のアプリバージョン: 0.1 (Gemini programming隊)</p>
             <button onclick="loadView('')">マップに戻る</button>
-            <br><br>
+            <hr>
+            
+            <h3>ゲームモード</h3>
             <button onclick="loadView('ar')">🔥 ARモード開始 (WebXRテスト) 🔥</button>
+            <hr>
+            
+            <h3>情報</h3>
+            <p>
+                <button onclick="loadView('pokemon')">ポケモン図鑑 (テスト)</button><br>
+                <button onclick="loadView('item')">アイテムインベントリ (テスト)</button><br>
+                <button onclick="loadView('gym')">ジム一覧 (テスト)</button><br>
+                <button onclick="loadView('pokestop')">ポケストップ一覧 (テスト)</button>
+            </p>
+            <hr>
+            
+            <h3>設定・報告</h3>
+            <button onclick="loadView('hokoku')">バグ報告/レポート</button>
+        </div>
+        
+        <div id="pokemon-detail-view" style="display: none;" class="spa-content">
+            <h2>ポケモン図鑑/所持リスト</h2>
+            
+            <h3 id="pokemon-detail-name">名前: [JSにより更新]</h3>
+            <p id="pokemon-detail-cp">CP: [JSにより更新]</p>
+            <p id="pokemon-detail-hp">HP: [JSにより更新]</p>
+            
+            <hr>
+            
+            <h3>所持ポケモンリスト</h3>
+            <ul id="my-pokemon-list-ul">
+                <li>データがありません。</li>
+            </ul>
+            
+            <button onclick="loadView('')">マップに戻る</button>
+            
+            <script>
+                // --- pokemon.html の LocalStorage 処理 ---
+                const TEMP_POKE_KEY = 'CAUGHT_POKEMON_TEMP';
+                const LIST_POKE_KEY = 'MY_POKEMON_LIST';
+
+                function loadPokemonList() {
+                    try {
+                        const listJson = localStorage.getItem(LIST_POKE_KEY);
+                        return listJson ? JSON.parse(listJson) : [];
+                    } catch (e) {
+                        console.error("所持ポケモンリストの読み込みに失敗しました:", e);
+                        return [];
+                    }
+                }
+
+                function savePokemonList(list) {
+                    try {
+                        localStorage.setItem(LIST_POKE_KEY, JSON.stringify(list));
+                    } catch (e) {
+                        console.error("所持ポケモンリストの保存に失敗しました:", e);
+                    }
+                }
+
+                function integrateAndClearCaughtData() {
+                    const caughtDataJson = localStorage.getItem(TEMP_POKE_KEY);
+                    if (caughtDataJson) {
+                        try {
+                            const caughtPokemon = JSON.parse(caughtDataJson);
+                            const myPokemonList = loadPokemonList();
+                            myPokemonList.push(caughtPokemon);
+                            savePokemonList(myPokemonList);
+                            localStorage.removeItem(TEMP_POKE_KEY);
+                            console.log('✅ 捕獲ポケモンをリストに追加し、一時データをクリアしました。');
+                        } catch (e) {
+                            console.error("捕獲データの統合中にエラーが発生しました:", e);
+                        }
+                    }
+                }
+
+                function renderPokemonList() {
+                    const list = loadPokemonList();
+                    const ul = document.getElementById('my-pokemon-list-ul');
+                    ul.innerHTML = ''; 
+                    
+                    if (list.length === 0) {
+                        ul.innerHTML = '<li>現在、所持ポケモンはいません。</li>';
+                        return;
+                    }
+
+                    list.forEach((p, index) => {
+                        const li = document.createElement('li');
+                        li.textContent = `#${index + 1} - ID:${p.id} (${p.name}), CP: ${p.cp}, HP: ${p.hp}`;
+                        ul.appendChild(li);
+                    });
+                }
+                
+                // --- 実行 ---
+                // このスクリプトが実行されるタイミング (HTMLパース時) に処理を行う
+                integrateAndClearCaughtData();
+                renderPokemonList();
+            </script>
+        </div>
+
+        <div id="hokaku-view" style="display: none;" class="spa-content">
+            <h2>ポケモン捕獲成功！🎉</h2>
+            <p>野生のポケモンを捕まえました！捕獲データを一時保存しています。</p>
+            
+            <p>捕獲ポケモンID: <span id="captured-id">...</span></p>
+            <p>CP: <span id="captured-cp">...</span></p>
+            
+            <button onclick="saveAndGoToPokemon()">図鑑へ移動し、データを整理する</button>
+            <button onclick="loadView('')">マップに戻る</button>
+
+            <script>
+                // --- hokaku.html の LocalStorage 処理 ---
+                const TEMP_POKE_KEY_HOKAKU = 'CAUGHT_POKEMON_TEMP';
+
+                // 捕獲されたポケモンの仮データ生成
+                const caughtPokemon = {
+                    id: Math.floor(Math.random() * 151) + 1,
+                    name: "捕獲ポケモン",
+                    cp: Math.floor(Math.random() * 2500) + 10,
+                    hp: Math.floor(Math.random() * 100),
+                    timestamp: new Date().toISOString()
+                };
+
+                document.getElementById('captured-id').textContent = caughtPokemon.id;
+                document.getElementById('captured-cp').textContent = caughtPokemon.cp;
+
+
+                function saveAndGoToPokemon() {
+                    try {
+                        const pokemonJson = JSON.stringify(caughtPokemon);
+                        localStorage.setItem(TEMP_POKE_KEY_HOKAKU, pokemonJson);
+                        console.log(`✅ ${TEMP_POKE_KEY_HOKAKU} にデータを保存しました。`);
+
+                        if (typeof loadView === 'function') {
+                            loadView('pokemon');
+                        }
+                    } catch (e) {
+                        console.error("LocalStorageへの保存中にエラーが発生しました:", e);
+                    }
+                }
+            </script>
+        </div>
+        
+        <div id="gym-view" style="display: none;" class="spa-content">
+            <h2>ジム画面</h2>
+            <p>ジムの防衛ポケモンやレイド情報を表示します。</p>
+            <button onclick="loadView('')">マップに戻る</button>
+        </div>
+
+        <div id="pokestop-view" style="display: none;" class="spa-content">
+            <h2>ポケストップ画面</h2>
+            <p>ポケストップの詳細情報やアイテムが表示されます。</p>
+            
+            <button onclick="spinPokestop()">ポケストップを回す！</button>
+            
+            <div id="dropped-items-display" style="margin-top: 20px;"></div>
+            
+            <button id="collect-button" onclick="collectAndGoToItem()" style="display:none;">アイテムを回収し、インベントリへ</button>
+            <button onclick="loadView('')">マップに戻る</button>
+
+            <script>
+                // --- pokestop.html の LocalStorage 処理 ---
+                const TEMP_ITEM_KEY = 'DROPPED_ITEMS_TEMP';
+                const AVAILABLE_ITEMS = [
+                    { name: "モンスターボール", min: 3, max: 7 },
+                    { name: "きずぐすり", min: 1, max: 3 },
+                    { name: "げんきのかけら", min: 0, max: 2 },
+                    { name: "ナナのみ", min: 1, max: 4 }
+                ];
+        
+                let droppedItems = [];
+        
+                function spinPokestop() {
+                    droppedItems = [];
+                    const display = document.getElementById('dropped-items-display');
+                    display.innerHTML = "<h4>✨ アイテムが出現しました！</h4>";
+                    
+                    const numItems = Math.floor(Math.random() * 3) + 2;
+                    
+                    for (let i = 0; i < numItems; i++) {
+                        const itemType = AVAILABLE_ITEMS[Math.floor(Math.random() * AVAILABLE_ITEMS.length)];
+                        const count = Math.floor(Math.random() * (itemType.max - itemType.min + 1)) + itemType.min;
+                        
+                        if (count > 0) {
+                            droppedItems.push({ name: itemType.name, count: count });
+                            display.innerHTML += `<p>・${itemType.name}を ${count} 個獲得</p>`;
+                        }
+                    }
+        
+                    if (droppedItems.length > 0) {
+                        try {
+                            localStorage.setItem(TEMP_ITEM_KEY, JSON.stringify(droppedItems));
+                            console.log(`✅ ${TEMP_ITEM_KEY} に獲得アイテムを一時保存しました。`);
+                            document.getElementById('collect-button').style.display = 'block';
+                        } catch (e) {
+                            console.error("LocalStorageへの保存中にエラーが発生しました:", e);
+                        }
+                    } else {
+                        display.innerHTML += "<p>残念ながら何も出ませんでした...</p>";
+                        document.getElementById('collect-button').style.display = 'none';
+                    }
+                }
+        
+                function collectAndGoToItem() {
+                    if (typeof loadView === 'function') {
+                        loadView('item');
+                    }
+                }
+            </script>
+        </div>
+
+        <div id="item-view" style="display: none;" class="spa-content">
+            <h2>アイテムインベントリ (持ち物)</h2>
+            
+            <p id="integration-status" style="color: green;">アイテムのデータ統合が完了しました。</p>
+            
+            <hr>
+            
+            <h3>所持アイテム一覧</h3>
+            <ul id="player-inventory-ul">
+                <li>アイテムデータがありません。</li>
+            </ul>
+            
+            <button onclick="loadView('')">マップに戻る</button>
+            
+            <script>
+                // --- item.html の LocalStorage 処理 ---
+                const TEMP_ITEM_KEY_ITEM = 'DROPPED_ITEMS_TEMP';
+                const INVENTORY_KEY = 'PLAYER_INVENTORY';
+
+                function loadInventory() {
+                    try {
+                        const listJson = localStorage.getItem(INVENTORY_KEY);
+                        return listJson ? JSON.parse(listJson) : [];
+                    } catch (e) {
+                        console.error("インベントリの読み込みに失敗しました:", e);
+                        return [];
+                    }
+                }
+
+                function saveInventory(inventory) {
+                    try {
+                        localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+                    } catch (e) {
+                        console.error("インベントリの保存に失敗しました:", e);
+                    }
+                }
+
+                function integrateAndClearDroppedItems() {
+                    const droppedDataJson = localStorage.getItem(TEMP_ITEM_KEY_ITEM);
+                    const statusElement = document.getElementById('integration-status');
+
+                    if (droppedDataJson) {
+                        try {
+                            const droppedItems = JSON.parse(droppedDataJson);
+                            let inventory = loadInventory();
+                            
+                            droppedItems.forEach(item => {
+                                const existingItemIndex = inventory.findIndex(inv => inv.name === item.name);
+                                
+                                if (existingItemIndex !== -1) {
+                                    inventory[existingItemIndex].count += item.count;
+                                } else {
+                                    inventory.push(item);
+                                }
+                            });
+                            
+                            saveInventory(inventory);
+                            localStorage.removeItem(TEMP_ITEM_KEY_ITEM);
+
+                            statusElement.textContent = "✅ ポケストップからのアイテムをインベントリに統合しました！";
+                        } catch (e) {
+                            console.error("アイテムデータの統合中にエラーが発生しました:", e);
+                            statusElement.textContent = "❌ アイテムデータの統合に失敗しました。";
+                        }
+                    } else {
+                        statusElement.textContent = "インベントリをチェックしています。";
+                    }
+                }
+
+                function renderInventory() {
+                    const inventory = loadInventory();
+                    const ul = document.getElementById('player-inventory-ul');
+                    ul.innerHTML = ''; 
+                    
+                    if (inventory.length === 0) {
+                        ul.innerHTML = '<li>現在、アイテムは持っていません。</li>';
+                        return;
+                    }
+
+                    inventory.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = `▶️ ${item.name}: ${item.count} 個`;
+                        ul.appendChild(li);
+                    });
+                }
+                
+                // --- 実行 ---
+                integrateAndClearDroppedItems();
+                renderInventory();
+            </script>
         </div>
         
         <div id="ar-view" style="display: none;">
@@ -125,6 +393,12 @@
                 </div>
             </div>
         </div>
+
+        <div id="hokoku-view" style="display: none;" class="spa-content">
+            <h2>報告/レポート画面</h2>
+            <p>バグの報告や新しいポケモンの情報を提供できます。</p>
+            <button onclick="loadView('')">マップに戻る</button>
+        </div>
     </div>
     
     <div id="message">GPSを起動しています...</div>
@@ -133,10 +407,11 @@
     <script src="/rei/leaflet/leaflet.js"></script> 
     
     <script>
+        // ----------------------------------------------------
+        // 隊員コード (JavaScript 全体)
+        // ----------------------------------------------------
         const messageDiv = document.getElementById('message');
         const spaContainer = document.getElementById('spa-container');
-        
-        // Service Worker登録 (省略: 前回のコードを参照)
         
         // Utility Functions
         function getQueryParam(name, defaultValue) {
@@ -144,17 +419,12 @@
             return urlParams.get(name) || defaultValue;
         }
 
-        // ----------------------------------------------------
-        // 1. マップ初期化とレイヤーグループの定義
-        // ----------------------------------------------------
+        // 1. マップ初期化
         const centerLat = parseFloat(getQueryParam('lat', 35.4651));
         const centerLng = parseFloat(getQueryParam('lng', 139.6222));
         const initialZoom = parseInt(getQueryParam('zoom', 15));
         
-        const map = L.map('map', {
-            center: [centerLat, centerLng],
-            zoom: initialZoom
-        });
+        const map = L.map('map', { center: [centerLat, centerLng], zoom: initialZoom });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -164,26 +434,19 @@
         const pokemonLayer = L.layerGroup().addTo(map);
         const pokestopLayer = L.layerGroup().addTo(map);
         let playerMarker = null; 
+        let isInitialLoad = true;
         
-        const playerIcon = L.divIcon({
-            className: 'player-marker',
-            html: '<div></div>',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        });
+        const playerIcon = L.divIcon({ className: 'player-marker', html: '<div></div>', iconSize: [30, 30], iconAnchor: [15, 15] });
+        const pokemonIcon = L.divIcon({ className: 'pokemon-marker', html: '<div>P</div>', iconSize: [40, 40], iconAnchor: [20, 20] });
+        const pokestopIcon = L.divIcon({ className: 'pokestop-marker', html: '<div>S</div>', iconSize: [30, 30], iconAnchor: [15, 15] });
+        const gymIcon = L.divIcon({ className: 'gym-marker', html: '<div>G</div>', iconSize: [40, 40], iconAnchor: [20, 20] });
 
-        // ----------------------------------------------------
-        // 2. マーカー配置とAPI連携 (再配置関数)
-        // ----------------------------------------------------
-
+        // 2. マーカー配置とAPI連携
         function spawnRandomPokemon(centerLat, centerLng, numPokemon = 5) {
             pokemonLayer.clearLayers(); 
             const POKEMON_RADIUS_M = 100;
             const EARTH_RADIUS_M = 6371000; 
-            const pokemonIcon = L.divIcon({ className: 'pokemon-marker', html: '<div>P</div>', iconSize: [40, 40], iconAnchor: [20, 20] });
-
             for (let i = 0; i < numPokemon; i++) {
-                // (省略: 座標計算ロジック)
                 const randomDistanceM = Math.sqrt(Math.random()) * POKEMON_RADIUS_M; 
                 const randomAngleRad = Math.random() * 2 * Math.PI;
                 const dLat = (randomDistanceM / EARTH_RADIUS_M) * (180 / Math.PI) * Math.cos(randomAngleRad);
@@ -191,15 +454,15 @@
                 const newLat = centerLat + dLat;
                 const newLng = centerLng + dLng;
 
+                const pokemonName = `ポケモン${i+1}`;
+                const cp = Math.floor(Math.random() * 2000) + 100;
+                const hp = Math.floor(Math.random() * 100);
+
                 L.marker([newLat, newLng], {icon: pokemonIcon})
                     .addTo(pokemonLayer)
-                    .bindPopup(`野生のポケモン #${i+1} (${Math.round(randomDistanceM)}m)<br><button onclick="loadView('ar')">ARで見る</button>`); // ARボタン追加
+                    .bindPopup(`野生の${pokemonName} (CP:${cp})<br><button onclick="loadView('hokaku', {pokemonname: '${pokemonName}', cp: ${cp}, hp: ${hp}})">捕獲する！</button>`); 
             }
-            console.log(`${numPokemon}匹のポケモンを再配置。`);
         }
-        
-        const pokestopIcon = L.divIcon({ className: 'pokestop-marker', html: '<div>S</div>', iconSize: [30, 30], iconAnchor: [15, 15] });
-        const gymIcon = L.divIcon({ className: 'gym-marker', html: '<div>G</div>', iconSize: [40, 40], iconAnchor: [20, 20] });
         
         function createPokestopMarker(item) {
             const lat = parseFloat(item.pm_lat);
@@ -213,9 +476,10 @@
             else { return; }
             if (isNaN(lat) || isNaN(lng)) { return; }
 
+            const viewType = (type === "2") ? 'pokestop' : 'gym';
             L.marker([lat, lng], { icon: icon })
                 .addTo(pokestopLayer)
-                .bindPopup(`<b>${typeName}</b><br>${name}`);
+                .bindPopup(`<b>${typeName}</b><br>${name}<br><button onclick="loadView('${viewType}')">詳細へ</button>`);
         }
 
         async function fetchPokestopData(lat, lng) {
@@ -241,26 +505,19 @@
             fetchPokestopData(currentLat, currentLng);
         }
 
-        // ----------------------------------------------------
-        // 3. GPS追跡イベントハンドラ
-        // ----------------------------------------------------
-        let isInitialLoad = true;
-        
+        // 3. GPS/マップイベント (省略: 前回のコードと同じ)
         map.on('locationfound', (e) => {
             const latlng = e.latlng;
-            
             if (playerMarker) {
                 playerMarker.setLatLng(latlng);
             } else {
                 playerMarker = L.marker(latlng, { icon: playerIcon }).addTo(map)
                     .bindPopup("現在のあなたの位置").openPopup();
             }
-
             if (isInitialLoad) {
                 map.setView(latlng, map.getZoom() < 16 ? 16 : map.getZoom()); 
                 startPokemonApp(latlng.lat, latlng.lng);
                 isInitialLoad = false;
-                
                 messageDiv.textContent = 'GPS追跡開始。周辺のポケモンとジムを配置したぞ！';
                 setTimeout(() => { messageDiv.style.display = 'none'; }, 3000);
             }
@@ -269,7 +526,6 @@
         map.on('locationerror', (e) => {
             console.error('GPSエラー:', e.message);
             messageDiv.textContent = `エラー: GPSをオンにするか、アクセスを許可してください。代わりにデフォルト位置をロードします。`;
-            
             if (isInitialLoad) {
                 startPokemonApp(centerLat, centerLng);
                 isInitialLoad = false;
@@ -277,55 +533,41 @@
             }
         });
 
-        // ----------------------------------------------------
-        // 4. マップ移動イベント (moveend)
-        // ----------------------------------------------------
-        function handleMapUpdate() {
-            if (window.location.hash.slice(1) !== '') {
-                return;
-            }
-            if (map.getZoom() < 14) {
-                 messageDiv.textContent = 'ズームインしてください。';
-                 messageDiv.style.display = 'block';
-                 setTimeout(() => { messageDiv.style.display = 'none'; }, 2000);
-                 return;
-            }
-
+        map.on('moveend', () => {
+            if (window.location.hash.slice(1) !== '') { return; }
+            if (map.getZoom() < 14) { return; }
             const center = map.getCenter();
-            console.log(`マップ移動完了！新座標で再ロード: Lat=${center.lat.toFixed(5)}, Lng=${center.lng.toFixed(5)}`);
-            
             startPokemonApp(center.lat, center.lng);
-        }
-
-        map.on('moveend', handleMapUpdate);
+        });
 
 
-        // ----------------------------------------------------
-        // 5. SPAルーティング
-        // ----------------------------------------------------
-        function loadView(viewName) {
+        // 4. SPAルーティング (更新)
+        function loadView(viewName, params = {}) {
+            
             const views = {
                 'menu': document.getElementById('menu-view'),
-                'ar': document.getElementById('ar-view')
+                'ar': document.getElementById('ar-view'),
+                'pokemon': document.getElementById('pokemon-detail-view'),
+                'hokaku': document.getElementById('hokaku-view'), // 捕獲画面
+                'hokoku': document.getElementById('hokoku-view'),
+                'gym': document.getElementById('gym-view'),
+                'pokestop': document.getElementById('pokestop-view'),
+                'item': document.getElementById('item-view') // アイテムインベントリ
             };
             
-            // 全てのビューを非表示に
             Object.values(views).forEach(v => {
                 if(v) v.style.display = 'none';
             });
 
-            if (viewName === '') {
-                // マップモード
+            if (viewName === '' || !views[viewName]) {
                 spaContainer.style.display = 'none';
                 map.style.display = 'block';
                 document.getElementById('menu-button').style.display = 'block';
-                // ARセッションが残っていたら終了させる
                 if (arRenderer && arRenderer.xr.getSession()) {
-                    exitARMode(false); // マップに戻る処理は不要
+                    exitARMode(false); 
                 }
-                // マップに戻ったので、GPS追跡を再開 (map.locateがwatch:trueで動いているため自動で再開するはず)
+                window.location.hash = '';
             } else {
-                // SPAモード
                 map.style.display = 'none';
                 spaContainer.style.display = 'block';
                 document.getElementById('menu-button').style.display = 'none';
@@ -333,44 +575,71 @@
                 const targetView = views[viewName];
                 if (targetView) {
                     targetView.style.display = 'block';
+                    
+                    // ポケモン詳細/捕獲ビューのパラメータ更新 (クエリパラメータを優先)
+                    if (viewName === 'pokemon' || viewName === 'hokaku') {
+                        const name = params.pokemonname || getQueryParam('pokemonname', '不明なポケモン');
+                        const cp = params.cp || getQueryParam('cp', '???');
+                        const hp = params.hp || getQueryParam('hp', '???');
+                        
+                        // pokemon.html の IDを更新
+                        if (document.getElementById('pokemon-detail-name')) {
+                             document.getElementById('pokemon-detail-name').textContent = `名前: ${name}`;
+                             document.getElementById('pokemon-detail-cp').textContent = `CP: ${cp}`;
+                             document.getElementById('pokemon-detail-hp').textContent = `HP: ${hp}`;
+                        }
+                        // hokaku.html の IDを更新
+                        if (document.getElementById('captured-id')) {
+                            document.getElementById('captured-id').textContent = caughtPokemon.id || '...';
+                            document.getElementById('captured-cp').textContent = caughtPokemon.cp || '...';
+                        }
+                    }
+
                     if (viewName === 'ar') {
                         enterARMode();
                     }
                 }
+                
+                window.location.hash = viewName;
             }
-            
-            // URLハッシュを更新
-            window.location.hash = viewName;
         }
 
-        window.addEventListener('hashchange', () => {
-            loadView(window.location.hash.slice(1));
-        });
-
-        // ----------------------------------------------------
-        // 6. アプリケーション初期起動
-        // ----------------------------------------------------
-        window.addEventListener('load', () => {
-            loadView(window.location.hash.slice(1));
+        // 5. アプリケーション初期起動
+        function startApp() {
+            const queryType = getQueryParam('type', '');
+            const hashView = window.location.hash.slice(1);
             
-            if (window.location.hash.slice(1) === '') {
+            let initialView = queryType || hashView;
+            
+            const params = {
+                pokemonname: getQueryParam('pokemonname'),
+                cp: getQueryParam('cp'),
+                hp: getQueryParam('hp')
+            };
+
+            loadView(initialView, params);
+            
+            if (initialView === '') {
                 messageDiv.style.display = 'block';
-                // GPS追跡を開始
-                map.locate({
-                    setView: true, 
-                    watch: true,   
-                    maxZoom: 18,   
-                    enableHighAccuracy: true, 
-                    timeout: 10000 
-                });
+                map.locate({ setView: true, watch: true, maxZoom: 18, enableHighAccuracy: true, timeout: 10000 });
             } else {
                  messageDiv.style.display = 'none';
             }
+        }
+
+        window.addEventListener('hashchange', () => {
+            const queryType = getQueryParam('type', '');
+            const params = {
+                pokemonname: getQueryParam('pokemonname'),
+                cp: getQueryParam('cp'),
+                hp: getQueryParam('hp')
+            };
+            loadView(queryType || window.location.hash.slice(1), params);
         });
-        
-        // ----------------------------------------------------
-        // 7. ARモード（WebXR + Three.js）の実装
-        // ----------------------------------------------------
+
+        window.addEventListener('load', startApp);
+
+        // 6. ARモード (Three.js WebXR)
         let arRenderer, arScene, arCamera;
 
         const POKEMON_ID_TO_DISPLAY = 25; 
@@ -380,69 +649,32 @@
         function initARScene() {
             const arCanvas = document.getElementById('ar-canvas');
             if (!arCanvas) return;
-            
-            arRenderer = new THREE.WebGLRenderer({ 
-                canvas: arCanvas, 
-                antialias: true, 
-                alpha: true 
-            });
+            arRenderer = new THREE.WebGLRenderer({ canvas: arCanvas, antialias: true, alpha: true });
             arRenderer.setPixelRatio(window.devicePixelRatio);
             arRenderer.setSize(window.innerWidth, window.innerHeight);
             arRenderer.xr.enabled = true; 
-
             arScene = new THREE.Scene();
             arCamera = new THREE.PerspectiveCamera(); 
+            arScene.add(new THREE.AmbientLight(0xffffff, 1.0));
 
-            const light = new THREE.AmbientLight(0xffffff, 1.0);
-            arScene.add(light);
-
-            // ポケモンアイコンの平面表示ロジック
             const textureLoader = new THREE.TextureLoader();
-            textureLoader.load(
-                POKEMON_ICON_PATH,
-                
-                function (texture) {
-                    const geometry = new THREE.PlaneGeometry(POKEMON_PLANE_SIZE, POKEMON_PLANE_SIZE);
-                    const material = new THREE.MeshBasicMaterial({
-                        map: texture,
-                        side: THREE.DoubleSide,
-                        transparent: true,
-                        alphaTest: 0.5
-                    });
-
-                    const pokemonPlane = new THREE.Mesh(geometry, material);
-                    
-                    // 0.5メートル前方に、地面に垂直に立てて配置
-                    pokemonPlane.position.set(0, 0.01, -0.5); 
-                    pokemonPlane.rotation.x = -Math.PI / 2; 
-
-                    arScene.add(pokemonPlane);
-                    console.log("ARシーンにポケモン平面を配置しました。");
-                },
-                undefined, 
-                function (error) {
-                    console.error('テクスチャの読み込みに失敗しました:', error);
-                }
-            );
+            textureLoader.load(POKEMON_ICON_PATH, function (texture) {
+                const geometry = new THREE.PlaneGeometry(POKEMON_PLANE_SIZE, POKEMON_PLANE_SIZE);
+                const material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, transparent: true, alphaTest: 0.5 });
+                const pokemonPlane = new THREE.Mesh(geometry, material);
+                pokemonPlane.position.set(0, 0.01, -0.5); 
+                pokemonPlane.rotation.x = -Math.PI / 2; 
+                arScene.add(pokemonPlane);
+            }, undefined, function (error) { console.error('テクスチャの読み込みに失敗しました:', error); });
             
-            function renderLoop(time) {
-                arRenderer.render(arScene, arCamera);
-            }
-            
-            arRenderer.setAnimationLoop(renderLoop);
+            arRenderer.setAnimationLoop(time => arRenderer.render(arScene, arCamera));
         }
 
         function enterARMode() {
-            if (!navigator.xr) {
-                // HTTPS環境でない、またはデバイス非対応のエラーをユーザーに通知
-                alert('隊員！WebXR（AR）はHTTPS接続のAR対応モバイルデバイスでのみ利用可能です。');
-                return;
-            }
-            
+            if (!navigator.xr) { alert('隊員！WebXR（AR）はHTTPS接続のAR対応モバイルデバイスでのみ利用可能です。'); return; }
             initARScene();
-            
             navigator.xr.requestSession('immersive-ar', { 
-                requiredFeatures: ['local', 'hit-test', 'dom-overlay'], // local参照空間を必須に
+                requiredFeatures: ['local', 'hit-test', 'dom-overlay'], 
                 optionalFeatures: ['dom-overlay'],
                 domOverlay: { root: document.getElementById('ar-overlay') } 
             })
@@ -453,12 +685,10 @@
             .catch(error => {
                 console.error("ARセッション開始に失敗:", error);
                 document.getElementById('ar-status').textContent = `ARエラー: ${error.message}`;
-                // ARビューから抜ける
                 exitARMode(true); 
             });
         }
 
-        // 引数にマップに戻るかどうかのフラグを追加
         function exitARMode(returnToMap = true) {
             if (arRenderer && arRenderer.xr.getSession()) {
                 arRenderer.xr.getSession().end();
@@ -467,9 +697,8 @@
                 arRenderer.setAnimationLoop(null);
                 arRenderer = null;
             }
-            
             if(returnToMap) {
-                loadView(''); // マップ画面に戻る
+                loadView(''); 
             }
         }
     </script>
