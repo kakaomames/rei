@@ -407,13 +407,52 @@
     
     <div id="message">GPSを起動しています...</div>
     <button id="menu-button" onclick="loadView('menu')">メニューを開く</button>
-
-<script src="/rei/leaflet/leaflet.js"></script> 
+    <script defer src="/rei/leaflet/leaflet.js"></script> 
     
-    <script>
-        // ----------------------------------------------------
-        // 隊員コード (JavaScript 全体)
-        // ----------------------------------------------------
+    <script defer>
+        // 7. Service Worker (PWA) の登録
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/SW.js')
+              .then(registration => {
+                console.log('Service Worker: 登録成功。スコープ:', registration.scope);
+              })
+              .catch(err => {
+                console.error('Service Worker: 登録失敗:', err);
+              });
+          });
+        }
+    </script>
+    
+    <script defer>
+        // グローバルな位置情報変数 (メインロジックからもアクセス可能)
+        let lat = 35.4651; // デフォルト緯度
+        let lng = 139.6222; // デフォルト経度
+        let isGpsActive = false; // GPSがアクティブかどうかのフラグ
+        
+        /**
+         * Leafletのlocateメソッドを使用してGPS監視を開始する
+         * (mapオブジェクトが定義されていることを前提とする)
+         */
+        function startGpsWatch() {
+            if (typeof map !== 'undefined') {
+                map.locate({ 
+                    setView: false, 
+                    watch: true, 
+                    maxZoom: 18, 
+                    enableHighAccuracy: true, 
+                    timeout: 10000 
+                });
+            } else {
+                // mapがまだ定義されていない場合は、少し待って再試行
+                setTimeout(startGpsWatch, 100);
+            }
+        }
+        
+        console.log(`GPSモジュール初期化完了。デフォルト座標: lat:${lat}, lng:${lng}`);
+    </script>
+
+    <script defer>
         const messageDiv = document.getElementById('message');
         const spaContainer = document.getElementById('spa-container');
         
@@ -424,11 +463,12 @@
         }
 
         // 1. マップ初期化とアイコンパス定義
-        const centerLat = parseFloat(getQueryParam('lat', 35.4651));
-        const centerLng = parseFloat(getQueryParam('lng', 139.6222));
+        // ②で定義されたグローバル変数 lat, lng を初期値として使用
+        const centerLat = lat; 
+        const centerLng = lng; 
         const initialZoom = parseInt(getQueryParam('zoom', 15));
         
-        // --- アイコンパスの定義と取得 (最新修正箇所) ---
+        // --- アイコンパスの定義と取得 ---
         const POKESTOP_ICON_PATH = '/rei/assets/pokestop.png';
         const GYM_ICON_PATH = '/rei/assets/gym.png';
 
@@ -436,6 +476,7 @@
         const MY_ICON_PATH = getQueryParam('myicon', DEFAULT_MY_ICON_PATH);
         // -----------------------------------------------
 
+        // mapオブジェクトを定義 (他のスクリプトからも参照可能)
         const map = L.map('map', { center: [centerLat, centerLng], zoom: initialZoom });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -536,14 +577,19 @@
             fetchPokestopData(currentLat, currentLng);
         }
 
-        // 3. GPS/マップイベント (GPS追従ロジック修正済み)
+        // 3. GPS/マップイベント
         map.on('locationfound', (e) => {
             const latlng = e.latlng;
+            
+            // ★グローバル変数 lat/lng を更新
+            lat = latlng.lat;
+            lng = latlng.lng;
+            isGpsActive = true;
             
             // 常にプレイヤーマーカーの位置を更新するロジック (GPS追従の核)
             if (playerMarker) {
                 playerMarker.setLatLng(latlng);
-                console.log(`✅ GPS座標更新: ${latlng.lat}, ${latlng.lng}`); // ログで確認
+                console.log(`✅ GPS座標更新: ${lat}, ${lng}`); 
             } else {
                 playerMarker = L.marker(latlng, { icon: playerIcon }).addTo(map)
                     .bindPopup("現在のあなたの位置").openPopup();
@@ -566,6 +612,7 @@
 
         map.on('locationerror', (e) => {
             console.error('GPSエラー:', e.message);
+            isGpsActive = false; // GPS非アクティブ
             messageDiv.textContent = `エラー: GPSをオンにするか、アクセスを許可してください。代わりにデフォルト位置をロードします。`;
             if (isInitialLoad) {
                 startPokemonApp(centerLat, centerLng);
@@ -630,6 +677,7 @@
                              document.getElementById('pokemon-detail-cp').textContent = `CP: ${cp}`;
                              document.getElementById('pokemon-detail-hp').textContent = `HP: ${hp}`;
                              
+                             // pokemonビューに遷移するたびにリストを再描画
                              if (viewName === 'pokemon' && typeof integrateAndClearCaughtData === 'function') {
                                  integrateAndClearCaughtData(); // データの統合
                                  renderPokemonList(); // リストの再描画
@@ -680,8 +728,8 @@
             
             if (initialView === '') {
                 messageDiv.style.display = 'block';
-                // LeafletのlocateでGPS追跡を開始
-                map.locate({ setView: true, watch: true, maxZoom: 18, enableHighAccuracy: true, timeout: 10000 });
+                // Leafletのlocateを、②で定義した関数を通じて開始
+                startGpsWatch(); 
             } else {
                  messageDiv.style.display = 'none';
             }
@@ -697,6 +745,7 @@
             loadView(queryType || window.location.hash.slice(1), params);
         });
 
+        // defer 属性により、DOM構築後に実行が保証される
         window.addEventListener('load', startApp);
 
         // 6. ARモード (Three.js WebXR)
@@ -760,19 +809,6 @@
             if(returnToMap) {
                 loadView(''); 
             }
-        }
-        
-        // 7. Service Worker (PWA) の登録
-        if ('serviceWorker' in navigator) {
-          window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/SW.js')
-              .then(registration => {
-                console.log('Service Worker: 登録成功。スコープ:', registration.scope);
-              })
-              .catch(err => {
-                console.error('Service Worker: 登録失敗:', err);
-              });
-          });
         }
     </script>
 </body>
