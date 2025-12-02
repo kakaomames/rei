@@ -126,6 +126,7 @@ def health_check():
     Renderのヘルスチェックに応答するためのルート
     """
     return jsonify({'status': 'ok', 'service': 'wasm_compiler'}), 200
+    print(r"{'status': 'ok', 'service': 'wasm_compiler'}")
 
 @app.route('/api/compile', methods=['POST'])
 def compile_proxy_requests():
@@ -139,6 +140,8 @@ def compile_proxy_requests():
 
     # 独自のタスクIDを生成
     task_id = os.urandom(8).hex()
+
+    print(f"{task_id}")
     
     # ステータスを初期化し、即座にTASK_STATUSに登録
     TASK_STATUS[task_id] = {
@@ -161,6 +164,7 @@ def get_compilation_status(task_id):
     タスクIDの進捗と最終結果を返すポーリングルート。
     """
     status = TASK_STATUS.get(task_id)
+    print(f"{status}")
     
     if not status:
         return jsonify({'status': 'error', 'message': 'Task ID not found.'}), 404
@@ -169,6 +173,7 @@ def get_compilation_status(task_id):
     if status['status'] in ('completed', 'error'):
         # 応答をコピーしてから削除
         response = status.copy() 
+        print(f"{response}")
         # メモリリソースを解放するためタスクを削除
         TASK_STATUS.pop(task_id, None) 
         return jsonify(response), 200
