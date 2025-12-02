@@ -6,10 +6,11 @@
 </head>
 <body>
     <h1>Wasm 実行結果</h1>
-    <p>ブラウザのコンソールを開いてください。Wasmで定義された 'alert' が表示されます。</p>
+    <p>ブラウザのコンソールを開いてください。Wasmで定義された関数が実行されます。</p>
 
     <script type="module">
         // wasm-bindgenが生成したスクリプトをインポート
+        // Rustコードで定義した関数 (例: greet, log_message, add) が利用可能
         import init, { greet } from './script.js';
 
         async function run() {
@@ -17,8 +18,13 @@
                 // init() を引数なしで呼ぶと、script.js 内で参照されている 'wasm.wasm' をロード
                 await init(); 
                 
-                // Wasmで定義された関数を実行 (Rust側のalertが実行される)
-                greet();
+                // Wasmで定義された関数を実行 
+                // ★ここではデフォルトの greet() を実行。Rustコードを修正した場合、ここも修正が必要★
+                if (typeof greet === 'function') {
+                    greet(); 
+                } else {
+                    console.log("Wasmロード成功。しかしエクスポートされた関数 greet() が見つかりません。");
+                }
 
             } catch (e) {
                 console.error("Wasmのロードまたは実行に失敗しました:", e);
@@ -28,4 +34,5 @@
         run();
     </script>
 </body>
+
 </html>

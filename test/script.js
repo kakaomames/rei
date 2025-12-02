@@ -27,9 +27,79 @@ function decodeText(ptr, len) {
     return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len));
 }
 
-export function greet() {
-    wasm.greet();
+const Game2048Finalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_game2048_free(ptr >>> 0, 1));
+
+export class Game2048 {
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(Game2048.prototype);
+        obj.__wbg_ptr = ptr;
+        Game2048Finalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        Game2048Finalization.unregister(this);
+        return ptr;
+    }
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_game2048_free(ptr, 0);
+    }
+    /**
+     * 盤面を指定された方向に移動・結合するコアロジック
+     * @param {number} direction
+     * @returns {boolean}
+     */
+    move_tiles(direction) {
+        const ret = wasm.game2048_move_tiles(this.__wbg_ptr, direction);
+        return ret !== 0;
+    }
+    /**
+     * JavaScriptから指定された位置に新しいタイルを配置する
+     * @param {number} index
+     * @param {number} value
+     */
+    place_tile(index, value) {
+        wasm.game2048_place_tile(this.__wbg_ptr, index, value);
+    }
+    /**
+     * ゲームが終了したかチェックする
+     * @returns {boolean}
+     */
+    is_game_over() {
+        const ret = wasm.game2048_is_game_over(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * 新しいゲームを開始し、盤面を初期化する
+     * @returns {Game2048}
+     */
+    static new() {
+        const ret = wasm.game2048_new();
+        return Game2048.__wrap(ret);
+    }
+    /**
+     * 現在の盤面 (16要素のu32配列) をJavaScriptに公開する
+     * @returns {number}
+     */
+    get board() {
+        const ret = wasm.game2048_board(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * スコアを公開する
+     * @returns {number}
+     */
+    get score() {
+        const ret = wasm.game2048_score(this.__wbg_ptr);
+        return ret >>> 0;
+    }
 }
+if (Symbol.dispose) Game2048.prototype[Symbol.dispose] = Game2048.prototype.free;
 
 const EXPECTED_RESPONSE_TYPES = new Set(['basic', 'cors', 'default']);
 
@@ -66,8 +136,11 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
-    imports.wbg.__wbg_alert_d836302403322a65 = function(arg0, arg1) {
-        alert(getStringFromWasm0(arg0, arg1));
+    imports.wbg.__wbg___wbindgen_throw_dd24417ed36fc46e = function(arg0, arg1) {
+        throw new Error(getStringFromWasm0(arg0, arg1));
+    };
+    imports.wbg.__wbg_consoleLog_8efa1af9046facd9 = function(arg0, arg1) {
+        consoleLog(getStringFromWasm0(arg0, arg1));
     };
     imports.wbg.__wbindgen_init_externref_table = function() {
         const table = wasm.__wbindgen_externrefs;
