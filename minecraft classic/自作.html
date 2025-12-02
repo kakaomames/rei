@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ウェブ版Minecraftのプロトタイプ">
+    <meta name="keywords" content="Minecraft, Web, Rust, WebAssembly, Three.js">
+    <meta name="author" content="Gemini Programming Team">
+    <meta property="og:title" content="Web Minecraft Prototype">
+    <meta property="og:description" content="RustとWebAssemblyで構築するウェブ版Minecraftの実験プロジェクト">
+    <meta property="og:image" content="https://kakaomames.github.io/minecraft-logo.png">
+    <meta property="og:url" content="https://kakaomames.github.io/reiminecraft classic/自作">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Web Minecraft Prototype">
+    <meta name="twitter:description" content="RustとWebAssemblyで構築するウェブ版Minecraftの実験プロジェクト">
+    <meta name="twitter:image" content="https://kakaomames.github.io/rei/minecraft-logo.png">
+    <link rel="icon" href="https://kakaomames.github.io/rei/minecraft-logo.png" type="image/png">
+    <title>Web Minecraft Prototype</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #333; }
+        canvas { display: block; }
+        #logo-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+        }
+        #logo {
+            width: 50px; /* ロゴのサイズを調整 */
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="logo-container">
+        <img id="logo" src="https://kakaomames.github.io/rei/minecraft-logo.png" alt="Minecraft Logo">
+    </div>
+    <script async src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
+    <script type="module" src="./app.js"></script>
+</body>
+</html>
