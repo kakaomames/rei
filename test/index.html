@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Wasm 実行結果</title>
+</head>
+<body>
+    <h1>Wasm 実行結果</h1>
+    <p>ブラウザのコンソールを開いてください。Wasmで定義された 'alert' が表示されます。</p>
+
+    <script type="module">
+        // wasm-bindgenが生成したスクリプトをインポート
+        import init, { greet } from './script.js';
+
+        async function run() {
+            try {
+                // init() を引数なしで呼ぶと、script.js 内で参照されている 'wasm.wasm' をロード
+                await init(); 
+                
+                // Wasmで定義された関数を実行 (Rust側のalertが実行される)
+                greet();
+
+            } catch (e) {
+                console.error("Wasmのロードまたは実行に失敗しました:", e);
+                alert("Wasmのロードまたは実行に失敗しました: " + e.message);
+            }
+        }
+        run();
+    </script>
+</body>
+</html>
