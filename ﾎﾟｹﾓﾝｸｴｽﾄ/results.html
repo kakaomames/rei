@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="ポケモンクエスト風の探検リザルト画面">
+    <meta name="keywords" content="ポケモンクエスト, リザルト, 経験値, HTML, CSS, JavaScript, LocalStorage">
+    <meta name="author" content="Gemini programming隊">
+    <meta property="og:title" content="探検リザルト | Gemini programming隊">
+    <meta property="og:description" content="探検の結果と報酬を確認！">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="icon.png" type="image/png">
+
+    <title>探検リザルト | Gemini programming隊</title>
+    <style>
+        /* UI共通スタイル */
+        :root {
+            --ui-yellow: #ffc90e;
+            --ui-dark: #333;
+            --ui-orange: #ff9900;
+            --ui-red: #ff3333;
+            --ui-blue: #3498db;
+            --ui-green-field: #6a956a;
+            --ui-result-bg: #e0e0e0;
+        }
+
+        body {
+            background-color: #f7f0e6;
+            font-family: 'Verdana', 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .game-screen {
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            border: 8px solid var(--ui-dark);
+            box-shadow: 12px 12px 0 0 #555;
+            box-sizing: border-box;
+            position: relative;
+            background-color: var(--ui-result-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 共通ボタン */
+        .ui-button {
+            background-color: var(--ui-yellow);
+            border: 3px solid var(--ui-dark);
+            color: var(--ui-dark);
+            padding: 10px 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 4px 0 0 #b38b00;
+            transition: all 0.1s;
+        }
+        .ui-button:active {
+            box-shadow: 0 1px 0 0 #b38b00;
+            transform: translateY(3px);
+        }
+
+        /* タイトルとメインエリア */
+        .result-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--ui-dark);
+            text-shadow: 4px 4px 0 var(--ui-yellow);
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        .result-stage-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--ui-dark);
+            margin-bottom: 30px;
+        }
+
+        .result-section {
+            width: 90%;
+            max-width: 700px;
+            border: 5px solid var(--ui-dark);
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 6px 6px 0 0 #555;
+        }
+
+        /* チームEXPエリア */
+        .exp-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .pokemon-exp-card {
+            width: 180px;
+            margin: 5px;
+            padding: 10px;
+            border: 3px solid #ccc;
+            background-color: #f5f5f5;
+            text-align: center;
+        }
+
+        .pokemon-icon-small {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 5px;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid var(--ui-dark);
+            border-radius: 5px;
+        }
+
+        .exp-gain {
+            font-weight: bold;
+            color: var(--ui-blue);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* 報酬エリア */
+        .reward-section {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .material-list {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .material-item {
+            font-weight: bold;
+            font-size: 14px;
+            padding: 5px 10px;
+            background-color: var(--ui-orange);
+            color: white;
+            border: 2px solid var(--ui-dark);
+            border-radius: 5px;
+        }
+
+        .back-button-area {
+            margin-top: 20px;
+        }
+        
+        /*  */
+    </style>
+</head>
+<body>
+    <div class="game-screen">
+        
+        <div class="result-title">MISSION COMPLETE! 🏆</div>
+        <div class="result-stage-name" id="stageNameDisplay">--</div>
+
+        <div class="result-section">
+            <h3>経験値獲得 (EXP +<span id="expGainAmount">0</span>)</h3>
+            <div class="exp-section" id="teamExpArea">
+                <p id="loadingText">結果を処理中...</p>
+                </div>
+        </div>
+
+        <div class="result-section reward-section">
+            <h3>ドロップアイテム</h3>
+            <div class="material-list" id="rewardList">
+                <div class="material-item">💧 しずくのかけら x 3</div>
+                <div class="material-item">🍎 小さなきのこ x 2</div>
+            </div>
+        </div>
+
+        <div class="back-button-area">
+            <div class="ui-button" onclick="goToBasecamp()">ベースキャンプへ戻る</div>
+        </div>
+        
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'pokemon_quest_data';
+        const RESULT_STORAGE_KEY = 'last_expedition_result';
+        
+        let gameData = null; 
+        let allPokemonMasterData = []; 
+        let resultData = null; // セッションから取得した探検結果
+
+        // ----------------------------------------------------
+        // I. データ管理関数 (共通)
+        // ----------------------------------------------------
+        function loadGameData() {
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            return storedData ? JSON.parse(storedData) : null;
+        }
+        
+        function saveGameData(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        async function fetchPokemonMasterData() {
+            try {
+                const jsonPath = '/rei/assets/pokemon.json';
+                const response = await fetch(jsonPath);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error("ポケモンマスターデータの読み込みに失敗しました:", error);
+                return [];
+            }
+        }
+
+        // ----------------------------------------------------
+        // II. リザルト処理ロジック
+        // ----------------------------------------------------
+        
+        // 簡易的な経験値テーブル (デモ用)
+        function getExpToNextLevel(level) {
+            // Lv1->2: 100, Lv2->3: 150, Lv3->4: 200...
+            return 50 + (level * 50); 
+        }
+
+        /**
+         * 経験値とアイテムをゲームデータに適用する
+         */
+        function applyRewards(expGain, rewards, teamInstances) {
+            if (!gameData || !gameData.roster) return;
+
+            // 1. 経験値の適用
+            const updatedRoster = gameData.roster.map(rosterPoke => {
+                const isTeamMember = teamInstances.some(t => t.instance_id === rosterPoke.instance_id);
+                
+                if (isTeamMember) {
+                    // ★ 経験値獲得ロジック (ここではレベルアップはスキップし、exp_currentフィールドを追加する)
+                    
+                    // インスタンスデータにexp_currentフィールドがなければ初期化
+                    rosterPoke.exp_current = rosterPoke.exp_current || 0; 
+                    rosterPoke.exp_current += expGain;
+                    
+                    // 隊員へのデバッグログ
+                    console.log(`applyRewards: ${rosterPoke.name} EXP +${expGain}. Current EXP: ${rosterPoke.exp_current}`);
+                    
+                    // ★ 次のレベルまでの経験値を超えていたら、レベルアップ処理（今回は保留）
+                    const expNeeded = getExpToNextLevel(rosterPoke.level);
+                    if (rosterPoke.exp_current >= expNeeded) {
+                        // 次の任務で本格的なレベルアップロジックを実装
+                        console.log(`applyRewards: ${rosterPoke.name} がレベルアップ可能！`);
+                    }
+                }
+                return rosterPoke;
+            });
+            gameData.roster = updatedRoster;
+
+            // 2. アイテムの適用 (今回は材料のみ)
+            rewards.materials.forEach(reward => {
+                const matName = reward.name;
+                const matQuantity = reward.quantity;
+                
+                gameData.inventory.materials[matName] = (gameData.inventory.materials[matName] || 0) + matQuantity;
+                console.log(`applyRewards: アイテム ${matName} x ${matQuantity} を獲得。`);
+            });
+            
+            // 3. データ保存
+            saveGameData(gameData);
+        }
+
+        // ----------------------------------------------------
+        // III. UI描画ロジック
+        // ----------------------------------------------------
+
+        /**
+         * リザルト画面のUIを描画する
+         */
+        function renderResults(stageName, expGain, rewards, teamInstances) {
+            document.getElementById('loadingText').remove();
+            
+            document.getElementById('stageNameDisplay').textContent = stageName;
+            document.getElementById('expGainAmount').textContent = expGain;
+            const teamExpArea = document.getElementById('teamExpArea');
+            teamExpArea.innerHTML = '';
+
+            // チームメンバーのEXP獲得表示
+            teamInstances.forEach(instance => {
+                const master = allPokemonMasterData.find(m => m.id === instance.pokemon_id);
+                if (!master) return;
+
+                const card = document.createElement('div');
+                card.className = 'pokemon-exp-card';
+                
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'pokemon-icon-small';
+                iconDiv.style.backgroundImage = `url('${master.icon_url}')`;
+                
+                const expP = document.createElement('p');
+                expP.className = 'exp-gain';
+                
+                // 現在のEXPと次のレベルまでの目標値を表示 (簡略化)
+                const currentExp = instance.exp_current || 0;
+                const expNeeded = getExpToNextLevel(instance.level);
+
+                expP.innerHTML = `
+                    Lv.${instance.level} ${instance.name}<br>
+                    EXP +${expGain}
+                    <div style="font-size:10px; color:#666;">
+                        (${currentExp} / ${expNeeded})
+                    </div>
+                `;
+                
+                card.appendChild(iconDiv);
+                card.appendChild(expP);
+                teamExpArea.appendChild(card);
+            });
+            
+            // 報酬アイテムの表示
+            const rewardList = document.getElementById('rewardList');
+            rewardList.innerHTML = '';
+            
+            rewards.materials.forEach(reward => {
+                const item = document.createElement('div');
+                item.className = 'material-item';
+                item.textContent = `${reward.name} x ${reward.quantity}`;
+                rewardList.appendChild(item);
+            });
+            
+        }
+
+        /**
+         * `expedition.html` で使用するためのダミーリザルトデータ生成関数
+         */
+        function generateResultData(stageId, teamInstances) {
+            const STAGES_MAPPING = {
+                1: { name: "最初の草原", exp: 100, materials: [{name: "しずくのかけら", quantity: 3}, {name: "小さなきのこ", quantity: 2}] },
+                2: { name: "岩場の試練", exp: 250, materials: [{name: "つよい石", quantity: 1}, {name: "ひんやり石", quantity: 3}] },
+                3: { name: "水の洞窟", exp: 500, materials: [{name: "うかび草", quantity: 4}, {name: "小さなきのこ", quantity: 5}] },
+            };
+            
+            const stageInfo = STAGES_MAPPING[stageId] || { name: "不明なステージ", exp: 0, materials: [] };
+            
+            return {
+                stage_id: stageId,
+                stage_name: stageInfo.name,
+                victory: true,
+                exp_gain: stageInfo.exp,
+                rewards: { materials: stageInfo.materials },
+                team_instances: teamInstances
+            };
+        }
+
+
+        // ----------------------------------------------------
+        // IV. 画面初期化メイン
+        // ----------------------------------------------------
+
+        async function initializeResults() {
+            // 1. マスターデータの読み込み
+            allPokemonMasterData = await fetchPokemonMasterData();
+            if (allPokemonMasterData.length === 0) return;
+
+            // 2. ゲームデータのロード
+            gameData = loadGameData();
+            if (!gameData) {
+                alert("ゲームデータが見つかりません。ベースキャンプへ戻ります。");
+                goToBasecamp();
+                return;
+            }
+
+            // 3. セッションストレージからリザルトデータを取得
+            const resultJson = sessionStorage.getItem(RESULT_STORAGE_KEY);
+            if (!resultJson) {
+                alert("探検結果が見つかりません。ベースキャンプへ戻ります。");
+                goToBasecamp();
+                return;
+            }
+            
+            resultData = JSON.parse(resultJson);
+            
+            // 4. ゲームデータに報酬を適用 (経験値/アイテム獲得)
+            applyRewards(
+                resultData.exp_gain, 
+                resultData.rewards, 
+                resultData.team_instances
+            );
+            
+            // 5. UI描画
+            renderResults(
+                resultData.stage_name, 
+                resultData.exp_gain, 
+                resultData.rewards, 
+                resultData.team_instances
+            );
+            
+            // 6. 使用済みセッションデータをクリア
+            sessionStorage.removeItem(RESULT_STORAGE_KEY);
+            
+            console.log("リザルト画面の処理完了。報酬が保存されました。");
+        }
+
+        // 画面ロード時に実行
+        window.onload = initializeResults;
+
+        // ----------------------------------------------------
+        // V. 画面遷移ロジック
+        // ----------------------------------------------------
+        function goToBasecamp() {
+            const nextScreen = 'basecamp.html';
+            console.log(`goToBasecamp:nextScreen:${nextScreen}`);
+            window.location.href = nextScreen;
+        }
+
+        console.log("探検リザルト画面の初期化ロジック準備完了。");
+    </script>
+</body>
+</html>
