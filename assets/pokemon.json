@@ -1,0 +1,2421 @@
+[
+    {
+        "id": 1,
+        "japanese_name": "フシギダネ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M1.png",
+        "type": [
+            "くさ",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "つるのムチ"
+        ]
+    },
+    {
+        "id": 2,
+        "japanese_name": "フシギソウ",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M2.png",
+        "type": [
+            "くさ",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "つるのムチ",
+            "はっぱカッター"
+        ]
+    },
+    {
+        "id": 3,
+        "japanese_name": "フシギバナ",
+        "level": 1,
+        "base_hp": 200,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M3.png",
+        "type": [
+            "くさ",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "つるのムチ",
+            "はっぱカッター",
+            "ソーラービーム"
+        ]
+    },
+    {
+        "id": 4,
+        "japanese_name": "ヒトカゲ",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 60,
+        "icon_url": "/rei/assets/button_icon_M4.png",
+        "type": [
+            "ほのお"
+        ],
+        "moves": [
+            "ひっかく",
+            "ひのこ"
+        ]
+    },
+    {
+        "id": 5,
+        "japanese_name": "リザード",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M5.png",
+        "type": [
+            "ほのお"
+        ],
+        "moves": [
+            "ひっかく",
+            "ひのこ",
+            "かえんほうしゃ"
+        ]
+    },
+    {
+        "id": 6,
+        "japanese_name": "リザードン",
+        "level": 1,
+        "base_hp": 190,
+        "base_atk": 100,
+        "icon_url": "/rei/assets/button_icon_M6.png",
+        "type": [
+            "ほのお",
+            "ひこう"
+        ],
+        "moves": [
+            "ひっかく",
+            "ひのこ",
+            "かえんほうしゃ",
+            "そらをとぶ"
+        ]
+    },
+    {
+        "id": 7,
+        "japanese_name": "ゼニガメ",
+        "level": 1,
+        "base_hp": 110,
+        "base_atk": 45,
+        "icon_url": "/rei/assets/button_icon_M7.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 8,
+        "japanese_name": "カメール",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 65,
+        "icon_url": "/rei/assets/button_icon_M8.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "からにこもる"
+        ]
+    },
+    {
+        "id": 9,
+        "japanese_name": "カメックス",
+        "level": 1,
+        "base_hp": 210,
+        "base_atk": 85,
+        "icon_url": "/rei/assets/button_icon_M9.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "からにこもる",
+            "ハイドロポンプ"
+        ]
+    },
+    {
+        "id": 10,
+        "japanese_name": "キャタピー",
+        "level": 1,
+        "base_hp": 80,
+        "base_atk": 30,
+        "icon_url": "/rei/assets/button_icon_M10.png",
+        "type": [
+            "むし"
+        ],
+        "moves": [
+            "たいあたり",
+            "いとをはく"
+        ]
+    },
+    {
+        "id": 11,
+        "japanese_name": "トランセル",
+        "level": 1,
+        "base_hp": 120,
+        "base_atk": 20,
+        "icon_url": "/rei/assets/button_icon_M11.png",
+        "type": [
+            "むし"
+        ],
+        "moves": [
+            "かたくなる"
+        ]
+    },
+    {
+        "id": 12,
+        "japanese_name": "バタフリー",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 60,
+        "icon_url": "/rei/assets/button_icon_M12.png",
+        "type": [
+            "むし",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "ねんりき",
+            "エアスラッシュ"
+        ]
+    },
+    {
+        "id": 13,
+        "japanese_name": "ビードル",
+        "level": 1,
+        "base_hp": 80,
+        "base_atk": 40,
+        "icon_url": "/rei/assets/button_icon_M13.png",
+        "type": [
+            "むし",
+            "どく"
+        ],
+        "moves": [
+            "どくばり",
+            "いとをはく"
+        ]
+    },
+    {
+        "id": 14,
+        "japanese_name": "コクーン",
+        "level": 1,
+        "base_hp": 120,
+        "base_atk": 30,
+        "icon_url": "/rei/assets/button_icon_M14.png",
+        "type": [
+            "むし",
+            "どく"
+        ],
+        "moves": [
+            "かたくなる"
+        ]
+    },
+    {
+        "id": 15,
+        "japanese_name": "スピアー",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M15.png",
+        "type": [
+            "むし",
+            "どく"
+        ],
+        "moves": [
+            "どくばり",
+            "ミサイルばり",
+            "ダブルニードル"
+        ]
+    },
+    {
+        "id": 16,
+        "japanese_name": "ポッポ",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 40,
+        "icon_url": "/rei/assets/button_icon_M16.png",
+        "type": [
+            "ノーマル",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "かぜおこし"
+        ]
+    },
+    {
+        "id": 17,
+        "japanese_name": "ピジョン",
+        "level": 1,
+        "base_hp": 130,
+        "base_atk": 60,
+        "icon_url": "/rei/assets/button_icon_M17.png",
+        "type": [
+            "ノーマル",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "かぜおこし",
+            "つばさでうつ"
+        ]
+    },
+    {
+        "id": 18,
+        "japanese_name": "ピジョット",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M18.png",
+        "type": [
+            "ノーマル",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "かぜおこし",
+            "つばさでうつ",
+            "ゴッドバード"
+        ]
+    },
+    {
+        "id": 19,
+        "japanese_name": "コラッタ",
+        "level": 1,
+        "base_hp": 80,
+        "base_atk": 55,
+        "icon_url": "/rei/assets/button_icon_M19.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "たいあたり",
+            "かみつく"
+        ]
+    },
+    {
+        "id": 20,
+        "japanese_name": "ラッタ",
+        "level": 1,
+        "base_hp": 130,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M20.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "たいあたり",
+            "かみつく",
+            "ひっさつまえば"
+        ]
+    },
+    {
+        "id": 21,
+        "japanese_name": "オニスズメ",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M21.png",
+        "type": [
+            "ノーマル",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "つつく"
+        ]
+    },
+    {
+        "id": 22,
+        "japanese_name": "オニドリル",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M22.png",
+        "type": [
+            "ノーマル",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "つつく",
+            "ドリルくちばし"
+        ]
+    },
+    {
+        "id": 23,
+        "japanese_name": "アーボ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 55,
+        "icon_url": "/rei/assets/button_icon_M23.png",
+        "type": [
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくばり"
+        ]
+    },
+    {
+        "id": 24,
+        "japanese_name": "アーボック",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M24.png",
+        "type": [
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくばり",
+            "へびにらみ"
+        ]
+    },
+    {
+        "id": 25,
+        "japanese_name": "ピカチュウ",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 60,
+        "icon_url": "/rei/assets/button_icon_M25.png",
+        "type": [
+            "でんき"
+        ],
+        "moves": [
+            "たいあたり",
+            "でんきショック"
+        ]
+    },
+    {
+        "id": 26,
+        "japanese_name": "ライチュウ",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M26.png",
+        "type": [
+            "でんき"
+        ],
+        "moves": [
+            "たいあたり",
+            "でんきショック",
+            "かみなり"
+        ]
+    },
+    {
+        "id": 27,
+        "japanese_name": "サンド",
+        "level": 1,
+        "base_hp": 110,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M27.png",
+        "type": [
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "すなかけ"
+        ]
+    },
+    {
+        "id": 28,
+        "japanese_name": "サンドパン",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M28.png",
+        "type": [
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "すなかけ",
+            "じしん"
+        ]
+    },
+    {
+        "id": 29,
+        "japanese_name": "ニドラン♀",
+        "level": 1,
+        "base_hp": 110,
+        "base_atk": 45,
+        "icon_url": "/rei/assets/button_icon_M29.png",
+        "type": [
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくばり"
+        ]
+    },
+    {
+        "id": 30,
+        "japanese_name": "ニドリーナ",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 65,
+        "icon_url": "/rei/assets/button_icon_M30.png",
+        "type": [
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくばり",
+            "つのでつく"
+        ]
+    },
+    {
+        "id": 31,
+        "japanese_name": "ニドクイン",
+        "level": 1,
+        "base_hp": 210,
+        "base_atk": 85,
+        "icon_url": "/rei/assets/button_icon_M31.png",
+        "type": [
+            "どく",
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくばり",
+            "つのでつく",
+            "じしん"
+        ]
+    },
+    {
+        "id": 32,
+        "japanese_name": "ニドラン♂",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M32.png",
+        "type": [
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくばり"
+        ]
+    },
+    {
+        "id": 33,
+        "japanese_name": "ニドリーノ",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M33.png",
+        "type": [
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくばり",
+            "つのでつく"
+        ]
+    },
+    {
+        "id": 34,
+        "japanese_name": "ニドキング",
+        "level": 1,
+        "base_hp": 200,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M34.png",
+        "type": [
+            "どく",
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくばり",
+            "つのでつく",
+            "じしん"
+        ]
+    },
+    {
+        "id": 35,
+        "japanese_name": "ピクシー",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M35.png",
+        "type": [
+            "フェアリー"
+        ],
+        "moves": [
+            "たいあたり",
+            "ゆびをふる"
+        ]
+    },
+    {
+        "id": 36,
+        "japanese_name": "プクリン",
+        "level": 1,
+        "base_hp": 200,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M36.png",
+        "type": [
+            "ノーマル",
+            "フェアリー"
+        ],
+        "moves": [
+            "たいあたり",
+            "おうふくビンタ"
+        ]
+    },
+    {
+        "id": 37,
+        "japanese_name": "ロコン",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 60,
+        "icon_url": "/rei/assets/button_icon_M37.png",
+        "type": [
+            "ほのお"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひのこ"
+        ]
+    },
+    {
+        "id": 38,
+        "japanese_name": "キュウコン",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M38.png",
+        "type": [
+            "ほのお"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひのこ",
+            "かえんほうしゃ"
+        ]
+    },
+    {
+        "id": 39,
+        "japanese_name": "プリン",
+        "level": 1,
+        "base_hp": 130,
+        "base_atk": 45,
+        "icon_url": "/rei/assets/button_icon_M39.png",
+        "type": [
+            "ノーマル",
+            "フェアリー"
+        ],
+        "moves": [
+            "たいあたり",
+            "うたう"
+        ]
+    },
+    {
+        "id": 40,
+        "japanese_name": "プクリン",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 65,
+        "icon_url": "/rei/assets/button_icon_M40.png",
+        "type": [
+            "ノーマル",
+            "フェアリー"
+        ],
+        "moves": [
+            "たいあたり",
+            "うたう",
+            "おうふくビンタ"
+        ]
+    },
+    {
+        "id": 41,
+        "japanese_name": "ズバット",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 40,
+        "icon_url": "/rei/assets/button_icon_M41.png",
+        "type": [
+            "どく",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "きゅうけつ"
+        ]
+    },
+    {
+        "id": 42,
+        "japanese_name": "ゴルバット",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M42.png",
+        "type": [
+            "どく",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "きゅうけつ",
+            "つばさでうつ"
+        ]
+    },
+    {
+        "id": 43,
+        "japanese_name": "ナゾノクサ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M43.png",
+        "type": [
+            "くさ",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "すいとる"
+        ]
+    },
+    {
+        "id": 44,
+        "japanese_name": "クサイハナ",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M44.png",
+        "type": [
+            "くさ",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "すいとる",
+            "はなびらのまい"
+        ]
+    },
+    {
+        "id": 45,
+        "japanese_name": "ラフレシア",
+        "level": 1,
+        "base_hp": 200,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M45.png",
+        "type": [
+            "くさ",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "すいとる",
+            "はなびらのまい",
+            "ソーラービーム"
+        ]
+    },
+    {
+        "id": 46,
+        "japanese_name": "パラス",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 55,
+        "icon_url": "/rei/assets/button_icon_M46.png",
+        "type": [
+            "むし",
+            "くさ"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひっかく"
+        ]
+    },
+    {
+        "id": 47,
+        "japanese_name": "パラセクト",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M47.png",
+        "type": [
+            "むし",
+            "くさ"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひっかく",
+            "きりさく"
+        ]
+    },
+    {
+        "id": 48,
+        "japanese_name": "コンパン",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 45,
+        "icon_url": "/rei/assets/button_icon_M48.png",
+        "type": [
+            "むし",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくのこな"
+        ]
+    },
+    {
+        "id": 49,
+        "japanese_name": "モルフォン",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M49.png",
+        "type": [
+            "むし",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくのこな",
+            "サイコキネシス"
+        ]
+    },
+    {
+        "id": 50,
+        "japanese_name": "ディグダ",
+        "level": 1,
+        "base_hp": 70,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M50.png",
+        "type": [
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひっかく"
+        ]
+    },
+    {
+        "id": 51,
+        "japanese_name": "ダグトリオ",
+        "level": 1,
+        "base_hp": 120,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M51.png",
+        "type": [
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひっかく",
+            "じしん"
+        ]
+    },
+    {
+        "id": 52,
+        "japanese_name": "ニャース",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 55,
+        "icon_url": "/rei/assets/button_icon_M52.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひっかく"
+        ]
+    },
+    {
+        "id": 53,
+        "japanese_name": "ペルシアン",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M53.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひっかく",
+            "きりさく"
+        ]
+    },
+    {
+        "id": 54,
+        "japanese_name": "コダック",
+        "level": 1,
+        "base_hp": 110,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M54.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 55,
+        "japanese_name": "ゴルダック",
+        "level": 1,
+        "base_hp": 170,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M55.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "ハイドロポンプ"
+        ]
+    },
+    {
+        "id": 56,
+        "japanese_name": "マンキー",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 65,
+        "icon_url": "/rei/assets/button_icon_M56.png",
+        "type": [
+            "かくとう"
+        ],
+        "moves": [
+            "たいあたり",
+            "からてチョップ"
+        ]
+    },
+    {
+        "id": 57,
+        "japanese_name": "オコリザル",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 85,
+        "icon_url": "/rei/assets/button_icon_M57.png",
+        "type": [
+            "かくとう"
+        ],
+        "moves": [
+            "たいあたり",
+            "からてチョップ",
+            "クロスチョップ"
+        ]
+    },
+    {
+        "id": 58,
+        "japanese_name": "ガーディ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 60,
+        "icon_url": "/rei/assets/button_icon_M58.png",
+        "type": [
+            "ほのお"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひのこ"
+        ]
+    },
+    {
+        "id": 59,
+        "japanese_name": "ウインディ",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M59.png",
+        "type": [
+            "ほのお"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひのこ",
+            "かえんほうしゃ"
+        ]
+    },
+    {
+        "id": 60,
+        "japanese_name": "ニョロモ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 45,
+        "icon_url": "/rei/assets/button_icon_M60.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 61,
+        "japanese_name": "ニョロゾ",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 65,
+        "icon_url": "/rei/assets/button_icon_M61.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "みずの波動"
+        ]
+    },
+    {
+        "id": 62,
+        "japanese_name": "ニョロボン",
+        "level": 1,
+        "base_hp": 200,
+        "base_atk": 85,
+        "icon_url": "/rei/assets/button_icon_M62.png",
+        "type": [
+            "みず",
+            "かくとう"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "みずの波動",
+            "ばくれつパンチ"
+        ]
+    },
+    {
+        "id": 63,
+        "japanese_name": "ケーシィ",
+        "level": 1,
+        "base_hp": 80,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M63.png",
+        "type": [
+            "エスパー"
+        ],
+        "moves": [
+            "ねんりき"
+        ]
+    },
+    {
+        "id": 64,
+        "japanese_name": "ユンゲラー",
+        "level": 1,
+        "base_hp": 130,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M64.png",
+        "type": [
+            "エスパー"
+        ],
+        "moves": [
+            "ねんりき",
+            "サイコキネシス"
+        ]
+    },
+    {
+        "id": 65,
+        "japanese_name": "フーディン",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M65.png",
+        "type": [
+            "エスパー"
+        ],
+        "moves": [
+            "ねんりき",
+            "サイコキネシス",
+            "バリアー"
+        ]
+    },
+    {
+        "id": 66,
+        "japanese_name": "ワンリキー",
+        "level": 1,
+        "base_hp": 110,
+        "base_atk": 60,
+        "icon_url": "/rei/assets/button_icon_M66.png",
+        "type": [
+            "かくとう"
+        ],
+        "moves": [
+            "たいあたり",
+            "からてチョップ"
+        ]
+    },
+    {
+        "id": 67,
+        "japanese_name": "ゴーリキー",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M67.png",
+        "type": [
+            "かくとう"
+        ],
+        "moves": [
+            "たいあたり",
+            "からてチョップ",
+            "ばくれつパンチ"
+        ]
+    },
+    {
+        "id": 68,
+        "japanese_name": "カイリキー",
+        "level": 1,
+        "base_hp": 210,
+        "base_atk": 100,
+        "icon_url": "/rei/assets/button_icon_M68.png",
+        "type": [
+            "かくとう"
+        ],
+        "moves": [
+            "たいあたり",
+            "からてチョップ",
+            "ばくれつパンチ",
+            "じしん"
+        ]
+    },
+    {
+        "id": 69,
+        "japanese_name": "マダツボミ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M69.png",
+        "type": [
+            "くさ",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "つるのムチ"
+        ]
+    },
+    {
+        "id": 70,
+        "japanese_name": "ウツドン",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M70.png",
+        "type": [
+            "くさ",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "つるのムチ",
+            "はっぱカッター"
+        ]
+    },
+    {
+        "id": 71,
+        "japanese_name": "ウツボット",
+        "level": 1,
+        "base_hp": 200,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M71.png",
+        "type": [
+            "くさ",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "つるのムチ",
+            "はっぱカッター",
+            "ソーラービーム"
+        ]
+    },
+    {
+        "id": 72,
+        "japanese_name": "メノクラゲ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 40,
+        "icon_url": "/rei/assets/button_icon_M72.png",
+        "type": [
+            "みず",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 73,
+        "japanese_name": "ドククラゲ",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M73.png",
+        "type": [
+            "みず",
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "ハイドロポンプ"
+        ]
+    },
+    {
+        "id": 74,
+        "japanese_name": "イシツブテ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 60,
+        "icon_url": "/rei/assets/button_icon_M74.png",
+        "type": [
+            "いわ",
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "いわおとし"
+        ]
+    },
+    {
+        "id": 75,
+        "japanese_name": "ゴローン",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M75.png",
+        "type": [
+            "いわ",
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "いわおとし",
+            "ロックブラスト"
+        ]
+    },
+    {
+        "id": 76,
+        "japanese_name": "ゴローニャ",
+        "level": 1,
+        "base_hp": 200,
+        "base_atk": 100,
+        "icon_url": "/rei/assets/button_icon_M76.png",
+        "type": [
+            "いわ",
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "いわおとし",
+            "ロックブラスト",
+            "じしん"
+        ]
+    },
+    {
+        "id": 77,
+        "japanese_name": "ポニータ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 60,
+        "icon_url": "/rei/assets/button_icon_M77.png",
+        "type": [
+            "ほのお"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひのこ"
+        ]
+    },
+    {
+        "id": 78,
+        "japanese_name": "ギャロップ",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M78.png",
+        "type": [
+            "ほのお"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひのこ",
+            "かえんほうしゃ"
+        ]
+    },
+    {
+        "id": 79,
+        "japanese_name": "ヤドン",
+        "level": 1,
+        "base_hp": 130,
+        "base_atk": 40,
+        "icon_url": "/rei/assets/button_icon_M79.png",
+        "type": [
+            "みず",
+            "エスパー"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 80,
+        "japanese_name": "ヤドラン",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M80.png",
+        "type": [
+            "みず",
+            "エスパー"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "サイコキネシス"
+        ]
+    },
+    {
+        "id": 81,
+        "japanese_name": "コイル",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M81.png",
+        "type": [
+            "でんき",
+            "はがね"
+        ],
+        "moves": [
+            "たいあたり",
+            "でんきショック"
+        ]
+    },
+    {
+        "id": 82,
+        "japanese_name": "レアコイル",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M82.png",
+        "type": [
+            "でんき",
+            "はがね"
+        ],
+        "moves": [
+            "たいあたり",
+            "でんきショック",
+            "かみなり"
+        ]
+    },
+    {
+        "id": 83,
+        "japanese_name": "カモネギ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 65,
+        "icon_url": "/rei/assets/button_icon_M83.png",
+        "type": [
+            "ノーマル",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "きりさく"
+        ]
+    },
+    {
+        "id": 84,
+        "japanese_name": "ドードー",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 65,
+        "icon_url": "/rei/assets/button_icon_M84.png",
+        "type": [
+            "ノーマル",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "つつく"
+        ]
+    },
+    {
+        "id": 85,
+        "japanese_name": "ドードリオ",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 85,
+        "icon_url": "/rei/assets/button_icon_M85.png",
+        "type": [
+            "ノーマル",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "つつく",
+            "ドリルくちばし"
+        ]
+    },
+    {
+        "id": 86,
+        "japanese_name": "パウワウ",
+        "level": 1,
+        "base_hp": 120,
+        "base_atk": 45,
+        "icon_url": "/rei/assets/button_icon_M86.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 87,
+        "japanese_name": "ジュゴン",
+        "level": 1,
+        "base_hp": 170,
+        "base_atk": 65,
+        "icon_url": "/rei/assets/button_icon_M87.png",
+        "type": [
+            "みず",
+            "こおり"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "れいとうビーム"
+        ]
+    },
+    {
+        "id": 88,
+        "japanese_name": "ベトベター",
+        "level": 1,
+        "base_hp": 110,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M88.png",
+        "type": [
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくどく"
+        ]
+    },
+    {
+        "id": 89,
+        "japanese_name": "ベトベトン",
+        "level": 1,
+        "base_hp": 170,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M89.png",
+        "type": [
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくどく",
+            "ヘドロウェーブ"
+        ]
+    },
+    {
+        "id": 90,
+        "japanese_name": "シェルダー",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 55,
+        "icon_url": "/rei/assets/button_icon_M90.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 91,
+        "japanese_name": "パルシェン",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M91.png",
+        "type": [
+            "みず",
+            "こおり"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "れいとうビーム"
+        ]
+    },
+    {
+        "id": 92,
+        "japanese_name": "ゴース",
+        "level": 1,
+        "base_hp": 80,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M92.png",
+        "type": [
+            "ゴースト",
+            "どく"
+        ],
+        "moves": [
+            "したでなめる",
+            "ナイトヘッド"
+        ]
+    },
+    {
+        "id": 93,
+        "japanese_name": "ゴースト",
+        "level": 1,
+        "base_hp": 130,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M93.png",
+        "type": [
+            "ゴースト",
+            "どく"
+        ],
+        "moves": [
+            "したでなめる",
+            "ナイトヘッド",
+            "シャドーボール"
+        ]
+    },
+    {
+        "id": 94,
+        "japanese_name": "ゲンガー",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M94.png",
+        "type": [
+            "ゴースト",
+            "どく"
+        ],
+        "moves": [
+            "したでなめる",
+            "ナイトヘッド",
+            "シャドーボール",
+            "サイコキネシス"
+        ]
+    },
+    {
+        "id": 95,
+        "japanese_name": "イワーク",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 45,
+        "icon_url": "/rei/assets/button_icon_M95.png",
+        "type": [
+            "いわ",
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "いわおとし"
+        ]
+    },
+    {
+        "id": 96,
+        "japanese_name": "スリープ",
+        "level": 1,
+        "base_hp": 110,
+        "base_atk": 40,
+        "icon_url": "/rei/assets/button_icon_M96.png",
+        "type": [
+            "エスパー"
+        ],
+        "moves": [
+            "たいあたり",
+            "ねんりき"
+        ]
+    },
+    {
+        "id": 97,
+        "japanese_name": "スリーパー",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M97.png",
+        "type": [
+            "エスパー"
+        ],
+        "moves": [
+            "たいあたり",
+            "ねんりき",
+            "サイコキネシス"
+        ]
+    },
+    {
+        "id": 98,
+        "japanese_name": "クラブ",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M98.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 99,
+        "japanese_name": "キングラー",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M99.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "クラブハンマー"
+        ]
+    },
+    {
+        "id": 100,
+        "japanese_name": "マルマイン",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M100.png",
+        "type": [
+            "でんき"
+        ],
+        "moves": [
+            "たいあたり",
+            "でんきショック"
+        ]
+    },
+    {
+        "id": 101,
+        "japanese_name": "マルマイン",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M101.png",
+        "type": [
+            "でんき"
+        ],
+        "moves": [
+            "たいあたり",
+            "でんきショック",
+            "かみなり"
+        ]
+    },
+    {
+        "id": 102,
+        "japanese_name": "タマタマ",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M102.png",
+        "type": [
+            "くさ",
+            "エスパー"
+        ],
+        "moves": [
+            "たいあたり",
+            "ねんりき"
+        ]
+    },
+    {
+        "id": 103,
+        "japanese_name": "ナッシー",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M103.png",
+        "type": [
+            "くさ",
+            "エスパー"
+        ],
+        "moves": [
+            "たいあたり",
+            "ねんりき",
+            "サイコキネシス"
+        ]
+    },
+    {
+        "id": 104,
+        "japanese_name": "カラカラ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M104.png",
+        "type": [
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "ホネこんぼう"
+        ]
+    },
+    {
+        "id": 105,
+        "japanese_name": "ガラガラ",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M105.png",
+        "type": [
+            "じめん"
+        ],
+        "moves": [
+            "たいあたり",
+            "ホネこんぼう",
+            "じしん"
+        ]
+    },
+    {
+        "id": 106,
+        "japanese_name": "サワムラー",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M106.png",
+        "type": [
+            "かくとう"
+        ],
+        "moves": [
+            "たいあたり",
+            "からてチョップ",
+            "とびひざげり"
+        ]
+    },
+    {
+        "id": 107,
+        "japanese_name": "エビワラー",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M107.png",
+        "type": [
+            "かくとう"
+        ],
+        "moves": [
+            "たいあたり",
+            "からてチョップ",
+            "マッハパンチ"
+        ]
+    },
+    {
+        "id": 108,
+        "japanese_name": "ベロリンガ",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 55,
+        "icon_url": "/rei/assets/button_icon_M108.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "たいあたり",
+            "したでなめる"
+        ]
+    },
+    {
+        "id": 109,
+        "japanese_name": "ドガース",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M109.png",
+        "type": [
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくどく"
+        ]
+    },
+    {
+        "id": 110,
+        "japanese_name": "マタドガス",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M110.png",
+        "type": [
+            "どく"
+        ],
+        "moves": [
+            "たいあたり",
+            "どくどく",
+            "ヘドロウェーブ"
+        ]
+    },
+    {
+        "id": 111,
+        "japanese_name": "サイホーン",
+        "level": 1,
+        "base_hp": 110,
+        "base_atk": 55,
+        "icon_url": "/rei/assets/button_icon_M111.png",
+        "type": [
+            "じめん",
+            "いわ"
+        ],
+        "moves": [
+            "たいあたり",
+            "つのでつく"
+        ]
+    },
+    {
+        "id": 112,
+        "japanese_name": "サイドン",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M112.png",
+        "type": [
+            "じめん",
+            "いわ"
+        ],
+        "moves": [
+            "たいあたり",
+            "つのでつく",
+            "じしん"
+        ]
+    },
+    {
+        "id": 113,
+        "japanese_name": "ラッキー",
+        "level": 1,
+        "base_hp": 250,
+        "base_atk": 30,
+        "icon_url": "/rei/assets/button_icon_M113.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "たいあたり",
+            "タマゴばくだん"
+        ]
+    },
+    {
+        "id": 114,
+        "japanese_name": "モンジャラ",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 65,
+        "icon_url": "/rei/assets/button_icon_M114.png",
+        "type": [
+            "くさ"
+        ],
+        "moves": [
+            "たいあたり",
+            "つるのムチ"
+        ]
+    },
+    {
+        "id": 115,
+        "japanese_name": "ガルーラ",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 85,
+        "icon_url": "/rei/assets/button_icon_M115.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "たいあたり",
+            "きりさく"
+        ]
+    },
+    {
+        "id": 116,
+        "japanese_name": "タッツー",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M116.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 117,
+        "japanese_name": "シードラ",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M117.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "ハイドロポンプ"
+        ]
+    },
+    {
+        "id": 118,
+        "japanese_name": "トサキント",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 60,
+        "icon_url": "/rei/assets/button_icon_M118.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "つつく"
+        ]
+    },
+    {
+        "id": 119,
+        "japanese_name": "アズマオウ",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M119.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "つつく",
+            "つのドリル"
+        ]
+    },
+    {
+        "id": 120,
+        "japanese_name": "ヒトデマン",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 55,
+        "icon_url": "/rei/assets/button_icon_M120.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 121,
+        "japanese_name": "スターミー",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M121.png",
+        "type": [
+            "みず",
+            "エスパー"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "サイコキネシス"
+        ]
+    },
+    {
+        "id": 122,
+        "japanese_name": "バリヤード",
+        "level": 1,
+        "base_hp": 120,
+        "base_atk": 60,
+        "icon_url": "/rei/assets/button_icon_M122.png",
+        "type": [
+            "エスパー",
+            "フェアリー"
+        ],
+        "moves": [
+            "たいあたり",
+            "バリアー"
+        ]
+    },
+    {
+        "id": 123,
+        "japanese_name": "ストライク",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 85,
+        "icon_url": "/rei/assets/button_icon_M123.png",
+        "type": [
+            "むし",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "きりさく"
+        ]
+    },
+    {
+        "id": 124,
+        "japanese_name": "ルージュラ",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M124.png",
+        "type": [
+            "こおり",
+            "エスパー"
+        ],
+        "moves": [
+            "たいあたり",
+            "れいとうパンチ"
+        ]
+    },
+    {
+        "id": 125,
+        "japanese_name": "エレブー",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M125.png",
+        "type": [
+            "でんき"
+        ],
+        "moves": [
+            "たいあたり",
+            "でんきショック",
+            "かみなり"
+        ]
+    },
+    {
+        "id": 126,
+        "japanese_name": "ブーバー",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M126.png",
+        "type": [
+            "ほのお"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひのこ",
+            "かえんほうしゃ"
+        ]
+    },
+    {
+        "id": 127,
+        "japanese_name": "カイロス",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 85,
+        "icon_url": "/rei/assets/button_icon_M127.png",
+        "type": [
+            "むし"
+        ],
+        "moves": [
+            "たいあたり",
+            "きりさく"
+        ]
+    },
+    {
+        "id": 128,
+        "japanese_name": "ケンタロス",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M128.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "たいあたり",
+            "つのでつく"
+        ]
+    },
+    {
+        "id": 129,
+        "japanese_name": "コイキング",
+        "level": 1,
+        "base_hp": 70,
+        "base_atk": 20,
+        "icon_url": "/rei/assets/button_icon_M129.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "はねる"
+        ]
+    },
+    {
+        "id": 130,
+        "japanese_name": "ギャラドス",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 95,
+        "icon_url": "/rei/assets/button_icon_M130.png",
+        "type": [
+            "みず",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "ハイドロポンプ",
+            "りゅうのいかり"
+        ]
+    },
+    {
+        "id": 131,
+        "japanese_name": "ラプラス",
+        "level": 1,
+        "base_hp": 200,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M131.png",
+        "type": [
+            "みず",
+            "こおり"
+        ],
+        "moves": [
+            "たいあたり",
+            "れいとうビーム"
+        ]
+    },
+    {
+        "id": 132,
+        "japanese_name": "メタモン",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M132.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "へんしん"
+        ]
+    },
+    {
+        "id": 133,
+        "japanese_name": "イーブイ",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 55,
+        "icon_url": "/rei/assets/button_icon_M133.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "たいあたり",
+            "すなかけ"
+        ]
+    },
+    {
+        "id": 134,
+        "japanese_name": "シャワーズ",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M134.png",
+        "type": [
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "ハイドロポンプ"
+        ]
+    },
+    {
+        "id": 135,
+        "japanese_name": "サンダース",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M135.png",
+        "type": [
+            "でんき"
+        ],
+        "moves": [
+            "たいあたり",
+            "でんきショック",
+            "かみなり"
+        ]
+    },
+    {
+        "id": 136,
+        "japanese_name": "ブースター",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M136.png",
+        "type": [
+            "ほのお"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひのこ",
+            "かえんほうしゃ"
+        ]
+    },
+    {
+        "id": 137,
+        "japanese_name": "ポリゴン",
+        "level": 1,
+        "base_hp": 120,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M137.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "たいあたり",
+            "サイコキネシス"
+        ]
+    },
+    {
+        "id": 138,
+        "japanese_name": "オムナイト",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M138.png",
+        "type": [
+            "いわ",
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 139,
+        "japanese_name": "オムスター",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M139.png",
+        "type": [
+            "いわ",
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "ハイドロポンプ"
+        ]
+    },
+    {
+        "id": 140,
+        "japanese_name": "カブト",
+        "level": 1,
+        "base_hp": 100,
+        "base_atk": 55,
+        "icon_url": "/rei/assets/button_icon_M140.png",
+        "type": [
+            "いわ",
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう"
+        ]
+    },
+    {
+        "id": 141,
+        "japanese_name": "カブトプス",
+        "level": 1,
+        "base_hp": 150,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M141.png",
+        "type": [
+            "いわ",
+            "みず"
+        ],
+        "moves": [
+            "たいあたり",
+            "みずでっぽう",
+            "きりさく"
+        ]
+    },
+    {
+        "id": 142,
+        "japanese_name": "プテラ",
+        "level": 1,
+        "base_hp": 160,
+        "base_atk": 80,
+        "icon_url": "/rei/assets/button_icon_M142.png",
+        "type": [
+            "いわ",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "かぜおこし",
+            "そらをとぶ"
+        ]
+    },
+    {
+        "id": 143,
+        "japanese_name": "カビゴン",
+        "level": 1,
+        "base_hp": 220,
+        "base_atk": 75,
+        "icon_url": "/rei/assets/button_icon_M143.png",
+        "type": [
+            "ノーマル"
+        ],
+        "moves": [
+            "たいあたり",
+            "のしかかり"
+        ]
+    },
+    {
+        "id": 144,
+        "japanese_name": "フリーザー",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M144.png",
+        "type": [
+            "こおり",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "れいとうビーム",
+            "ふぶき"
+        ]
+    },
+    {
+        "id": 145,
+        "japanese_name": "サンダー",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M145.png",
+        "type": [
+            "でんき",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "でんきショック",
+            "かみなり"
+        ]
+    },
+    {
+        "id": 146,
+        "japanese_name": "ファイヤー",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M146.png",
+        "type": [
+            "ほのお",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "ひのこ",
+            "かえんほうしゃ"
+        ]
+    },
+    {
+        "id": 147,
+        "japanese_name": "ミニリュウ",
+        "level": 1,
+        "base_hp": 90,
+        "base_atk": 50,
+        "icon_url": "/rei/assets/button_icon_M147.png",
+        "type": [
+            "ドラゴン"
+        ],
+        "moves": [
+            "たいあたり",
+            "りゅうのいかり"
+        ]
+    },
+    {
+        "id": 148,
+        "japanese_name": "ハクリュー",
+        "level": 1,
+        "base_hp": 140,
+        "base_atk": 70,
+        "icon_url": "/rei/assets/button_icon_M148.png",
+        "type": [
+            "ドラゴン"
+        ],
+        "moves": [
+            "たいあたり",
+            "りゅうのいかり",
+            "みずの波動"
+        ]
+    },
+    {
+        "id": 149,
+        "japanese_name": "カイリュー",
+        "level": 1,
+        "base_hp": 190,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M149.png",
+        "type": [
+            "ドラゴン",
+            "ひこう"
+        ],
+        "moves": [
+            "たいあたり",
+            "りゅうのいかり",
+            "りゅうのまい",
+            "そらをとぶ",
+            "ハイドロポンプ"
+        ]
+    },
+    {
+        "id": 150,
+        "japanese_name": "ミュウツー",
+        "level": 1,
+        "base_hp": 200,
+        "base_atk": 100,
+        "icon_url": "/rei/assets/button_icon_M150.png",
+        "type": [
+            "エスパー"
+        ],
+        "moves": [
+            "ねんりき",
+            "サイコキネシス"
+        ]
+    },
+    {
+        "id": 151,
+        "japanese_name": "ミュウ",
+        "level": 1,
+        "base_hp": 180,
+        "base_atk": 90,
+        "icon_url": "/rei/assets/button_icon_M151.png",
+        "type": [
+            "エスパー"
+        ],
+        "moves": [
+            "へんしん",
+            "サイコキネシス"
+        ]
+    }
+]
