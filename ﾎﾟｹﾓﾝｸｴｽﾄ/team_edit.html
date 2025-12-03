@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="ポケモンクエスト風のチーム編成画面を再現">
+    <meta name="keywords" content="ポケモンクエスト, チーム編成, HTML, CSS, JavaScript">
+    <meta name="author" content="Gemini programming隊">
+    <meta property="og:title" content="ポケモンクエスト風 チーム編成画面">
+    <meta property="og:description" content="探検前のチームメンバー選択画面">
+    <meta property="og:image" content="logo.png">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" href="icon.png" type="image/png">
+
+    <title>チーム編成 | Gemini programming隊</title>
+    <style>
+        :root {
+            --ui-red: #d95540;
+            --ui-green: #6a956a;
+            --ui-dark: #333;
+        }
+        body {
+            background-color: #f7f0e6;
+            font-family: 'Verdana', 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .team-screen {
+            width: 90%;
+            max-width: 700px;
+            height: 500px;
+            border: 8px solid var(--ui-dark);
+            box-shadow: 12px 12px 0 0 #555;
+            background-color: #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .team-slot {
+            height: 120px;
+            border: 3px dashed var(--ui-dark);
+            margin-bottom: 10px;
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            color: var(--ui-dark);
+        }
+
+        /* チーム確定ボタン */
+        .start-button {
+            background-color: var(--ui-red);
+            color: #fff;
+            border: 4px solid var(--ui-dark);
+            padding: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 0 0 #9e0000;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .start-button:active {
+            box-shadow: 0 2px 0 0 #9e0000;
+            transform: translateY(4px);
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 10px;
+            color: var(--ui-dark);
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="team-screen">
+        <div>
+            <h2>チーム編成: <span id="stage-info">探検ステージ: ロード中...</span></h2>
+            <p>※探検スタート後はチーム変更できません</p>
+            
+            <div class="team-slot">
+                ポケモン 1 (選択してください)
+            </div>
+            <div class="team-slot">
+                ポケモン 2 (選択してください)
+            </div>
+            <div class="team-slot">
+                ポケモン 3 (選択してください)
+            </div>
+        </div>
+        
+        <div class="start-button" onclick="startExpedition()">
+            探検スタート！ (現在のチームで確定)
+        </div>
+
+        <div class="back-link" onclick="goToExpedition()">← ステージ選択へ戻る</div>
+    </div>
+
+    <script>
+        const currentScreen = 'team_edit.html';
+        console.log(`currentScreen:${currentScreen}`);
+        
+        let selectedStageId = '';
+        
+        // URLからステージIDを取得する関数
+        function getStageIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const stageId = urlParams.get('stage') || 'ステージ未設定';
+            return stageId;
+        }
+
+        // 画面ロード時にステージ情報を表示
+        window.onload = function() {
+            selectedStageId = getStageIdFromUrl();
+            console.log(`selectedStageId:${selectedStageId}`);
+            document.getElementById('stage-info').textContent = `探検ステージ: ${selectedStageId}`;
+        }
+        
+        // 探検スタートボタンのロジック
+        function startExpedition() {
+            if (selectedStageId === 'ステージ未設定') {
+                alert('ステージが選択されていません。');
+                return;
+            }
+            
+            const nextScreen = 'game_start.html';
+            console.log(`nextScreen:${nextScreen}`);
+
+            console.log(`ステージ ${selectedStageId} を現在のチームでスタートします！`);
+            // ゲームスタート画面へ遷移 (ステージIDを渡す)
+            window.location.href = `${nextScreen}?stage=${selectedStageId}`;
+        }
+
+        // 戻るボタンのロジック
+        function goToExpedition() {
+            const nextScreen = 'expedition.html';
+            console.log(`nextScreen:${nextScreen}`);
+            window.location.href = nextScreen;
+        }
+
+        console.log(`startExpedition関数の準備完了。次の推移先: game_start.html`);
+    </script>
+</body>
+</html>
