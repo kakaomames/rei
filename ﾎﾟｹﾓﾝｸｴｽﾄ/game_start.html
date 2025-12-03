@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゲームスタート</title>
+</head>
+<body style="background-color: #333; color: #fff; text-align: center; padding-top: 50px;">
+    <h1>🎉 探検スタート！ 🎉</h1>
+    <h3 id="start-info">ステージ: ロード中...</h3>
+    <p>（ここから実際のバトル画面などが始まります）</p>
+    <p style="color: yellow;">**【重要】** ここからはチーム変更できません！</p>
+    
+    <button onclick="simulateGameEnd()" style="padding: 10px; margin-top: 20px;">
+        （ゲーム終了）ベースキャンプへ戻る
+    </button>
+
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const stageId = urlParams.get('stage') || 'N/A';
+            document.getElementById('start-info').textContent = `ステージ: ${stageId} を現在のチームで開始しました。`;
+            
+            const currentScreen = 'game_start.html';
+            console.log(`currentScreen:${currentScreen}`);
+            console.log(`stageId:${stageId}`);
+        }
+        
+        function simulateGameEnd() {
+            const nextScreen = 'basecamp.html';
+            console.log(`nextScreen:${nextScreen}`);
+            window.location.href = nextScreen;
+        }
+    </script>
+</body>
+</html>
