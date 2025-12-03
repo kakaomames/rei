@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="ポケモンクエスト風の起動画面を再現">
+    <meta name="keywords" content="ポケモンクエスト, 起動画面, HTML, CSS, ピクセルアート">
+    <meta name="author" content="Gemini programming隊">
+    <meta property="og:title" content="ポケモンクエスト風 起動画面">
+    <meta property="og:description" content="キューブ型のポケモンたちが登場するゲームのタイトル画面">
+    <meta property="og:image" content="logo.png"> <meta name="twitter:card" content="summary">
+    <link rel="icon" href="icon.png" type="image/png">
+    
+    <title>起動画面 | Gemini programming隊</title>
+    <style>
+        /*
+        * CSSでピクセルアート風のレトロゲーム感を表現します
+        */
+        body {
+            /* back.png を背景画像として使用 */
+            background-image: url('back.png'); 
+            background-size: cover; /* 画面全体を覆うように設定 */
+            background-repeat: no-repeat;
+            background-position: center;
+            
+            font-family: 'Verdana', 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            border: 10px solid #333;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* 背景画像が用意できない場合のために、色を上書きするコンテナ */
+        .start-screen-container {
+            width: 100%;
+            max-width: 600px;
+            height: 80vh;
+            max-height: 800px;
+            /* 背景画像をそのまま使う場合、この色は透明にしたり、調整が必要です */
+            background-color: rgba(255, 255, 255, 0.5); /* 半透明で背景を透かす例 */
+            border: 6px solid #333;
+            box-shadow: 8px 8px 0 0 #a0937a;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* タイトルロゴエリア */
+        .title-area {
+            text-align: center;
+            transform: scale(3); 
+            margin-top: 50px;
+            /* ロゴ画像の背景が透明なら、この設定は不要です */
+            background-color: none; 
+        }
+
+        .title-area img {
+            /* logo.png ファイルを使用するため、srcは 'logo.png' になります */
+            width: 50px; 
+            height: auto;
+            image-rendering: pixelated; 
+            border: none; /* 元のロゴの枠線は削除 */
+            padding: 0;
+            background-color: transparent;
+        }
+
+        /* ポケモンクエスト風のタイトルテキスト (画像ロゴを使うならこれは不要) */
+        /* .game-title { ... } */
+
+        /* タップを促すメッセージ */
+        .tap-message {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            position: absolute;
+            bottom: 50px;
+            animation: blink 1.5s infinite step-end;
+        }
+
+        /* --- アニメーション --- */
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* 画面下部の草地（装飾）はback.pngに任せるため削除 */
+        /* .ground-line { ... } */
+    </style>
+</head>
+<body>
+    <div class="start-screen-container">
+        <div class="title-area">
+            <img src="logo.png" alt="ポケモンクエスト風ロゴ">
+        </div>
+
+        <div class="tap-message">
+            画面をタップしてください
+        </div>
+        
+        </div>
+</body>
+</html>
