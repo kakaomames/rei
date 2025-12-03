@@ -250,6 +250,69 @@
     // Pythonのデバッグ出力のように、遷移先をコンソールに出力
     console.log(`現在の画面: basecamp.html`);
     console.log(`次の推移先: expedition.html`);
+    // 【ローカルストレージ管理のための関数群】
+
+// データのキー定義
+const STORAGE_KEY = 'pokemon_quest_data';
+console.log(`STORAGE_KEY:${STORAGE_KEY}`);
+
+// 1. ローカルストレージからデータを読み込む関数
+function loadGameData() {
+    const storedData = localStorage.getItem(STORAGE_KEY);
+    const storedDataValue = storedData ? storedData.substring(0, 30) + '...' : 'null';
+    console.log(`storedDataValue:${storedDataValue}`); 
+    return storedData ? JSON.parse(storedData) : null;
+}
+
+// 2. データをローカルストレージに保存する関数
+function saveGameData(data) {
+    const dataString = JSON.stringify(data);
+    const dataStringValue = dataString.substring(0, 30) + '...';
+    console.log(`dataStringValue:${dataStringValue}`); 
+    localStorage.setItem(STORAGE_KEY, dataString);
+}
+
+// 3. 実行：初期ロードとデータ確認
+function initializeGame() {
+    let gameData = loadGameData();
+    
+    // データがない場合（初回起動時）
+    if (!gameData) {
+        console.log("初回起動です。初期データを生成します。");
+        // ★ ここで fetch('pokemon.json') を実行し、データを読み込む処理が必要
+        // 今回はダミーデータで初期化
+        gameData = {
+            player: { name: "隊員", stamina: 5 },
+            // 例: 手持ちのポケモンリスト
+            roster: [
+                { id: 4, name: "ヒトカゲ", level: 5, hp: 120 },
+                { id: 7, name: "ゼニガメ", level: 5, hp: 130 }
+            ],
+            inventory: []
+        };
+        saveGameData(gameData);
+    } else {
+        console.log("ゲームデータをロードしました。");
+        // 例: スタミナを表示に反映させるなどの処理
+    }
+    const rosterCount = gameData.roster.length;
+    console.log(`rosterCount:${rosterCount}`);
+    
+    // UIを更新する関数 (例: スタミナを表示)
+    updateStaminaDisplay(gameData.player.stamina);
+}
+
+function updateStaminaDisplay(stamina) {
+    const staminaDisplay = document.querySelector('.stamina-status');
+    const displayValue = `⚡️ ${stamina}/5 あと 25:59`;
+    console.log(`displayValue:${displayValue}`);
+    if (staminaDisplay) {
+        staminaDisplay.textContent = displayValue;
+    }
+}
+
+// 画面ロード時に実行
+window.onload = initializeGame;
 </script>
             
             </div>
