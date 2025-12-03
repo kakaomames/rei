@@ -1,0 +1,64 @@
+{
+  "m_GameObject": {
+    "m_FileID": 0,
+    "m_PathID": 0
+  },
+  "m_Enabled": 1,
+  "m_Script": {
+    "m_FileID": 0,
+    "m_PathID": 5400809180674381386
+  },
+  "m_Name": "DropItemDataSet",
+  "m_datas": [
+    {
+      "m_itemNo": 1,
+      "m_weightMin": 100,
+      "m_weightMax": 100
+    },
+    {
+      "m_itemNo": 2,
+      "m_weightMin": 25,
+      "m_weightMax": 40
+    },
+    {
+      "m_itemNo": 3,
+      "m_weightMin": 100,
+      "m_weightMax": 100
+    },
+    {
+      "m_itemNo": 4,
+      "m_weightMin": 25,
+      "m_weightMax": 40
+    },
+    {
+      "m_itemNo": 5,
+      "m_weightMin": 100,
+      "m_weightMax": 100
+    },
+    {
+      "m_itemNo": 6,
+      "m_weightMin": 25,
+      "m_weightMax": 40
+    },
+    {
+      "m_itemNo": 7,
+      "m_weightMin": 100,
+      "m_weightMax": 100
+    },
+    {
+      "m_itemNo": 8,
+      "m_weightMin": 25,
+      "m_weightMax": 40
+    },
+    {
+      "m_itemNo": 9,
+      "m_weightMin": 15,
+      "m_weightMax": 20
+    },
+    {
+      "m_itemNo": 10,
+      "m_weightMin": 25,
+      "m_weightMax": 40
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "m_GameObject": {
+    "m_FileID": 0,
+    "m_PathID": 0
+  },
+  "m_Enabled": 1,
+  "m_Script": {
+    "m_FileID": 0,
+    "m_PathID": -740577217861329660
+  },
+  "m_Name": "CookVolumeDataSet",
+  "m_datas": [
+    {
+      "m_itemNum": 3,
+      "m_pokeLevelMin": 1,
+      "m_pokeLevelMax": 15,
+      "m_uiPath": "Item_Pot_1",
+      "m_modelPath": "BC_cauldron01",
+      "m_cookTime": 0.0
+    },
+    {
+      "m_itemNum": 10,
+      "m_pokeLevelMin": 16,
+      "m_pokeLevelMax": 30,
+      "m_uiPath": "Item_Pot_2",
+      "m_modelPath": "BC_cauldron02",
+      "m_cookTime": 0.0
+    },
+    {
+      "m_itemNum": 15,
+      "m_pokeLevelMin": 31,
+      "m_pokeLevelMax": 70,
+      "m_uiPath": "Item_Pot_3",
+      "m_modelPath": "BC_cauldron03",
+      "m_cookTime": 1.0
+    },
+    {
+      "m_itemNum": 20,
+      "m_pokeLevelMin": 71,
+      "m_pokeLevelMax": 100,
+      "m_uiPath": "Item_Pot_4",
+      "m_modelPath": "BC_cauldron04",
+      "m_cookTime": 2.0
+    }
+  ]
+}

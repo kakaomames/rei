@@ -1,0 +1,38 @@
+{
+  "m_GameObject": {
+    "m_FileID": 0,
+    "m_PathID": 0
+  },
+  "m_Enabled": 1,
+  "m_Script": {
+    "m_FileID": 0,
+    "m_PathID": -6216312362178723091
+  },
+  "m_Name": "CookRarityDataSet",
+  "m_datas": [
+    {
+      "m_no": 0,
+      "m_itemPriceAverage": 0.0,
+      "m_modelPath": "0",
+      "m_cookTime": 0.0
+    },
+    {
+      "m_no": 1,
+      "m_itemPriceAverage": 1.3,
+      "m_modelPath": "BC_rare_effect01",
+      "m_cookTime": 2.0
+    },
+    {
+      "m_no": 2,
+      "m_itemPriceAverage": 2.0,
+      "m_modelPath": "BC_rare_effect02",
+      "m_cookTime": 3.0
+    },
+    {
+      "m_no": 3,
+      "m_itemPriceAverage": 3.0,
+      "m_modelPath": "BC_rare_effect03",
+      "m_cookTime": 4.0
+    }
+  ]
+}
