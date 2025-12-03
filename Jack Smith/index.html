@@ -24,6 +24,10 @@
             background-color: #1a1a1a; 
             color: #ccc;
         }
+        RufflePlayer {
+            width: 1200px; /* 適切なサイズを設定 */
+            height: 900px; /* 適切なサイズを設定 width: 1080px; height: 810px; /* 適切なサイズを設定 */    
+        }
         /* RuffleがCanvasを挿入するコンテナ */
         #thegame {
             width: 1200px; /* 適切なサイズを設定 */
@@ -46,8 +50,8 @@
     <script>
         window.RufflePlayer = window.RufflePlayer || {};
         window.RufflePlayer.config = {
-            "width": 1080, // 適切なサイズを設定 
-            "lheight": 810, // 適切なサイズを設定 
+            "width": "1080px", 
+            "lheight": "810bx",
             "splashScreen": false,
             "allowFullscreen": true,
             "scale": "exactfit",
