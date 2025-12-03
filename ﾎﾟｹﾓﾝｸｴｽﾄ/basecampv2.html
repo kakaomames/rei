@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Gemini Programming隊 ポケモンクエスト</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Rust/WASMベースのポケモンクエストシミュレーション">
+    <meta name="keywords" content="Pokemon, Quest, Rust, WASM, JavaScript">
+    <meta name="author" content="Gemini programming隊">
+    <link rel="icon" type="image/png" href="https://kakaomames.github.io/rei/logo.png">
+    
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+        .camp-stats div { margin-bottom: 5px; }
+        /* ロスター表示にはHTMLを挿入するため、divを使用 */
+        #rosterOutput div { border: 1px solid #ddd; padding: 8px; margin-bottom: 5px; display: flex; align-items: center; background-color: #fff; border-radius: 4px; }
+        #rosterOutput img { width: 48px; height: 48px; margin-right: 15px; image-rendering: pixelated; border: 1px solid #ccc; background-color: #eee; }
+        .pokemon-name { flex-grow: 1; }
+        .pokemon-stats { font-size: 0.9em; color: #555; }
+        .main-controls button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
+
+</head>
+<body>
+    <h1>Rust (Wasm) ポケモンベースキャンプ</h1>
+    
+    <button id="stageTransitionButton">🏕️ ステージ選択へGO (JS遷移テスト)</button>
+    <hr>
+
+    <div class="camp-stats">
+        <div>🔋 スタミナ: <span id="staminaOutput"></span> / <span id="maxStaminaOutput"></span></div>
+        <div>💰 通貨: <span id="currencyOutput"></span>G</div>
+        <div>ロスター数: <span id="rosterCount"></span></div>
+    </div>
+    <hr>
+    
+    <div class="main-controls">
+        <button id="simulateButton">シミュレーション実行 (スタミナ-1)</button>
+        <button id="claimButton"></button>
+    </div>
+    
+    <h3>ログ</h3>
+    <p><strong>最新のログ:</strong> <span id="logOutput">初期化中...</span></p>
+
+    <h3>ポケモンロスター</h3>
+    <div id="rosterOutput">ポケモンデータ準備中...</div>
+    
+    <script type="module">
+        // 隊長！このインポートパスが、ご提示いただいたuser_code.jsを指しているか確認してください。
+        // ここでは 'user_code.js' とします。実際の環境に合わせて変更が必要です。
+        import * as wasm from './user_code.js';
+
+        const camp = new wasm.BaseCamp();
+
+        // 必須要素の取得
+        const logOutput = document.getElementById('logOutput');
+        const rosterOutput = document.getElementById('rosterOutput');
+        const staminaOutput = document.getElementById('staminaOutput');
+        const maxStaminaOutput = document.getElementById('maxStaminaOutput');
+        const rosterCount = document.getElementById('rosterCount');
+        const currencyOutput = document.getElementById('currencyOutput');
+        const simulateButton = document.getElementById('simulateButton');
+        const claimButton = document.getElementById('claimButton');
+        const stageTransitionButton = document.getElementById('stageTransitionButton');
+        
+        const LOCAL_STORAGE_KEY = 'pokemon_quest_data'; 
+        const POKEMON_JSON_PATH = '/rei/assets/pokemon.json'; // 隊長ご指定のパス
+
+        // ポケモンIDとアイコンURLの対応マップ
+        let pokemonIconMap = {};
+
+        // ----------------------------------------------------
+        // データのロード/保存/初期化
+        // ----------------------------------------------------
+
+        async function loadPokemonData() {
+            try {
+                // 隊長！curlコマンドの代わりにfetchを使います
+                const response = await fetch(POKEMON_JSON_PATH);
+                if (!response.ok) throw new Error(`Failed to fetch ${POKEMON_JSON_PATH}`);
+                const data = await response.json();
+                
+                data.forEach(p => {
+                    pokemonIconMap[p.id] = p.icon_url;
+                });
+                console.log("ポケモンアイコンデータロード完了。");
+            } catch (error) {
+                console.error("ポケモンアイコンデータのロード中にエラー:", error);
+                // エラー時も動作を継続させるため、マップは空のままにする
+            }
+        }
+
+        function loadGameData() {
+            const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (savedData) {
+                // RustのWASM関数を呼び出し、データをロード
+                camp.load_game_data_from_json(savedData);
+            }
+        }
+
+        function saveGameData() {
+            // RustのWASM関数を呼び出し、JSONを取得
+            const dataJson = camp.get_game_data_json();
+            localStorage.setItem(LOCAL_STORAGE_KEY, dataJson);
+            console.log("現在のGameDataをローカルストレージに保存しました。");
+        }
+
+        // ----------------------------------------------------
+        // 画面更新ロジック
+        // ----------------------------------------------------
+
+        function updateDisplay() {
+            const currentTimestamp = Date.now();
+            
+            // 🚨 Wasm関数: 時刻による状態更新（スタミナ回復、ログボ自動回収）
+            // big intとして渡す
+            camp.update_state_by_time(BigInt(currentTimestamp));
+            
+            // 画面要素の更新
+            const currentStamina = camp.get_player_stamina();
+            
+            staminaOutput.textContent = currentStamina;
+            maxStaminaOutput.textContent = camp.get_player_max_stamina();
+            currencyOutput.textContent = camp.get_player_currency(); 
+            rosterCount.textContent = camp.get_roster_count();
+
+            // ロスターの表示をアイコン対応に更新
+            updateRosterDisplayWithIcons();
+            
+            // ログボボタンの状態を更新
+            const canClaim = camp.can_claim_daily_currency(BigInt(currentTimestamp));
+            claimButton.disabled = !canClaim;
+            claimButton.textContent = canClaim ? 'ログボを受け取る (50G)' : 'クールダウン中...';
+
+            // シミュレーションボタンの状態を更新
+            simulateButton.disabled = currentStamina === 0;
+            if (currentStamina === 0) {
+                logOutput.textContent = "スタミナが足りません！回復を待ちましょう。";
+            }
+            
+            // 毎秒の更新時にもデータを保存
+            saveGameData(); 
+        }
+
+        function updateRosterDisplayWithIcons() {
+            const dataJson = camp.get_game_data_json();
+            
+            try {
+                const data = JSON.parse(dataJson);
+                
+                const rosterListHtml = data.roster.map(pokemon => {
+                    // IDからURLを取得。見つからない場合はフォールバック画像を使用
+                    const iconUrl = pokemonIconMap[pokemon.pokemon_id] || 'https://kakaomames.github.io/rei/logo.png'; 
+                    
+                    return `
+                        <div>
+                            <img src="${iconUrl}" alt="${pokemon.name}">
+                            <div class="pokemon-name">
+                                <strong>${pokemon.name} (ID:${pokemon.instance_id})</strong> - Lv.${pokemon.level}
+                                <div class="pokemon-stats">HP: ${pokemon.hp} / ATK: ${pokemon.atk} / EXP: ${pokemon.exp_current}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                rosterOutput.innerHTML = rosterListHtml || "現在、ポケモンはいません。";
+            } catch (e) {
+                rosterOutput.innerHTML = "ロスターデータの表示エラー。";
+                console.error("ロスター表示エラー:", e);
+            }
+        }
+
+
+        // ----------------------------------------------------
+        // イベントリスナー
+        // ----------------------------------------------------
+
+        // シミュレーション実行ボタン
+        simulateButton.addEventListener('click', () => {
+            if (camp.get_player_stamina() === 0) return;
+
+            // Wasm関数: メイン処理を実行し、スタミナを消費
+            const result_message = camp.simulate_camp_activity(BigInt(Date.now()));
+            
+            logOutput.textContent = result_message;
+            updateDisplay(); 
+        });
+
+        // ログボ受け取りボタン
+        claimButton.addEventListener('click', () => {
+            // Wasm関数: ログボ受け取り
+            const result_message = camp.claim_daily_currency(BigInt(Date.now()));
+            logOutput.textContent = result_message;
+            updateDisplay(); 
+        });
+
+        // ページ推移ボタン
+        stageTransitionButton.addEventListener('click', function() {
+            // 隊長のご要望通り、jsでwindow.location.hrefを使います
+            window.location.href = 'stage_selection.html'; 
+            console.log("ステージ選択ページへ遷移します...");
+        });
+      
+        storeTransitionButton.addEventListener('click', function() {
+            // 隊長のご要望通り、jsでwindow.location.hrefを使います
+            window.location.href = 'store.html'; 
+            console.log("ストアへ遷移します...");
+        });
+
+
+        // ----------------------------------------------------
+        // 初期化処理
+        // ----------------------------------------------------
+
+        async function init() {
+            logOutput.textContent = "アイコンデータをロード中...";
+            await loadPokemonData(); // アイコンデータを先にロード
+            logOutput.textContent = "ゲームデータをロード中...";
+            loadGameData();
+            
+            updateDisplay(); // 初期画面更新
+            logOutput.textContent = camp.get_latest_log() || "ベースキャンプの準備完了！";
+
+            // 1秒ごとに画面を更新し、スタミナ回復やログボタイマーをチェック
+            setInterval(updateDisplay, 1000); 
+        }
+
+        // 隊員！実行します！
+        init(); 
+    </script>
+</body>
+</html>
