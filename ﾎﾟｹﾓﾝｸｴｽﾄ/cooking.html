@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>料理 | Gemini programming隊</title>
+    <style>
+        :root {
+            --ui-yellow: #ffc90e;
+            --ui-dark: #333;
+            --ui-orange: #ff9900;
+            --ui-cooking-bg: #e0e6e0; /* 緑がかった背景 */
+        }
+        body {
+            /* ... (共通スタイル省略) ... */
+            background-color: var(--ui-cooking-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .game-screen {
+            /* ... (共通スタイル省略) ... */
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            border: 8px solid var(--ui-dark);
+            box-shadow: 12px 12px 0 0 #555;
+            box-sizing: border-box;
+            position: relative;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+        /* 共通ボタン */
+        .ui-button {
+            /* ... (共通スタイル省略) ... */
+            background-color: var(--ui-yellow);
+            border: 3px solid var(--ui-dark);
+            color: var(--ui-dark);
+            padding: 10px 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 4px 0 0 #b38b00;
+            transition: all 0.1s;
+        }
+        .ui-button:active {
+            box-shadow: 0 1px 0 0 #b38b00;
+            transform: translateY(3px);
+        }
+
+        .main-content {
+            display: flex;
+            flex-grow: 1;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* 投入エリア */
+        .pot-area {
+            flex-basis: 40%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .pot-container {
+            width: 200px;
+            height: 200px;
+            border: 5px solid var(--ui-dark);
+            background-color: #ccc;
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+            gap: 5px;
+            align-content: flex-start;
+        }
+        .pot-slot {
+            width: 40px;
+            height: 40px;
+            border: 1px dashed #666;
+            text-align: center;
+            line-height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+        }
+        .pot-slot.filled {
+            background-color: #ffffe0;
+            border: 2px solid var(--ui-orange);
+            font-size: 12px;
+            line-height: 1;
+            padding-top: 5px;
+        }
+
+        .cooking-status {
+            font-size: 18px;
+            font-weight: bold;
+            color: #d35400;
+        }
+
+        /* 材料インベントリ */
+        .inventory-area {
+            flex-basis: 60%;
+            display: flex;
+            flex-direction: column;
+        }
+        .material-list {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            padding: 10px;
+            overflow-y: auto;
+            border: 2px solid #aaa;
+            background-color: #f7f7f7;
+        }
+        .material-item-card {
+            background-color: #fff;
+            border: 2px solid var(--ui-dark);
+            padding: 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        .material-item-card:hover {
+            background-color: var(--ui-yellow);
+        }
+        .material-item-card.selected {
+             border: 3px solid #e74c3c;
+             background-color: #fcebeb;
+        }
+        .material-name {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .material-icon {
+            font-size: 20px;
+        }
+        .material-quantity {
+            font-size: 14px;
+            color: var(--ui-orange);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-screen">
+        
+        <div class="top-ui-fixed">
+            <div class="currency-status">🍳 料理鍋</div>
+            <div class="ui-button" onclick="goToBasecamp()">ベースキャンプへ戻る</div>
+        </div>
+
+        <div class="main-content">
+            
+            <div class="pot-area">
+                <div class="cooking-status" id="cookingStatus">待機中</div>
+
+                <div class="pot-container" id="potContainer">
+                    </div>
+                
+                <p>投入数: <span id="currentInputCount">0</span> / <span id="maxInputCount">3</span></p>
+
+                <div style="display:flex; gap: 10px; margin-top: 15px;">
+                    <div class="ui-button" style="background-color: #e74c3c; color: white;" onclick="clearPot()">リセット</div>
+                    <div class="ui-button" id="startCookingButton" onclick="startCooking()" disabled>料理開始！</div>
+                </div>
+            </div>
+
+            <div class="inventory-area">
+                <h3>インベントリ (クリックで投入)</h3>
+                <div class="material-list" id="materialList">
+                    <p style="text-align:center;">材料を読み込み中...</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'pokemon_quest_data';
+        const COOKING_TIME_MS = 60 * 1000; // 1分 (デバッグ用。実際はデータセットに依存)
+
+        let gameData = null; 
+        let allMasterData = {};
+        let materialMaster = {}; // アイテム名とm_itemType/m_itemTypeValueを紐づける
+        let currentPot = []; // 投入されたアイテムのリスト [{name: 'しずくのかけら', type: 1, value: 3}]
+
+        // ----------------------------------------------------
+        // I. データ管理関数 (ベースキャンプからコピー)
+        // ----------------------------------------------------
+        function loadGameData() {
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            return storedData ? JSON.parse(storedData) : null;
+        }
+        
+        function saveGameData(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        async function fetchAllMasterData() {
+            const urls = {
+                // 隊員提供の料理マスターデータ
+                cook_recipe: 'CookRecipeDataSet.json', 
+                cook_volume: 'CookVolumeDataSet.json', 
+                cook_rarity: 'CookRarityDataSet.json', 
+                item: 'item.json', // アイテム情報
+            };
+            
+            const results = {};
+            const promises = Object.keys(urls).map(async (key) => {
+                try {
+                    const response = await fetch(urls[key]);
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status} for ${urls[key]}`);
+                    results[key] = await response.json();
+                } catch (error) {
+                    console.error(`fetchAllMasterData: ${key} マスターデータの読み込みに失敗しました:`, error);
+                    results[key] = {};
+                }
+            });
+
+            await Promise.all(promises);
+            return results;
+        }
+
+        /**
+         * アイテム名とタイプ情報をルックアップするためのマップを作成する
+         */
+        function createMaterialMap(itemMaster) {
+            const matMap = {};
+            if (itemMaster && itemMaster.materials) {
+                itemMaster.materials.forEach(mat => {
+                    // インベントリで使う材料名 (name_ja) をキーとする
+                    matMap[mat.name_ja] = {
+                        item_id: mat.id,
+                        m_itemType: mat.m_itemType,
+                        m_itemTypeValue: mat.m_itemTypeValue
+                    };
+                });
+            }
+            return matMap;
+        }
+
+        // ----------------------------------------------------
+        // II. UI描画ロジック
+        // ----------------------------------------------------
+
+        /**
+         * 鍋のスロットと投入状況を更新する
+         */
+        function renderPot() {
+            const container = document.getElementById('potContainer');
+            const maxInput = gameData.player.max_pot_size || allMasterData.cook_volume.m_datas[0].m_itemNum; // 暫定的に最小鍋サイズを使用
+
+            container.innerHTML = '';
+            
+            // スロットの描画
+            for (let i = 0; i < maxInput; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'pot-slot';
+                
+                if (currentPot[i]) {
+                    slot.classList.add('filled');
+                    slot.innerHTML = `
+                        ${currentPot[i].name} <br>
+                        <small>(${currentPot[i].m_itemType}:${currentPot[i].m_itemTypeValue})</small>
+                    `;
+                    // クリックで投入アイテムを削除する機能は今回は省略
+                } else {
+                    slot.textContent = '+';
+                }
+                
+                container.appendChild(slot);
+            }
+            
+            // カウントを更新
+            document.getElementById('currentInputCount').textContent = currentPot.length;
+            document.getElementById('maxInputCount').textContent = maxInput;
+            
+            // 料理開始ボタンの状態を更新
+            const startButton = document.getElementById('startCookingButton');
+            startButton.disabled = currentPot.length === 0;
+            startButton.style.backgroundColor = currentPot.length > 0 ? '#2ecc71' : '#aaa';
+            startButton.style.boxShadow = currentPot.length > 0 ? '0 4px 0 0 #27ae60' : 'none';
+        }
+
+        /**
+         * 材料インベントリを更新する
+         */
+        function renderInventory() {
+            const list = document.getElementById('materialList');
+            list.innerHTML = '';
+            
+            const materials = gameData.inventory.materials || {};
+            
+            if (Object.keys(materials).length === 0) {
+                 list.innerHTML = '<p style="text-align:center;">材料がありません。探検に出発しましょう！</p>';
+                return;
+            }
+
+            for (const name_ja in materials) {
+                const quantity = materials[name_ja];
+                if (quantity <= 0) continue;
+                
+                const card = document.createElement('div');
+                card.className = 'material-item-card';
+                card.setAttribute('data-name', name_ja);
+                card.onclick = () => addToPot(name_ja);
+
+                const materialInfo = materialMaster[name_ja] || { m_itemType: '?', m_itemTypeValue: '?'};
+                
+                card.innerHTML = `
+                    <div class="material-name">${name_ja}</div>
+                    <div class="material-icon">
+                        ${materialInfo.m_itemType === 1 ? '🟥' : materialInfo.m_itemType === 2 ? '🟦' : '🟢'}
+                    </div>
+                    <div class="material-quantity">x ${quantity}</div>
+                `;
+                
+                list.appendChild(card);
+            }
+        }
+        
+        /**
+         * 材料を鍋に追加する
+         * @param {string} materialName - 材料の日本語名
+         */
+        function addToPot(materialName) {
+            const maxInput = gameData.player.max_pot_size || allMasterData.cook_volume.m_datas[0].m_itemNum;
+            
+            if (currentPot.length >= maxInput) {
+                alert(`これ以上投入できません。この鍋は${maxInput}個までです。`);
+                return;
+            }
+            
+            const inventoryQuantity = gameData.inventory.materials[materialName] || 0;
+            if (inventoryQuantity <= 0) {
+                 alert("その材料はもうありません。");
+                 return;
+            }
+
+            const info = materialMaster[materialName];
+            if (!info) {
+                 alert("材料情報が不明です。");
+                 return;
+            }
+
+            // 鍋に投入
+            currentPot.push({
+                name: materialName,
+                m_itemType: info.m_itemType,
+                m_itemTypeValue: info.m_itemTypeValue
+            });
+            
+            // インベントリから消費（UIは再描画で更新）
+            gameData.inventory.materials[materialName] -= 1;
+            saveGameData(gameData);
+
+            renderPot();
+            renderInventory();
+        }
+
+        /**
+         * 投入をリセットする
+         */
+        function clearPot() {
+            if (currentPot.length === 0) return;
+
+            // 投入したアイテムをインベントリに戻す
+            currentPot.forEach(item => {
+                gameData.inventory.materials[item.name] = (gameData.inventory.materials[item.name] || 0) + 1;
+            });
+
+            currentPot = [];
+            saveGameData(gameData);
+            
+            renderPot();
+            renderInventory();
+        }
+
+        // ----------------------------------------------------
+        // III. 料理判定ロジック (NEW & CORE)
+        // ----------------------------------------------------
+
+        /**
+         * 投入された材料からレシピを判定する
+         * @param {Array<object>} inputMaterials - 投入された材料のリスト
+         * @returns {object|null} 一致したレシピデータ
+         */
+        function matchRecipe(inputMaterials) {
+            const recipes = allMasterData.cook_recipe.m_datas;
+
+            // 1. レシピのループ
+            for (const recipe of recipes) {
+                // 投入された全材料をコピー
+                let remainingInput = [...inputMaterials];
+                let isMatch = true;
+
+                // 2. レシピの各要件をチェック
+                // m_itemType: 1=素材タイプ, 2=色, 3=大きさ, 4=特別
+                // m_itemTypeValue: 1=小, 2=中, 3=大... またはタイプID (1:石, 2:木...)
+                // m_itemPoolNumMin/Max: 最小/最大投入数 (例: m_itemType[0]が1, m_itemTypeValue[0]が3なら「大の材料を最低4個」)
+
+                // 2-1. レシピが要求する各アイテムタイプ要件をチェック
+                for (let i = 0; i < recipe.m_itemType.length; i++) {
+                    const requiredType = recipe.m_itemType[i];
+                    const requiredValue = recipe.m_itemTypeValue[i];
+                    const minCount = recipe.m_itemPoolNumMin[i];
+
+                    if (requiredType === 0) continue; // 0は無視
+
+                    let currentCount = 0;
+                    
+                    // 投入材料の中から、この要件を満たすものを数える
+                    for (const inputMat of remainingInput) {
+                        if (requiredType === 1 && inputMat.m_itemType === requiredType && inputMat.m_itemTypeValue === requiredValue) {
+                            // m_itemType:1 (タイプ) & m_itemTypeValue (タイプ値) が一致
+                            currentCount++;
+                        } else if (requiredType === 3 && inputMat.m_itemType === requiredType && inputMat.m_itemTypeValue === requiredValue) {
+                            // m_itemType:3 (大きさ) & m_itemTypeValue (大きさ値) が一致
+                             currentCount++;
+                        }
+                        // 他のタイプ(色, 特別)もここで処理可能だが、今回はシンプルなタイプ/大きさ一致で進める
+                    }
+
+                    // 最小投入数を満たしているか？
+                    if (currentCount < minCount) {
+                        isMatch = false;
+                        break;
+                    }
+                }
+
+                // 3. 一致が確認されたら、そのレシピを返す
+                if (isMatch) {
+                    console.log(`matchRecipe: レシピ m_no:${recipe.m_no} に一致しました。`);
+                    return recipe;
+                }
+            }
+
+            console.log("matchRecipe: 一致するレシピが見つかりませんでした。");
+            return null; // 一致するレシピがない場合は null
+        }
+        
+        // ----------------------------------------------------
+        // IV. 料理開始・タイマーロジック
+        // ----------------------------------------------------
+        
+        /**
+         * 料理を開始する
+         */
+        function startCooking() {
+            if (currentPot.length === 0) {
+                 alert("材料を投入してください。");
+                 return;
+            }
+            
+            // 1. レシピ判定
+            const matchedRecipe = matchRecipe(currentPot);
+            
+            // 2. 料理のステータスをゲームデータに保存
+            const now = Date.now();
+            
+            gameData.cooking_data = {
+                active: true,
+                start_time: now,
+                recipe_id: matchedRecipe ? matchedRecipe.m_no : 0, // 0は「ただの煮込み」など
+                total_time: COOKING_TIME_MS, // 暫定時間
+                // 投入した材料データはここでは省略
+            };
+            
+            // 3. 鍋をクリア
+            currentPot = [];
+            
+            // 4. データ保存
+            saveGameData(gameData);
+            
+            alert(`🍲 料理を開始しました！\n完成までしばらくお待ちください。`);
+            
+            // 5. UIを料理中モードに切り替える
+            checkCookingStatus();
+        }
+        
+        /**
+         * 料理の進行状況をチェックし、UIを更新する
+         */
+        function checkCookingStatus() {
+            const statusArea = document.getElementById('cookingStatus');
+            const button = document.getElementById('startCookingButton');
+            const container = document.getElementById('potContainer');
+
+            if (gameData.cooking_data && gameData.cooking_data.active) {
+                const now = Date.now();
+                const startTime = gameData.cooking_data.start_time;
+                const totalTime = gameData.cooking_data.total_time;
+                const elapsed = now - startTime;
+                const remainingTime = totalTime - elapsed;
+                
+                // 料理中のUI
+                container.innerHTML = `<h1 style="color:var(--ui-dark); margin-top: 50px;">🔥 料理中...</h1>`;
+                button.disabled = true;
+
+                if (remainingTime <= 0) {
+                    // 料理完成！
+                    statusArea.textContent = '🎉 料理完成！';
+                    completeCooking();
+                } else {
+                    // 料理進行中
+                    const minutes = Math.floor(remainingTime / 60000);
+                    const seconds = Math.floor((remainingTime % 60000) / 1000);
+                    statusArea.textContent = `残り時間: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    
+                    // 1秒後に再チェック
+                    setTimeout(checkCookingStatus, 1000); 
+                }
+                
+            } else {
+                // 待機中のUI
+                statusArea.textContent = '待機中';
+                renderPot();
+            }
+        }
+        
+        /**
+         * 料理完成時の処理
+         */
+        function completeCooking() {
+            const recipeId = gameData.cooking_data.recipe_id;
+            const recipe = allMasterData.cook_recipe.m_datas.find(r => r.m_no === recipeId);
+            const recipeName = recipe ? `レシピ No.${recipe.m_no}` : 'ただの煮込み';
+            
+            // TODO: ここで新しいポケモンがロースターに追加されるロジックを実装
+            
+            alert(`🍲 料理が完成しました！\n[ ${recipeName} ] ができました！\n（新しいポケモンがロースターに追加されます...）`);
+            
+            // 料理データのリセット
+            gameData.cooking_data = { active: false };
+            saveGameData(gameData);
+            
+            // UIを待機モードに戻す
+            checkCookingStatus(); 
+        }
+
+        // ----------------------------------------------------
+        // V. 画面初期化メイン
+        // ----------------------------------------------------
+
+        async function initializeCooking() {
+            // 1. マスターデータの読み込み
+            allMasterData = await fetchAllMasterData();
+            materialMaster = createMaterialMap(allMasterData.item);
+            
+            // 2. ゲームデータのロード
+            gameData = loadGameData();
+            
+            if (!gameData) {
+                alert("ゲームデータが見つかりません。ベースキャンプへ戻ります。");
+                goToBasecamp();
+                return;
+            }
+            
+            // 3. 料理データが存在しない場合、初期化
+            gameData.cooking_data = gameData.cooking_data || { active: false };
+
+            // 4. 料理の状態を確認し、UIを切り替える
+            checkCookingStatus();
+
+            // 5. 待機中であればインベントリを描画
+            if (!gameData.cooking_data.active) {
+                renderInventory();
+            }
+            
+            console.log("料理画面の初期化完了。");
+        }
+
+        // 画面ロード時に実行
+        window.onload = initializeCooking;
+
+        // ----------------------------------------------------
+        // VI. 画面遷移ロジック
+        // ----------------------------------------------------
+        function goToBasecamp() {
+            const nextScreen = 'basecamp.html';
+            window.location.href = nextScreen;
+        }
+
+    </script>
+</body>
+</html>
