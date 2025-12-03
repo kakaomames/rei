@@ -27,7 +27,7 @@
         /* RuffleがCanvasを挿入するコンテナ */
         #thegame {
             width: 1200px; /* 適切なサイズを設定 */
-            height: 900px; /* 適切なサイズを設定 */
+            height: 900px; /* 適切なサイズを設定 width: 1080px; height: 810px; /* 適切なサイズを設定 */
             border: 1px solid gold; /* 目立つように枠線を付けました */
             background-color: black;
         }
@@ -46,6 +46,8 @@
     <script>
         window.RufflePlayer = window.RufflePlayer || {};
         window.RufflePlayer.config = {
+            "width": 1080, // 適切なサイズを設定 
+            "lheight": 810, // 適切なサイズを設定 
             "splashScreen": false,
             "allowFullscreen": true,
             "scale": "exactfit",
