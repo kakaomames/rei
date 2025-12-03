@@ -1,0 +1,93 @@
+{
+  "m_Name": "ItemDataSet",
+  "materials": [
+    {
+      "id": "berry_small_red",
+      "name_ja": "ちっちゃい赤",
+      "description_ja": "赤色の小さな木の実。",
+      "category": "berry",
+      "m_itemType": 3,
+      "m_itemTypeValue": 1
+    },
+    {
+      "id": "berry_small_blue",
+      "name_ja": "ちっちゃい青",
+      "description_ja": "青色の小さな木の実。",
+      "category": "berry",
+      "m_itemType": 3,
+      "m_itemTypeValue": 1
+    },
+    {
+      "id": "berry_small_yellow",
+      "name_ja": "ちっちゃい黄",
+      "description_ja": "黄色の小さな木の実。",
+      "category": "berry",
+      "m_itemType": 3,
+      "m_itemTypeValue": 1
+    },
+    {
+      "id": "berry_small_gray",
+      "name_ja": "ちっちゃい灰",
+      "description_ja": "灰色の小さな木の実。",
+      "category": "berry",
+      "m_itemType": 3,
+      "m_itemTypeValue": 1
+    },
+    {
+      "id": "herb_medium_red",
+      "name_ja": "しずくのかけら",
+      "description_ja": "少し大きめの材料。赤色。",
+      "category": "herb",
+      "m_itemType": 3,
+      "m_itemTypeValue": 2
+    },
+    {
+      "id": "mineral_medium_blue",
+      "name_ja": "つぼみのかけら",
+      "description_ja": "少し大きめの材料。青色。",
+      "category": "mineral",
+      "m_itemType": 3,
+      "m_itemTypeValue": 2
+    },
+    {
+      "id": "root_large_yellow",
+      "name_ja": "ネバネバぐんぐん",
+      "description_ja": "大きな根の材料。黄色。",
+      "category": "root",
+      "m_itemType": 3,
+      "m_itemTypeValue": 3
+    },
+    {
+      "id": "special_rainbow",
+      "name_ja": "虹色のかけら",
+      "description_ja": "非常にレアな材料。",
+      "category": "special",
+      "m_itemType": 1, 
+      "m_itemTypeValue": 99 
+    },
+    {
+      "id": "special_mystic",
+      "name_ja": "神秘のかけら",
+      "description_ja": "伝説のポケモンを引き寄せる。",
+      "category": "special",
+      "m_itemType": 1, 
+      "m_itemTypeValue": 100 
+    }
+  ],
+  "items": [
+    {
+      "id": "stamina_potion_small",
+      "name_ja": "スタミナ回復(小)",
+      "description_ja": "スタミナを1回復する。",
+      "effect_type": "STAMINA",
+      "effect_value": 1
+    },
+    {
+      "id": "max_stamina_upgrade",
+      "name_ja": "最大スタミナアップ",
+      "description_ja": "最大スタミナを1増やす。",
+      "effect_type": "MAX_STAMINA_UP",
+      "effect_value": 1
+    }
+  ]
+}
