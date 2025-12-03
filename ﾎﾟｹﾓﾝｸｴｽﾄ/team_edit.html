@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="ポケモンクエスト風のチーム編成画面を再現">
+    <meta name="description" content="ポケモンクエスト風のチーム編成画面を忠実に再現">
     <meta name="keywords" content="ポケモンクエスト, チーム編成, HTML, CSS, JavaScript">
     <meta name="author" content="Gemini programming隊">
     <meta property="og:title" content="ポケモンクエスト風 チーム編成画面">
-    <meta property="og:description" content="探検前のチームメンバー選択画面">
+    <meta property="og:description" content="忠実なUIの再現">
     <meta property="og:image" content="logo.png">
     <meta name="twitter:card" content="summary">
     <link rel="icon" href="icon.png" type="image/png">
@@ -16,12 +16,14 @@
     <title>チーム編成 | Gemini programming隊</title>
     <style>
         :root {
-            --ui-red: #d95540;
-            --ui-green: #6a956a;
+            --ui-background: #ffc90e; /* 画像の背景色: 鮮やかなオレンジ/黄色 */
             --ui-dark: #333;
+            --ui-team-red: #d95540; /* 攻撃・近距離枠の赤 */
+            --ui-team-green: #6a956a; /* 防御・遠距離枠の緑 */
+            --ui-button-orange: #ff9900;
         }
         body {
-            background-color: #f7f0e6;
+            background-color: var(--ui-background);
             font-family: 'Verdana', 'Arial', sans-serif;
             display: flex;
             justify-content: center;
@@ -30,80 +32,269 @@
             margin: 0;
             overflow: hidden;
         }
+
         .team-screen {
             width: 90%;
-            max-width: 700px;
-            height: 500px;
+            max-width: 950px; /* 横長画面に合わせて調整 */
+            height: 600px;
             border: 8px solid var(--ui-dark);
             box-shadow: 12px 12px 0 0 #555;
-            background-color: #fff;
-            padding: 20px;
+            background-color: #fff; /* 中央コンテナの背景は白にして、中身を配置 */
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            position: relative;
         }
 
-        .team-slot {
-            height: 120px;
-            border: 3px dashed var(--ui-dark);
-            margin-bottom: 10px;
-            background-color: #e0e0e0;
+        /* --- 1. 左側エリア (編成チーム) --- */
+        .left-panel {
+            flex: 2; /* 画面の約40% */
+            background-color: #f7f0e6; /* 薄いベージュ */
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .header-box {
+            background-color: var(--ui-team-red);
+            color: #fff;
+            border: 4px solid var(--ui-dark);
+            padding: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        /* チーム配置エリア (3D風の枠) */
+        .team-formation-area {
+            position: relative;
+            height: 250px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 16px;
-            color: var(--ui-dark);
-        }
-
-        /* チーム確定ボタン */
-        .start-button {
-            background-color: var(--ui-red);
-            color: #fff;
-            border: 4px solid var(--ui-dark);
-            padding: 15px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 6px 0 0 #9e0000;
-            margin-top: 15px;
-            text-align: center;
-        }
-        .start-button:active {
-            box-shadow: 0 2px 0 0 #9e0000;
-            transform: translateY(4px);
         }
         
-        .back-link {
-            text-align: center;
-            margin-top: 10px;
+        .team-slot-3d {
+            width: 100px;
+            height: 100px;
+            border: 5px solid var(--ui-dark);
+            background-color: rgba(255, 255, 255, 0.7);
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            /* 3D風の傾斜を再現 */
+            transform: rotateX(40deg) rotateZ(-20deg); 
+        }
+        
+        .slot-near { border-color: var(--ui-team-red); z-index: 2; left: 10%; } /* 近距離 */
+        .slot-far-1 { border-color: var(--ui-team-green); z-index: 1; left: 40%; } /* 遠距離1 */
+        .slot-far-2 { border-color: var(--ui-team-green); z-index: 3; left: 70%; } /* 遠距離2 */
+
+
+        /* Pストーン数のキューブ型UI */
+        .p-stone-count {
+            position: absolute;
+            bottom: 140px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--ui-button-orange);
             color: var(--ui-dark);
-            cursor: pointer;
+            border: 4px solid var(--ui-dark);
+            padding: 5px 15px;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 4px 4px 0 0 #cc8800;
+        }
+
+        /* 画面下部のポケモン一覧 (控えリストとは別に) */
+        .current-pokemon-list {
+            position: absolute;
+            bottom: 20px;
+            width: calc(100% - 40px);
+            display: flex;
+            justify-content: space-around;
+        }
+        .current-pokemon-box {
+            width: 100px;
+            height: 100px;
+            background-color: #ccc;
+            border: 3px solid var(--ui-dark);
+            text-align: center;
+            line-height: 100px;
+        }
+
+        /* --- 2. 右側エリア (控えポケモン) --- */
+        .right-panel {
+            flex: 3; /* 画面の約60% */
+            background-color: var(--ui-background); /* 背景色を親要素から継承 */
+            padding: 10px;
+            box-sizing: border-box;
+            border-left: 4px solid var(--ui-dark);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .team-tip {
+            background-color: #fce4a6; /* 薄い黄色 */
+            border: 2px solid var(--ui-dark);
+            padding: 10px;
+            margin-bottom: 10px;
             font-size: 14px;
+        }
+
+        /* 控えポケモンリスト（スクロールエリア） */
+        .reserve-list-container {
+            flex-grow: 1;
+            overflow-y: auto; /* スクロール可能 */
+            padding: 5px;
+        }
+        
+        .reserve-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5列で配置 */
+            gap: 10px;
+        }
+
+        .pokemon-card {
+            background-color: #fff;
+            border: 3px solid var(--ui-dark);
+            text-align: center;
+            padding: 5px;
+            cursor: pointer;
+            box-shadow: 2px 2px 0 0 #999;
+        }
+        .pokemon-card-level { font-size: 12px; font-weight: bold; }
+        .pokemon-card-image { width: 50px; height: 50px; background-color: #eee; margin: 0 auto 3px; }
+
+        /* 右下のLV/特訓/戻るボタンエリア */
+        .right-bottom-ui {
+            height: 100px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-end;
+            padding: 10px 0;
+        }
+
+        .lv-status-box {
+            background-color: #e0e0e0;
+            border: 3px solid var(--ui-dark);
+            padding: 5px 10px;
+            line-height: 1.2;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .edit-button {
+            background-color: var(--ui-button-orange);
+            color: var(--ui-dark);
+            border: 3px solid var(--ui-dark);
+            padding: 8px 12px;
+            font-weight: bold;
+            box-shadow: 0 3px 0 0 #cc8800;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div class="team-screen">
-        <div>
-            <h2>チーム編成: <span id="stage-info">探検ステージ: ロード中...</span></h2>
-            <p>※探検スタート後はチーム変更できません</p>
+        
+        <div class="left-panel">
+            <div class="header-box">チーム編成</div>
             
-            <div class="team-slot">
-                ポケモン 1 (選択してください)
+            <div class="team-formation-area">
+                <div class="team-slot-3d slot-near">近距離枠</div>
+                <div class="team-slot-3d slot-far-1">遠距離枠 1</div>
+                <div class="team-slot-3d slot-far-2">遠距離枠 2</div>
             </div>
-            <div class="team-slot">
-                ポケモン 2 (選択してください)
-            </div>
-            <div class="team-slot">
-                ポケモン 3 (選択してください)
+            
+            <div class="p-stone-count">Pストーン 25,322</div>
+
+            <div class="current-pokemon-list">
+                <div class="current-pokemon-box">ゴローン Lv.100</div>
+                <div class="current-pokemon-box">ユキワラシ Lv.91</div>
+                <div class="current-pokemon-box">ゴローン Lv.100</div>
             </div>
         </div>
         
-        <div class="start-button" onclick="startExpedition()">
-            探検スタート！ (現在のチームで確定)
-        </div>
+        <div class="right-panel">
+            
+            <div class="team-tip">
+                近距離型、遠距離型の構成でフォーメーションが決まります。<br>
+                前方にいるポケモンが敵から狙われやすいポケモンです。
+            </div>
+            
+            <div class="reserve-list-container">
+                <div class="reserve-grid">
+                    <div class="pokemon-card" onclick="selectPokemon('ゲンガー')">
+                        <div class="pokemon-card-image" style="background-color: #a0a0c0;"></div>
+                        <span class="pokemon-card-level">ゲンガー</span>
+                        <span class="pokemon-card-level">Lv.100</span>
+                    </div>
+                    <div class="pokemon-card" onclick="selectPokemon('イワーク')">
+                        <div class="pokemon-card-image" style="background-color: #999;"></div>
+                        <span class="pokemon-card-level">イワーク</span>
+                        <span class="pokemon-card-level">Lv.100</span>
+                    </div>
+                    <div class="pokemon-card" onclick="selectPokemon('ビリリダマ')">
+                        <div class="pokemon-card-image" style="background-color: #ff0000;"></div>
+                        <span class="pokemon-card-level">ビリリダマ</span>
+                        <span class="pokemon-card-level">Lv.94</span>
+                    </div>
+                    <div class="pokemon-card" onclick="selectPokemon('ケーシィ')">
+                        <div class="pokemon-card-image" style="background-color: #ff99ff;"></div>
+                        <span class="pokemon-card-level">ケーシィ</span>
+                        <span class="pokemon-card-level">Lv.95</span>
+                    </div>
+                    <div class="pokemon-card" onclick="selectPokemon('ゴローニャ')">
+                        <div class="pokemon-card-image" style="background-color: #888;"></div>
+                        <span class="pokemon-card-level">ゴローニャ</span>
+                        <span class="pokemon-card-level">Lv.94</span>
+                    </div>
+                    <div class="pokemon-card" onclick="selectPokemon('カラカラ')">
+                        <div class="pokemon-card-image" style="background-color: #a52a2a;"></div>
+                        <span class="pokemon-card-level">カラカラ</span>
+                        <span class="pokemon-card-level">Lv.94</span>
+                    </div>
+                    <div class="pokemon-card" onclick="selectPokemon('ヒトカゲ')">
+                        <div class="pokemon-card-image" style="background-color: #ff6666;"></div>
+                        <span class="pokemon-card-level">ヒトカゲ</span>
+                        <span class="pokemon-card-level">Lv.93</span>
+                    </div>
+                    <div class="pokemon-card" onclick="selectPokemon('コイル')">
+                        <div class="pokemon-card-image" style="background-color: #ffff00;"></div>
+                        <span class="pokemon-card-level">コイル</span>
+                        <span class="pokemon-card-level">Lv.92</span>
+                    </div>
+                    <div class="pokemon-card" onclick="selectPokemon('ベトベター')">
+                        <div class="pokemon-card-image" style="background-color: #800080;"></div>
+                        <span class="pokemon-card-level">ベトベター</span>
+                        <span class="pokemon-card-level">Lv.91</span>
+                    </div>
+                    <div class="pokemon-card" onclick="selectPokemon('ラッキー')">
+                        <div class="pokemon-card-image" style="background-color: #ff9999;"></div>
+                        <span class="pokemon-card-level">ラッキー</span>
+                        <span class="pokemon-card-level">Lv.88</span>
+                    </div>
+                </div>
+            </div>
 
-        <div class="back-link" onclick="goToExpedition()">← ステージ選択へ戻る</div>
+            <div class="right-bottom-ui">
+                <div class="lv-status-box">
+                    42<br>
+                    60<br>
+                    LV.
+                </div>
+                <div class="edit-button">特訓</div>
+                <div class="edit-button" style="margin-left: 10px; background-color: var(--ui-team-red);" onclick="startExpedition()">
+                    探検スタート！
+                </div>
+                <div class="edit-button" style="margin-left: 10px;" onclick="goToExpedition()">
+                    戻る
+                </div>
+            </div>
+        </div>
+        
     </div>
 
     <script>
@@ -112,24 +303,28 @@
         
         let selectedStageId = '';
         
-        // URLからステージIDを取得する関数
-        function getStageIdFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const stageId = urlParams.get('stage') || 'ステージ未設定';
-            return stageId;
-        }
-
-        // 画面ロード時にステージ情報を表示
+        // 画面ロード時にステージ情報を取得
         window.onload = function() {
-            selectedStageId = getStageIdFromUrl();
+            const urlParams = new URLSearchParams(window.location.search);
+            selectedStageId = urlParams.get('stage') || 'Basecamp'; // ステージ情報がない場合は'Basecamp'
             console.log(`selectedStageId:${selectedStageId}`);
-            document.getElementById('stage-info').textContent = `探検ステージ: ${selectedStageId}`;
+            
+            // ステージ選択から来た場合のみ「探検スタート」ボタンを表示
+            const startButton = document.querySelector('.right-bottom-ui .edit-button:last-child');
+            if (selectedStageId === 'Basecamp' || selectedStageId === 'MapMode') {
+                 // ベースキャンプやマップ画面からの遷移時は「探検スタート」ボタンを隠すか、代わりに「チーム確定」ボタンなどに変える
+                startButton.textContent = 'チーム確定'; 
+                startButton.style.backgroundColor = '#999';
+            } else {
+                startButton.textContent = '探検スタート！';
+                startButton.style.backgroundColor = 'var(--ui-team-red)';
+            }
         }
         
         // 探検スタートボタンのロジック
         function startExpedition() {
-            if (selectedStageId === 'ステージ未設定') {
-                alert('ステージが選択されていません。');
+            if (selectedStageId === 'Basecamp' || selectedStageId === 'MapMode') {
+                alert('探検を開始するには、まず「島の探検」画面でステージを選択してください。');
                 return;
             }
             
@@ -141,14 +336,19 @@
             window.location.href = `${nextScreen}?stage=${selectedStageId}`;
         }
 
-        // 戻るボタンのロジック
+        // 控えポケモン選択のダミー関数
+        function selectPokemon(pokemonName) {
+            console.log(`${pokemonName} を選択しました。チーム編成枠に配置するロジックを実装が必要です。`);
+        }
+
+        // 戻るボタンのロジック (ステージ選択画面に戻る)
         function goToExpedition() {
             const nextScreen = 'expedition.html';
             console.log(`nextScreen:${nextScreen}`);
             window.location.href = nextScreen;
         }
 
-        console.log(`startExpedition関数の準備完了。次の推移先: game_start.html`);
+        console.log(`チーム編成画面の推移ロジック準備完了。`);
     </script>
 </body>
 </html>
