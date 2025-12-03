@@ -3,28 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="ポケモンクエスト風のベースキャンプ画面を再現">
-    <meta name="keywords" content="ポケモンクエスト, ベースキャンプ, HTML, CSS, JavaScript, LocalStorage">
     <meta name="author" content="Gemini programming隊">
-    <meta property="og:title" content="ポケモンクエスト風 ベースキャンプ">
-    <meta property="og:description" content="忠実なUIの再現とゲームデータの管理">
+    <meta name="description" content="Gemini programming隊のベースキャンプ。ポケモンの管理や探検の準備を行います。">
+    <meta name="keywords" content="ポケモン, ゲーム, HTML, JavaScript, ベースキャンプ, Gemini">
+    <meta property="og:title" content="ベースキャンプ | Gemini programming隊">
+    <meta property="og:description" content="隊員の作戦基地。ポケモンの管理や探検の準備を行います。">
     <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <link rel="icon" href="icon.png" type="image/png">
-
     <title>ベースキャンプ | Gemini programming隊</title>
     <style>
         :root {
             --ui-yellow: #ffc90e;
             --ui-dark: #333;
             --ui-orange: #ff9900;
-            --ui-red: #ff3333;
-            --ui-green-field: #6a956a;
+            --ui-basecamp-bg: #e6f0f7; /* 明るい青系 */
         }
 
         body {
-            background-color: #f7f0e6;
+            background-color: var(--ui-basecamp-bg);
             font-family: 'Verdana', 'Arial', sans-serif;
             display: flex;
             justify-content: center;
@@ -42,166 +37,157 @@
             box-shadow: 12px 12px 0 0 #555;
             box-sizing: border-box;
             position: relative;
-            background-color: var(--ui-green-field); /* キャンプ場の緑 */
-        }
-
-        .top-ui-fixed {
-            position: absolute;
-            top: 5px;
-            width: 100%;
-            padding: 0 10px;
-            box-sizing: border-box;
+            background-color: #fff;
             display: flex;
-            justify-content: space-between;
-            z-index: 20;
+            flex-direction: column;
         }
 
-        .screen-title {
-            background-color: var(--ui-yellow);
-            border: 3px solid var(--ui-dark);
-            color: var(--ui-dark);
-            padding: 5px 10px;
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .stamina-status {
-            background-color: var(--ui-dark);
-            color: #fff;
-            padding: 5px 10px;
-            border: 3px solid var(--ui-yellow);
-            cursor: pointer; /* 手動回復のトリガーとして設定 */
-        }
-
-        .bottom-menu-bar {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 70px;
-            background-color: #c0c0c0;
-            border-top: 5px solid var(--ui-dark);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 0 10px;
-            box-sizing: border-box;
-            z-index: 30;
-        }
-        
+        /* 共通ボタン */
         .ui-button {
             background-color: var(--ui-yellow);
             border: 3px solid var(--ui-dark);
             color: var(--ui-dark);
-            padding: 8px;
+            padding: 10px 15px;
             text-align: center;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 14px;
             cursor: pointer;
             border-radius: 5px;
             box-shadow: 0 4px 0 0 #b38b00;
             transition: all 0.1s;
-            width: 15%;
-            height: 80%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
         }
         .ui-button:active {
             box-shadow: 0 1px 0 0 #b38b00;
             transform: translateY(3px);
         }
-
-        /* 探検ボタンを強調 */
         .expedition-button {
             background-color: var(--ui-orange);
-            box-shadow: 0 4px 0 0 #cc8800;
-            font-size: 14px;
+            box-shadow: 0 4px 0 0 #cc7a00;
+            color: white;
+            font-size: 16px;
         }
-        
-        /* 料理鍋エリア */
-        .pot-area {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
+        .expedition-button:active {
+            box-shadow: 0 1px 0 0 #cc7a00;
         }
 
-        .cooking-pot {
-            width: 150px;
-            height: 100px;
-            background-color: #905a38;
-            border: 5px solid var(--ui-dark);
-            border-radius: 10px 10px 50px 50px;
-            position: relative;
-            margin-bottom: 20px;
-            box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.4);
-        }
-
-        .pot-lid {
-            background-color: #4a4a4a;
-            width: 80px;
-            height: 15px;
-            border-radius: 50%;
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 3px solid var(--ui-dark);
-        }
-        
-        /* ポケモン選択モーダル（新要素） */
-        .modal {
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.8);
-            display: none; /* 初期は非表示 */
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            padding: 20px;
-            border: 5px solid var(--ui-dark);
-            width: 80%;
-            max-width: 500px;
-            text-align: center;
-            box-shadow: 0 8px 0 0 #cc8800;
-        }
-
-        .starter-selection {
+        /* 上部UI */
+        .top-ui-fixed {
             display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: var(--ui-dark);
+            color: white;
+            border-bottom: 5px solid var(--ui-yellow);
+        }
+        .currency-status, .stamina-status {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--ui-yellow);
         }
 
-        .starter-card {
-            background-color: #fff;
+        /* メインコンテンツ */
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .content-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--ui-dark);
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--ui-yellow);
+            padding-bottom: 5px;
+            text-align: center;
+        }
+
+        /* ロースターリスト */
+        .roster-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .pokemon-card {
+            background-color: #f0f0f0;
             border: 3px solid var(--ui-dark);
             padding: 10px;
-            cursor: pointer;
-            width: 80px;
-            font-size: 12px;
+            text-align: center;
+            box-shadow: 4px 4px 0 0 #888;
+        }
+        .pokemon-name {
+            font-size: 18px;
             font-weight: bold;
-            transition: transform 0.1s;
+            margin-bottom: 5px;
+        }
+        .pokemon-image {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 5px;
+            background-color: #ccc; /* 仮画像 */
+            line-height: 80px;
+            font-size: 10px;
+        }
+        .pokemon-stats {
+            font-size: 12px;
+            text-align: left;
+            padding: 5px 0;
+            border-top: 1px dashed #999;
+        }
+        .pokemon-stats div {
+            margin-bottom: 2px;
+        }
+        .exp-bar-container {
+            height: 8px;
+            background-color: #ccc;
+            border: 1px solid #999;
+            margin-top: 5px;
+        }
+        .exp-bar {
+            height: 100%;
+            background-color: #3498db;
         }
 
-        .starter-card:hover {
-            background-color: var(--ui-yellow);
-            transform: scale(1.05);
+        /* 下部メニューバー */
+        .bottom-menu-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            border-top: 5px solid var(--ui-dark);
+            background-color: #c9c9c9;
+        }
+        .bottom-menu-bar .ui-button {
+            flex-grow: 1;
+            margin: 0 5px;
         }
 
-        .starter-icon {
-            width: 50px;
-            height: 50px;
-            background-color: #eee;
-            margin: 5px auto;
+        /* 初回選択画面 */
+        #starterSelection {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 100;
+        }
+        .starter-pokemon-list {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .starter-card {
+            background-color: #333;
+            border: 5px solid var(--ui-yellow);
+            padding: 15px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -209,105 +195,181 @@
     <div class="game-screen">
         
         <div class="top-ui-fixed">
-            <div class="screen-title">ベースキャンプ</div>
-            <div class="stamina-status" id="staminaDisplay" onclick="restoreStamina()">⚡️ 5/5 あと 00:00</div>
+            <div class="currency-status" id="currencyDisplay">💰 0</div>
+            <div class="stamina-status" id="staminaDisplay">⚡️ 5/5 あと 00:00</div>
         </div>
 
-        <div class="pot-area">
-            <div class="cooking-pot">
-                <div class="pot-lid"></div>
+        <div class="main-content">
+            <div class="content-title">ベースキャンプ</div>
+
+            <div id="dailyBonusArea" style="margin-bottom: 20px; text-align: center;">
+                </div>
+            
+            <h3 style="color: var(--ui-dark);">仲間のポケモン</h3>
+            <div id="rosterList" class="roster-list">
+                <p>ロード中...</p>
             </div>
-            <div class="ui-button" onclick="startCooking()">
-                料理開始 (仲間探し)
-            </div>
+            
         </div>
 
         <div class="bottom-menu-bar">
-            <div class="ui-button">オプション</div>
-            <div class="ui-button">クエスト</div>
-            <div class="ui-button">図鑑</div>
+            <div class="ui-button expedition-button" onclick="goToExpedition()">探検に出発</div>
+            <div class="ui-button" onclick="goToStore()">💰 ストアへ</div>
+            <div class="ui-button" onclick="goToCooking()">🍳 料理</div>
             <div class="ui-button" onclick="goToTeamEdit()">チーム編成</div>
-            <div class="ui-button expedition-button" onclick="goToExpedition()">島の探検</div>
         </div>
         
-        <div id="starterModal" class="modal">
-            <div class="modal-content">
-                <h3>ようこそ！カカオマメ隊員！👋</h3>
-                <p>最初の仲間を1匹選んでください。</p>
-                <div class="starter-selection">
-                    </div>
+    </div>
+    
+    <div id="starterSelection" style="display: none;">
+        <h2>隊長、歓迎します！</h2>
+        <p>最初のパートナーを選んでください。</p>
+        <div class="starter-pokemon-list">
+            <div class="starter-card" onclick="selectStarter(1)">
+                <div class="pokemon-name">フシギダネ</div>
+                <div class="pokemon-image">🌱</div>
+            </div>
+            <div class="starter-card" onclick="selectStarter(4)">
+                <div class="pokemon-name">ヒトカゲ</div>
+                <div class="pokemon-image">🔥</div>
+            </div>
+            <div class="starter-card" onclick="selectStarter(7)">
+                <div class="pokemon-name">ゼニガメ</div>
+                <div class="pokemon-image">💧</div>
             </div>
         </div>
-        
     </div>
 
     <script>
         const STORAGE_KEY = 'pokemon_quest_data';
-        const STAMINA_RECOVERY_INTERVAL_MS = 30 * 60 * 1000; // 30分 (ミリ秒)
-        const STAMINA_DISPLAY = document.getElementById('staminaDisplay');
-        console.log(`STORAGE_KEY:${STORAGE_KEY}`);
-
+        const STAMINA_RECOVERY_INTERVAL_MS = 30 * 60 * 1000; // 30分
+        const DAILY_CURRENCY_AMOUNT = 50;
+        const DAILY_RECOVERY_INTERVAL_MS = 22 * 60 * 60 * 1000; // 22時間
+        
+        let gameData = null; 
         let allPokemonData = [];
-        let gameData = null; // ゲームデータをグローバルで保持
-
+        let masterDataLoaded = false;
+        
         // ----------------------------------------------------
         // I. データ管理関数
         // ----------------------------------------------------
-
-        /**
-         * @returns {object|null} ローカルストレージからゲームデータをロード
-         */
         function loadGameData() {
             const storedData = localStorage.getItem(STORAGE_KEY);
-            // デバッグログ: データが長いため、一部のみ表示
-            const storedDataValue = storedData ? storedData.substring(0, 30) + '...' : 'null';
-            console.log(`loadGameData:storedDataValue:${storedDataValue}`); 
             return storedData ? JSON.parse(storedData) : null;
         }
-
-        /**
-         * @param {object} data - 保存するゲームデータ
-         */
+        
         function saveGameData(data) {
-            const dataString = JSON.stringify(data);
-            // デバッグログ: データが長いため、一部のみ表示
-            const dataStringValue = dataString.substring(0, 30) + '...';
-            console.log(`saveGameData:dataStringValue:${dataStringValue}`); 
-            localStorage.setItem(STORAGE_KEY, dataString);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         }
 
-        /**
-         * @returns {Promise<Array<object>>} ポケモンマスターデータをJSONファイルから取得
-         */
         async function fetchPokemonMasterData() {
+             // ポケモンマスターデータの読み込み（既存ロジック）
             try {
-                const jsonPath = '/rei/assets/pokemon.json';
-                console.log(`fetchPokemonMasterData:jsonPath:${jsonPath}`); 
-                const response = await fetch(jsonPath);
-                
-                // HTTPステータスコードをチェック
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                const data = await response.json();
-                const dataLength = data.length;
-                console.log(`fetchPokemonMasterData:dataLength:${dataLength}`); 
-                return data;
-
+                const response = await fetch('/rei/assets/pokemon.json'); 
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                allPokemonData = await response.json();
+                masterDataLoaded = true;
+                console.log("fetchPokemonMasterData:ポケモンマスターデータ読み込み成功。");
             } catch (error) {
-                console.error("ポケモンマスターデータの読み込みに失敗しました:", error);
-                // 読み込み失敗時は、処理を継続するために空配列を返す
-                return [];
+                console.error("fetchPokemonMasterData:ポケモンマスターデータの読み込みに失敗しました:", error);
             }
         }
         
         // ----------------------------------------------------
-        // II. スタミナロジック (NEW & UPDATED)
+        // II. ポケモンレベルアップロジック
         // ----------------------------------------------------
         
-        /**
-         * スタミナ表示を更新し、次の回復までの時間を計算する
-         */
+        function getExpToNextLevel(level) {
+            const exp = 50 + (level * 50); 
+            return exp;
+        }
+
+        function applyLevelUpAndStats(instance, masterData) {
+            let levelGained = 0;
+            let currentExp = instance.exp_current || 0;
+            let currentLevel = instance.level;
+            
+            const baseMaster = allPokemonData.find(p => p.id === instance.pokemon_id);
+            if (!baseMaster) return instance;
+
+            const baseHp = baseMaster.base_hp;
+            const baseAtk = baseMaster.base_atk;
+
+            while (currentLevel < 100) {
+                const expNeeded = getExpToNextLevel(currentLevel);
+
+                if (currentExp >= expNeeded) {
+                    currentExp -= expNeeded;
+                    currentLevel += 1;
+                    levelGained += 1;
+                } else {
+                    break;
+                }
+            }
+
+            if (levelGained > 0) {
+                // 経験値とレベルを更新
+                instance.level = currentLevel;
+                instance.exp_current = currentExp;
+                
+                // ステータス更新（線形成長）
+                const hpGain = Math.floor((baseHp / 100) * levelGained);
+                const atkGain = Math.floor((baseAtk / 100) * levelGained);
+                
+                instance.hp += hpGain;
+                instance.atk += atkGain;
+                
+                console.log(`applyLevelUpAndStats: ${instance.name} LV UP! (+${levelGained} Lv)`);
+            } else {
+                 instance.exp_current = currentExp;
+            }
+
+            return instance;
+        }
+
+        function checkAndApplyAllLevelUps() {
+            if (!gameData || !gameData.roster) return;
+
+            let levelUpOccurred = false;
+            
+            gameData.roster = gameData.roster.map(pokeInstance => {
+                const oldLevel = pokeInstance.level;
+                const updatedInstance = applyLevelUpAndStats(pokeInstance, allPokemonData);
+                if (updatedInstance.level !== oldLevel) {
+                    levelUpOccurred = true;
+                }
+                return updatedInstance;
+            });
+
+            if (levelUpOccurred) {
+                saveGameData(gameData);
+                // レベルアップしたことをプレイヤーに伝える (アラートは不要、UI更新で十分)
+            }
+        }
+
+        // ----------------------------------------------------
+        // III. スタミナロジック
+        // ----------------------------------------------------
+        
+        function checkAndApplyStaminaRecovery() {
+            const now = Date.now();
+            let lastRecovery = gameData.player.last_recovery_timestamp || now;
+            
+            let recoveredStamina = 0;
+            while (gameData.player.stamina < gameData.player.max_stamina && now - lastRecovery >= STAMINA_RECOVERY_INTERVAL_MS) {
+                gameData.player.stamina += 1;
+                lastRecovery += STAMINA_RECOVERY_INTERVAL_MS;
+                recoveredStamina += 1;
+            }
+
+            if (recoveredStamina > 0) {
+                gameData.player.last_recovery_timestamp = lastRecovery;
+                saveGameData(gameData);
+                // console.log(`スタミナ回復: +${recoveredStamina}`);
+            }
+            updateStaminaDisplay(gameData.player.stamina, gameData.player.max_stamina, gameData.player.last_recovery_timestamp);
+        }
+
         function updateStaminaDisplay(stamina, maxStamina, lastTimestamp) {
             const now = Date.now();
             const lastTime = lastTimestamp || now;
@@ -316,286 +378,253 @@
             
             let displayTime = "(満タン)";
             if (stamina < maxStamina) {
-                // 回復までの時間を計算
-                timeUntilNextRecovery = Math.max(0, timeUntilNextRecovery); // 0未満にならないように
+                timeUntilNextRecovery = Math.max(0, timeUntilNextRecovery);
                 const minutes = Math.floor(timeUntilNextRecovery / 60000);
                 const seconds = Math.floor((timeUntilNextRecovery % 60000) / 1000);
                 displayTime = `あと ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
             }
 
             const displayValue = `⚡️ ${stamina}/${maxStamina} ${displayTime}`;
-            console.log(`updateStaminaDisplay:displayValue:${displayValue}`);
-            STAMINA_DISPLAY.textContent = displayValue;
+            document.getElementById('staminaDisplay').textContent = displayValue;
         }
 
-
-        /**
-         * 自動回復タイマーを開始する
-         */
         function startStaminaRecoveryTimer() {
-            // 1秒ごとに表示を更新 (秒数のカウントダウンのため)
-            setInterval(updateDisplayLoop, 1000); 
-            
-            // 1分に2回程度、回復処理をチェック (パフォーマンスと正確性のバランス)
-            setInterval(checkAndApplyStaminaRecovery, 30000); 
-            
-            console.log("startStaminaRecoveryTimer:スタミナ自動回復タイマーを開始。");
+            setInterval(() => {
+                // 1秒ごとにスタミナ回復をチェックし、UIを更新する
+                checkAndApplyStaminaRecovery();
+            }, 1000); 
         }
 
-        /**
-         * 1秒ごとに表示を更新するためのループ
-         */
-        function updateDisplayLoop() {
-             if (gameData && gameData.player) {
-                // UI表示のみ更新
-                updateStaminaDisplay(
-                    gameData.player.stamina, 
-                    gameData.player.max_stamina, 
-                    gameData.player.last_recovery_timestamp
-                );
-            }
+        // ----------------------------------------------------
+        // IV. 通貨＆デイリーボーナスロジック
+        // ----------------------------------------------------
+        
+        function updateCurrencyDisplay() {
+            const currency = gameData.player.currency || 0;
+            document.getElementById('currencyDisplay').textContent = `💰 ${currency.toLocaleString()}`;
         }
         
-        /**
-         * 最終回復時間に基づき、スタミナを回復させる
-         */
-        function checkAndApplyStaminaRecovery() {
-            if (!gameData || gameData.player.stamina >= gameData.player.max_stamina) {
-                // 満タンの場合は何もしない
-                // ただし、満タンになった時刻を最後に記録するロジックは、スタミナが減ったときに実行されるべき
-                if (gameData && gameData.player.stamina === gameData.player.max_stamina && gameData.player.last_recovery_timestamp !== undefined) {
-                    gameData.player.last_recovery_timestamp = Date.now();
-                }
-                updateDisplayLoop(); // 表示だけは最新に保つ
-                return;
-            }
-
+        function checkDailyCurrencyClaim() {
             const now = Date.now();
-            const lastTime = gameData.player.last_recovery_timestamp || now;
-            const elapsed = now - lastTime;
+            const lastClaim = gameData.player.last_daily_currency_claim_timestamp || 0;
+            const timeElapsed = now - lastClaim;
+            const area = document.getElementById('dailyBonusArea');
             
-            // 回復可能なスタミナ数を計算
-            const recoveriesPossible = Math.floor(elapsed / STAMINA_RECOVERY_INTERVAL_MS);
-            
-            if (recoveriesPossible > 0) {
-                const newStamina = Math.min(
-                    gameData.player.max_stamina, 
-                    gameData.player.stamina + recoveriesPossible
-                );
-                
-                // 回復量を計算
-                const recoveredAmount = newStamina - gameData.player.stamina;
+            if (timeElapsed >= DAILY_RECOVERY_INTERVAL_MS) {
+                area.innerHTML = `
+                    <div class="ui-button" onclick="claimDailyCurrency()">
+                        ✨ デイリーボーナスを受け取る (${DAILY_CURRENCY_AMOUNT}💰)
+                    </div>
+                `;
+                area.querySelector('.ui-button').style.backgroundColor = '#4CAF50';
+                area.querySelector('.ui-button').style.color = 'white';
+                area.querySelector('.ui-button').style.boxShadow = '0 4px 0 0 #2e7d32';
 
-                if (recoveredAmount > 0) {
-                    gameData.player.stamina = newStamina;
-                    
-                    // 次の回復予定時刻を更新
-                    const newLastTime = lastTime + (recoveriesPossible * STAMINA_RECOVERY_INTERVAL_MS);
-                    gameData.player.last_recovery_timestamp = newLastTime;
-                    
-                    saveGameData(gameData);
-                    console.log(`checkAndApplyStaminaRecovery:スタミナを${recoveredAmount}回復。現在${newStamina}/${gameData.player.max_stamina}`);
-                }
-            }
-            
-            // UIを更新
-            updateStaminaDisplay(gameData.player.stamina, gameData.player.max_stamina, gameData.player.last_recovery_timestamp);
-        }
-        
-        /**
-         * ゲーム内通貨を使ってスタミナを手動回復する
-         */
-        function restoreStamina() {
-            const COST_CURRENCY = 1; // 仮のコスト
-            
-            if (!gameData || !gameData.player) {
-                alert("ゲームデータがロードされていません。リロードしてください。");
-                return;
-            }
-
-            if (gameData.player.stamina >= gameData.player.max_stamina) {
-                alert("スタミナは満タンです！");
-                return;
-            }
-            
-            if (confirm(`スタミナを全回復（${gameData.player.max_stamina}）します。ゲーム内通貨 ${COST_CURRENCY} を使用しますか？\n(通貨は未実装のため、無料で回復します)`)) {
+            } else {
+                const timeRemaining = DAILY_RECOVERY_INTERVAL_MS - timeElapsed;
+                const hours = Math.floor(timeRemaining / (60 * 60 * 1000));
+                const minutes = Math.floor((timeRemaining % (60 * 60 * 1000)) / (60 * 1000));
                 
-                gameData.player.stamina = gameData.player.max_stamina;
-                // 満タンになったので最終回復時間をリセット（次に減った時点からカウント開始のため）
-                gameData.player.last_recovery_timestamp = Date.now(); 
-                
-                saveGameData(gameData);
-                updateStaminaDisplay(gameData.player.stamina, gameData.player.max_stamina, gameData.player.last_recovery_timestamp);
-                alert("✨ スタミナを全回復しました！");
-                console.log("restoreStamina:手動でスタミナ全回復完了。");
+                area.innerHTML = `
+                    <p style="font-weight: bold; color: #555;">
+                        デイリーボーナスまで: あと ${hours}時間 ${String(minutes).padStart(2, '0')}分
+                    </p>
+                `;
             }
         }
         
-        // ----------------------------------------------------
-        // III. 初期化・表示ロジック
-        // ----------------------------------------------------
+        function claimDailyCurrency() {
+            const now = Date.now();
+            const lastClaim = gameData.player.last_daily_currency_claim_timestamp || 0;
+            const timeElapsed = now - lastClaim;
 
-        // 初期選択可能なポケモンのIDリスト
-        const STARTER_IDS = [4, 1, 7, 133, 25]; // ヒトカゲ, フシギダネ, ゼニガメ, イーブイ, ピカチュウ
-        // allPokemonData はグローバルで定義済み
+            if (timeElapsed < DAILY_RECOVERY_INTERVAL_MS) {
+                return;
+            }
 
-        /**
-         * 初期ポケモン選択モーダルを表示する
-         * @param {Array<object>} masterData - 全ポケモンデータ
-         */
-        function showStarterSelection(masterData) {
-            const modal = document.getElementById('starterModal');
-            const selectionArea = modal.querySelector('.starter-selection');
-            selectionArea.innerHTML = ''; // クリア
+            gameData.player.currency = (gameData.player.currency || 0) + DAILY_CURRENCY_AMOUNT;
+            gameData.player.last_daily_currency_claim_timestamp = now;
             
-            console.log("showStarterSelection:モーダル表示準備中");
+            saveGameData(gameData);
+            
+            updateCurrencyDisplay();
+            checkDailyCurrencyClaim(); 
+            
+            alert(`🎉 デイリーボーナス ${DAILY_CURRENCY_AMOUNT}💰 を獲得しました！`);
+        }
 
-            STARTER_IDS.forEach(id => {
-                const pokemon = masterData.find(p => p.id === id);
-                if (pokemon) {
-                    const card = document.createElement('div');
-                    card.className = 'starter-card';
-                    card.setAttribute('onclick', `selectStarter(${id})`);
-                    
-                    // アイコンと名前を表示
-                    card.innerHTML = `
-                        <div class="starter-icon" style="background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png'); background-size: cover;"></div>
-                        ${pokemon.japanese_name}
-                    `;
-                    selectionArea.appendChild(card);
-                    const pokemonName = pokemon.japanese_name;
-                    console.log(`showStarterSelection:初期ポケモン追加:${pokemonName}`);
+        // ----------------------------------------------------
+        // V. UI描画ロジック
+        // ----------------------------------------------------
+
+        function calculateExpPercentage(level, currentExp) {
+            if (level >= 100) return 100;
+            const expNeeded = getExpToNextLevel(level);
+            return Math.min(100, (currentExp / expNeeded) * 100);
+        }
+
+        function updateRosterList() {
+            const list = document.getElementById('rosterList');
+            list.innerHTML = '';
+            
+            if (!gameData || !gameData.roster || gameData.roster.length === 0) {
+                 list.innerHTML = '<p>まだ仲間がいません。最初のポケモンを選んでください。</p>';
+                return;
+            }
+
+            gameData.roster.forEach(poke => {
+                const card = document.createElement('div');
+                card.className = 'pokemon-card';
+                
+                const expPercent = calculateExpPercentage(poke.level, poke.exp_current);
+                
+                // チームメンバーをハイライト
+                const isTeamMember = gameData.current_team_ids.includes(poke.instance_id);
+                if (isTeamMember) {
+                    card.style.border = '3px solid var(--ui-orange)';
+                    card.style.boxShadow = '4px 4px 0 0 var(--ui-orange)';
                 }
+                
+                card.innerHTML = `
+                    <div class="pokemon-name">${poke.name} (Lv.${poke.level})</div>
+                    <div class="pokemon-image">${isTeamMember ? '⭐' : '🥚'}</div>
+                    <div class="pokemon-stats">
+                        <div>HP: ${poke.hp}</div>
+                        <div>ATK: ${poke.atk}</div>
+                    </div>
+                    <div class="exp-bar-container">
+                        <div class="exp-bar" style="width: ${expPercent}%;"></div>
+                    </div>
+                    <small>EXP: ${poke.exp_current}/${getExpToNextLevel(poke.level)}</small>
+                `;
+                
+                list.appendChild(card);
             });
-            
-            modal.style.display = 'flex'; // モーダルを表示
         }
+        
+        // ----------------------------------------------------
+        // VI. 初回起動/スターター選択ロジック
+        // ----------------------------------------------------
 
-        /**
-         * 選択された初期ポケモンを仲間にし、ゲームを開始する
-         * @param {number} pokemonId - 選択されたポケモンのID
-         */
         function selectStarter(pokemonId) {
-            const selectedPokemon = allPokemonData.find(p => p.id === pokemonId);
-            const selectedPokemonName = selectedPokemon.japanese_name;
-            console.log(`selectStarter:selectedPokemonName:${selectedPokemonName}`);
-
-            const newPokemonInstance = {
-                // 固有のインスタンスIDを生成 (今回はIDとタイムスタンプの組み合わせ)
-                instance_id: `${pokemonId}-${Date.now()}`,
-                pokemon_id: pokemonId,
-                name: selectedPokemon.japanese_name,
-                level: selectedPokemon.level,
-                hp: selectedPokemon.base_hp,
-                atk: selectedPokemon.base_atk,
-                moves: selectedPokemon.moves, // 初期技
-                p_stones: [] // Pストーンは初期は空
-            };
+            const pokemonMaster = allPokemonData.find(p => p.id === pokemonId);
+            if (!pokemonMaster) {
+                alert("ポケモンのデータが見つかりません。");
+                return;
+            }
             
-            // 初回起動時の初期データ構造
-            const initialData = {
-                player: { 
-                    name: "カカオマメ隊員", 
-                    stamina: 5, 
-                    max_stamina: 5, 
-                    // ★ 初期化時に最終回復時間を設定
-                    last_recovery_timestamp: Date.now() 
+            const now = Date.now();
+
+            // 新しいゲームデータを初期化
+            gameData = {
+                player: {
+                    max_stamina: 5,
+                    stamina: 5,
+                    last_recovery_timestamp: now,
+                    currency: 100, // 初期通貨を付与
+                    last_daily_currency_claim_timestamp: now // 初回は受け取り済みに
                 },
-                roster: [newPokemonInstance],
-                // ★ 探検チームの初期値は空
-                current_team_ids: [], 
+                roster: [],
+                current_team_ids: [],
                 inventory: {
-                    p_stones: [],
-                    materials: {},
-                    currency: 0 // ゲーム内通貨を初期化
-                }
+                    materials: {}
+                },
+                next_instance_id: 1001
             };
+            
+            // スターターポケモンをロースターに追加
+            const newPokemon = {
+                instance_id: gameData.next_instance_id++,
+                pokemon_id: pokemonMaster.id,
+                name: pokemonMaster.name_ja,
+                level: 1,
+                exp_current: 0,
+                hp: pokemonMaster.base_hp,
+                atk: pokemonMaster.base_atk
+            };
+            gameData.roster.push(newPokemon);
+            gameData.current_team_ids.push(newPokemon.instance_id); // チームに設定
 
-            gameData = initialData; // グローバル変数も更新
-            saveGameData(initialData); // 初期データ保存
-            document.getElementById('starterModal').style.display = 'none'; // モーダルを閉じる
-            
-            // UIとタイマーを更新
-            checkAndApplyStaminaRecovery(); // 初期化直後なので即座にチェック
-            startStaminaRecoveryTimer();
-            
-            alert(`🎉 ${selectedPokemonName}を仲間にしました！ゲーム開始です！`);
+            saveGameData(gameData);
+            alert(`🎊 ${pokemonMaster.name_ja} をパートナーに選びました！`);
+            document.getElementById('starterSelection').style.display = 'none';
+            initializeGame(); // メイン画面を再初期化
         }
 
-
         // ----------------------------------------------------
-        // IV. 画面初期化メイン
+        // VII. 画面初期化メイン
         // ----------------------------------------------------
-
+        
         async function initializeGame() {
             // 1. マスターデータの読み込み
-            allPokemonData = await fetchPokemonMasterData();
-            const masterDataLoaded = allPokemonData.length > 0;
-            console.log(`initializeGame:masterDataLoaded:${masterDataLoaded}`);
+            await fetchPokemonMasterData();
 
             // 2. ゲームデータのロード
             gameData = loadGameData();
             
             // 3. 初回起動チェック
             if (!gameData && masterDataLoaded) {
-                console.log("initializeGame:初回起動と判断、初期ポケモン選択へ。");
-                showStarterSelection(allPokemonData);
+                document.getElementById('starterSelection').style.display = 'flex';
                 return; 
             } else if (gameData) {
-                console.log("initializeGame:ゲームデータをロードしました。");
+                // 4. データ構造のマイグレーション/初期化
+                gameData.roster = gameData.roster.map(p => {
+                    p.exp_current = p.exp_current || 0;
+                    return p;
+                });
                 
-                // 4. データ構造のマイグレーション/初期化 (last_recovery_timestampがない場合)
-                if (gameData.player.last_recovery_timestamp === undefined) {
-                    gameData.player.last_recovery_timestamp = Date.now();
-                    saveGameData(gameData);
-                    console.log("initializeGame:最終回復時間を初期化。");
-                }
+                // playerデータの初期化（通貨、デイリータイムスタンプ）
+                gameData.player.currency = gameData.player.currency || 0;
+                gameData.player.last_daily_currency_claim_timestamp = gameData.player.last_daily_currency_claim_timestamp || 0;
                 
-                // 5. 自動回復のチェックとタイマー開始
-                checkAndApplyStaminaRecovery(); // 起動時に即座に回復チェック
+                // 5. レベルアップチェック
+                checkAndApplyAllLevelUps(); 
+
+                // 6. 自動回復のチェックとタイマー開始
+                checkAndApplyStaminaRecovery(); 
                 startStaminaRecoveryTimer();
 
+                // 7. UIの初期表示
+                updateRosterList();
+                updateCurrencyDisplay(); 
+                
+                // 8. デイリーボーナスのチェック
+                checkDailyCurrencyClaim();
+                // 1分ごとにチェックを更新
+                setInterval(checkDailyCurrencyClaim, 60000); 
+                
             } else {
-                // マスターデータもローカルデータもない致命的なケース
-                alert("データの初期化に失敗しました。サーバーのpokemon.jsonを確認してください。");
+                // ロード失敗時
+                alert("ゲームデータが破損しています。最初からやり直します。");
+                localStorage.removeItem(STORAGE_KEY);
+                window.location.reload();
             }
         }
-
+        
         // 画面ロード時に実行
         window.onload = initializeGame;
 
-
         // ----------------------------------------------------
-        // V. 画面遷移ロジック
+        // VIII. 画面遷移ロジック
         // ----------------------------------------------------
         function goToExpedition() {
-            // 遷移前に、ポケモンを仲間にしているかチェック
-            const rosterCount = gameData ? gameData.roster.length : 0;
-            console.log(`goToExpedition:rosterCount:${rosterCount}`);
-            
-            if (rosterCount === 0) {
-                alert('先に仲間を探すか、最初の仲間を選んでください。');
-                return;
-            }
-            
-            const nextScreen = 'expedition.html';
-            console.log(`nextScreen:${nextScreen}`);
-            window.location.href = nextScreen;
+            window.location.href = 'expedition.html';
+        }
+
+        function goToStore() {
+             window.location.href = 'store.html';
+        }
+        
+        function goToCooking() {
+             alert('🚨 料理機能は次の任務で実装します！');
+             // window.location.href = 'cooking.html'; // 実際の遷移先
         }
 
         function goToTeamEdit() {
-            const nextScreen = 'team_edit.html';
-            console.log(`nextScreen:${nextScreen}`);
-            window.location.href = nextScreen;
+            alert('🚨 チーム編成画面は未実装です。');
+             window.location.href = 'team_edit.html'; // 実際の遷移先
         }
 
-        function startCooking() {
-            console.log("料理開始ボタンが押されました。料理画面へ。");
-            // 現時点では未実装のためアラート
-            alert('🛠️ 料理画面はまだ開発中です！');
-        }
-
-        console.log("ベースキャンプ画面の初期化ロジック準備完了。");
     </script>
 </body>
 </html>
