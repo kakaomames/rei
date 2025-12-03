@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="description" content="ポケモンクエスト風の探検選択画面を再現">
+    <meta name="description" content="ポケモンクエスト風の探検選択画面を忠実に再現">
     <meta name="keywords" content="ポケモンクエスト, マップ, ステージ選択, HTML, CSS, JavaScript">
     <meta name="author" content="Gemini programming隊">
     <meta property="og:title" content="ポケモンクエスト風 探検選択画面">
-    <meta property="og:description" content="探検先を選ぶマップ画面">
+    <meta property="og:description" content="忠実なUIの再現">
     <meta property="og:image" content="logo.png">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="icon.png" type="image/png">
@@ -16,12 +16,16 @@
     <title>探検選択画面 | Gemini programming隊</title>
     <style>
         :root {
-            --ui-blue: #6699ff;
+            --ui-yellow: #ffc90e;
+            --ui-orange: #ff9900;
             --ui-dark: #333;
+            --ui-green-field: #6a956a; /* マップの濃い緑 */
+            --ui-sand: #c7a47b; /* 砂の色 */
+            --ui-water: #4a919e; /* 水の色 */
         }
 
         body {
-            background-color: #2c3e50; /* 暗めの背景色 */
+            background-color: #f7f0e6;
             font-family: 'Verdana', 'Arial', sans-serif;
             display: flex;
             justify-content: center;
@@ -31,123 +35,246 @@
             overflow: hidden;
         }
 
-        .expedition-screen {
-            width: 90%;
-            max-width: 850px;
-            height: 550px;
+        .game-screen {
+            width: 100%;
+            max-width: 900px;
+            height: 600px; /* 画面の高さを固定 */
             border: 8px solid var(--ui-dark);
             box-shadow: 12px 12px 0 0 #555;
-            background-color: #fff;
-            display: flex; /* Flexで左右に分割 */
+            box-sizing: border-box;
+            position: relative; /* 子要素を絶対配置するための基準 */
+            background-color: var(--ui-water); /* 画面の土台は水色 */
         }
 
-        /* --- 左側のマップエリア --- */
+        /* --- 1. マップエリア (メイン) --- */
         .map-area {
-            flex: 1; /* 均等に分割 */
-            background-color: var(--ui-blue); /* マップの海の色 */
-            border-right: 4px solid var(--ui-dark);
+            height: calc(100% - 70px); /* 下部メニューバーの高さ分を引く */
+            background-color: var(--ui-water);
             position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            font-size: 20px;
-            font-weight: bold;
+            /* 3D風の視点を作成 */
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transform: rotateX(45deg); /* アイソメトリック風に傾ける */
+            top: 50px;
+            overflow: hidden;
+        }
+
+        /* 島の地形の表現（簡易的なキューブ） */
+        .island-terrain {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         
-        /* 島の表現 */
-        .island {
-            width: 200px;
-            height: 150px;
-            background-color: #6a956a; /* 島の緑 */
-            border: 4px solid var(--ui-dark);
-            transform: rotate(5deg);
-        }
-
-        /* --- 右側のステージリスト --- */
-        .stage-list-area {
-            flex: 1;
-            padding: 10px;
-            background-color: #f0f0f0;
-            overflow-y: auto; /* リストをスクロール可能にする */
-        }
-
-        .stage-entry {
-            background-color: #fff;
-            border: 2px solid var(--ui-dark);
-            padding: 10px;
-            margin-bottom: 8px;
-            box-shadow: 2px 2px 0 0 #999;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .stage-entry:hover {
-            background-color: #ffe0b2;
-        }
-
-        /* 戻るボタン (左上) */
-        .back-button {
+        .terrain-block {
+            width: 50px;
+            height: 50px;
+            background-color: var(--ui-sand);
+            border: 1px solid var(--ui-dark);
             position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: #ff6666;
-            border: 3px solid var(--ui-dark);
-            padding: 8px 12px;
-            font-weight: bold;
-            color: #fff;
-            cursor: pointer;
-            z-index: 10;
+            /* 3D感を出すための傾斜 */
+            transform: rotateX(-45deg) rotateZ(45deg); 
+            box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.3);
         }
+        /* 緑のブロック */
+        .terrain-block.green { background-color: var(--ui-green-field); }
+
+        .terrain-block:nth-child(1) { top: 100px; left: 150px; }
+        .terrain-block:nth-child(2) { top: 125px; left: 175px; background-color: var(--ui-green-field); }
+        .terrain-block:nth-child(3) { top: 150px; left: 200px; }
+        .terrain-block:nth-child(4) { top: 100px; left: 200px; background-color: var(--ui-green-field); }
+
+
+        /* --- 2. 上部UI (タイトルとスタミナ) --- */
+        .top-ui-fixed {
+            position: absolute;
+            top: 5px;
+            width: 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            z-index: 20;
+        }
+
+        .screen-title {
+            background-color: #ffaa33; /* オレンジ系のタイトル色 */
+            border: 3px solid var(--ui-dark);
+            color: var(--ui-dark);
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .stamina-status {
+            background-color: var(--ui-dark);
+            color: #fff;
+            padding: 5px 10px;
+            border: 3px solid var(--ui-yellow);
+        }
+
+        .bonus-bar {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            background-color: var(--ui-dark);
+            border: 3px solid var(--ui-yellow);
+            padding: 5px 10px;
+            font-size: 12px;
+            color: #fff;
+        }
+
+        /* --- 3. 下部UI (ベースキャンプと同じボタン群) --- */
+        .bottom-menu-bar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background-color: #c0c0c0; /* ベースキャンプの土台色と合わせる */
+            border-top: 5px solid var(--ui-dark);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 10px;
+            box-sizing: border-box;
+            z-index: 30;
+        }
+        
+        /* 汎用ボタンのスタイル（ベースキャンプのものを流用） */
+        .ui-button {
+            background-color: var(--ui-yellow);
+            border: 3px solid var(--ui-dark);
+            color: var(--ui-dark);
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 4px 0 0 #b38b00;
+            transition: all 0.1s;
+            width: 15%; /* 均等に配置 */
+            height: 80%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .ui-button:active {
+            box-shadow: 0 1px 0 0 #b38b00;
+            transform: translateY(3px);
+        }
+
+        /* チーム編成ボタンなど、画像に合わせて色を変更 */
+        .team-button { background-color: var(--ui-yellow); }
+        .basecamp-button { 
+            background-color: var(--ui-orange); 
+            box-shadow: 0 4px 0 0 #cc8800;
+            font-size: 12px;
+            width: 12%;
+        }
+
+        /* ステージ情報のUI (例: 3-4, 1800) */
+        .stage-info-cube {
+            position: absolute;
+            top: 150px;
+            left: 450px;
+            background-color: #fff;
+            border: 3px solid var(--ui-dark);
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--ui-dark);
+            cursor: pointer;
+            z-index: 25;
+            
+            /* マップと同じ傾斜に設定 */
+            transform: rotateX(-45deg) rotateZ(45deg); 
+            transform-origin: 0 0;
+            box-shadow: 5px 5px 0 0 rgba(0, 0, 0, 0.4);
+        }
+        
+        .stage-info-cube .stage-level { font-size: 18px; margin-bottom: 5px; }
+        .stage-info-cube .stage-power { font-size: 14px; color: var(--ui-red); }
     </style>
 </head>
 <body>
-    <div class="expedition-screen">
-        
-        <div class="back-button" onclick="goToBasecamp()">← ベースキャンプへ</div>
+    <div class="game-screen">
         
         <div class="map-area">
-            <div class="island">
-                カクコロ島
+            <div class="island-terrain">
+                <div class="terrain-block"></div>
+                <div class="terrain-block green"></div>
+                <div class="terrain-block"></div>
+                <div class="terrain-block green"></div>
+                
+                <div class="stage-info-cube" onclick="onStageSelect('3-4')">
+                    <div class="stage-level">3-4</div>
+                    <div class="stage-power">💪 1,800</div>
+                </div>
+                
+                <div class="terrain-block" style="background-color: #ff0000; top: 200px; left: 100px;"></div>
+                <div class="terrain-block" style="background-color: #fff; top: 225px; left: 125px;"></div>
+                
             </div>
+            
         </div>
 
-        <div class="stage-list-area">
-            <h3>ステージ一覧</h3>
-            <div class="stage-entry" onclick="onStageSelect('1-1')">1-1: はじまりの森</div>
-            <div class="stage-entry" onclick="onStageSelect('1-2')">1-2: なみのり海岸</div>
-            <div class="stage-entry" onclick="onStageSelect('1-3')">1-3: ゴツゴツ山</div>
-            </div>
+        <div class="top-ui-fixed">
+            <div class="screen-title">島の探検</div>
+            <div class="stamina-status">⚡️ 1/5 あと 25:59</div>
+            <div class="bonus-bar">探検ボーナス</div>
+        </div>
 
+        <div class="bottom-menu-bar">
+            <div class="ui-button">オプション</div>
+            <div class="ui-button">クエスト</div>
+            <div class="ui-button">図鑑</div>
+
+            <div class="ui-button team-button" onclick="goToTeamEdit('CurrentStageID')">チーム編成</div>
+            
+            <div class="ui-button" style="background-color:#fff;">イーブイ</div>
+            <div class="ui-button" style="background-color:#800080;">ベトベター</div>
+            <div class="ui-button" style="background-color:#ff9966;">ガーディ</div>
+
+            <div class="ui-button basecamp-button" onclick="goToBasecamp()">ベースキャンプ</div>
+        </div>
+        
     </div>
 
     <script>
         const currentScreen = 'expedition.html';
         console.log(`currentScreen:${currentScreen}`);
 
+        // ベースキャンプへ戻る
         function goToBasecamp() {
             const nextScreen = 'basecamp.html';
             console.log(`nextScreen:${nextScreen}`);
-            console.log("ベースキャンプへ戻ります！");
             window.location.href = nextScreen;
         }
 
-        // ★ 新しいロジック: ステージを選択したらチーム編集画面へ
+        // ステージを選択したら、チーム編集画面へ
         function onStageSelect(stageId) {
             const nextScreen = 'team_edit.html';
-            // 選択したステージIDを保持します (今回はURLのクエリパラメータとして渡します)
             console.log(`stageId:${stageId}`);
             console.log(`nextScreen:${nextScreen}`);
             
             console.log(`ステージ ${stageId} を選択。チーム編成画面へ推移します。`);
-            // チーム編成画面へ、ステージIDをパラメータとして渡して遷移
+            // ステージIDをパラメータとして渡す
             window.location.href = `${nextScreen}?stage=${stageId}`;
         }
         
-        console.log(`goToBasecamp関数の準備完了。次の推移先: basecamp.html`);
-        console.log(`onStageSelect関数の準備完了。次の推移先: team_edit.html`);
+        // チーム編成ボタンが押された場合 (ステージ選択前でも可能)
+        function goToTeamEdit(stageId = 'MapMode') {
+            const nextScreen = 'team_edit.html';
+            console.log(`stageId:${stageId} (ステージ選択前のチーム編成)`);
+            console.log(`nextScreen:${nextScreen}`);
+            window.location.href = `${nextScreen}?stage=${stageId}`;
+        }
+        
+        console.log(`推移ロジックの準備完了。次の推移先: basecamp.html, team_edit.html`);
     </script>
-</body>
-</html>
 </body>
 </html>
