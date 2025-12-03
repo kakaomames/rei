@@ -239,7 +239,18 @@
             <div class="ui-button team-button">チーム編成</div>
             <div class="ui-button pokemon-button">ピカチュウ</div>
 
-            <div class="ui-button explore-button">島の探検</div>
+           <div class="ui-button explore-button" onclick="goToExpedition()">島の探検</div>
+<script>
+    // 島の探検ボタンが押された時の関数
+    function goToExpedition() {
+        console.log("島の探検へ推移します！");
+        // basecamp.html から expedition.html へ遷移
+        window.location.href = 'expedition.html';
+    }
+    // Pythonのデバッグ出力のように、遷移先をコンソールに出力
+    console.log(`現在の画面: basecamp.html`);
+    console.log(`次の推移先: expedition.html`);
+</script>
             
             </div>
         
