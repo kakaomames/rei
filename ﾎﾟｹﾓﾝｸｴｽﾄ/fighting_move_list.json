@@ -1,0 +1,104 @@
+{
+  "move_type": "かくとう",
+  "moves": [
+    {
+      "move_id": 701,
+      "move_name_jp": "いわくだき",
+      "move_type_jp": "かくとう",
+      "power": 29,
+      "cooldown_sec": 1,
+      "effect_jp": "気合を発して広範囲の敵にダメージを与える。同時に木や岩をこわす。",
+      "description_jp": "気合を発して広範囲の敵にダメージを与える"
+    },
+    {
+      "move_id": 702,
+      "move_name_jp": "インファイト",
+      "move_type_jp": "かくとう",
+      "power": 245,
+      "cooldown_sec": 5,
+      "effect_jp": "前方の敵に大ダメージを与えるが、**ときどき自分が受けるダメージがアップしてしまう**。",
+      "description_jp": "前方の敵のふところに飛び込んで一撃をたたきこむ"
+    },
+    {
+      "move_id": 703,
+      "move_name_jp": "ドレインパンチ",
+      "move_type_jp": "かくとう",
+      "power": 223,
+      "cooldown_sec": 9,
+      "effect_jp": "敵にダメージを与え、さらにこぶしから力を吸い取って**自分のHPを回復する**。（吸収/回復技）",
+      "description_jp": "目の前の敵にパンチをうってダメージを与える"
+    },
+    {
+      "move_id": 704,
+      "move_name_jp": "ビルドアップ",
+      "move_type_jp": "かくとう",
+      "power": 0,
+      "cooldown_sec": 8,
+      "effect_jp": "しばらくのあいだ**自分が与えるダメージをアップして、同時に受けるダメージをダウン**する。（複合補助技）",
+      "description_jp": "体に力をこめて筋肉をぶあつくする"
+    },
+    {
+      "move_id": 705,
+      "move_name_jp": "まわしげり",
+      "move_type_jp": "かくとう",
+      "power": 156,
+      "cooldown_sec": 5,
+      "effect_jp": "その場で回転しながらキックを繰り出し、まわりの敵にダメージを与える。",
+      "description_jp": "その場で回転しながらキックを繰り出す"
+    },
+    {
+      "move_id": 706,
+      "move_name_jp": "れんぞくパンチ",
+      "move_type_jp": "かくとう",
+      "power": 201,
+      "cooldown_sec": 5,
+      "effect_jp": "目の前の敵にすばやいパンチを連続でくりだしてダメージを与える。",
+      "description_jp": "目の前の敵にすばやいパンチを連続でくりだす"
+    },
+    {
+      "move_id": 707,
+      "move_name_jp": "じごくぐるま",
+      "move_type_jp": "かくとう",
+      "power": 130,
+      "cooldown_sec": 5,
+      "effect_jp": "前方の敵をめがけて回転しながら体当たりし、まわりを巻き込みながらダメージを与える。",
+      "description_jp": "前方の敵をめがけて回転しながら体当たりする"
+    },
+    {
+      "move_id": 708,
+      "move_name_jp": "ばくれつパンチ",
+      "move_type_jp": "かくとう",
+      "power": 87,
+      "cooldown_sec": 5,
+      "effect_jp": "目の前の敵にパンチをくり出し、**ときどき敵をこんらんさせる**。",
+      "description_jp": "こん身の力をこめて目の前の的にパンチをくり出す"
+    },
+    {
+      "move_id": 709,
+      "move_name_jp": "クロスチョップ",
+      "move_type_jp": "かくとう",
+      "power": 273,
+      "cooldown_sec": 5,
+      "effect_jp": "両手チョップをたたきつけ、ダメージを与え、**急所に当たりやすい**。",
+      "description_jp": "前方の敵をめがけてジャンプして両手チョップをたたきつける"
+    },
+    {
+      "move_id": 710,
+      "move_name_jp": "グロウパンチ",
+      "move_type_jp": "かくとう",
+      "power": 64,
+      "cooldown_sec": 5,
+      "effect_jp": "敵にダメージを与え、**高確率で自分が与えるダメージをアップする**。（攻撃補助/攻撃技）",
+      "description_jp": "目の前の敵に硬いこぶしでパンチをうつ"
+    },
+    {
+      "move_id": 711,
+      "move_name_jp": "とびひざげり",
+      "move_type_jp": "かくとう",
+      "power": 402,
+      "cooldown_sec": 5,
+      "effect_jp": "ジャンプからのひざげりで大ダメージを与えるが、**自分も反動ダメージを受けてしまう**。",
+      "description_jp": "前方の敵めがけて突進したあとにジャンプからのひざげり"
+    }
+  ]
+}
