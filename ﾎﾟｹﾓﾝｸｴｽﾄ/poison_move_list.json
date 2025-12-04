@@ -1,0 +1,68 @@
+{
+  "move_type": "どく",
+  "moves": [
+    {
+      "move_id": 401,
+      "move_name_jp": "どくのこな",
+      "move_type_jp": "どく",
+      "power": 67,
+      "cooldown_sec": 4,
+      "effect_jp": "自分の目の前に毒の粉をふりまき、当たった敵を**高確率で毒状態にする**。",
+      "description_jp": "自分の前方に毒の粉をふりまく"
+    },
+    {
+      "move_id": 402,
+      "move_name_jp": "とける",
+      "move_type_jp": "どく",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "細胞の変化で液状になり、**しばらくのあいだ自分が受けるダメージをダウン**する。（防御補助技）",
+      "description_jp": "細胞の変化で液状になる"
+    },
+    {
+      "move_id": 403,
+      "move_name_jp": "ベノムトラップ",
+      "move_type_jp": "どく",
+      "power": 118,
+      "cooldown_sec": 5,
+      "effect_jp": "自分の前方に毒をふきだし、**ときどき敵が受けるダメージをアップさせる**。（デバフ技）",
+      "description_jp": "自分の前方に毒をふきだす"
+    },
+    {
+      "move_id": 404,
+      "move_name_jp": "どくばり",
+      "move_type_jp": "どく",
+      "power": 107,
+      "cooldown_sec": 7,
+      "effect_jp": "前方の敵にダメージを与え、**当たった敵をときどき毒状態にする**。",
+      "description_jp": "前方の敵に毒のついた針をとばしてぶつける"
+    },
+    {
+      "move_id": 405,
+      "move_name_jp": "どくどく",
+      "move_type_jp": "どく",
+      "power": 59,
+      "cooldown_sec": 4,
+      "effect_jp": "自分のまわりに強力な毒をふりまき、当たった敵を**高確率で毒状態にする**。",
+      "description_jp": "自分のまわりに強力な毒をふりまく"
+    },
+    {
+      "move_id": 406,
+      "move_name_jp": "ヘドロばくだん",
+      "move_type_jp": "どく",
+      "power": 173,
+      "cooldown_sec": 5,
+      "effect_jp": "毒のかたまりを発射し、破裂してまわりの敵にダメージを与え、**ときどき敵を毒状態にする**。",
+      "description_jp": "毒のかたまりを発射する"
+    },
+    {
+      "move_id": 407,
+      "move_name_jp": "スモッグ",
+      "move_type_jp": "どく",
+      "power": 188,
+      "cooldown_sec": 5,
+      "effect_jp": "自分のまわりに毒をまきちらして敵にダメージを与え、**ときどき敵を状態異常にする**。",
+      "description_jp": "自分のまわりに毒をまきちらす"
+    }
+  ]
+}
