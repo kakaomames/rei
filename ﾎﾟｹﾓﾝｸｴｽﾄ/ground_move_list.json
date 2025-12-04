@@ -1,0 +1,59 @@
+{
+  "move_type": "じめん",
+  "moves": [
+    {
+      "move_id": 801,
+      "move_name_jp": "じしん",
+      "move_type_jp": "じめん",
+      "power": 390,
+      "cooldown_sec": 5,
+      "effect_jp": "地震をおこして**まわりの敵に大ダメージを与える**。（広範囲攻撃）",
+      "description_jp": "地震をおこしてまわりの敵にダメージを与える"
+    },
+    {
+      "move_id": 802,
+      "move_name_jp": "どろかけ",
+      "move_type_jp": "じめん",
+      "power": 56,
+      "cooldown_sec": 7,
+      "effect_jp": "三方向にドロを投げつけてダメージを与え、**ときどき敵の移動速度をダウン**させる。（デバフ技）",
+      "description_jp": "三方向にドロを投げつけて当たる"
+    },
+    {
+      "move_id": 803,
+      "move_name_jp": "どろばくだん",
+      "move_type_jp": "じめん",
+      "power": 215,
+      "cooldown_sec": 5,
+      "effect_jp": "ドロのかたまりを発射し、破裂してまわりの敵にダメージを与え、**ときどき敵が受けるダメージをアップ**させる。（デバフ技）",
+      "description_jp": "前方にドロのかたまりを投げる"
+    },
+    {
+      "move_id": 804,
+      "move_name_jp": "ホネブーメラン",
+      "move_type_jp": "じめん",
+      "power": 131,
+      "cooldown_sec": 7,
+      "effect_jp": "ホネでできたブーメランを投げて、当たった敵にダメージを与える。（飛び道具）",
+      "description_jp": "ホネでできたブーメランを投げる"
+    },
+    {
+      "move_id": 805,
+      "move_name_jp": "あなをほる",
+      "move_type_jp": "じめん",
+      "power": 243,
+      "cooldown_sec": 5,
+      "effect_jp": "穴を掘って敵の足元に移動し、その後飛び出してダメージを与える。（移動/攻撃技）",
+      "description_jp": "穴を掘って前方の敵の足元に移動し、その後足元から飛び出す"
+    },
+    {
+      "move_id": 806,
+      "move_name_jp": "まきびし",
+      "move_type_jp": "じめん",
+      "power": 221,
+      "cooldown_sec": 5,
+      "effect_jp": "自分の前方にまきびしをばらまき、ふんでしまったポケモンにダメージを与える。（設置技）",
+      "description_jp": "自分の前方にまきびしをばらまく"
+    }
+  ]
+}
