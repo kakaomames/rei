@@ -1,0 +1,86 @@
+{
+  "move_type": "ひこう",
+  "moves": [
+    {
+      "move_id": 201,
+      "move_name_jp": "ゴッドバード",
+      "move_type_jp": "ひこう",
+      "power": 125,
+      "cooldown_sec": 5,
+      "effect_jp": "目の前の敵にダメージを与え、**急所に当たりやすい**。",
+      "description_jp": "飛び上がって身構えたあと眼の前の敵に突進する"
+    },
+    {
+      "move_id": 202,
+      "move_name_jp": "とびはねる",
+      "move_type_jp": "ひこう",
+      "power": 186,
+      "cooldown_sec": 5,
+      "effect_jp": "前方に二回高く飛び跳ねて、当たった敵にダメージを与える。",
+      "description_jp": "前方に二回高く飛び跳ねる"
+    },
+    {
+      "move_id": 203,
+      "move_name_jp": "かぜおこし",
+      "move_type_jp": "ひこう",
+      "power": 61,
+      "cooldown_sec": 7,
+      "effect_jp": "まわりを巻き込みながら、当たった敵にダメージを与える。",
+      "description_jp": "はげしい風を前方に飛ばす"
+    },
+    {
+      "move_id": 204,
+      "move_name_jp": "つばめがえし",
+      "move_type_jp": "ひこう",
+      "power": 124,
+      "cooldown_sec": 5,
+      "effect_jp": "前方にすばやく二回きりかかり、ダメージを与える。",
+      "description_jp": "前方にすばやく二回きりかかりダメージを与える"
+    },
+    {
+      "move_id": 205,
+      "move_name_jp": "ドリルくちばし",
+      "move_type_jp": "ひこう",
+      "power": 321,
+      "cooldown_sec": 5,
+      "effect_jp": "目の前の敵に大ダメージを与える。",
+      "description_jp": "するどいくちばしで目の前の敵を攻撃する"
+    },
+    {
+      "move_id": 206,
+      "move_name_jp": "おいかぜ",
+      "move_type_jp": "ひこう",
+      "power": 0,
+      "cooldown_sec": 2,
+      "effect_jp": "**しばらくのあいだ自分の移動速度をアップ**する。（補助技）",
+      "description_jp": "はげしい風のうずをつくりだす"
+    },
+    {
+      "move_id": 207,
+      "move_name_jp": "はねやすめ",
+      "move_type_jp": "ひこう",
+      "power": 0,
+      "cooldown_sec": 9,
+      "effect_jp": "少しのあいだ自分のHPを少し回復する。（回復技）",
+      "description_jp": "少しのあいだからだを休める"
+    },
+    {
+      "move_id": 208,
+      "move_name_jp": "そらをとぶ",
+      "move_type_jp": "ひこう",
+      "power": 243,
+      "cooldown_sec": 5,
+      "effect_jp": "自分の前方の遠くの敵めがけて急降下し、ダメージを与える。",
+      "description_jp": "自分の前方の遠くの敵めがけて飛んだあと急降下する"
+    },
+    {
+      "move_id": 209,
+      "move_name_jp": "ぼうふう",
+      "move_type_jp": "ひこう",
+      "power": 105,
+      "cooldown_sec": 5,
+      "effect_jp": "周りの敵にダメージを与え、**ときどき敵を混乱させる**。",
+      "description_jp": "自分のまわりにはげしい風をまきおこす"
+    }
+  ]
+}
