@@ -1,0 +1,50 @@
+{
+  "move_type": "フェアリー",
+  "moves": [
+    {
+      "move_id": 601,
+      "move_name_jp": "じゃれつく",
+      "move_type_jp": "フェアリー",
+      "power": 98,
+      "cooldown_sec": 5,
+      "effect_jp": "前方の敵にダメージを与え、**ときどき敵が与えるダメージをダウン**させる。（デバフ技）",
+      "description_jp": "前方の敵にじゃれついてダメージを与える"
+    },
+    {
+      "move_id": 602,
+      "move_name_jp": "マジカルシャイン",
+      "move_type_jp": "フェアリー",
+      "power": 146,
+      "cooldown_sec": 5,
+      "effect_jp": "強力な光を放ちながら動き回り、当たった敵にダメージを与える。（範囲攻撃）",
+      "description_jp": "強力な光を放ちながら動き回って"
+    },
+    {
+      "move_id": 603,
+      "move_name_jp": "あまえる",
+      "move_type_jp": "フェアリー",
+      "power": 0,
+      "cooldown_sec": 3,
+      "effect_jp": "あまえるような仕草で、**高確率で敵が与えるダメージをダウン**させる。（デバフ補助技）",
+      "description_jp": "あまえるような仕草をしてあたりの敵の油断をさそう"
+    },
+    {
+      "move_id": 604,
+      "move_name_jp": "てんしのキッス",
+      "move_type_jp": "フェアリー",
+      "power": 0,
+      "cooldown_sec": 3,
+      "effect_jp": "天使のようにかわいくキスをして、**高確率で敵をこんらんさせる**。（状態異常技）",
+      "description_jp": "目の前の敵に天使のようにかわいくキスをする"
+    },
+    {
+      "move_id": 605,
+      "move_name_jp": "ドレインキッス",
+      "move_type_jp": "フェアリー",
+      "power": 165,
+      "cooldown_sec": 9,
+      "effect_jp": "敵にダメージを与え、**与えたダメージの一部で自分のHPを回復**する。（吸収/回復技）",
+      "description_jp": "自分の眼の前の敵にキスをしてHPを吸い取る"
+    }
+  ]
+}
