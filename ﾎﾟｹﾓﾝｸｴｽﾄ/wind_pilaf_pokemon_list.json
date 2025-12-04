@@ -1,0 +1,36 @@
+{
+  "wind_pilaf_pokemon_lists": [
+    {
+      "recipe_id": 13,
+      "recipe_name": "カクコロウインドリア",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "ポッポ",
+        "オニスズメ",
+        "ズバット",
+        "ドードー"
+      ]
+    },
+    {
+      "recipe_id": 13,
+      "recipe_name": "カクコロウインドリア",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "ズバット",
+        "カモネギ",
+        "ドードー",
+        "ストライク"
+      ]
+    },
+    {
+      "recipe_id": 13,
+      "recipe_name": "カクコロウインドリア",
+      "rarity": "Special",
+      "pokemons_jp": [
+        "ドードー",
+        "ストライク",
+        "プテラ"
+      ]
+    }
+  ]
+}
