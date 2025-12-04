@@ -1,0 +1,59 @@
+{
+  "move_type": "あく",
+  "moves": [
+    {
+      "move_id": 1801,
+      "move_name_jp": "ふいうち",
+      "move_type_jp": "あく",
+      "power": 130,
+      "cooldown_sec": 5,
+      "effect_jp": "姿を消して移動した後、敵に向かって突進してダメージを与える。（移動/攻撃技）",
+      "description_jp": "いちど姿を消してから少し離れた場所に移動してそのあと敵に向かって突進してダメージを"
+    },
+    {
+      "move_id": 1802,
+      "move_name_jp": "おだてる",
+      "move_type_jp": "あく",
+      "power": 0,
+      "cooldown_sec": 6,
+      "effect_jp": "前方の敵を**こんらんさせる**が、同時に**与えるダメージをアップし、受けるダメージをダウン**させてしまう。（複合状態異常/補助技）",
+      "description_jp": "自分の前方の敵をおだててこんらんさせる"
+    },
+    {
+      "move_id": 1803,
+      "move_name_jp": "ちょうはつ",
+      "move_type_jp": "あく",
+      "power": 0,
+      "cooldown_sec": 2,
+      "effect_jp": "まわりの敵を挑発して**ターゲットを自分に向ける**。（ターゲット誘導補助技）",
+      "description_jp": "自分のまわりの敵を挑発してターゲットを自分に向ける"
+    },
+    {
+      "move_id": 1804,
+      "move_name_jp": "かみくだく",
+      "move_type_jp": "あく",
+      "power": 370,
+      "cooldown_sec": 5,
+      "effect_jp": "狙いを定めて少し離れた前方の相手に噛みついて大ダメージを与える。（高火力技）",
+      "description_jp": "狙いを定めてから少し離れた前方の相手にかみついてダメージを与える"
+    },
+    {
+      "move_id": 1805,
+      "move_name_jp": "つじぎり",
+      "move_type_jp": "あく",
+      "power": 83,
+      "cooldown_sec": 5,
+      "effect_jp": "前方にダッシュしてまわりの敵に斬りつけ、ダメージを与え、**急所にあたりやすい**。",
+      "description_jp": "前方にダッシュしてまわりの敵にきりつけて"
+    },
+    {
+      "move_id": 1806,
+      "move_name_jp": "わるだくみ",
+      "move_type_jp": "あく",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "悪いことを考えて頭を活性化させ、**しばらくの間自分が与えるダメージをアップ**する。（攻撃補助技）",
+      "description_jp": "悪いことを考えて頭を活性化させる"
+    }
+  ]
+}
