@@ -1,0 +1,113 @@
+{
+  "move_type": "エスパー",
+  "moves": [
+    {
+      "move_id": 1101,
+      "move_name_jp": "こうそくいどう",
+      "move_type_jp": "エスパー",
+      "power": 0,
+      "cooldown_sec": 2,
+      "effect_jp": "力をぬいて体を軽くし、**しばらくのあいだ自分の移動速度をアップ**する。（移動補助技）",
+      "description_jp": "力をぬいて体を軽くする"
+    },
+    {
+      "move_id": 1102,
+      "move_name_jp": "サイケこうせん",
+      "move_type_jp": "エスパー",
+      "power": 69,
+      "cooldown_sec": 7,
+      "effect_jp": "三方向に光を発射してダメージを与え、**ときどき敵をこんらんさせる**。（状態異常技）",
+      "description_jp": "三方向にふしぎな光を発射する"
+    },
+    {
+      "move_id": 1103,
+      "move_name_jp": "サイコカッター",
+      "move_type_jp": "エスパー",
+      "power": 311,
+      "cooldown_sec": 5,
+      "effect_jp": "自分の前方に移動した後、心のやいばで敵にダメージを与え、**急所にあたりやすい**。",
+      "description_jp": "自分の前方に移動したあと心のやいばで敵にダメージを与える"
+    },
+    {
+      "move_id": 1104,
+      "move_name_jp": "サイコキネシス",
+      "move_type_jp": "エスパー",
+      "power": 121,
+      "cooldown_sec": 7,
+      "effect_jp": "大きな光を発射してダメージを与え、**ときどき敵が受けるダメージをアップ**させる。（デバフ技）",
+      "description_jp": "ふしぎな大きな光をつくりだして発射する"
+    },
+    {
+      "move_id": 1105,
+      "move_name_jp": "しねんのずつき",
+      "move_type_jp": "エスパー",
+      "power": 370,
+      "cooldown_sec": 5,
+      "effect_jp": "思念の力を額に集めて目の前の敵にぶつけ、大ダメージを与える。（高火力技）",
+      "description_jp": "思念の力を額に集めて目の前の敵にぶつける"
+    },
+    {
+      "move_id": 1106,
+      "move_name_jp": "テレポート",
+      "move_type_jp": "エスパー",
+      "power": 0,
+      "cooldown_sec": 3,
+      "effect_jp": "超能力を使って**瞬間移動**をする。（移動補助技）",
+      "description_jp": "超能力を使って瞬間移動をする"
+    },
+    {
+      "move_id": 1107,
+      "move_name_jp": "ドわすれ",
+      "move_type_jp": "エスパー",
+      "power": 0,
+      "cooldown_sec": 8,
+      "effect_jp": "自分が**与えるダメージをアップ**し、同時に**弱体効果耐性もアップ**する。（複合補助技）",
+      "description_jp": "頭をからっぽにして一瞬何かを忘れる"
+    },
+    {
+      "move_id": 1108,
+      "move_name_jp": "ひかりのかべ",
+      "move_type_jp": "エスパー",
+      "power": 0,
+      "cooldown_sec": 3,
+      "effect_jp": "ひかりのかべを作り出して、**しばらくのあいだ自分が弱体効果にかかりにくくする**。（防御補助技）",
+      "description_jp": "ひかりのかべを作り出す"
+    },
+    {
+      "move_id": 1109,
+      "move_name_jp": "バリアー",
+      "move_type_jp": "エスパー",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "自分のまわりにかべを作り出し、**しばらくの間自分が受けるダメージをダウン**する。（防御補助技）",
+      "description_jp": "自分のまわりにかべを作り出す"
+    },
+    {
+      "move_id": 1110,
+      "move_name_jp": "ヨガのポーズ",
+      "move_type_jp": "エスパー",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "眠っている力を身体の奥から引き出し、**しばらくのあいだ自分が与えるダメージをアップ**する。（攻撃補助技）",
+      "description_jp": "眠っている力を身体の奥から引き出す"
+    },
+    {
+      "move_id": 1111,
+      "move_name_jp": "さいみんじゅつ",
+      "move_type_jp": "エスパー",
+      "power": 0,
+      "cooldown_sec": 3,
+      "effect_jp": "眠気をおさそうあんじをかけ、**前方の敵を高確率でねむり状態にする**。（状態異常技）",
+      "description_jp": "眠気をおさそうあんじをかける"
+    },
+    {
+      "move_id": 1112,
+      "move_name_jp": "サイコブレイク",
+      "move_type_jp": "エスパー",
+      "power": 129,
+      "cooldown_sec": 5,
+      "effect_jp": "大きな光のたまを分裂させ、周りの敵に飛び散らせてダメージを与える。（範囲攻撃）",
+      "description_jp": "自分の前に大きな光のたまを作り出す"
+    }
+  ]
+}
