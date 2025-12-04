@@ -1,0 +1,41 @@
+{
+  "move_type": "ゴースト",
+  "moves": [
+    {
+      "move_id": 1701,
+      "move_name_jp": "あやしいひかり",
+      "move_type_jp": "ゴースト",
+      "power": 0,
+      "cooldown_sec": 3,
+      "effect_jp": "まわりの敵に光を見せて、**高確率で敵をこんらんさせる**。（状態異常補助技）",
+      "description_jp": "まわりの敵にあやしい光を見せて"
+    },
+    {
+      "move_id": 1702,
+      "move_name_jp": "シャドーボール",
+      "move_type_jp": "ゴースト",
+      "power": 63,
+      "cooldown_sec": 7,
+      "effect_jp": "黒いかたまりを投げつけてダメージを与え、**ときどき敵が受けるダメージをアップ**させる。（デバフ技）",
+      "description_jp": "自分の前方に黒いかたまりをなげつけて攻撃して"
+    },
+    {
+      "move_id": 1703,
+      "move_name_jp": "おどろかす",
+      "move_type_jp": "ゴースト",
+      "power": 180,
+      "cooldown_sec": 5,
+      "effect_jp": "目の前の敵をおどろかせて、ビックリした敵にダメージを与える。",
+      "description_jp": "目の前の敵をおどろかして"
+    },
+    {
+      "move_id": 1704,
+      "move_name_jp": "したでなめる",
+      "move_type_jp": "ゴースト",
+      "power": 233,
+      "cooldown_sec": 5,
+      "effect_jp": "長い舌でまわりの敵をなめまわしてダメージを与え、**ときどき敵をまひさせる**。（状態異常技）",
+      "description_jp": "長い舌でまわりの敵をなめまわしてダメージを与える"
+    }
+  ]
+}
