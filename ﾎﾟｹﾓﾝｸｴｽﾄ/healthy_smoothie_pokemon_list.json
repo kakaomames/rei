@@ -1,0 +1,42 @@
+{
+  "healthy_smoothie_pokemon_lists": [
+    {
+      "recipe_id": 9,
+      "recipe_name": "カクコロ健康スムージー",
+      "rarity": "Normal",
+      "pokemons_jp": [],
+      "notes": "このレシピでは'ふつう'の仕上がりの出現リストは提供されていません。"
+    },
+    {
+      "recipe_id": 9,
+      "recipe_name": "カクコロ健康スムージー",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "フシギダネ",
+        "パラス",
+        "タマタマ",
+        "モンジャラ"
+      ]
+    },
+    {
+      "recipe_id": 9,
+      "recipe_name": "カクコロ健康スムージー",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "フシギダネ",
+        "パラス",
+        "タマタマ",
+        "モンジャラ"
+      ]
+    },
+    {
+      "recipe_id": 9,
+      "recipe_name": "カクコロ健康スムージー",
+      "rarity": "Special",
+      "pokemons_jp": [
+        "フシギダネ",
+        "モンジャラ"
+      ]
+    }
+  ]
+}
