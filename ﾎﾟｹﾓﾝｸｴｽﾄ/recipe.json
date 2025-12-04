@@ -1,0 +1,216 @@
+{
+  "recipe_data_source": "CookRecipeDataSet.json",
+  "notes": "requirements_jpは、隊員からの情報とRawデータのm_itemPoolNumMinを組み合わせて、最も分かりやすい日本語表現にマッピングしています。",
+  "recipes": [
+    {
+      "recipe_id": 0,
+      "recipe_name_jp": "カクコロスープ",
+      "target_type_jp": "すべて",
+      "pokemon_list_file": "kakukoro_recipe_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 1,
+      "requirements_jp": [
+        "任意の材料 (5個まで)"
+      ]
+    },
+    {
+      "recipe_id": 1,
+      "recipe_name_jp": "レッドカクコロシチュー",
+      "target_type_jp": "赤色ポケモン",
+      "pokemon_list_file": "red_recipe_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 4,
+      "requirements_jp": [
+        "赤色 たっぷり (4個以上)"
+      ]
+    },
+    {
+      "recipe_id": 2,
+      "recipe_name_jp": "ブルーカクコロジュース",
+      "target_type_jp": "青色ポケモン",
+      "pokemon_list_file": "blue_recipe_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 4,
+      "requirements_jp": [
+        "青色 たっぷり (4個以上)"
+      ]
+    },
+    {
+      "recipe_id": 3,
+      "recipe_name_jp": "イエローカクコロカレー",
+      "target_type_jp": "黄色ポケモン",
+      "pokemon_list_file": "yellow_recipe_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 4,
+      "requirements_jp": [
+        "黄色 たっぷり (4個以上)"
+      ]
+    },
+    {
+      "recipe_id": 4,
+      "recipe_name_jp": "ホワイトカクコログラタン",
+      "target_type_jp": "灰色ポケモン",
+      "pokemon_list_file": "white_recipe_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 4,
+      "requirements_jp": [
+        "灰色 たっぷり (4個以上)"
+      ]
+    },
+    {
+      "recipe_id": 5,
+      "recipe_name_jp": "カクコロシルクレープ",
+      "target_type_jp": "ノーマルポケモン",
+      "pokemon_list_file": "silk_crepe_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "あまいもの多め (3個以上)",
+        "灰色少々 (2個以上)"
+      ]
+    },
+    {
+      "recipe_id": 6,
+      "recipe_name_jp": "カクコロウォーターカウダ",
+      "target_type_jp": "みずポケモン",
+      "pokemon_list_file": "water_cauda_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "やわらかいものたっぷり (4個以上)",
+        "青色多め (3個以上)"
+      ]
+    },
+    {
+      "recipe_id": 7,
+      "recipe_name_jp": "カクコロクレイチャウダー",
+      "target_type_jp": "じめんポケモン",
+      "pokemon_list_file": "clay_chowder_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "やわらかいもの多め (3個以上)",
+        "鉱物少々 (2個以上)"
+      ]
+    },
+    {
+      "recipe_id": 8,
+      "recipe_name_jp": "カクコロヘドロしるこ",
+      "target_type_jp": "どくポケモン",
+      "pokemon_list_file": "sludge_shiruko_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "きのこたっぷり (4個以上)",
+        "やわらかいもの多め (3個以上)"
+      ]
+    },
+    {
+      "recipe_id": 9,
+      "recipe_name_jp": "カクコロ健康スムージー",
+      "target_type_jp": "くさポケモン",
+      "pokemon_list_file": "healthy_smoothie_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "植物たっぷり (4個以上)",
+        "やわらかいもの少々 (2個以上)"
+      ]
+    },
+    {
+      "recipe_id": 10,
+      "recipe_name_jp": "カクコロハニーフォンデュ",
+      "target_type_jp": "むしポケモン",
+      "pokemon_list_file": "honey_fondue_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "あまいものたっぷり (4個以上)",
+        "黄色多め (3個以上)"
+      ]
+    },
+    {
+      "recipe_id": 11,
+      "recipe_name_jp": "カクコロねんジャオロース",
+      "target_type_jp": "エスパーポケモン",
+      "pokemon_list_file": "sticky_jao_rou_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "あまいもの多め (3個以上)",
+        "かたいもの少々 (2個以上)"
+      ]
+    },
+    {
+      "recipe_id": 12,
+      "recipe_name_jp": "カクコロガンセキ煮",
+      "target_type_jp": "いわポケモン",
+      "pokemon_list_file": "rock_stew_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "かたいものたっぷり (4個以上)",
+        "鉱物少々 (2個以上)"
+      ]
+    },
+    {
+      "recipe_id": 13,
+      "recipe_name_jp": "カクコロウインドリア",
+      "target_type_jp": "ひこうポケモン",
+      "pokemon_list_file": "wind_pilaf_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "鉱物多め (3個以上)",
+        "植物少々 (2個以上)"
+      ]
+    },
+    {
+      "recipe_id": 14,
+      "recipe_name_jp": "カクコロファイヤベース",
+      "target_type_jp": "ほのおポケモン",
+      "pokemon_list_file": "fire_base_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "きのこ多め (3個以上)",
+        "赤色少々 (2個以上)"
+      ]
+    },
+    {
+      "recipe_id": 15,
+      "recipe_name_jp": "カクコロビリビリゾット",
+      "target_type_jp": "でんきポケモン",
+      "pokemon_list_file": "electric_risotto_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "やわらかいものたっぷり (4個以上)",
+        "黄色多め (3個以上)"
+      ]
+    },
+    {
+      "recipe_id": 16,
+      "recipe_name_jp": "カクコロマッスルオレ",
+      "target_type_jp": "かくとうポケモン",
+      "pokemon_list_file": "muscle_au_lait_pokemon_list.json",
+      "cook_time_min": 2.0,
+      "rank_code": 3,
+      "requirements_jp": [
+        "あまいもの多め (3個以上)",
+        "きのこ少々 (2個以上)"
+      ]
+    },
+    {
+      "recipe_id": 17,
+      "recipe_name_jp": "カクコロレジェンドスープ",
+      "target_type_jp": "伝説のポケモン",
+      "pokemon_list_file": "legend_soup_pokemon_list.json",
+      "cook_time_min": 3.0,
+      "rank_code": 2,
+      "requirements_jp": [
+        "しんぴの貝殻 たっぷり (4個以上)"
+      ]
+    }
+  ]
+}
