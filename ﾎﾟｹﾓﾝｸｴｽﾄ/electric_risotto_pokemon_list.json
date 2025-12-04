@@ -1,0 +1,33 @@
+{
+  "electric_risotto_pokemon_lists": [
+    {
+      "recipe_id": 15,
+      "recipe_name": "カクコロビリビリゾット",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "コイル",
+        "ビリリダマ",
+        "ピカチュウ"
+      ]
+    },
+    {
+      "recipe_id": 15,
+      "recipe_name": "カクコロビリビリゾット",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "ピカチュウ",
+        "コイル",
+        "エレブー"
+      ]
+    },
+    {
+      "recipe_id": 15,
+      "recipe_name": "カクコロビリビリゾット",
+      "rarity": "Special",
+      "pokemons_jp": [
+        "ピカチュウ",
+        "エレブー"
+      ]
+    }
+  ]
+}
