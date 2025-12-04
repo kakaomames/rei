@@ -1,0 +1,25 @@
+{
+  "muscle_au_lait_pokemon_lists": [
+    {
+      "recipe_id": 16,
+      "recipe_name": "カクコロマッスルオレ",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "マンキー",
+        "ワンリキー",
+        "サワムラー",
+        "エビワラー"
+      ]
+    },
+    {
+      "recipe_id": 16,
+      "recipe_name": "カクコロマッスルオレ",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "ワンリキー",
+        "サワムラー",
+        "エビワラー"
+      ]
+    }
+  ]
+}
