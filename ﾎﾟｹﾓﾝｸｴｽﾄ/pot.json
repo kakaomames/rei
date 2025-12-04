@@ -1,0 +1,44 @@
+{
+  "pots": [
+    {
+      "id": 0,
+      "name_jp": "普通のなべ",
+      "ui_path": "Item_Pot_1",
+      "min_level": 1,
+      "max_level": 15,
+      "level_range": "1 - 15",
+      "volume_factor_raw": 3,
+      "cook_time_multiplier": 0.0
+    },
+    {
+      "id": 1,
+      "name_jp": "ブロンズなべ",
+      "ui_path": "Item_Pot_2",
+      "min_level": 16,
+      "max_level": 30,
+      "level_range": "16 - 30",
+      "volume_factor_raw": 10,
+      "cook_time_multiplier": 0.0
+    },
+    {
+      "id": 2,
+      "name_jp": "シルバーなべ",
+      "ui_path": "Item_Pot_3",
+      "min_level": 31,
+      "max_level": 70,
+      "level_range": "31 - 70",
+      "volume_factor_raw": 15,
+      "cook_time_multiplier": 1.0
+    },
+    {
+      "id": 3,
+      "name_jp": "ゴールドなべ",
+      "ui_path": "Item_Pot_4",
+      "min_level": 71,
+      "max_level": 100,
+      "level_range": "71 - 100",
+      "volume_factor_raw": 20,
+      "cook_time_multiplier": 2.0
+    }
+  ]
+}
