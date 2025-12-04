@@ -1,0 +1,59 @@
+{
+  "move_type": "はがね",
+  "moves": [
+    {
+      "move_id": 1201,
+      "move_name_jp": "アイアンテール",
+      "move_type_jp": "はがね",
+      "power": 67,
+      "cooldown_sec": 5,
+      "effect_jp": "硬いしっぽを振り回して自分の周りの敵にダメージを与え、**ときどき敵が受けるダメージをアップ**させる。（デバフ技）",
+      "description_jp": "硬いしっぽを振り回して自分の周りの敵にダメージを与える"
+    },
+    {
+      "move_id": 1202,
+      "move_name_jp": "メタルクロー",
+      "move_type_jp": "はがね",
+      "power": 211,
+      "cooldown_sec": 5,
+      "effect_jp": "鋼鉄のツメで敵を切り裂いてダメージを与え、**ときどき自分が与えるダメージをアップ**する。（バフ/攻撃技）",
+      "description_jp": "自分の前方の敵を鋼鉄のツメで切り裂く"
+    },
+    {
+      "move_id": 1203,
+      "move_name_jp": "ラスターカノン",
+      "move_type_jp": "はがね",
+      "power": 170,
+      "cooldown_sec": 7,
+      "effect_jp": "光線を放ち、ダメージを与え、**ときどき敵が受けるダメージをアップ**させる。（デバフ技）",
+      "description_jp": "体の光を一点に集めて自分の前方に光線を放つ"
+    },
+    {
+      "move_id": 1204,
+      "move_name_jp": "きんぞくおん",
+      "move_type_jp": "はがね",
+      "power": 0,
+      "cooldown_sec": 3,
+      "effect_jp": "いやな音をきかせて、**高確率で敵が受けるダメージをアップ**させる。（デバフ補助技）",
+      "description_jp": "自分の近くにいる敵に金属をこすってでるようないやな音をきかせる"
+    },
+    {
+      "move_id": 1205,
+      "move_name_jp": "てっぺき",
+      "move_type_jp": "はがね",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "自分の皮膚を鉄のように硬くし、**しばらくのあいだ自分が受けるダメージをダウン**する。（防御補助技）",
+      "description_jp": "自分の皮膚を鉄のように硬くする"
+    },
+    {
+      "move_id": 1206,
+      "move_name_jp": "はがねのつばさ",
+      "move_type_jp": "はがね",
+      "power": 81,
+      "cooldown_sec": 5,
+      "effect_jp": "硬いツバサをたたきつけてダメージを与え、**ときどき自分が受けるダメージをダウン**する。（防御/攻撃技）",
+      "description_jp": "自分の前方の敵にとっしんして硬いつばさをたたきつける"
+    }
+  ]
+}
