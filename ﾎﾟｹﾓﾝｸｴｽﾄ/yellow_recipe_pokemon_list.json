@@ -1,0 +1,53 @@
+{
+  "yellow_recipe_pokemon_lists": [
+    {
+      "recipe_id": 3,
+      "recipe_name": "イエローカクコロカレー",
+      "rarity": "Normal",
+      "pokemons_jp": [
+        "ビードル",
+        "ポッポ",
+        "サンド",
+        "ニャース",
+        "コダック",
+        "ケーシィ",
+        "マダツボミ",
+        "ヒトデマン"
+      ]
+    },
+    {
+      "recipe_id": 3,
+      "recipe_name": "イエローカクコロカレー",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "ポニータ"
+      ]
+    },
+    {
+      "recipe_id": 3,
+      "recipe_name": "イエローカクコロカレー",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "フシギダネ",
+        "ピカチュウ",
+        "ポニータ",
+        "スリープ",
+        "ガルーラ",
+        "エレブー",
+        "カビゴン"
+      ]
+    },
+    {
+      "recipe_id": 3,
+      "recipe_name": "イエローカクコロカレー",
+      "rarity": "Special",
+      "pokemons_jp": [
+        "フシギダネ",
+        "ピカチュウ",
+        "スリープ",
+        "ガルーラ",
+        "エレブー"
+      ]
+    }
+  ]
+}
