@@ -1,0 +1,68 @@
+{
+  "move_type": "ドラゴン",
+  "moves": [
+    {
+      "move_id": 1601,
+      "move_name_jp": "げきりん",
+      "move_type_jp": "ドラゴン",
+      "power": 104,
+      "cooldown_sec": 5,
+      "effect_jp": "暴れまわって通り道の敵にダメージを与えるが、**ときどき自分がこんらんしてしまう**。（自傷リスク技）",
+      "description_jp": "暴れまわって通り道にいる敵を手当たりしだいに攻撃する"
+    },
+    {
+      "move_id": 1602,
+      "move_name_jp": "ドラゴンクロー",
+      "move_type_jp": "ドラゴン",
+      "power": 296,
+      "cooldown_sec": 5,
+      "effect_jp": "力をためて回転しながら突進し、するどいツメで敵にダメージを与える。（突進技）",
+      "description_jp": "ちからをためて回転しながら突進してするどいツメで敵にダメージを与える"
+    },
+    {
+      "move_id": 1603,
+      "move_name_jp": "ドラゴンダイブ",
+      "move_type_jp": "ドラゴン",
+      "power": 141,
+      "cooldown_sec": 5,
+      "effect_jp": "少し離れた場所の敵にはげしく飛びこんでダメージをあたえる。（飛び込み攻撃）",
+      "description_jp": "少し離れた場所の敵にはげしく飛びこむ"
+    },
+    {
+      "move_id": 1604,
+      "move_name_jp": "りゅうのまい",
+      "move_type_jp": "ドラゴン",
+      "power": 0,
+      "cooldown_sec": 8,
+      "effect_jp": "神秘的で力づよい舞を踊り、**しばらくのあいだ自分が与えるダメージをアップして、同時に移動速度もアップ**する。（複合補助技）",
+      "description_jp": "神秘的で力づよい舞をはげしく踊る"
+    },
+    {
+      "move_id": 1605,
+      "move_name_jp": "りゅうせいぐん",
+      "move_type_jp": "ドラゴン",
+      "power": 377,
+      "cooldown_sec": 5,
+      "effect_jp": "自分の周りにいくつもの隕石を落として大ダメージを与えるが、**ときどき自分が与えるダメージをダウンしてしまう**。（自傷デバフリスク技）",
+      "description_jp": "自分の周りにいくつもの隕石を落とす"
+    },
+    {
+      "move_id": 1606,
+      "move_name_jp": "りゅうのはどう",
+      "move_type_jp": "ドラゴン",
+      "power": 188,
+      "cooldown_sec": 7,
+      "effect_jp": "口から衝撃波を飛ばして当たった敵にダメージを与える。（飛び道具）",
+      "description_jp": "口から衝撃波を飛ばして当たる"
+    },
+    {
+      "move_id": 1607,
+      "move_name_jp": "たつまき",
+      "move_type_jp": "ドラゴン",
+      "power": 115,
+      "cooldown_sec": 7,
+      "effect_jp": "複数の竜巻をおこして自分の前方に打ち出し、当たった敵にダメージを与える。",
+      "description_jp": "複数の竜巻をおこして自分の前方に打ち出す"
+    }
+  ]
+}
