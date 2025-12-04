@@ -1,0 +1,38 @@
+{
+  "sludge_shiruko_pokemon_lists": [
+    {
+      "recipe_id": 8,
+      "recipe_name": "カクコロヘドロしるこ",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "アーボ",
+        "ズバット",
+        "ベトベター",
+        "ドガース"
+      ]
+    },
+    {
+      "recipe_id": 8,
+      "recipe_name": "カクコロヘドロしるこ",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "フシギダネ",
+        "アーボ",
+        "ズバット",
+        "コンパン",
+        "ベトベター",
+        "ゴース",
+        "ドガース"
+      ]
+    },
+    {
+      "recipe_id": 8,
+      "recipe_name": "カクコロヘドロしるこ",
+      "rarity": "Special",
+      "pokemons_jp": [
+        "フシギダネ",
+        "コンパン"
+      ]
+    }
+  ]
+}
