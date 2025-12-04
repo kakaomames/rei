@@ -1,0 +1,95 @@
+{
+  "move_type": "くさ",
+  "moves": [
+    {
+      "move_id": 301,
+      "move_name_jp": "ソーラービーム",
+      "move_type_jp": "くさ",
+      "power": 227,
+      "cooldown_sec": 7,
+      "effect_jp": "光を集めて前方に放出する。当たった敵にダメージを与える。",
+      "description_jp": "光を集めて自分の前方に放出する"
+    },
+    {
+      "move_id": 302,
+      "move_name_jp": "はなびらのまい",
+      "move_type_jp": "くさ",
+      "power": 156,
+      "cooldown_sec": 5,
+      "effect_jp": "まわりの敵にダメージを与える。",
+      "description_jp": "その場で回転しながらはなびらをまき散らしてまわりの敵にダメージを与える"
+    },
+    {
+      "move_id": 303,
+      "move_name_jp": "やどりぎのタネ",
+      "move_type_jp": "くさ",
+      "power": 103,
+      "cooldown_sec": 9,
+      "effect_jp": "敵にじわじわダメージを与え、**与えたダメージの一部を吸収して自分のHPを回復**する。（吸収/回復技）",
+      "description_jp": "前方の地面にやどりぎのタネを植えつける"
+    },
+    {
+      "move_id": 304,
+      "move_name_jp": "しびれごな",
+      "move_type_jp": "くさ",
+      "power": 21,
+      "cooldown_sec": 3,
+      "effect_jp": "自分の目の前の敵を**高確率でまひにする**。（状態異常技）",
+      "description_jp": "自分の目の前にしびれる粉をまき散らす"
+    },
+    {
+      "move_id": 305,
+      "move_name_jp": "こうごうせい",
+      "move_type_jp": "くさ",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "光をたくわえて**しばらくのあいだ自分が与えるダメージをアップ**する。（補助技）",
+      "description_jp": "光をたくわえてしばらくのあいだ自分が与えるダメージをアップする"
+    },
+    {
+      "move_id": 306,
+      "move_name_jp": "タネマシンガン",
+      "move_type_jp": "くさ",
+      "power": 168,
+      "cooldown_sec": 7,
+      "effect_jp": "自分の前方にいくつものタネを同時に飛ばして、当たった敵にダメージを与える。",
+      "description_jp": "自分の前方にいくつものタネを同時に飛ばす"
+    },
+    {
+      "move_id": 307,
+      "move_name_jp": "つるのムチ",
+      "move_type_jp": "くさ",
+      "power": 237,
+      "cooldown_sec": 5,
+      "effect_jp": "前方の敵にたたきつけてダメージを与える。",
+      "description_jp": "ツルをムチのようにしならせて前方の敵にたたきつける"
+    },
+    {
+      "move_id": 308,
+      "move_name_jp": "はっぱカッター",
+      "move_type_jp": "くさ",
+      "power": 118,
+      "cooldown_sec": 7,
+      "effect_jp": "葉っぱを飛ばして敵を切りつけ、ダメージを与え、**急所にあたりやすい**。",
+      "description_jp": "葉っぱを飛ばして敵を切りつけてダメージを与える"
+    },
+    {
+      "move_id": 309,
+      "move_name_jp": "メガドレイン",
+      "move_type_jp": "くさ",
+      "power": 165,
+      "cooldown_sec": 9,
+      "effect_jp": "前方の敵を攻撃してダメージを与え、**与えたダメージの一部を吸収して自分のHPを回復**する。（吸収/回復技）",
+      "description_jp": "前方の敵を攻撃してダメージを与える"
+    },
+    {
+      "move_id": 310,
+      "move_name_jp": "きのこのほうし",
+      "move_type_jp": "くさ",
+      "power": 0,
+      "cooldown_sec": 3,
+      "effect_jp": "自分の目の前の敵を**高確率でねむらせてしまう**。（状態異常技）",
+      "description_jp": "自分の目の前に催眠効果のある胞子をふりまく"
+    }
+  ]
+}
