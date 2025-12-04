@@ -1,0 +1,33 @@
+{
+  "sticky_jao_rou_pokemon_lists": [
+    {
+      "recipe_id": 11,
+      "recipe_name": "カクコロねんジャオロース",
+      "rarity": "Normal",
+      "pokemons_jp": [
+        "ケーシィ"
+      ]
+    },
+    {
+      "recipe_id": 11,
+      "recipe_name": "カクコロねんジャオロース",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "ヤドン",
+        "タマタマ"
+      ]
+    },
+    {
+      "recipe_id": 11,
+      "recipe_name": "カクコロねんジャオロース",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "ヤドン",
+        "スリープ",
+        "タマタマ",
+        "バリヤード",
+        "ルージュラ"
+      ]
+    }
+  ]
+}
