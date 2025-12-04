@@ -1,0 +1,77 @@
+{
+  "move_type": "みず",
+  "moves": [
+    {
+      "move_id": 1401,
+      "move_name_jp": "アクアジェット",
+      "move_type_jp": "みず",
+      "power": 182,
+      "cooldown_sec": 5,
+      "effect_jp": "前方の敵にものすごい速さで突進してダメージを与える。（突進技）",
+      "description_jp": "前方の敵にものすごい速さで突進してダメージを与える"
+    },
+    {
+      "move_id": 1402,
+      "move_name_jp": "アクアリング",
+      "move_type_jp": "みず",
+      "power": 0,
+      "cooldown_sec": 9,
+      "effect_jp": "自分を水でつくったベールで覆って**HPを回復**する。（回復補助技）",
+      "description_jp": "自分を水でつくったベールで覆ってHPを回復する"
+    },
+    {
+      "move_id": 1403,
+      "move_name_jp": "ハイドロポンプ",
+      "move_type_jp": "みず",
+      "power": 213,
+      "cooldown_sec": 5,
+      "effect_jp": "自分の前方の地面から四つの水柱を打ち上げて、当たった敵にダメージを与える。（範囲攻撃）",
+      "description_jp": "自分の前方の地面から四つの水柱を打ち上げる"
+    },
+    {
+      "move_id": 1404,
+      "move_name_jp": "うずしお",
+      "move_type_jp": "みず",
+      "power": 94,
+      "cooldown_sec": 5,
+      "effect_jp": "自分のまわりにうずしおを発生させて、まわりの敵にダメージを与える。（範囲攻撃）",
+      "description_jp": "自分のまわりにうずしおを発生させてまわりの敵にダメージを与える"
+    },
+    {
+      "move_id": 1405,
+      "move_name_jp": "あわ",
+      "move_type_jp": "みず",
+      "power": 68,
+      "cooldown_sec": 7,
+      "effect_jp": "三方向にあわを発射し、ダメージを与え、**ときどき敵の移動速度をダウン**させる。（デバフ技）",
+      "description_jp": "三方向にあわを発射する"
+    },
+    {
+      "move_id": 1406,
+      "move_name_jp": "なみのり",
+      "move_type_jp": "みず",
+      "power": 127,
+      "cooldown_sec": 5,
+      "effect_jp": "幅のある波に乗って突進し、波に巻き込まれた敵にダメージを与える。（突進/範囲攻撃）",
+      "description_jp": "幅のある波を発生させてそれに乗って突進する"
+    },
+    {
+      "move_id": 1407,
+      "move_name_jp": "からにこもる",
+      "move_type_jp": "みず",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "かたいからにもぐりこんで、**しばらくのあいだ自分が受けるダメージをダウン**する。（防御補助技）",
+      "description_jp": "かたいからにもぐりこむ"
+    },
+    {
+      "move_id": 1408,
+      "move_name_jp": "たきのぼり",
+      "move_type_jp": "みず",
+      "power": 252,
+      "cooldown_sec": 6,
+      "effect_jp": "前方の敵に近づき、足元から水柱を発生させてダメージを与える。",
+      "description_jp": "前方の的に近づいて敵の足元から水柱を発生させる"
+    }
+  ]
+}
