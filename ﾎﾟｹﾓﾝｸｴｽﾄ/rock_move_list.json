@@ -1,0 +1,68 @@
+{
+  "move_type": "いわ",
+  "moves": [
+    {
+      "move_id": 1001,
+      "move_name_jp": "いわおとし",
+      "move_type_jp": "いわ",
+      "power": 234,
+      "cooldown_sec": 5,
+      "effect_jp": "岩を持ち上げて自分の前方にほうり投げて、当たった敵にダメージを与える。（飛び道具）",
+      "description_jp": "岩を持ち上げて自分の前方にほうり投げる"
+    },
+    {
+      "move_id": 1002,
+      "move_name_jp": "がんせきふうじ",
+      "move_type_jp": "いわ",
+      "power": 212,
+      "cooldown_sec": 5,
+      "effect_jp": "自分の目の前に岩石を降らせてダメージを与え、**ときどき敵の移動速度をダウン**させる。（デバフ技）",
+      "description_jp": "自分の目の前に岩石を降らせる"
+    },
+    {
+      "move_id": 1003,
+      "move_name_jp": "すなあらし",
+      "move_type_jp": "いわ",
+      "power": 117,
+      "cooldown_sec": 5,
+      "effect_jp": "自分のまわりに砂嵐を発生させて敵にダメージを与える。（継続ダメージ/範囲攻撃）",
+      "description_jp": "自分のまわりに砂嵐を発生させる"
+    },
+    {
+      "move_id": 1004,
+      "move_name_jp": "ステルスロック",
+      "move_type_jp": "いわ",
+      "power": 120,
+      "cooldown_sec": 5,
+      "effect_jp": "前方の地面に岩の柱を作り出して、当たった敵にダメージを与える。（設置技）",
+      "description_jp": "前方の地面に岩の柱を作り出す"
+    },
+    {
+      "move_id": 1005,
+      "move_name_jp": "ころがる",
+      "move_type_jp": "いわ",
+      "power": 130,
+      "cooldown_sec": 5,
+      "effect_jp": "まわりを回転しながら移動して、ぶつかった敵にダメージを与える。（移動攻撃）",
+      "description_jp": "まわりを回転しながら移動してぶつかる"
+    },
+    {
+      "move_id": 1006,
+      "move_name_jp": "ロックカット",
+      "move_type_jp": "いわ",
+      "power": 0,
+      "cooldown_sec": 2,
+      "effect_jp": "体をみがいて空気抵抗を少なくし、**しばらくのあいだ自分の移動速度がアップ**する。（移動補助技）",
+      "description_jp": "体をみがいて空気抵抗を少なくする"
+    },
+    {
+      "move_id": 1007,
+      "move_name_jp": "ロックブラスト",
+      "move_type_jp": "いわ",
+      "power": 168,
+      "cooldown_sec": 7,
+      "effect_jp": "前方に硬い岩を発射して、当たった敵にダメージを与える。",
+      "description_jp": "前方に硬い岩を発射する"
+    }
+  ]
+}
