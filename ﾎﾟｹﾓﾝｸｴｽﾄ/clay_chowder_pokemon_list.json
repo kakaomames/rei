@@ -1,0 +1,44 @@
+{
+  "clay_chowder_pokemon_lists": [
+    {
+      "recipe_id": 7,
+      "recipe_name": "カクコロクレイチャウダー",
+      "rarity": "Normal",
+      "pokemons_jp": [
+        "サンド",
+        "イシツブテ",
+        "サイホーン"
+      ]
+    },
+    {
+      "recipe_id": 7,
+      "recipe_name": "カクコロクレイチャウダー",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "サンド",
+        "ディグダ",
+        "イシツブテ",
+        "イワーク",
+        "サイホーン"
+      ]
+    },
+    {
+      "recipe_id": 7,
+      "recipe_name": "カクコロクレイチャウダー",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "ディグダ",
+        "イワーク",
+        "カラカラ"
+      ]
+    },
+    {
+      "recipe_id": 7,
+      "recipe_name": "カクコロクレイチャウダー",
+      "rarity": "Special",
+      "pokemons_jp": [
+        "カラカラ"
+      ]
+    }
+  ]
+}
