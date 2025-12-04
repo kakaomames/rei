@@ -1,0 +1,49 @@
+{
+  "rock_stew_pokemon_lists": [
+    {
+      "recipe_id": 12,
+      "recipe_name": "カクコロガンセキ煮",
+      "rarity": "Normal",
+      "pokemons_jp": [
+        "イシツブテ",
+        "サイホーン"
+      ],
+      "notes": ""
+    },
+    {
+      "recipe_id": 12,
+      "recipe_name": "カクコロガンセキ煮",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "イワーク",
+        "オムナイト",
+        "カブト",
+        "プテラ"
+      ],
+      "notes": "イワークがほぼ確定で出現します。（攻略班検証済）"
+    },
+    {
+      "recipe_id": 12,
+      "recipe_name": "カクコロガンセキ煮",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "イワーク",
+        "オムナイト",
+        "カブト",
+        "プテラ"
+      ],
+      "notes": ""
+    },
+    {
+      "recipe_id": 12,
+      "recipe_name": "カクコロガンセキ煮",
+      "rarity": "Special",
+      "pokemons_jp": [
+        "オムナイト",
+        "カブト",
+        "プテラ"
+      ],
+      "notes": ""
+    }
+  ]
+}
