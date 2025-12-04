@@ -1,0 +1,56 @@
+{
+  "silk_crepe_pokemon_lists": [
+    {
+      "recipe_id": 5,
+      "recipe_name": "カクコロシルクレープ",
+      "rarity": "Normal",
+      "pokemons_jp": [
+        "ポッポ",
+        "コラッタ",
+        "オニスズメ",
+        "ニャース"
+      ]
+    },
+    {
+      "recipe_id": 5,
+      "recipe_name": "カクコロシルクレープ",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "プリン",
+        "ドードー",
+        "ベロリンガ",
+        "ポリゴン"
+      ]
+    },
+    {
+      "recipe_id": 5,
+      "recipe_name": "カクコロシルクレープ",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "プリン",
+        "カモネギ",
+        "ドードー",
+        "ベロリンガ",
+        "ラッキー",
+        "ガルーラ",
+        "イーブイ",
+        "ポリゴン",
+        "カビゴン"
+      ]
+    },
+    {
+      "recipe_id": 5,
+      "recipe_name": "カクコロシルクレープ",
+      "rarity": "Special",
+      "pokemons_jp": [
+        "カモネギ",
+        "ラッキー",
+        "ガルーラ",
+        "ケンタロス",
+        "メタモン",
+        "イーブイ",
+        "カビゴン"
+      ]
+    }
+  ]
+}
