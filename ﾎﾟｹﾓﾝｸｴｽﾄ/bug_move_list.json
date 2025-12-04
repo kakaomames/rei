@@ -1,0 +1,77 @@
+{
+  "move_type": "むし",
+  "moves": [
+    {
+      "move_id": 901,
+      "move_name_jp": "いかりのこな",
+      "move_type_jp": "むし",
+      "power": 0,
+      "cooldown_sec": 2,
+      "effect_jp": "イライラさせる粉を自分にふりかけて、**まわりの敵のターゲットを自分に向ける**。（ターゲット誘導技）",
+      "description_jp": "イライラさせる粉を自分にふりかける"
+    },
+    {
+      "move_id": 902,
+      "move_name_jp": "ぎんいろのかぜ",
+      "move_type_jp": "むし",
+      "power": 53,
+      "cooldown_sec": 5,
+      "effect_jp": "自分の周りにりんぷんをのせてダメージを与え、**ときどき自分のあらゆる能力がランダムでアップ**する。（複合補助/攻撃技）",
+      "description_jp": "風にりんぷんをのせて自分の周りにふりまく"
+    },
+    {
+      "move_id": 903,
+      "move_name_jp": "とんぼがえり",
+      "move_type_jp": "むし",
+      "power": 243,
+      "cooldown_sec": 5,
+      "effect_jp": "自分の周りの敵に攻撃した後、**後ろに移動して相手の反撃をかわす**。（攻撃/移動技）",
+      "description_jp": "自分の周りの敵に攻撃した後に後ろに移動する"
+    },
+    {
+      "move_id": 904,
+      "move_name_jp": "いとをはく",
+      "move_type_jp": "むし",
+      "power": 118,
+      "cooldown_sec": 2,
+      "effect_jp": "自分の前方にねばねばした糸をはき、**高確率で当たった敵の移動速度をダウン**する。（デバフ技）",
+      "description_jp": "自分の前方にねばねばした糸をはく"
+    },
+    {
+      "move_id": 905,
+      "move_name_jp": "きゅうけつ",
+      "move_type_jp": "むし",
+      "power": 185,
+      "cooldown_sec": 9,
+      "effect_jp": "敵の血を吸い取ってダメージを与え、**与えたダメージの一部を吸収して自分のHPを回復**する。（吸収/回復技）",
+      "description_jp": "目の前の敵の血を吸い取ってダメージを与える"
+    },
+    {
+      "move_id": 906,
+      "move_name_jp": "とびかかる",
+      "move_type_jp": "むし",
+      "power": 180,
+      "cooldown_sec": 5,
+      "effect_jp": "前方の敵めがけてとびかかってダメージを与える。",
+      "description_jp": "前方の敵めがけてとびかかる"
+    },
+    {
+      "move_id": 907,
+      "move_name_jp": "ミサイルばり",
+      "move_type_jp": "むし",
+      "power": 110,
+      "cooldown_sec": 7,
+      "effect_jp": "自分の前方に三本のするどいハリを発射して、当たった敵にダメージを与える。（連続攻撃）",
+      "description_jp": "自分の前方に三本のするどいハリを発射する"
+    },
+    {
+      "move_id": 908,
+      "move_name_jp": "メガホーン",
+      "move_type_jp": "むし",
+      "power": 513,
+      "cooldown_sec": 5,
+      "effect_jp": "硬くてりっぱなツノで前方の敵を突き刺し、**大ダメージを与える**。（高火力技）",
+      "description_jp": "硬くてりっぱなつので前方の敵をおもいっきり突き刺す"
+    }
+  ]
+}
