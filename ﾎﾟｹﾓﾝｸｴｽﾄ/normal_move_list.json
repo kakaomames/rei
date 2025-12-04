@@ -1,0 +1,302 @@
+{
+  "move_type": "ノーマル",
+  "moves": [
+    {
+      "move_id": 501,
+      "move_name_jp": "かたくなる",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "全身に力をこめて、**しばらくのあいだ自分が受けるダメージをダウン**する。（防御補助技）",
+      "description_jp": "全身に力をこめて体をかたくする"
+    },
+    {
+      "move_id": 502,
+      "move_name_jp": "ギガインパクト",
+      "move_type_jp": "ノーマル",
+      "power": 176,
+      "cooldown_sec": 5,
+      "effect_jp": "すべての力を集めて前方の敵に突撃し、大ダメージを与える。",
+      "description_jp": "力をためてからすべての力を集めて前方の敵に突撃する"
+    },
+    {
+      "move_id": 503,
+      "move_name_jp": "しんそく",
+      "move_type_jp": "ノーマル",
+      "power": 130,
+      "cooldown_sec": 5,
+      "effect_jp": "ものすごい速さで前方の敵に突進してダメージを与える。",
+      "description_jp": "ものすごい速さで前方の敵に突進する"
+    },
+    {
+      "move_id": 504,
+      "move_name_jp": "たいあたり",
+      "move_type_jp": "ノーマル",
+      "power": 163,
+      "cooldown_sec": 5,
+      "effect_jp": "前方の敵に全力でぶつかってダメージを与える。",
+      "description_jp": "前方の敵に全力でぶつかる"
+    },
+    {
+      "move_id": 505,
+      "move_name_jp": "たたきつける",
+      "move_type_jp": "ノーマル",
+      "power": 211,
+      "cooldown_sec": 5,
+      "effect_jp": "近くの敵すべてにダメージを与える。",
+      "description_jp": "長いしっぽやつるをたたきつけて近くの敵すべてにダメージを与える"
+    },
+    {
+      "move_id": 506,
+      "move_name_jp": "ちょうおんぱ",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 3,
+      "effect_jp": "まわりの敵を**高確率でこんらんさせる**。（状態異常技）",
+      "description_jp": "特殊な音波を体から発してまわりの敵を攻撃"
+    },
+    {
+      "move_id": 507,
+      "move_name_jp": "とっしん",
+      "move_type_jp": "ノーマル",
+      "power": 189,
+      "cooldown_sec": 5,
+      "effect_jp": "前方の敵にぶつかってダメージを与えるが、**自分も反動ダメージを受けてしまう**。",
+      "description_jp": "前方の敵にすごい勢いでぶつかる"
+    },
+    {
+      "move_id": 508,
+      "move_name_jp": "なきごえ",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 4,
+      "effect_jp": "まわりの敵の気をひいて、**高確率で敵が与えるダメージをダウン**させる。（デバフ補助技）",
+      "description_jp": "かわいい鳴き声をあげてまわりの敵の気をひいて油断させる"
+    },
+    {
+      "move_id": 509,
+      "move_name_jp": "にらみつける",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 3,
+      "effect_jp": "近くの敵をにらみつけておびえさせ、**高確率で敵が受けるダメージをアップ**させる。（デバフ補助技）",
+      "description_jp": "近くの敵をにらみつけておびえさせる"
+    },
+    {
+      "move_id": 510,
+      "move_name_jp": "ねむる",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 9,
+      "effect_jp": "その場で眠って**自分のHPを大きく回復**する。（回復技）",
+      "description_jp": "その場で眠って自分のHPを大きく回復する"
+    },
+    {
+      "move_id": 511,
+      "move_name_jp": "はかいこうせん",
+      "move_type_jp": "ノーマル",
+      "power": 300,
+      "cooldown_sec": 10,
+      "effect_jp": "すさまじい光線を敵に向けて発射し、ものすごいダメージを与える。",
+      "description_jp": "力をたくわえてからすさまじい光線を敵に向けて発射する"
+    },
+    {
+      "move_id": 512,
+      "move_name_jp": "はねる",
+      "move_type_jp": "ノーマル",
+      "power": 56,
+      "cooldown_sec": 3,
+      "effect_jp": "その場ではねてダメージを与える。",
+      "description_jp": "その場ではねる"
+    },
+    {
+      "move_id": 513,
+      "move_name_jp": "ひっかく",
+      "move_type_jp": "ノーマル",
+      "power": 231,
+      "cooldown_sec": 5,
+      "effect_jp": "硬くとがったツメで目の前の敵をひっかいてダメージを与える。",
+      "description_jp": "硬くとがったツメで目の前の敵をひっかいてダメージを与える"
+    },
+    {
+      "move_id": 514,
+      "move_name_jp": "ふみつけ",
+      "move_type_jp": "ノーマル",
+      "power": 180,
+      "cooldown_sec": 5,
+      "effect_jp": "大きな足で前方の敵を踏みつけてダメージを与える。",
+      "description_jp": "大きな足で前方の敵を踏みつけてダメージを与える"
+    },
+    {
+      "move_id": 515,
+      "move_name_jp": "フラッシュ",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 2,
+      "effect_jp": "まわりの敵にまぶしい光を見せ、**高確率で移動速度をダウン**させる。（デバフ補助技）",
+      "description_jp": "まわりの敵に突然まぶしい光を見せる"
+    },
+    {
+      "move_id": 516,
+      "move_name_jp": "へんしん",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 0,
+      "effect_jp": "メタモンがほかのポケモンに変身したときに、そのポケモンがおぼえるわざのどれかに変化する。（特殊技）",
+      "description_jp": "メタモンがほかのポケモンに変身したときにそのポケモンがおぼえるわざのどれかに変化する"
+    },
+    {
+      "move_id": 517,
+      "move_name_jp": "みがわり",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 2,
+      "effect_jp": "自分のみがわりをおいて、**敵の攻撃をみがわりに集中させる**。（防御補助技）",
+      "description_jp": "自分のみがわりをおいて敵の攻撃をみがわりに集中させる"
+    },
+    {
+      "move_id": 518,
+      "move_name_jp": "メガトンパンチ",
+      "move_type_jp": "ノーマル",
+      "power": 561,
+      "cooldown_sec": 5,
+      "effect_jp": "力をこめたパンチで目の前の敵に大ダメージを与える。",
+      "description_jp": "前方の敵に近づいてから力をこめたパンチで目の前の敵にダメージを与える"
+    },
+    {
+      "move_id": 519,
+      "move_name_jp": "じたばた",
+      "move_type_jp": "ノーマル",
+      "power": 130,
+      "cooldown_sec": 5,
+      "effect_jp": "じたばた暴れまわって当たった敵にダメージを与える。",
+      "description_jp": "じたばた暴れまわって当たった敵にダメージを与える"
+    },
+    {
+      "move_id": 520,
+      "move_name_jp": "ほえる",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 2,
+      "effect_jp": "激しくほえたてて、**まわりの敵をふきとばす**。（妨害技）",
+      "description_jp": "激しくほえたててまわりの敵をふきとばす"
+    },
+    {
+      "move_id": 521,
+      "move_name_jp": "きあいだめ",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "深く息をすいこんで気合いをこめ、**しばらくのあいだ自分が与えるダメージをアップ**する。（攻撃補助技）",
+      "description_jp": "深く息をすいこんで気合いをこめる"
+    },
+    {
+      "move_id": 522,
+      "move_name_jp": "ふきとばし",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 2,
+      "effect_jp": "自分のまわりに強い風をおこして、**当たった敵をふきとばす**。（妨害技）",
+      "description_jp": "自分のまわりに強い風をおこして当たった敵をふきとばす"
+    },
+    {
+      "move_id": 523,
+      "move_name_jp": "じばく",
+      "move_type_jp": "ノーマル",
+      "power": 494,
+      "cooldown_sec": 5,
+      "effect_jp": "爆発をおこし、まわりの敵すべてに大ダメージを与えるが、**自分も倒れてしまうほどのダメージを受けてしまう**。（自滅技）",
+      "description_jp": "敵に近づいて爆発をおこす"
+    },
+    {
+      "move_id": 524,
+      "move_name_jp": "みだれひっかき",
+      "move_type_jp": "ノーマル",
+      "power": 146,
+      "cooldown_sec": 5,
+      "effect_jp": "目の前の敵を連続でひっかいてダメージを与える。",
+      "description_jp": "目の前の敵を連続でひっかく"
+    },
+    {
+      "move_id": 525,
+      "move_name_jp": "このゆびとまれ",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 2,
+      "effect_jp": "まわりの敵の注目を自分に集め、**ターゲットを自分に向ける**。（ターゲット誘導技）",
+      "description_jp": "まわりの敵の注目を自分に集めてターゲットを自分に向ける"
+    },
+    {
+      "move_id": 526,
+      "move_name_jp": "ふるいたてる",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 8,
+      "effect_jp": "自分を奮い立たせ、**しばらくのあいだ自分が与えるダメージをアップして、同時に受けるダメージをダウン**する。（複合補助技）",
+      "description_jp": "自分を奮い立てる"
+    },
+    {
+      "move_id": 527,
+      "move_name_jp": "うたう",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 3,
+      "effect_jp": "周囲の敵に歌声を聞かせ、**高確率で敵をねむり状態にする**。（状態異常技）",
+      "description_jp": "ここちよい歌声を周囲の敵に聞かせる"
+    },
+    {
+      "move_id": 528,
+      "move_name_jp": "つるぎのまい",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "戦いの舞いを激しく踊り、**しばらくの間自分が与えるダメージをアップ**する。（攻撃補助技）",
+      "description_jp": "戦いの舞いを激しく踊る"
+    },
+    {
+      "move_id": 529,
+      "move_name_jp": "タマゴばくだん",
+      "move_type_jp": "ノーマル",
+      "power": 201,
+      "cooldown_sec": 5,
+      "effect_jp": "自分のまわりタマゴをばらまいて、当たった敵にダメージを与える。",
+      "description_jp": "自分のまわりタマゴをばらまく"
+    },
+    {
+      "move_id": 530,
+      "move_name_jp": "じこさいせい",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 9,
+      "effect_jp": "細胞を再生させて、**自分のHPを回復**する。（回復技）",
+      "description_jp": "細胞を再生させる"
+    },
+    {
+      "move_id": 531,
+      "move_name_jp": "はらだいこ",
+      "move_type_jp": "ノーマル",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "自分のHPを使って、**しばらくのあいだ自分のあらゆる効果がアップ**する。（超強化補助技）",
+      "description_jp": "自分のHPを使ってしばらくのあいだ自分のあらゆる効果がアップする"
+    },
+    {
+      "move_id": 532,
+      "move_name_jp": "トライアタック",
+      "move_type_jp": "ノーマル",
+      "power": 81,
+      "cooldown_sec": 5,
+      "effect_jp": "前方の敵を攻撃してダメージを与え、**ときどきやけどかまひかこおり状態にする**。（複合状態異常技）",
+      "description_jp": "三つの力を体にまとって前方の敵を攻撃する"
+    },
+    {
+      "move_id": 533,
+      "move_name_jp": "だいばくはつ",
+      "move_type_jp": "ノーマル",
+      "power": 683,
+      "cooldown_sec": 5,
+      "effect_jp": "大きな爆発をおこしてまわりの敵に大ダメージを与えるが、**自分も倒れてしまうほどのダメージを受ける**。（自滅技/最高火力）",
+      "description_jp": "大きな爆発をおこす"
+    }
+  ]
+}
