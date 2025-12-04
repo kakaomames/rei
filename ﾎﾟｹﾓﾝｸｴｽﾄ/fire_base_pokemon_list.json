@@ -1,0 +1,32 @@
+{
+  "fire_base_pokemon_lists": [
+    {
+      "recipe_id": 14,
+      "recipe_name": "カクコロファイヤベース",
+      "rarity": "Normal",
+      "pokemons_jp": [
+        "ロコン",
+        "ガーディ",
+        "ポニータ"
+      ]
+    },
+    {
+      "recipe_id": 14,
+      "recipe_name": "カクコロファイヤベース",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "ポニータ",
+        "ガーディ"
+      ]
+    },
+    {
+      "recipe_id": 14,
+      "recipe_name": "カクコロファイヤベース",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "ヒトカゲ",
+        "ポニータ"
+      ]
+    }
+  ]
+}
