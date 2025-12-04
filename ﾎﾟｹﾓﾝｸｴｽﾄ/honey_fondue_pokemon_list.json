@@ -1,0 +1,34 @@
+{
+  "honey_fondue_pokemon_lists": [
+    {
+      "recipe_id": 10,
+      "recipe_name": "カクコロハニーフォンデュ",
+      "rarity": "Good",
+      "pokemons_jp": [
+        "キャタピー",
+        "ビードル",
+        "パラス"
+      ]
+    },
+    {
+      "recipe_id": 10,
+      "recipe_name": "カクコロハニーフォンデュ",
+      "rarity": "Great",
+      "pokemons_jp": [
+        "パラス",
+        "コンパン",
+        "ストライク",
+        "カイロス"
+      ]
+    },
+    {
+      "recipe_id": 10,
+      "recipe_name": "カクコロハニーフォンデュ",
+      "rarity": "Special",
+      "pokemons_jp": [
+        "コンパン",
+        "カイロス"
+      ]
+    }
+  ]
+}
