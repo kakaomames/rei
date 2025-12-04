@@ -1,0 +1,104 @@
+{
+  "move_type": "ほのお",
+  "moves": [
+    {
+      "move_id": 101,
+      "move_name_jp": "かえんぐるま",
+      "move_type_jp": "ほのお",
+      "power": 57,
+      "cooldown_sec": 5,
+      "effect_jp": "当たった敵にダメージを与え、ときどき敵をやけどにする。",
+      "description_jp": "炎をまとって前方の敵に突進する"
+    },
+    {
+      "move_id": 102,
+      "move_name_jp": "かえんほうしゃ",
+      "move_type_jp": "ほのお",
+      "power": 94,
+      "cooldown_sec": 5,
+      "effect_jp": "しばらくのあいだ炎を吐き続け、炎にあたっている敵にじわじわダメージを与え、ときどき敵をやけどにする。",
+      "description_jp": "しばらくのあいだ長い炎をはきつづける"
+    },
+    {
+      "move_id": 103,
+      "move_name_jp": "ニトロチャージ",
+      "move_type_jp": "ほのお",
+      "power": 0,
+      "cooldown_sec": 5,
+      "effect_jp": "炎の力をたくわえ、しばらくのあいだ**与えるダメージをアップ**する。",
+      "description_jp": "炎の力をたくわえてしばらくのあいだ与えるダメージをアップする"
+    },
+    {
+      "move_id": 104,
+      "move_name_jp": "ふんえん",
+      "move_type_jp": "ほのお",
+      "power": 132,
+      "cooldown_sec": 5,
+      "effect_jp": "まわりの敵にダメージを与え、ときどき敵をやけどにする。",
+      "description_jp": "自分のまわりに真っ赤な炎をふきだす"
+    },
+    {
+      "move_id": 105,
+      "move_name_jp": "ほのおのうず",
+      "move_type_jp": "ほのお",
+      "power": 97,
+      "cooldown_sec": 5,
+      "effect_jp": "当たった敵にダメージを与え、ときどき敵をやけどさせる。",
+      "description_jp": "自分のまわりに炎を作り出しうずを描くように発射する"
+    },
+    {
+      "move_id": 106,
+      "move_name_jp": "ほのおのパンチ",
+      "move_type_jp": "ほのお",
+      "power": 229,
+      "cooldown_sec": 5,
+      "effect_jp": "目の前の敵にダメージを与え、ときどき敵をやけどにする。",
+      "description_jp": "自分のこぶしに炎の力をこめて目の前の敵に燃えるようなパンチ"
+    },
+    {
+      "move_id": 107,
+      "move_name_jp": "ひのこ",
+      "move_type_jp": "ほのお",
+      "power": 109,
+      "cooldown_sec": 7,
+      "effect_jp": "当たった敵にダメージを与え、ときどき敵をやけどにする。",
+      "description_jp": "前方に火の粉を発射し、地面で三方向にわかれて地面を走る"
+    },
+    {
+      "move_id": 108,
+      "move_name_jp": "だいもんじ",
+      "move_type_jp": "ほのお",
+      "power": 179,
+      "cooldown_sec": 5,
+      "effect_jp": "当たった敵にダメージを与え、ときどき敵をやけどにする。",
+      "description_jp": "地面に炎をふきつけて大の字をえがく"
+    },
+    {
+      "move_id": 109,
+      "move_name_jp": "おにび",
+      "move_type_jp": "ほのお",
+      "power": 19,
+      "cooldown_sec": 3,
+      "effect_jp": "**高確率で敵をやけどにする**。",
+      "description_jp": "不気味な炎をまとって目の前の敵を攻撃する"
+    },
+    {
+      "move_id": 110,
+      "move_name_jp": "フレアドライブ",
+      "move_type_jp": "ほのお",
+      "power": 128,
+      "cooldown_sec": 5,
+      "effect_jp": "敵にダメージを与え、ときどき敵をやけどにする。",
+      "description_jp": "自分の前方に炎の道をつくりだしその上を突進する"
+    },
+    {
+      "move_id": 111,
+      "move_name_jp": "ねっぷう",
+      "move_type_jp": "ほのお",
+      "power": 123,
+      "cooldown_sec": 7,
+      "effect_jp": "当たった敵にダメージを与え、ときどき敵をやけどにする。",
+      "description_jp": "熱い息を前方に吹きつける"
+    }
+  ]
+}
