@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width-device-width, initial-scale=1.0">
+    <meta name="description" content="Gemini Programming隊 カカオマメ隊員のためのAndroid XML to CSS 翻訳ツール。">
+    <meta name="keywords" content="XML, CSS, JSZip, ツール, プログラミング, Gemini">
+    <meta name="author" content="Gemini Programming隊 隊長">
+    <meta name="generator" content="Gemini AI">
+    <meta property="og:title" content="Gemini-XML-Translator">
+    <meta property="og:description" content="Android XMLレイアウトをウェブCSSに変換するツール。">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <meta property="og:type" content="tool">
+    <title>Gemini-XML-Translator (CDN)</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 50px; background-color: #1e1e1e; color: #d4d4d4; }
+        .container { max-width: 600px; margin: 0 auto; background: #2a2a2a; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); }
+        input[type="file"] { padding: 10px; border: 2px dashed #FFD700; background: #333; color: #d4d4d4; width: 80%; margin-bottom: 20px; }
+        button { padding: 10px 20px; font-size: 1.1em; background-color: #FF4500; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #e03c00; }
+        #status { margin-top: 20px; font-weight: bold; color: #50fa7b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Gemini-XML-Translator 🚀</h1>
+    <p>XMLまたは、XMLを含むZIPファイルをアップロードしてください。CSSに変換し、新しいZIPを生成します。</p>
+    
+    <input type="file" id="fileInput" multiple>
+    <button onclick="startTranslation()">翻訳＆ZIPダウンロード</button>
+    
+    <div id="status">待機中...</div>
+</div>
+
+<script>
+    // 隊員へ: ここからは前回提供した翻訳ロジックです。
+
+    // Android XMLの名前空間URIを定義
+    const ANDROID_NS = 'http://schemas.android.com/apk/res/android';
+
+    // Pythonのprint()をコンソール出力に置き換え (隊員への指示再現)
+    function print(message) {
+        console.log(`[LOG] ${message}`);
+    }
+
+    /**
+     * XML文字列を解析し、対応するCSS文字列を生成するコアロジック
+     * @param {string} xmlString - Android XMLレイアウトの文字列
+     * @param {string} fileName - XMLファイル名 (CSSセレクタ生成に利用)
+     * @returns {string} 生成されたCSS文字列
+     */
+    function xmlToCssTranslator(xmlString, fileName) {
+        // 名前空間を削除し、DOMParserで解析しやすくする
+        xmlString = xmlString.replace(/xmlns:[a-zA-Z0-9]+="[^"]*"/g, '');
+        print(`xmlString: (整形済み)`);
+        print(`fileName:${fileName}`);
+
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+        const root = xmlDoc.documentElement;
+        
+        // 解析エラーチェック
+        if (!root || root.tagName === 'parsererror') {
+            return `/* エラー: ${fileName} のXML解析に失敗しました。ファイルが破損しているか、XML形式が不正です。 */\n`;
+        }
+
+        // ファイル名からクリーンなセレクタ名を生成 (例: abc_action_bar_title_item)
+        const selectorName = fileName.replace('.xml', '').replace(/[^a-zA-Z0-9_-]/g, '_');
+        let css = `/* ---------------------------------------------------------------------- */\n`;
+        css += `/* ${fileName} から生成されたCSS */\n`;
+        css += `/* ルート要素: ${root.tagName} */\n`;
+        css += `/* ---------------------------------------------------------------------- */\n`;
+        
+        // --- ルート要素の翻訳 ---
+        css += `.${selectorName} {\n`;
+        
+        // 1. Flexboxレイアウト (LinearLayout, FrameLayout, etc.)
+        const orientation = root.getAttributeNS(ANDROID_NS, 'orientation');
+        print(`orientation:${orientation}`);
+
+        // LinearLayoutやFrameLayoutの場合にFlexboxを適用
+        if (root.tagName.includes('Layout') || root.tagName === 'view' || root.tagName.includes('ScrollView')) {
+            css += "    display: flex;\n";
+            
+            if (orientation === 'vertical') {
+                css += "    flex-direction: column; /* android:orientation=\"vertical\" */\n";
+            } else { // デフォルトは horizontal
+                css += "    flex-direction: row; /* android:orientation=\"horizontal\" or default */\n";
+            }
+        }
+        
+        // 2. width/height の翻訳 (wrap_content, match_parent)
+        const width = root.getAttributeNS(ANDROID_NS, 'layout_width');
+        const height = root.getAttributeNS(ANDROID_NS, 'layout_height');
+        print(`width:${width}`);
+        print(`height:${height}`);
+
+        if (width === 'match_parent') {
+            css += "    width: 100%;\n";
+        } else if (width === 'wrap_content') {
+            css += "    width: fit-content; /* or auto */\n";
+        }
+        
+        if (height === 'match_parent') {
+            css += "    height: 100%;\n";
+        } else if (height === 'wrap_content') {
+            css += "    height: fit-content; /* or auto */\n";
+        }
+        
+        // 3. Gravity の翻訳 (center, start, end)
+        const gravity = root.getAttributeNS(ANDROID_NS, 'gravity');
+        print(`gravity:${gravity}`);
+        if (gravity && gravity.includes('center_vertical')) {
+            css += "    align-items: center; /* android:gravity=\"center_vertical\" */\n";
+        }
+        if (gravity && gravity.includes('center_horizontal')) {
+            css += "    justify-content: center; /* android:gravity=\"center_horizontal\" */\n";
+        }
+
+        css += "}\n\n";
+
+        // --- 子要素の翻訳 ---
+        root.querySelectorAll('*').forEach(child => {
+            const childIdAttr = child.getAttributeNS(ANDROID_NS, 'id');
+            const childTag = child.tagName;
+            
+            if (childIdAttr) {
+                // @+id/some_id を #some_id に変換
+                const childId = childIdAttr.replace('@+id/', '#').replace('@android:id/', '#');
+                print(`childId:${childId}`);
+
+                css += `/* --- 子要素: ${childTag} (${childId}) --- */\n`;
+                css += `.${selectorName} ${childId} {\n`;
+                
+                // 1. テキスト省略ロジック (TextView)
+                const singleLine = child.getAttributeNS(ANDROID_NS, 'singleLine');
+                const ellipsize = child.getAttributeNS(ANDROID_NS, 'ellipsize');
+                print(`singleLine:${singleLine}`);
+                print(`ellipsize:${ellipsize}`);
+
+                if (singleLine === 'true' || ellipsize) {
+                    css += "    white-space: nowrap; /* android:singleLine=\"true\" */\n";
+                    css += "    overflow: hidden;\n";
+                    if (ellipsize === 'end' || ellipsize === 'marquee') {
+                        css += "    text-overflow: ellipsis; /* android:ellipsize=\"end\" */\n";
+                    }
+                }
+                
+                // 2. マージン (8dpを8pxと仮定)
+                const marginRight = child.getAttributeNS(ANDROID_NS, 'layout_marginRight');
+                print(`marginRight:${marginRight}`);
+                if (marginRight && marginRight.includes('8dp')) {
+                    css += "    margin-right: 8px; /* android:layout_marginRight=\"8dp\" */\n";
+                }
+                
+                // 3. サイズ (ImageViewの32dpを32pxと仮定)
+                if (childTag === 'ImageView') {
+                    css += "    width: 32px;\n";
+                    css += "    height: 32px;\n";
+                }
+
+                // 4. layout_gravity (要素自体の位置合わせ)
+                const childGravity = child.getAttributeNS(ANDROID_NS, 'layout_gravity');
+                print(`childGravity:${childGravity}`);
+                if (childGravity && childGravity.includes('center_vertical')) {
+                    css += "    align-self: center; /* android:layout_gravity=\"center_vertical\" */\n";
+                }
+
+
+                css += `}\n\n`;
+            }
+        });
+
+        return css;
+    }
+
+    /**
+     * アップロードされたファイルがZIPかXMLかを判断し、処理を開始する
+     */
+    async function startTranslation() {
+        if (typeof JSZip === 'undefined' || typeof saveAs === 'undefined') {
+            document.getElementById('status').textContent = '🚨 エラー: jszip.js または FileSaver.js が読み込まれていません。HTMLのHEADタグを確認してください。';
+            return;
+        }
+
+        const fileInput = document.getElementById('fileInput');
+        const files = fileInput.files;
+        
+        if (files.length === 0) {
+            document.getElementById('status').textContent = 'ファイルを選択してください。';
+            return;
+        }
+
+        const zip = new JSZip(); // 最終的な出力ZIP
+        const xmlFilesToProcess = []; // 処理すべきXMLファイルリスト (名前と内容)
+        const nonXmlFiles = []; // XML以外のファイルリスト (再圧縮用)
+
+        document.getElementById('status').textContent = 'ファイル解析中...';
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            
+            if (file.name.toLowerCase().endsWith('.zip')) {
+                // ZIPファイルの場合
+                await processZipFile(file, xmlFilesToProcess, nonXmlFiles);
+            } else if (file.name.toLowerCase().endsWith('.xml')) {
+                // 単一のXMLファイルの場合
+                const content = await file.text();
+                xmlFilesToProcess.push({ name: file.name, content: content });
+            } else {
+                // XMLでもZIPでもない場合 (単一ファイルアップロード時のみ)
+                const content = await file.async("blob");
+                nonXmlFiles.push({ name: file.name, content: content, path: file.name });
+            }
+        }
+        
+        // 3. XMLファイルをCSSに翻訳
+        document.getElementById('status').textContent = `XMLファイル ${xmlFilesToProcess.length} 個をCSSに翻訳中...`;
+        
+        for (const item of xmlFilesToProcess) {
+            const cssContent = xmlToCssTranslator(item.content, item.name);
+            const cssFileName = item.name.replace('.xml', '.css');
+            
+            // ZIPに入れる
+            zip.file(cssFileName, cssContent);
+        }
+
+        // 4. XML以外のファイルを再圧縮
+        document.getElementById('status').textContent = `XML以外のファイル ${nonXmlFiles.length} 個を再格納中...`;
+        for (const item of nonXmlFiles) {
+             // パス情報を維持してZIPに追加
+            zip.file(item.path, item.content);
+        }
+        
+        // 5. ダウンロード
+        document.getElementById('status').textContent = 'ZIPファイルを生成中...';
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        
+        // FileSaver.jsを使ってダウンロード
+        saveAs(zipBlob, "gemini-translated-css.zip");
+
+        document.getElementById('status').textContent = '✅ 翻訳とダウンロードが完了しました！';
+    }
+
+    /**
+     * ZIPファイルを処理し、XMLと非XMLファイルに分類する
+     */
+    async function processZipFile(file, xmlFilesToProcess, nonXmlFiles) {
+        const zip = new JSZip();
+        const zipData = await file.arrayBuffer();
+        await zip.loadAsync(zipData);
+        
+        // zip.forEachは非同期処理を待てないため、明示的に処理
+        const promises = [];
+
+        zip.forEach((relativePath, zipEntry) => {
+            if (!zipEntry.dir) {
+                if (relativePath.toLowerCase().endsWith('.xml')) {
+                    // XMLファイルの場合
+                    const promise = zipEntry.async('text').then(content => {
+                         xmlFilesToProcess.push({
+                            name: relativePath.split('/').pop(),
+                            content: content,
+                            path: relativePath
+                        });
+                    });
+                    promises.push(promise);
+                } else {
+                    // XML以外のファイルの場合
+                    const promise = zipEntry.async('blob').then(content => {
+                        nonXmlFiles.push({
+                            name: relativePath.split('/').pop(),
+                            content: content,
+                            path: relativePath 
+                        });
+                    });
+                    promises.push(promise);
+                }
+            }
+        });
+        
+        // 全てのファイル処理の完了を待つ
+        await Promise.all(promises);
+    }
+</script>
+</body>
+</html>
