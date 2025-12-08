@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="【任務1】アナデン風ビジュアル完了デモ">
+    <title>【Week 1 完了】アナデン風マップ</title>
+    <style>
+        /* ---------------------------------------------------- */
+        /* 共通基本スタイル */
+        /* ---------------------------------------------------- */
+        body { 
+            margin: 0; 
+            font-family: 'serif'; /* アナデン風に明朝体寄りを指定 */
+            background-color: #1e1e1e; 
+            color: #d4d4d4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-screen {
+            width: 400px; /* Canvasサイズを維持 */
+            height: 600px;
+            border: 4px solid #444;
+            position: relative;
+            background-color: #6B8E23; /* マップ背景色 */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ---------------------------------------------------- */
+        /* ステータスバー (abc_action_bar_title_item.xml 翻訳) */
+        /* ---------------------------------------------------- */
+        #status-bar {
+            width: 100%;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-bottom: 2px solid #FFD700; /* アナデン風の強調線 */
+            padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            box-sizing: border-box;
+        }
+
+        /* RPGタイトル要素のコンテナ (縦並び) */
+        .rpg-title-item {
+            display: flex;
+            flex-direction: column; /* XMLの orientation="vertical" を再現 */
+            align-items: flex-start;
+            padding: 0 10px;
+        }
+
+        /* メインタイトル (キャラ名) */
+        .action-bar-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #FFD700; /* ゴールド */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; /* XMLの ellipsize="end" を再現 */
+        }
+
+        /* サブタイトル (HP/MP/Lv) */
+        .action-bar-subtitle {
+            font-size: 0.8em;
+            color: #B0C4DE; /* ライトブルー */
+            margin-top: 2px; /* XMLの layout_marginTop を再現 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ---------------------------------------------------- */
+        /* マップエリア */
+        /* ---------------------------------------------------- */
+        #map-area {
+            flex-grow: 1; /* 残りのスペース全てを使う */
+            position: relative;
+            background-image: url('https://via.placeholder.com/400x400/6B8E23/FFFFFF?text=World+Map+Area'); /* 仮のマップ画像 */
+            background-size: cover;
+        }
+        
+        /* プレイヤーアイコン */
+        #player {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #FF4500;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ---------------------------------------------------- */
+        /* メッセージウィンドウ */
+        /* ---------------------------------------------------- */
+        #message-window {
+            width: 100%;
+            height: 120px;
+            background-color: rgba(54, 69, 79, 0.95);
+            border-top: 2px solid #B0C4DE;
+            padding: 15px;
+            box-sizing: border-box;
+            position: relative;
+            text-align: left;
+        }
+
+        /* スピーカー名ボックス */
+        #speaker-box {
+            position: absolute;
+            top: -25px;
+            left: 5px;
+            background-color: #B0C4DE;
+            color: #000000;
+            padding: 2px 8px;
+            font-size: 14px;
+            border-radius: 5px 5px 0 0;
+            font-weight: bold;
+        }
+
+        #message-text {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        /* ---------------------------------------------------- */
+        /* 行動ボタン */
+        /* ---------------------------------------------------- */
+        #action-button { 
+            padding: 10px 30px; 
+            font-size: 1.2em; 
+            cursor: pointer; 
+            background-color: #FFD700; 
+            border: none; 
+            border-radius: 5px; 
+            width: 90%;
+            margin: 10px 0;
+        }
+
+        /* ---------------------------------------------------- */
+        /* メニュー（一時非表示） */
+        /* ---------------------------------------------------- */
+        #menu-overlay {
+            position: absolute;
+            top: 60px; /* ステータスバーの下から */
+            left: 0;
+            width: 100%;
+            height: calc(100% - 60px);
+            background-color: rgba(0, 0, 0, 0.85);
+            display: none; /* 初期状態では非表示 */
+            flex-direction: column;
+            padding-top: 20px;
+            overflow-y: auto;
+        }
+
+        /* ---------------------------------------------------- */
+        /* メニューリスト項目 (abc_activity_chooser_view_list_item.xml 翻訳) */
+        /* ---------------------------------------------------- */
+        .rpg-menu-item {
+            width: 90%;
+            margin: 0 auto;
+            border-bottom: 1px solid #4A6363;
+            background-color: transparent;
+            color: #FFFFFF;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .rpg-menu-item-content {
+            display: flex;
+            align-items: center; /* 垂直方向中央寄せを再現 */
+        }
+
+        .rpg-menu-item-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            background-color: #88C0D0; /* 仮の色 */
+            border-radius: 4px;
+        }
+
+        .rpg-menu-item-title {
+            font-size: 1.1em;
+            color: #EBCB8B;
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="game-screen">
+        
+        <div id="status-bar">
+             <div class="rpg-title-item">
+                <span class="action-bar-title">勇者 カカオマメ</span>
+                <span class="action-bar-subtitle">Lv. 6 | HP: 90/100 | MP: 50/50</span>
+            </div>
+        </div>
+
+        <div id="map-area">
+            <div id="player"></div>
+        </div>
+        
+        <div id="message-window">
+            <div id="speaker-box">隊長</div>
+            <div id="message-text">【現代】カカオマメ隊員、ビジュアルの整備は完了した！見た目はアナデンだ！</div>
+        </div>
+
+        <div id="menu-overlay">
+            <div class="rpg-menu-item" onclick="alert('アイテム画面へ');">
+                <div class="rpg-menu-item-content">
+                    <div class="rpg-menu-item-icon"></div>
+                    <span class="rpg-menu-item-title">アイテム (現在 x3)</span>
+                </div>
+            </div>
+            <div class="rpg-menu-item" onclick="alert('スキル画面へ');">
+                <div class="rpg-menu-item-content">
+                    <div class="rpg-menu-item-icon"></div>
+                    <span class="rpg-menu-item-title">スキル (アナザースタイル)</span>
+                </div>
+            </div>
+            <div class="rpg-menu-item" onclick="alert('セーブ画面へ');">
+                <div class="rpg-menu-item-content">
+                    <div class="rpg-menu-item-icon"></div>
+                    <span class="rpg-menu-item-title">セーブ・ロード</span>
+                </div>
+            </div>
+            <button id="action-button" onclick="toggleMenu()">閉じる</button>
+        </div>
+        
+        <button id="action-button" onclick="toggleMenu()">メニュー</button>
+    </div>
+
+    <script>
+        // メニューの表示/非表示を切り替える機能
+        function toggleMenu() {
+            const menu = document.getElementById('menu-overlay');
+            if (menu.style.display === 'flex') {
+                menu.style.display = 'none';
+            } else {
+                menu.style.display = 'flex';
+            }
+        }
+    </script>
+</body>
+</html>
