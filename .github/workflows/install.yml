@@ -1,0 +1,23 @@
+name: Android Reinstall and Reboot
+
+on:
+  repository_dispatch:
+    types: [emulator_restart_and_install]
+
+jobs:
+  reboot-and-install:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: APK調達
+        run: |
+          mkdir -p ./app
+          curl -L "${{ github.event.client_payload.apk_url }}" -o "./app/${{ github.event.client_payload.file_name }}"
+      
+      - name: エミュレータ起動 ＆ Python司令実行
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          script: python3 install.py "${{ github.event.client_payload.file_name }}"
+        env:
+          GAS_URL: "あなたのGASウェブアプリのURL" # 🔴要設定
