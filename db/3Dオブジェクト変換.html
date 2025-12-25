@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gemini programming隊 3D変換ツール">
+    <meta name="author" content="Gemini programming隊">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#ff0000">
+    <meta property="og:title" content="500系 3D Converter">
+    <meta property="og:description" content="GLBをOBJに変換する専用端末です。">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Gemini programming隊 - 3D変換機</title>
+    
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f0f4f8; padding: 50px; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+        .logo { width: 120px; margin-bottom: 20px; }
+        #drop-zone { border: 3px dashed #3498db; padding: 40px; border-radius: 10px; cursor: pointer; background: #ebf5fb; transition: 0.3s; }
+        #drop-zone:hover { background: #d6eaf8; }
+        .status { margin-top: 20px; font-weight: bold; color: #2c3e50; }
+        .btn { display: none; margin-top: 20px; padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="https://kakaomames.github.io/rei/logo.png" alt="Logo" class="logo">
+        <h2>GLB ➡️ OBJ 変換端末</h2><a href="./3Dオブジェクトの表示v4">3Dオブジェクトの表示</a>
+        <p>ここにGLBファイルをドロップしてください！</p>
+        
+        <div id="drop-zone">ここにファイルをドロップ</div>
+        <div id="status" class="status">待機中...</div>
+        <a id="download-btn" class="btn">OBJをダウンロードする ✨</a>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OBJExporter } from 'three/addons/exporters/OBJExporter.js';
+
+        const dropZone = document.getElementById('drop-zone');
+        const status = document.getElementById('status');
+        const downloadBtn = document.getElementById('download-btn');
+
+        dropZone.onclick = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.glb';
+            input.onchange = (e) => handleFile(e.target.files[0]);
+            input.click();
+        };
+
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.borderColor = '#2ecc71'; };
+        dropZone.ondragleave = () => { dropZone.style.borderColor = '#3498db'; };
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            handleFile(e.dataTransfer.files[0]);
+        };
+
+        function handleFile(file) {
+            if (!file || !file.name.endsWith('.glb')) {
+                status.innerText = "❌ GLBファイルを選んでください！";
+                return;
+            }
+
+            status.innerText = "🔄 変換中...";
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = async (event) => {
+                const loader = new GLTFLoader();
+                loader.parse(event.target.result, '', (gltf) => {
+                    const exporter = new OBJExporter();
+                    const result = exporter.parse(gltf.scene);
+                    
+                    const blob = new Blob([result], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    downloadBtn.href = url;
+                    downloadBtn.download = file.name.replace('.glb', '.obj');
+                    downloadBtn.style.display = 'inline-block';
+                    status.innerText = "✅ 変換完了！ダウンロード準備OKです！";
+                }, (error) => {
+                    status.innerText = "❌ エラーが発生しました。";
+                    console.error(error);
+                });
+            };
+        }
+    </script>
+</body>
+</html>
