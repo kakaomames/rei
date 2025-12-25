@@ -7,6 +7,7 @@ const CACHE_NAME = 'gemini-obj-viewer-cache-v1.0.1';
 const urlsToCache = [
     // アプリケーションのコアファイル
     '/rei/db/3Dオブジェクトの表示v4.html', // 君のメインHTMLファイル
+    '/rei/db/3Dオブジェクトの変換.html', // 君のメインHTMLファイル
     '/rei/logo.png',                        // 君のロゴ画像
     
     // Three.js と OBJLoader (CDNファイルもキャッシュ対象にする)
