@@ -18,6 +18,15 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: python3 install.py "${{ github.event.client_payload.file_name }}"
+          target: google_apis
+          arch: x86_64
+          # 🔴 ここに待機設定を強化！
+          force-avd-creation: false
+          disable-animations: true
+          script: |
+            # adbがデバイスを認識するまで待機するログを出す
+            echo "Waiting for device to be online..."
+            adb wait-for-device
+            python3 install.py "${{ github.event.client_payload.file_name }}"
         env:
-          GAS_URL: "あなたのGASウェブアプリのURL" # 🔴要設定
+          GAS_URL: "https://script.google.com/macros/s/AKfycbwiAbp9V-hbMmDg_cdn3vlctQgCu6WCVyabBsWprDIBWg9GPzky5Po-ld0Q7bQFXVSmsA/exec" # 🔴要設定
