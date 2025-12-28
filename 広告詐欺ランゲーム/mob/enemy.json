@@ -1,0 +1,29 @@
+[
+  {
+    "id": "zombie",
+    "name": "ゾンビ",
+    "weight": 80,
+    "isBoss": false,
+    "hp": 20,
+    "obj": "zombie.obj",
+    "png": "zombie.png"
+  },
+  {
+    "id": "witch",
+    "name": "ウィッチ",
+    "weight": 20,
+    "isBoss": false,
+    "hp": 50,
+    "obj": "witch.obj",
+    "png": "witch.png"
+  },
+  {
+    "id": "ender_dragon",
+    "name": "エンダードラゴン",
+    "weight": 100,
+    "isBoss": true,
+    "hp": 500,
+    "obj": "ender_dragon.obj",
+    "png": "ender_dragon.png"
+  }
+]
