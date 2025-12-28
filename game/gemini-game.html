@@ -2,162 +2,226 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="無限に進化する3Dキューブで防衛せよ！">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="無限合成・建築・ペット・クラフト・バディ！一生遊べる防衛RPG">
     <meta name="author" content="Gemini programming隊">
-    <meta name="robots" content="index, follow">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="./manifest_gemini-game.json">
     <title>Merge Craft 3D: Ultimate</title>
     <style>
-        :root { --primary-bg: #121212; --panel-bg: #2c3e50; --accent: #e74c3c; }
-        body { background-color: var(--primary-bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; padding-bottom: 50px; }
-        #logo { width: 60px; margin-top: 10px; }
-        #game-container { margin: 10px auto; width: 95%; max-width: 450px; background: var(--panel-bg); padding: 15px; border-radius: 20px; border: 4px solid #34495e; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        :root { --panel-bg: #2c3e50; --slot-bg: #34495e; --accent: #e74c3c; --gold: #f1c40f; }
+        body { 
+            background-color: #121212; color: white; font-family: 'Arial', sans-serif; 
+            margin: 0; user-select: none; -webkit-user-select: none; 
+            touch-action: manipulation; overflow: hidden;
+        }
+        #logo { width: 50px; margin: 5px; }
         
-        /* 3Dステータス表示 */
-        .status-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; background: #16a085; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; font-size: 0.8rem; }
+        /* メインレイアウト */
+        #game-wrapper { display: flex; flex-direction: column; height: 100vh; width: 100vw; box-sizing: border-box; }
+        @media (min-width: 700px) { #game-wrapper { flex-direction: row; } }
         
-        /* 3Dキューブ表示 */
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px auto; }
-        .slot { width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .scene { width: 60px; height: 60px; perspective: 300px; }
-        .cube { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(25deg); transition: transform 0.3s; }
-        .cube-face { position: absolute; width: 60px; height: 60px; border: 1px solid rgba(255,255,255,0.5); line-height: 60px; font-size: 18px; font-weight: bold; text-shadow: 1px 1px 2px #000; }
-        .front  { transform: rotateY(  0deg) translateZ(30px); }
-        .back   { transform: rotateY(180deg) translateZ(30px); }
-        .right  { transform: rotateY( 90deg) translateZ(30px); }
-        .left   { transform: rotateY(-90deg) translateZ(30px); }
-        .top    { transform: rotateX( 90deg) translateZ(30px); }
-        .bottom { transform: rotateX(-90deg) translateZ(30px); }
+        .column { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+        
+        /* 3Dグリッド */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .slot { aspect-ratio: 1/1; background: var(--slot-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; border: 2px solid #555; cursor: pointer; }
+        .scene { width: 70%; height: 70%; perspective: 300px; }
+        .cube { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(25deg); transition: transform 0.2s; }
+        .cube-face { position: absolute; width: 100%; height: 100%; border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; }
+        
+        /* UIパーツ */
+        .status-bar { background: #16a085; padding: 8px; border-radius: 10px; display: flex; justify-content: space-around; font-weight: bold; font-size: 0.9rem; }
+        #enemy-area { background: #444; padding: 10px; border-radius: 15px; text-align: center; border: 2px solid #555; }
+        .gauge-container { width: 100%; height: 10px; background: #333; border-radius: 5px; margin-top: 5px; overflow: hidden; }
+        #special-gauge { width: 0%; height: 100%; background: linear-gradient(90deg, #f1c40f, #e67e22); transition: width 0.3s; }
+        
+        /* インベントリ・モーダル */
+        #inv-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background: #222; border: 3px solid #95a5a6; border-radius: 15px; z-index: 2000; padding: 20px; }
+        .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .inv-item { background: #333; border: 1px solid #777; aspect-ratio: 1/1; border-radius: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.8rem; cursor: pointer; }
+        
+        /* ボタン */
+        button { padding: 12px; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; transition: 0.1s; }
+        button:active { transform: scale(0.95); }
+        .btn-main { background: #2ecc71; width: 100%; }
+        .btn-attack { background: #e74c3c; width: 100%; }
+        .btn-special { background: #9b59b6; width: 100%; display: none; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(155, 89, 182, 0); } 100% { box-shadow: 0 0 0 0 rgba(155, 89, 182, 0); } }
 
-        /* 敵：カクカク丸 */
-        #enemy-area { background: #34495e; padding: 20px; border-radius: 15px; margin-bottom: 15px; position: relative; overflow: hidden; }
-        .boss-active { border: 3px solid #f1c40f; box-shadow: 0 0 15px #f1c40f; }
-        .enemy-sphere { width: 60px; height: 60px; margin: 10px auto; transform-style: preserve-3d; animation: rotateEnemy 3s linear infinite; }
-        .voxel-layer { position: absolute; width: 100%; height: 100%; opacity: 0.8; border: 2px solid rgba(0,0,0,0.3); }
-        .v-y { transform: rotateY(90deg); } .v-x { transform: rotateX(90deg); }
-        @keyframes rotateEnemy { from { transform: rotateX(0) rotateY(0); } to { transform: rotateX(360deg) rotateY(360deg); } }
-
-        /* 操作系 */
-        #build-btn { width: 100%; height: 40px; background: #e67e22; border: none; color: white; font-weight: bold; margin-bottom: 10px; cursor: pointer; border-radius: 5px; }
-        #build-btn:active { background: #d35400; }
-        .action-btns { display: flex; gap: 10px; }
-        .action-btns button { flex: 1; padding: 12px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; color: white; }
-        
-        /* カラーパレット & セーブ */
-        .sub-panel { background: #222; padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 0.8rem; }
-        .color-dot { width: 25px; height: 25px; display: inline-block; margin: 3px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-        .color-dot.active { border-color: white; transform: scale(1.2); }
-        input { width: 70%; padding: 5px; font-size: 0.7rem; margin-top: 5px; }
+        /* ゲームオーバー画面 */
+        #go-screen { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <img src="https://kakaomames.github.io/rei/logo.png" alt="logo" id="logo">
-    <h2 style="margin: 5px;">Merge Craft 3D 🧊</h2>
+    <audio id="bgm-battle" loop><source src="/bgm/another-eden/bgm_normal_battle.ogg" type="audio/ogg"><source src="/bgm/another-eden/bgm_normal_battle.mp3" type="audio/mpeg"></audio>
+    <audio id="se-attack"><source src="kougeki.ogg" type="audio/ogg"></audio>
 
-    <div id="game-container">
-        <div class="status-grid">
-            <div>💰 <span id="gold">100</span></div>
-            <div>❤️ HP: <span id="hp">10</span></div>
-            <div>🌊 Wave: <span id="wave">1</span></div>
+    <div id="game-wrapper">
+        <div class="column">
+            <img src="/rei/logo.png" alt="logo" id="logo">
+            <div class="status-bar">
+                <span>💰 <span id="gold">100</span></span>
+                <span>❤️ <span id="hp">10</span></span>
+                <span>🌊 Wave <span id="wave">1</span></span>
+            </div>
+
+            <div id="enemy-area">
+                <div id="enemy-label" style="font-weight:bold; color:var(--gold);">Lv.1 Slime</div>
+                <div id="enemy-visual" style="height:60px; margin:10px 0;"></div>
+                <div style="font-size:0.9rem;">👾 HP: <span id="enemy-hp">50</span></div>
+                <div style="color:#f1c40f; font-size:0.7rem;">TIMER: <span id="timer">5.0</span>s</div>
+            </div>
+
+            <button style="background:#e67e22;" onclick="buildWall()">🔨 建築 (壁HP: <span id="whp">0</span>)</button>
+            
+            <div style="display:flex; gap:5px; justify-content:center;">
+                <div id="pet-area" style="font-size:1.5rem; display:flex; gap:5px;"></div>
+                <div style="display:flex; gap:5px;">
+                    <div id="b-slot-0" style="border:1px solid gold; border-radius:50%; width:30px; height:30px; text-align:center; line-height:30px;">空</div>
+                    <div id="b-slot-1" style="border:1px solid gold; border-radius:50%; width:30px; height:30px; text-align:center; line-height:30px;">空</div>
+                </div>
+            </div>
+
+            <div class="gauge-container"><div id="special-gauge"></div></div>
+            <button id="special-btn" class="btn-special" onclick="useSpecialMove()">⚔️ オーガペイン発動！</button>
+            <button style="background:#3498db;" onclick="toggleInv(true)">🎒 インベントリ / クラフト</button>
         </div>
 
-        <div id="enemy-area">
-            <div id="enemy-label">ENEMY</div>
-            <div id="enemy-visual"></div>
-            <div style="font-size: 1.1rem; margin-top: 5px;">👾 HP: <span id="enemy-hp">50</span></div>
-            <div style="color: #f1c40f; font-size: 0.8rem;">攻撃まで: <span id="timer">5.0</span>s</div>
-        </div>
-
-        <button id="build-btn" onclick="buildWall()">🔨 建築 (壁HP: <span id="whp">0</span>)</button>
-
-        <div class="grid" id="grid"></div>
-
-        <div class="action-btns">
-            <button style="background: #2ecc71;" onclick="spawnTower()">召喚 (20G)</button>
-            <button style="background: #e74c3c;" onclick="attackEnemy()">ATTACK ⚔️</button>
+        <div class="column">
+            <div class="grid" id="grid"></div>
+            <button class="btn-main" onclick="spawnTower()">タワー召喚 (20G)</button>
+            <button class="btn-attack" onclick="attackEnemy()">ATTACK! ⚔️</button>
         </div>
     </div>
 
-    <div class="sub-panel">
-        <h4>🎨 Color Select</h4>
-        <div id="palette"></div>
-        <button onclick="buyColor()" style="margin-top:5px; font-size:0.7rem;">新色アンロック (500G)</button>
+    <div id="inv-modal">
+        <h3>🎒 Inventory & Craft</h3>
+        <div class="inv-grid" id="inv-grid"></div>
+        <div id="craft-info" style="font-size:0.7rem; margin-top:10px; background:#111; padding:5px;">選択: <span id="craft-sel">なし</span></div>
+        <div style="display:flex; gap:5px; margin-top:10px;">
+            <button onclick="doCraft()" style="background:var(--gold); color:#000; flex:1;">クラフト</button>
+            <button onclick="toggleInv(false)" style="background:#e74c3c; flex:1;">閉じる</button>
+        </div>
     </div>
 
-    <div class="sub-panel">
-        <h4>💾 Save Code (Base64)</h4>
-        <input type="text" id="save-input" placeholder="Paste code here">
-        <br>
-        <button onclick="exportSave()">コード発行</button>
-        <button onclick="importSave()">ロード</button>
+    <div id="go-screen">
+        <h1 style="color:#e74c3c;">MISSION FAILED</h1>
+        <p id="go-stats"></p>
+        <button onclick="revive()" style="background:#2ecc71; padding:15px 30px;">リバイブ (再出撃)</button>
     </div>
 
     <script>
-        // --- 初期データ ---
-        let gold = 100, hp = 10, wave = 1, enemyHP = 50, wallHP = 0, baseLevel = 1;
-        let field = [0,0,0,0,0,0,0,0,0], timer = 5.0, isBoss = false;
-        let colors = ["#3498db", "#2ecc71", "#e74c3c", "#f1c40f"];
-        let selectedColor = "#3498db";
-        let selectedIdx = -1;
+        // --- 司令部データ ---
+        let gold = 100, hp = 10, wave = 1, enemyHP = 50, wallHP = 0, field = [0,0,0,0,0,0,0,0,0];
+        let timer = 5.0, isBoss = false, selectedIdx = -1, specialGauge = 0;
+        let inventory = { scrap: 3, potion: 0, apple: 0, tnt: 0 };
+        let badges = [], equippedBadges = [null, null], activePets = [];
+        let selectedInvItems = [], selectedColor = "#3498db";
+        let isMusicPlaying = false;
 
-        // --- 自動セーブ (LocalStorage) ---
-        function autoSave() {
-            const data = { gold, hp, wave, field, colors, selectedColor, baseLevel };
-            localStorage.setItem('merge_craft_autosave', JSON.stringify(data));
-        }
+        const enemySkins = [
+            { name: "Slime", color: "#55ff55" }, { name: "Zombie", color: "#3498db" },
+            { name: "Creeper", color: "#00aa00" }, { name: "Ender", color: "#2c3e50" }
+        ];
 
-        function autoLoad() {
-            const saved = localStorage.getItem('merge_craft_autosave');
-            if (saved) {
-                const d = JSON.parse(saved);
-                gold = d.gold; hp = d.hp; wave = d.wave; field = d.field;
-                colors = d.colors; selectedColor = d.selectedColor; baseLevel = d.baseLevel;
-                updateDisplay();
+        // --- 処理エンジン ---
+        function playBGM() {
+            if (!isMusicPlaying) {
+                const bgm = document.getElementById('bgm-battle');
+                bgm.volume = 0.4; bgm.play().catch(()=>{});
+                isMusicPlaying = true;
             }
         }
 
-        // --- 描画ロジック ---
-        function initGrid() {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-            field.forEach((lvl, i) => {
-                const div = document.createElement('div');
-                div.className = 'slot';
-                if (lvl > 0) {
-                    const hueShift = lvl * 20;
-                    const style = `background: ${selectedColor}; filter: hue-rotate(${hueShift}deg) brightness(${0.5 + (lvl*0.1)});`;
-                    div.innerHTML = `
-                        <div class="scene">
-                            <div class="cube" style="${selectedIdx === i ? 'transform: rotateX(0) rotateY(0) scale(1.1);' : ''}">
-                                <div class="cube-face front" style="${style}">${lvl}</div>
-                                <div class="cube-face back" style="${style}">${lvl}</div>
-                                <div class="cube-face right" style="${style}">${lvl}</div>
-                                <div class="cube-face left" style="${style}">${lvl}</div>
-                                <div class="cube-face top" style="${style}">${lvl}</div>
-                                <div class="cube-face bottom" style="${style}">${lvl}</div>
-                            </div>
-                        </div>`;
-                } else {
-                    div.style.border = "1px dashed #555";
-                    div.style.borderRadius = "10px";
-                }
-                div.onclick = () => handleMerge(i);
-                grid.appendChild(div);
-            });
+        function spawnTower() {
+            playBGM();
+            if (gold >= 20 && field.includes(0)) {
+                gold -= 20; field[field.indexOf(0)] = 1;
+                updateDisplay(); autoSave();
+            }
+        }
+
+        function attackEnemy() {
+            playBGM();
+            document.getElementById('se-attack').currentTime = 0;
+            document.getElementById('se-attack').play();
+
+            let pwr = field.reduce((s, l) => s + (l > 0 ? Math.pow(2, l - 1) : 0), 0) + 1;
+            if (equippedBadges.includes('badge_atk')) pwr += 5;
+            if (activePets.includes('wolf')) pwr = Math.floor(pwr * 1.5);
+
+            let isCrit = Math.random() < 0.15;
+            let damage = isCrit ? pwr * 5 : pwr;
+            if (isCrit) updateGauge(10);
+
+            enemyHP -= damage;
+            console.log(f"damage: {damage}");
+
+            if (enemyHP <= 0) nextWave();
+            updateDisplay(); autoSave();
+        }
+
+        function nextWave() {
+            wave++; gold += 50 + (wave * 5);
+            if (Math.random() < 0.3) inventory.scrap++;
+            isBoss = wave % 10 === 0;
+            enemyHP = Math.floor((isBoss ? 250 : 50) * Math.pow(1.15, wave - 1));
+            timer = isBoss ? 8.0 : 5.0;
+            if (equippedBadges.includes('badge_hp')) hp = Math.min(10, hp + 1);
+        }
+
+        function buildWall() { wallHP++; updateDisplay(); }
+
+        function updateGauge(v) {
+            specialGauge = Math.min(100, specialGauge + v);
+            document.getElementById('special-gauge').style.width = specialGauge + "%";
+            document.getElementById('special-btn').style.display = specialGauge >= 100 ? 'block' : 'none';
+        }
+
+        function useSpecialMove() {
+            if (specialGauge < 100) return;
+            enemyHP -= 500 * wave;
+            specialGauge = 0;
+            updateGauge(0);
+            alert("⚔️ オーガペイン・エクスプロージョン！！");
+            if (enemyHP <= 0) nextWave();
+            updateDisplay();
+        }
+
+        // --- UI & システム ---
+        function updateDisplay() {
+            document.getElementById('gold').innerText = gold;
+            document.getElementById('hp').innerText = hp;
+            document.getElementById('wave').innerText = wave;
+            document.getElementById('enemy-hp').innerText = Math.max(0, Math.floor(enemyHP));
+            document.getElementById('whp').innerText = wallHP;
+            drawEnemy();
+            renderGrid();
         }
 
         function drawEnemy() {
-            const color = isBoss ? "#9b59b6" : "#2ecc71";
-            document.getElementById('enemy-visual').innerHTML = `
-                <div class="enemy-sphere">
-                    <div class="voxel-layer" style="background:${color}"></div>
-                    <div class="voxel-layer v-y" style="background:${color}"></div>
-                    <div class="voxel-layer v-x" style="background:${color}"></div>
-                </div>`;
+            const skin = enemySkins[Math.floor((wave-1)/5) % enemySkins.length];
+            document.getElementById('enemy-label').innerText = isBoss ? "⚠️ BOSS ⚠️" : `Lv.${wave} ${skin.name}`;
+            const color = isBoss ? "#9b59b6" : skin.color;
+            document.getElementById('enemy-visual').innerHTML = `<div style="width:40px; height:40px; background:${color}; margin:auto; border:2px solid #000; box-shadow:0 0 10px ${color};"></div>`;
         }
 
-        // --- ゲームロジック ---
+        function renderGrid() {
+            const g = document.getElementById('grid'); g.innerHTML = '';
+            field.forEach((lvl, i) => {
+                const d = document.createElement('div'); d.className = 'slot';
+                d.onclick = () => handleMerge(i);
+                if(lvl > 0) {
+                    const style = `background:${selectedColor}; filter:brightness(${0.5 + lvl*0.1});`;
+                    d.innerHTML = `<div class="scene"><div class="cube"><div class="cube-face" style="${style}">${lvl}</div></div></div>`;
+                }
+                g.appendChild(d);
+            });
+        }
+
         function handleMerge(i) {
             if (field[i] === 0) return;
             if (selectedIdx === -1) selectedIdx = i;
@@ -165,36 +229,9 @@
             else {
                 if (field[selectedIdx] === field[i]) {
                     field[i]++; field[selectedIdx] = 0; selectedIdx = -1;
-                    console.log(`a: ${field[i]}`);
                 } else selectedIdx = i;
             }
-            initGrid();
-            autoSave();
-        }
-
-        function spawnTower() {
-            if (gold >= 20 && field.includes(0)) {
-                gold -= 20; field[field.indexOf(0)] = baseLevel;
-                updateDisplay(); autoSave();
-            }
-        }
-
-        function buildWall() {
-            wallHP++; updateDisplay();
-            console.log(`a: ${wallHP}`);
-        }
-
-        function attackEnemy() {
-            let pwr = field.reduce((s, l) => s + (l > 0 ? Math.pow(2, l - 1) : 0), 1);
-            enemyHP -= pwr;
-            if (enemyHP <= 0) {
-                wave++; gold += 50 + (wave * 10);
-                isBoss = wave % 10 === 0;
-                enemyHP = Math.floor((isBoss ? 300 : 50) * Math.pow(1.15, wave - 1));
-                timer = isBoss ? 8.0 : 5.0;
-                drawEnemy();
-            }
-            updateDisplay(); autoSave();
+            renderGrid();
         }
 
         // タイマー処理
@@ -202,67 +239,59 @@
             timer -= 0.1;
             if (timer <= 0) {
                 if (wallHP > 0) wallHP = 0;
-                else { hp--; if (hp <= 0) { alert("Game Over!"); location.reload(); } }
+                else { hp--; if (hp <= 0) triggerGameOver(); }
                 timer = isBoss ? 8.0 : 5.0;
             }
             document.getElementById('timer').innerText = timer.toFixed(1);
-            updateDisplay();
         }, 100);
 
-        // --- UI更新 ---
-        function updateDisplay() {
-            document.getElementById('gold').innerText = gold;
-            document.getElementById('hp').innerText = hp;
-            document.getElementById('wave').innerText = wave;
-            document.getElementById('enemy-hp').innerText = enemyHP;
-            document.getElementById('whp').innerText = wallHP;
-            document.getElementById('enemy-label').innerText = isBoss ? "⚠️ BOSS ⚠️" : "ENEMY";
-            initGrid();
+        function triggerGameOver() {
+            document.getElementById('go-screen').style.display = 'flex';
+            document.getElementById('go-stats').innerText = `最終到達 Wave: ${wave}`;
         }
 
-        function updatePalette() {
-            const p = document.getElementById('palette');
-            p.innerHTML = '';
-            colors.forEach(c => {
-                const d = document.createElement('div');
-                d.className = `color-dot ${selectedColor === c ? 'active' : ''}`;
-                d.style.backgroundColor = c;
-                d.onclick = () => { selectedColor = c; updatePalette(); initGrid(); autoSave(); };
-                p.appendChild(d);
-            });
+        function revive() {
+            gold = 100; hp = 10; wave = 1; enemyHP = 50; wallHP = 0; field = [0,0,0,0,0,0,0,0,0];
+            document.getElementById('go-screen').style.display = 'none';
+            updateDisplay();
         }
 
-        function buyColor() {
-            if (gold >= 500) {
-                gold -= 500;
-                const newColor = `hsl(${Math.random() * 360}, 70%, 50%)`;
-                colors.push(newColor);
-                updatePalette(); updateDisplay(); autoSave();
+        function toggleInv(s) { 
+            document.getElementById('inv-modal').style.display = s ? 'block' : 'none'; 
+            if(s) renderInv();
+        }
+
+        function renderInv() {
+            const g = document.getElementById('inv-grid'); g.innerHTML = '';
+            for(let id in inventory) {
+                if(inventory[id]<=0 && id !== 'scrap') continue;
+                const d = document.createElement('div'); d.className = 'inv-item';
+                d.innerHTML = `<span>${id==='scrap'?'⚙️':id==='potion'?'🧪':id==='apple'?'🍎':'💣'}</span><br>${inventory[id]}`;
+                d.onclick = () => { selectedInvItems.push(id); inventory[id]--; document.getElementById('craft-sel').innerText = selectedInvItems.join('+'); renderInv(); };
+                g.appendChild(d);
             }
         }
 
-        // --- セーブコード (Base64) ---
-        function exportSave() {
-            const code = btoa(JSON.stringify({ gold, hp, wave, field, colors, selectedColor, baseLevel }));
-            document.getElementById('save-input').value = code;
-            console.log(`a: ${code}`);
+        function doCraft() {
+            if(selectedInvItems.sort().join(',') === 'scrap,scrap') {
+                inventory.potion++; alert("🧪 力のポーション生成！");
+            } else { alert("失敗！"); }
+            selectedInvItems = []; toggleInv(false); updateDisplay();
         }
 
-        function importSave() {
-            try {
-                const d = JSON.parse(atob(document.getElementById('save-input').value));
-                gold = d.gold; hp = d.hp; wave = d.wave; field = d.field;
-                colors = d.colors; selectedColor = d.selectedColor;
-                updateDisplay(); updatePalette(); alert("Loaded!");
-            } catch(e) { alert("Invalid Code"); }
+        // --- セーブ ---
+        function autoSave() { localStorage.setItem('mc3d_save', btoa(JSON.stringify({gold, hp, wave, field, inventory, badges, activePets}))); }
+        function autoLoad() {
+            const s = localStorage.getItem('mc3d_save');
+            if(s) { 
+                const d = JSON.parse(atob(s)); 
+                gold=d.gold; hp=d.hp; wave=d.wave; field=d.field; inventory=d.inventory; 
+                updateDisplay(); 
+            }
         }
 
-        // 起動
         autoLoad();
-        updatePalette();
-        drawEnemy();
         updateDisplay();
-
     </script>
 </body>
 </html>
