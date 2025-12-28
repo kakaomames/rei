@@ -1,0 +1,16 @@
+{
+  "bgm": "overworld_theme.mp3",
+  "villager": {
+    "spawn": "villager_say.wav",
+    "death": "villager_hit.wav"
+  },
+  "zombie": {
+    "say": "zombie_say.wav",
+    "hurt": "zombie_hit.wav",
+    "death": "zombie_death.wav"
+  },
+  "system": {
+    "gate": "gate_pass.wav",
+    "win": "victory_fanfare.wav"
+  }
+}
