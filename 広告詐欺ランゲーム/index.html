@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gemini Programming隊による最高傑作 3D Mob Runner">
+    <meta name="keywords" content="Minecraft, Three.js, Math Run, Gemini">
+    <meta name="author" content="カカオマメ & Gemini Programming隊">
+    <meta property="og:title" content="True 3D Math Mob Runner">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <title>Mob Runner Master | Gemini Programming隊</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #87CEEB; font-family: 'Arial Black', sans-serif; color: white; user-select: none; }
+        canvas { display: block; }
+        
+        /* UIレイヤー */
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+        #hud { padding: 20px; text-align: center; text-shadow: 2px 2px #000; }
+        
+        .boss-bar { display: none; width: 300px; height: 15px; background: #444; margin: 10px auto; border: 2px solid #fff; pointer-events: none; }
+        #hp-fill { width: 100%; height: 100%; background: #ff4757; transition: width 0.2s; }
+
+        /* 拠点（アップグレード）画面 */
+        #home-screen {
+            position: absolute; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            z-index: 200; pointer-events: auto;
+        }
+        .upgrade-container { background: #333; border: 4px solid #fff; padding: 20px; text-align: center; width: 320px; }
+        .upgrade-item { margin: 10px; padding: 15px; background: #555; cursor: pointer; border: 2px solid #888; font-size: 14px; }
+        .upgrade-item:hover { background: #777; border-color: #fff; }
+        
+        /* RUN！ブロックボタン */
+        #run-button { 
+            width: 200px; height: 80px; background: #2ecc71; color: white; font-size: 35px; 
+            border: none; border-bottom: 8px solid #27ae60; cursor: pointer; margin-top: 20px;
+            text-shadow: 2px 2px #27ae60;
+        }
+        #run-button:active { transform: translateY(4px); border-bottom-width: 4px; }
+
+        /* 会話ウィンドウ */
+        #dialog-window {
+            display: none; position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            width: 80%; max-width: 600px; background: rgba(0,0,0,0.9); border: 3px solid #fff; 
+            padding: 20px; z-index: 300; pointer-events: auto; cursor: pointer;
+        }
+        #dialog-name { color: #f1c40f; font-size: 20px; margin-bottom: 5px; }
+        #dialog-text { font-size: 18px; line-height: 1.4; }
+
+        #logo { position: absolute; bottom: 10px; right: 10px; width: 60px; z-index: 10; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <div id="hud">
+            <div id="stage-info">STAGE 1</div>
+            <div>VILLAGERS: <span id="v-count">1</span></div>
+            <div id="boss-ui" class="boss-bar"><div id="hp-fill"></div></div>
+            <div id="game-msg" style="color:#f1c40f; font-size: 24px;"></div>
+        </div>
+    </div>
+
+    <div id="home-screen">
+        <div style="font-size: 24px; margin-bottom: 10px;">
+            💰 <span id="gold-val">0</span> | ❤️ <span id="love-val">0</span>
+        </div>
+        <div class="upgrade-container">
+            <h3>UPGRADES</h3>
+            <div class="upgrade-item" onclick="upgrade('count')">
+                初期人数 LV.<span id="lv-c">1</span><br>
+                Cost: <span id="cost-c">100</span>G
+            </div>
+            <div class="upgrade-item" onclick="upgrade('reward')">
+                謝礼金UP LV.<span id="lv-r">1</span><br>
+                Cost: <span id="cost-r">200</span>G
+            </div>
+        </div>
+        <button id="run-button" onclick="startGame()">RUN！</button>
+    </div>
+
+    <div id="dialog-window" onclick="nextMessage()">
+        <div id="dialog-name">Name</div>
+        <div id="dialog-text">Text...</div>
+        <div style="text-align:right; font-size:10px; color:#666;">▼ TAP TO NEXT</div>
+    </div>
+
+    <img src="https://kakaomames.github.io/rei/logo.png" id="logo">
+
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+
+        // --- [ 1. グローバル定数・セーブデータ ] ---
+        let saveData = JSON.parse(localStorage.getItem('mc_run_master_data')) || {
+            gold: 0, friendship: 0, lvCount: 1, lvReward: 1, currentStage: 1
+        };
+        console.log(f"saveData determined: {JSON.stringify(saveData)}");
+
+        let villagerCount = saveData.lvCount;
+        let isRunning = false;
+        let isBattle = false;
+        let battleTimer = 0;
+        let currentEnemyData = null;
+        let enemyModel = null;
+        let enemyHP = 0;
+        let enemyMaxHP = 0;
+
+        let gameConfig = { enemies: [], friendlies: [], audio: {}, events: {} };
+
+        // --- [ 2. Three.js 基本シーン ] ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 1.8));
+        const grid = new THREE.GridHelper(200, 100, 0x444444, 0x222222);
+        scene.add(grid);
+
+        const legionGroup = new THREE.Group();
+        scene.add(legionGroup);
+
+        const gateGroup = new THREE.Group();
+        scene.add(gateGroup);
+
+        const objLoader = new OBJLoader();
+        const textureLoader = new THREE.TextureLoader();
+
+        // --- [ 3. データロード & 抽選システム ] ---
+        async function loadAllConfigs() {
+            console.log("Mission: Loading all JSON configs...");
+            const [e, f, a, ev] = await Promise.all([
+                fetch('./mob/enemy.json').then(r => r.json()),
+                fetch('./mob/friendly.json').then(r => r.json()),
+                fetch('./mob/audio/mobs_audio.json').then(r => r.json()),
+                fetch('./mob/event/events.json').then(r => r.json())
+            ]);
+            gameConfig = { enemies: e, friendlies: f, audio: a, events: ev };
+            console.log(f"Config Load Complete. Enemies: {e.length}");
+            updateHomeUI();
+        }
+
+        function getEnemyForStage(stage) {
+            let pool = (stage % 5 === 0) ? 
+                gameConfig.enemies.filter(e => e.isBoss === true) : 
+                gameConfig.enemies.filter(e => e.isBoss === false);
+            
+            let total = 0; pool.forEach(e => total += e.weight);
+            let roll = Math.random() * total;
+            for (const e of pool) { if (roll < e.weight) return e; roll -= e.weight; }
+        }
+
+        // --- [ 4. 3Dモデル表示 & 軍団管理 ] ---
+        function updateLegionVisual() {
+            while(legionGroup.children.length > 0) legionGroup.remove(legionGroup.children[0]);
+            // 村人モデルを assets/friendly/ から読み込みクローン配置
+            // ※簡易版としてBoxで代用（実機ではobjLoaderを使用）
+            for(let i=0; i<villagerCount; i++){
+                const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.5), new THREE.MeshPhongMaterial({color: 0x8b4513}));
+                mesh.position.set((i%5)*0.8 - 1.6, 0.4, Math.floor(i/5)*-0.8);
+                legionGroup.add(mesh);
+            }
+            document.getElementById('v-count').innerText = villagerCount;
+        }
+
+        // --- [ 5. バトルロジック ] ---
+        function startBattle(enemy) {
+            isRunning = false; isBattle = true;
+            currentEnemyData = enemy;
+            enemyHP = enemy.hp; enemyMaxHP = enemy.hp;
+            console.log(f"BATTLE START vs {enemy.name}");
+            document.getElementById('boss-ui').style.display = 'block';
+            // 敵モデル召喚処理
+        }
+
+        function processBattle() {
+            battleTimer++;
+            if (battleTimer % 4 === 0 && isBattle) {
+                if (villagerCount > 0 && enemyHP > 0) {
+                    villagerCount--; enemyHP--;
+                    updateLegionVisual();
+                    document.getElementById('hp-fill').style.width = (enemyHP/enemyMaxHP)*100 + "%";
+                } else if (enemyHP <= 0) {
+                    finishBattle(true);
+                } else {
+                    finishBattle(false);
+                }
+            }
+        }
+
+        function finishBattle(win) {
+            isBattle = false;
+            if(win) {
+                let mCoin = Math.floor(enemyMaxHP / 10);
+                saveData.gold += (mCoin + 10);
+                saveData.friendship += 2;
+                saveData.currentStage++;
+                save();
+                console.log(f"Victory! Gained {mCoin+10} Gold.");
+                startEvent('villager_victory');
+            } else {
+                alert("Game Over! Try Upgrade.");
+                location.reload();
+            }
+        }
+
+        // --- [ 6. UI & イベント制御 ] ---
+        window.upgrade = (type) => {
+            let cost = (type === 'count') ? saveData.lvCount * 100 : saveData.lvReward * 200;
+            if(saveData.gold >= cost) {
+                saveData.gold -= cost;
+                if(type === 'count') saveData.lvCount++; else saveData.lvReward++;
+                save(); updateHomeUI();
+                console.log(f"Upgraded {type}. Gold left: {saveData.gold}");
+            }
+        };
+
+        function updateHomeUI() {
+            document.getElementById('gold-val').innerText = saveData.gold;
+            document.getElementById('love-val').innerText = saveData.friendship;
+            document.getElementById('lv-c').innerText = saveData.lvCount;
+            document.getElementById('cost-c').innerText = saveData.lvCount * 100;
+            document.getElementById('lv-r').innerText = saveData.lvReward;
+            document.getElementById('cost-r').innerText = saveData.lvReward * 200;
+        }
+
+        window.startGame = () => {
+            villagerCount = saveData.lvCount;
+            updateLegionVisual();
+            document.getElementById('home-screen').style.display = 'none';
+            isRunning = true;
+            console.log("RUN Start!");
+        };
+
+        // --- [ 7. メインループ ] ---
+        function animate() {
+            requestAnimationFrame(animate);
+            if(isRunning) {
+                grid.position.z += 0.3; if(grid.position.z > 2) grid.position.z = 0;
+                // ゲートとの当たり判定等をここに追記
+            }
+            if(isBattle) processBattle();
+            renderer.render(scene, camera);
+        }
+
+        function save() { localStorage.setItem('mc_run_master_data', JSON.stringify(saveData)); }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        camera.position.set(0, 5, 10);
+        camera.lookAt(0, 2, 0);
+        loadAllConfigs();
+        animate();
+
+    </script>
+</body>
+</html>
