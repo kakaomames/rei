@@ -1,0 +1,22 @@
+{
+  "name": "Gemini game",
+  "short_name": "GeminiGame",
+  "description": "Gemini game",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#87CEEB",
+  "theme_color": "#2ecc71",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://kakaomames.github.io/rei/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://kakaomames.github.io/rei/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
