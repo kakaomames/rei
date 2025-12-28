@@ -1,0 +1,16 @@
+[
+  {
+    "id": "villager",
+    "name": "村人",
+    "obj": "villager.obj",
+    "png": "villager.png",
+    "description": "鼻が立派な村人。助けると謝礼金をくれる。"
+  },
+  {
+    "id": "iron_golem",
+    "name": "アイアンゴーレム",
+    "obj": "iron_golem.obj",
+    "png": "iron_golem.png",
+    "description": "村人を助ける強力な味方。"
+  }
+]
