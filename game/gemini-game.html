@@ -55,7 +55,20 @@
     </style>
 </head>
 <body>
-
+    <script>
+// --- 🛰️ Service Worker 登録セクション ---
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw-gemini-game.js')
+            .then(reg => {
+                console.log(f"ServiceWorkerRegistered: {reg.scope}");
+            })
+            .catch(err => {
+                console.log(f"ServiceWorkerError: {err}");
+            });
+    });
+}
+</script>
     <audio id="bgm-battle" loop><source src="/bgm/another-eden/bgm_normal_battle.ogg" type="audio/ogg"><source src="/bgm/another-eden/bgm_normal_battle.mp3" type="audio/mpeg"></audio>
     <audio id="se-attack"><source src="kougeki.ogg" type="audio/ogg"></audio>
 
