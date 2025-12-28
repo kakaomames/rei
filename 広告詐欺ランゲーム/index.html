@@ -85,7 +85,7 @@
         <div style="text-align:right; font-size:10px; color:#666;">▼ TAP TO NEXT</div>
     </div>
 
-    <img src="https://kakaomames.github.io/rei/logo.png" id="logo">
+    <img src="/rei/logo.png" id="logo">
 
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script type="importmap">
@@ -110,15 +110,26 @@ if ('serviceWorker' in navigator) {
     });
 }
     </script>
+<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+        }
+    }
+    </script>
+
     <script type="module">
         import * as THREE from 'three';
         import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
         // --- [ 1. グローバル定数・セーブデータ ] ---
+        // ローカルストレージからデータを読み込み
         let saveData = JSON.parse(localStorage.getItem('mc_run_master_data')) || {
             gold: 0, friendship: 0, lvCount: 1, lvReward: 1, currentStage: 1
         };
-        console.log(f"saveData determined: {JSON.stringify(saveData)}");
+        console.log(`saveData determined: ${JSON.stringify(saveData)}`);
 
         let villagerCount = saveData.lvCount;
         let isRunning = false;
@@ -131,17 +142,22 @@ if ('serviceWorker' in navigator) {
 
         let gameConfig = { enemies: [], friendlies: [], audio: {}, events: {} };
 
-        // --- [ 2. Three.js 基本シーン ] ---
+        // --- [ 2. Three.js 基本シーン設定 ] ---
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 1.8));
+        // 照明設定
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
+        scene.add(ambientLight);
+
+        // 地面のグリッド（動いている感を出します）
         const grid = new THREE.GridHelper(200, 100, 0x444444, 0x222222);
         scene.add(grid);
 
+        // モブをまとめるグループ
         const legionGroup = new THREE.Group();
         scene.add(legionGroup);
 
@@ -154,57 +170,65 @@ if ('serviceWorker' in navigator) {
         // --- [ 3. データロード & 抽選システム ] ---
         async function loadAllConfigs() {
             console.log("Mission: Loading all JSON configs...");
-            const [e, f, a, ev] = await Promise.all([
-                fetch('./mob/enemy.json').then(r => r.json()),
-                fetch('./mob/friendly.json').then(r => r.json()),
-                fetch('./mob/audio/mobs_audio.json').then(r => r.json()),
-                fetch('./mob/event/events.json').then(r => r.json())
-            ]);
-            gameConfig = { enemies: e, friendlies: f, audio: a, events: ev };
-            console.log(f"Config Load Complete. Enemies: {e.length}");
-            updateHomeUI();
-        }
-
-        function getEnemyForStage(stage) {
-            let pool = (stage % 5 === 0) ? 
-                gameConfig.enemies.filter(e => e.isBoss === true) : 
-                gameConfig.enemies.filter(e => e.isBoss === false);
-            
-            let total = 0; pool.forEach(e => total += e.weight);
-            let roll = Math.random() * total;
-            for (const e of pool) { if (roll < e.weight) return e; roll -= e.weight; }
+            try {
+                const [e, f, a, ev] = await Promise.all([
+                    fetch('./mob/enemy.json').then(r => r.json()),
+                    fetch('./mob/friendly.json').then(r => r.json()),
+                    fetch('./mob/audio/mobs_audio.json').then(r => r.json()),
+                    fetch('./mob/event/events.json').then(r => r.json())
+                ]);
+                gameConfig = { enemies: e, friendlies: f, audio: a, events: ev };
+                console.log(`Config Load Complete. Enemies found: ${e.length}`);
+                updateHomeUI();
+            } catch (err) {
+                console.error("JSONの読み込みに失敗しました。パスやファイル形式を確認してください:", err);
+            }
         }
 
         // --- [ 4. 3Dモデル表示 & 軍団管理 ] ---
-        function updateLegionVisual() {
-            while(legionGroup.children.length > 0) legionGroup.remove(legionGroup.children[0]);
-            // 村人モデルを assets/friendly/ から読み込みクローン配置
-            // ※簡易版としてBoxで代用（実機ではobjLoaderを使用）
-            for(let i=0; i<villagerCount; i++){
-                const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.5), new THREE.MeshPhongMaterial({color: 0x8b4513}));
-                mesh.position.set((i%5)*0.8 - 1.6, 0.4, Math.floor(i/5)*-0.8);
+        window.updateLegionVisual = function() {
+            // 既存のモデルを削除
+            while(legionGroup.children.length > 0) {
+                legionGroup.remove(legionGroup.children[0]);
+            }
+
+            console.log(`Updating Legion Visuals: ${villagerCount} members`);
+
+            // 村人モデル（仮のBox表示、本物はobjLoader.loadをここで実行）
+            for(let i = 0; i < villagerCount; i++){
+                const geometry = new THREE.BoxGeometry(0.5, 0.8, 0.5);
+                const material = new THREE.MeshPhongMaterial({ color: 0x8b4513 });
+                const mesh = new THREE.Mesh(geometry, material);
+                
+                // ワラワラ整列ロジック
+                mesh.position.set((i % 5) * 0.8 - 1.6, 0.4, Math.floor(i / 5) * -0.8);
                 legionGroup.add(mesh);
             }
             document.getElementById('v-count').innerText = villagerCount;
-        }
+        };
 
         // --- [ 5. バトルロジック ] ---
-        function startBattle(enemy) {
-            isRunning = false; isBattle = true;
+        window.startBattle = function(enemy) {
+            isRunning = false; 
+            isBattle = true;
             currentEnemyData = enemy;
-            enemyHP = enemy.hp; enemyMaxHP = enemy.hp;
-            console.log(f"BATTLE START vs {enemy.name}");
+            enemyHP = enemy.hp; 
+            enemyMaxHP = enemy.hp;
+            
+            console.log(`BATTLE START vs ${enemy.name}`);
             document.getElementById('boss-ui').style.display = 'block';
-            // 敵モデル召喚処理
-        }
+            document.getElementById('hp-fill').style.width = "100%";
+        };
 
         function processBattle() {
             battleTimer++;
             if (battleTimer % 4 === 0 && isBattle) {
                 if (villagerCount > 0 && enemyHP > 0) {
-                    villagerCount--; enemyHP--;
-                    updateLegionVisual();
-                    document.getElementById('hp-fill').style.width = (enemyHP/enemyMaxHP)*100 + "%";
+                    villagerCount--; 
+                    enemyHP--;
+                    window.updateLegionVisual();
+                    document.getElementById('hp-fill').style.width = (enemyHP / enemyMaxHP) * 100 + "%";
+                    console.log(`Battle Progress: Villagers:${villagerCount}, EnemyHP:${enemyHP}`);
                 } else if (enemyHP <= 0) {
                     finishBattle(true);
                 } else {
@@ -215,16 +239,20 @@ if ('serviceWorker' in navigator) {
 
         function finishBattle(win) {
             isBattle = false;
+            document.getElementById('boss-ui').style.display = 'none';
             if(win) {
                 let mCoin = Math.floor(enemyMaxHP / 10);
                 saveData.gold += (mCoin + 10);
                 saveData.friendship += 2;
                 saveData.currentStage++;
                 save();
-                console.log(f"Victory! Gained {mCoin+10} Gold.");
-                startEvent('villager_victory');
+                console.log(`Victory! Gained ${mCoin + 10} Gold.`);
+                // イベント開始
+                if(gameConfig.events.villager_victory) {
+                    window.startEvent('villager_victory');
+                }
             } else {
-                alert("Game Over! Try Upgrade.");
+                alert("Game Over! 村人が全滅しました。アップグレードして再挑戦だ！");
                 location.reload();
             }
         }
@@ -235,8 +263,11 @@ if ('serviceWorker' in navigator) {
             if(saveData.gold >= cost) {
                 saveData.gold -= cost;
                 if(type === 'count') saveData.lvCount++; else saveData.lvReward++;
-                save(); updateHomeUI();
-                console.log(f"Upgraded {type}. Gold left: {saveData.gold}");
+                save(); 
+                updateHomeUI();
+                console.log(`Upgraded ${type} to level ${type === 'count' ? saveData.lvCount : saveData.lvReward}`);
+            } else {
+                console.log("Not enough gold!");
             }
         };
 
@@ -249,35 +280,53 @@ if ('serviceWorker' in navigator) {
             document.getElementById('cost-r').innerText = saveData.lvReward * 200;
         }
 
+        // RUNボタンの処理をwindowに紐付け
         window.startGame = () => {
+            console.log("--- RUN COMMAND RECEIVED ---");
+            if (gameConfig.enemies.length === 0) {
+                console.warn("Wait! Configs are not loaded yet.");
+                // まだロード中なら少し待つ
+                return;
+            }
             villagerCount = saveData.lvCount;
-            updateLegionVisual();
+            window.updateLegionVisual();
             document.getElementById('home-screen').style.display = 'none';
             isRunning = true;
-            console.log("RUN Start!");
+            console.log(`Game Started. isRunning: ${isRunning}`);
         };
 
-        // --- [ 7. メインループ ] ---
+        // --- [ 7. メインループ & セーブ ] ---
         function animate() {
             requestAnimationFrame(animate);
             if(isRunning) {
-                grid.position.z += 0.3; if(grid.position.z > 2) grid.position.z = 0;
-                // ゲートとの当たり判定等をここに追記
+                // 地面を動かす演出
+                grid.position.z += 0.3; 
+                if(grid.position.z > 2) grid.position.z = 0;
+                
+                // 本来はここにゲートとの衝突判定などを入れる
             }
-            if(isBattle) processBattle();
+            if(isBattle) {
+                processBattle();
+            }
             renderer.render(scene, camera);
         }
 
-        function save() { localStorage.setItem('mc_run_master_data', JSON.stringify(saveData)); }
+        function save() { 
+            localStorage.setItem('mc_run_master_data', JSON.stringify(saveData)); 
+        }
 
+        // リサイズ対応
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
+        // 初期設定
         camera.position.set(0, 5, 10);
         camera.lookAt(0, 2, 0);
+        
+        // 起動！
         loadAllConfigs();
         animate();
 
