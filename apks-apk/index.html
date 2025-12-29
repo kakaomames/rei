@@ -3,77 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Gemini Programming隊によるポケモンクエスト・プロジェクト">
-    <meta name="author" content="Gemini Programming隊員">
-    <meta name="keywords" content="Pokemon, Quest, Wasm, APKS, Game">
+    <meta name="description" content="Gemini Programming隊によるポケモンクエスト・プロジェクト。Wasmを活用した高速APKS解析。">
+    <meta name="author" content="カカオマメ隊員">
+    <meta name="keywords" content="Pokemon, Quest, Wasm, APKS, Android, Gemini Programming隊">
+    <meta property="og:title" content="ポケモンクエスト APKS解析所">
+    <meta property="og:image" content="/rei/apks-apk/logo.png">
     <title>ポケモンクエスト - Gemini Programming隊</title>
     
     <style>
-        body { font-family: 'Arial', sans-serif; text-align: center; background-color: #f0f0f0; }
-        .logo { width: 300px; margin-top: 50px; cursor: pointer; }
-        #drop-zone { border: 2px dashed #ccc; padding: 20px; width: 80%; margin: 20px auto; background: white; }
-        .status { color: #555; margin-top: 10px; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background-color: #eef2f3; 
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .logo { 
+            width: 250px; 
+            cursor: pointer; 
+            transition: transform 0.2s;
+        }
+        .logo:hover { transform: scale(1.05); }
+        
+        #drop-zone { 
+            border: 3px dashed #3498db; 
+            border-radius: 10px;
+            padding: 40px; 
+            margin: 20px 0; 
+            background: #f9f9f9;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        #drop-zone.dragover { background: #e1f5fe; border-color: #2980b9; }
+        
+        .status-box {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: left;
+            min-height: 50px;
+            word-break: break-all;
+            white-space: pre-wrap;
+        }
+        
+        .btn {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn:hover { background-color: #d35400; }
     </style>
 </head>
 <body>
 
-    <img src="https://kakaomames.github.io/rei/logo.png" alt="Logo" class="logo" id="logoBtn">
-    
-    <h1>ポケモンクエスト APKS解析所</h1>
+    <div class="container">
+        <img src="https://kakaomames.github.io/rei/logo.png" alt="Gemini Programming隊 Logo" class="logo" id="logoBtn">
+        
+        <h1>ポケモンクエスト <br><small>APKS解析・管理システム</small></h1>
 
-    <div id="drop-zone">ここに .apks ファイルをドロップせよ、隊員！</div>
-    <div id="output" class="status"></div>
+        <div id="drop-zone">
+            ここに .apks ファイルをドラッグ＆ドロップせよ！
+        </div>
 
-    <hr>
-    <button id="startBtn">冒険に出発する（ページ推移テスト）</button>
+        <h3>実行ログ:</h3>
+        <div id="output" class="status-box">Wasmモジュールをロード中...</div>
+
+        <button id="startBtn" class="btn">冒険（ステージ）へ出発する</button>
+    </div>
 
     <script src="apks_tool.js"></script>
 
     <script>
         let unpacker;
+        let WasmInstance; // WasmのModuleインスタンスを保持
 
-        // Wasmモジュールの初期化
+        // 1. Wasmモジュールの初期化
+        // 決定した値を表示！
         createApksModule().then(Module => {
-            console.log("Wasm Module Loaded! 🚀");
+            WasmInstance = Module;
             unpacker = new Module.ApksUnpacker();
-            document.getElementById('output').innerText = "Wasm 準備完了！";
+            
+            const statusMsg = "Wasm Module Loaded! 🚀 Ready for Mission.";
+            console.log(statusMsg);
+            document.getElementById('output').innerText = statusMsg;
+        }).catch(err => {
+            console.error("Wasm Load Error:", err);
+            document.getElementById('output').innerText = "エラー: Wasmの読み込みに失敗したぞ。";
         });
 
-        // ドラッグ＆ドロップ処理
         const dropZone = document.getElementById('drop-zone');
-        dropZone.ondragover = (e) => { e.preventDefault(); };
+        const output = document.getElementById('output');
+
+        // ドラッグイベントの制御
+        dropZone.ondragover = (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        };
+        dropZone.ondragleave = () => {
+            dropZone.classList.remove('dragover');
+        };
+
+        // 2. ファイルドロップ時の処理
         dropZone.ondrop = async (e) => {
             e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
             const file = e.dataTransfer.files[0];
             if (!file) return;
 
-            document.getElementById('output').innerText = `解析中: ${file.name}...`;
+            // ファイル情報を表示
+            console.log(`target_file: ${file.name}`);
+            const fileSize = file.size;
+            console.log(`file_size: ${fileSize}`);
+            output.innerText = `ファイルを受け取った: ${file.name} (${fileSize} bytes)\n解析を開始する！`;
 
+            // ファイルをArrayBufferとして読み込み
             const arrayBuffer = await file.arrayBuffer();
             const uint8Array = new Uint8Array(arrayBuffer);
 
-            // Wasm内のメモリを確保してデータをコピー
-            const bufferPtr = unpacker.__proto__.constructor.module._malloc(uint8Array.length);
-            unpacker.__proto__.constructor.module.HEAPU8.set(uint8Array, bufferPtr);
+            // 【重要修正】WasmInstanceから直接メモリを確保する
+            const bufferPtr = WasmInstance._malloc(uint8Array.length);
+            console.log(`allocated_buffer_ptr: ${bufferPtr}`);
 
-            // C++の関数を呼び出し（結果はブラウザのコンソールに出るぞ！）
-            console.log("--- APKS中身一覧表示開始 ---");
-            unpacker.list_contents(bufferPtr, uint8Array.length);
+            // データをWasmのHEAP（メモリ空間）にコピー
+            WasmInstance.HEAPU8.set(uint8Array, bufferPtr);
 
-            // メモリ解放
-            unpacker.__proto__.constructor.module._free(bufferPtr);
-            document.getElementById('output').innerText = "解析完了！コンソール(F12)を見よ！";
+            try {
+                console.log("--- Wasm Unpacker Start ---");
+                // C++のクラスメソッドを呼び出し
+                unpacker.list_contents(bufferPtr, uint8Array.length);
+                
+                output.innerText += "\n--- 解析完了 ---\nブラウザのコンソール(F12)にファイル一覧を出力したぞ！";
+                console.log("--- Wasm Unpacker End ---");
+            } catch (err) {
+                console.error("Wasm Execution Error:", err);
+                output.innerText += `\nエラー発生: ${err.message}`;
+            } finally {
+                // 確保したメモリは必ず解放！
+                WasmInstance._free(bufferPtr);
+                console.log("Memory memory_status: freed");
+            }
         };
 
-        // 隊員指定のページ推移ロジックだ！
-        document.getElementById('startBtn').addEventListener('click', function() {
-            console.log("stage.html へ推移するぞ！");
-            window.location.href = 'stage.html';
+        // 3. ページ推移ロジック
+        document.getElementById('startBtn').addEventListener('click', () => {
+            const nextStage = "stage.html";
+            console.log(`next_stage: ${nextStage}`);
+            window.location.href = nextStage;
         });
 
-        // ロゴクリックでも推移するようにしたぞ！
-        document.getElementById('logoBtn').addEventListener('click', function() {
-            window.location.href = 'index.html'; // トップへ戻る
+        // ロゴクリックでトップ（自分自身）へ
+        document.getElementById('logoBtn').addEventListener('click', () => {
+            window.location.reload();
         });
     </script>
 </body>
