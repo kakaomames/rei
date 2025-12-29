@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gemini Programming隊によるポケモンクエスト・プロジェクト">
+    <meta name="author" content="Gemini Programming隊員">
+    <meta name="keywords" content="Pokemon, Quest, Wasm, APKS, Game">
+    <title>ポケモンクエスト - Gemini Programming隊</title>
+    
+    <style>
+        body { font-family: 'Arial', sans-serif; text-align: center; background-color: #f0f0f0; }
+        .logo { width: 300px; margin-top: 50px; cursor: pointer; }
+        #drop-zone { border: 2px dashed #ccc; padding: 20px; width: 80%; margin: 20px auto; background: white; }
+        .status { color: #555; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <img src="https://kakaomames.github.io/rei/logo.png" alt="Logo" class="logo" id="logoBtn">
+    
+    <h1>ポケモンクエスト APKS解析所</h1>
+
+    <div id="drop-zone">ここに .apks ファイルをドロップせよ、隊員！</div>
+    <div id="output" class="status"></div>
+
+    <hr>
+    <button id="startBtn">冒険に出発する（ページ推移テスト）</button>
+
+    <script src="apks_tool.js"></script>
+
+    <script>
+        let unpacker;
+
+        // Wasmモジュールの初期化
+        createApksModule().then(Module => {
+            console.log("Wasm Module Loaded! 🚀");
+            unpacker = new Module.ApksUnpacker();
+            document.getElementById('output').innerText = "Wasm 準備完了！";
+        });
+
+        // ドラッグ＆ドロップ処理
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.ondragover = (e) => { e.preventDefault(); };
+        dropZone.ondrop = async (e) => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (!file) return;
+
+            document.getElementById('output').innerText = `解析中: ${file.name}...`;
+
+            const arrayBuffer = await file.arrayBuffer();
+            const uint8Array = new Uint8Array(arrayBuffer);
+
+            // Wasm内のメモリを確保してデータをコピー
+            const bufferPtr = unpacker.__proto__.constructor.module._malloc(uint8Array.length);
+            unpacker.__proto__.constructor.module.HEAPU8.set(uint8Array, bufferPtr);
+
+            // C++の関数を呼び出し（結果はブラウザのコンソールに出るぞ！）
+            console.log("--- APKS中身一覧表示開始 ---");
+            unpacker.list_contents(bufferPtr, uint8Array.length);
+
+            // メモリ解放
+            unpacker.__proto__.constructor.module._free(bufferPtr);
+            document.getElementById('output').innerText = "解析完了！コンソール(F12)を見よ！";
+        };
+
+        // 隊員指定のページ推移ロジックだ！
+        document.getElementById('startBtn').addEventListener('click', function() {
+            console.log("stage.html へ推移するぞ！");
+            window.location.href = 'stage.html';
+        });
+
+        // ロゴクリックでも推移するようにしたぞ！
+        document.getElementById('logoBtn').addEventListener('click', function() {
+            window.location.href = 'index.html'; // トップへ戻る
+        });
+    </script>
+</body>
+</html>
