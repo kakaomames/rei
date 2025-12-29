@@ -7,7 +7,7 @@
     <meta name="author" content="カカオマメ隊員">
     <meta name="keywords" content="Pokemon, Quest, Wasm, APKS, Android, Gemini Programming隊">
     <meta property="og:title" content="ポケモンクエスト APKS解析所">
-    <meta property="og:image" content="/rei/apks-apk/logo.png">
+    <meta property="og:image" content="/rei/apks-apk/icon.png">
     <title>ポケモンクエスト - Gemini Programming隊</title>
     
     <style>
@@ -73,7 +73,7 @@
 <body>
 
     <div class="container">
-        <img src="https://kakaomames.github.io/rei/logo.png" alt="Gemini Programming隊 Logo" class="logo" id="logoBtn">
+        <img src="icon.png" alt="Gemini Programming隊 Logo" class="logo" id="logoBtn">
         
         <h1>ポケモンクエスト <br><small>APKS解析・管理システム</small></h1>
 
@@ -89,89 +89,109 @@
 
     <script src="apks_tool.js"></script>
 
-    <script>
-        let unpacker;
-        let WasmInstance; // WasmのModuleインスタンスを保持
+<script>
+    let unpacker;
+    let WasmInstance; // WasmのModuleインスタンスを保持
 
-        // 1. Wasmモジュールの初期化
-        // 決定した値を表示！
-        createApksModule().then(Module => {
-            WasmInstance = Module;
-            unpacker = new Module.ApksUnpacker();
-            
-            const statusMsg = "Wasm Module Loaded! 🚀 Ready for Mission.";
-            console.log(statusMsg);
-            document.getElementById('output').innerText = statusMsg;
-        }).catch(err => {
-            console.error("Wasm Load Error:", err);
-            document.getElementById('output').innerText = "エラー: Wasmの読み込みに失敗したぞ。";
-        });
+    // 1. Wasmモジュールの初期化
+    // 決定した値を表示！
+    createApksModule().then(Module => {
+        WasmInstance = Module;
+        unpacker = new Module.ApksUnpacker();
+        
+        const statusMsg = "Wasm Module Loaded! 🚀 Ready for Mission.";
+        console.log(statusMsg);
+        
+        // --- 隊長デバッグ：ロード直後に中身をスキャン ---
+        console.log("=== WasmInstance Internal Scan ===");
+        console.log("Available Properties:", Object.keys(WasmInstance));
+        if (WasmInstance._malloc) {
+            console.log("Result: _malloc is available directly.");
+        } else {
+            console.log("Result: _malloc is NOT found. Need investigation.");
+        }
+        
+        document.getElementById('output').innerText = statusMsg;
+    }).catch(err => {
+        console.error("Wasm Load Error:", err);
+        document.getElementById('output').innerText = "エラー: Wasmの読み込みに失敗。";
+    });
 
-        const dropZone = document.getElementById('drop-zone');
-        const output = document.getElementById('output');
+    const dropZone = document.getElementById('drop-zone');
+    const output = document.getElementById('output');
 
-        // ドラッグイベントの制御
-        dropZone.ondragover = (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        };
-        dropZone.ondragleave = () => {
-            dropZone.classList.remove('dragover');
-        };
+    dropZone.ondragover = (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    };
+    dropZone.ondragleave = () => {
+        dropZone.classList.remove('dragover');
+    };
 
-        // 2. ファイルドロップ時の処理
-        dropZone.ondrop = async (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            
-            const file = e.dataTransfer.files[0];
-            if (!file) return;
+    // 2. ファイルドロップ時の詳細デバッグ処理
+    dropZone.ondrop = async (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
 
-            // ファイル情報を表示
-            console.log(`target_file: ${file.name}`);
-            const fileSize = file.size;
-            console.log(`file_size: ${fileSize}`);
-            output.innerText = `ファイルを受け取った: ${file.name} (${fileSize} bytes)\n解析を開始する！`;
+        console.log(`target_file: ${file.name}`);
+        console.log(`target_size: ${file.size}`);
+        output.innerText = `解析開始: ${file.name}`;
 
-            // ファイルをArrayBufferとして読み込み
-            const arrayBuffer = await file.arrayBuffer();
-            const uint8Array = new Uint8Array(arrayBuffer);
+        const arrayBuffer = await file.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
 
-            // 【重要修正】WasmInstanceから直接メモリを確保する
-            const bufferPtr = WasmInstance._malloc(uint8Array.length);
-            console.log(`allocated_buffer_ptr: ${bufferPtr}`);
+        // malloc関数の場所を動的に特定する
+        const mallocFunc = WasmInstance._malloc || (WasmInstance.asm && WasmInstance.asm.malloc);
+        const freeFunc = WasmInstance._free || (WasmInstance.asm && WasmInstance.asm.free);
 
-            // データをWasmのHEAP（メモリ空間）にコピー
+        if (typeof mallocFunc !== 'function') {
+            console.error("Critical Error: malloc function not found!");
+            console.log("Detailed Module Info:", WasmInstance);
+            output.innerText = "エラー: Wasmのメモリ確保関数が見つからないぞ！コンパイル設定を確認せよ。";
+            return;
+        }
+
+        // メモリ確保実行
+        const bufferPtr = mallocFunc(uint8Array.length);
+        console.log(`allocated_ptr: ${bufferPtr}`);
+
+        // HEAPU8が存在するかチェック
+        const heap = WasmInstance.HEAPU8 || (WasmInstance.asm && WasmInstance.asm.memory);
+        if (WasmInstance.HEAPU8) {
             WasmInstance.HEAPU8.set(uint8Array, bufferPtr);
+        } else {
+            console.error("Critical Error: HEAPU8 not found!");
+        }
 
-            try {
-                console.log("--- Wasm Unpacker Start ---");
-                // C++のクラスメソッドを呼び出し
-                unpacker.list_contents(bufferPtr, uint8Array.length);
-                
-                output.innerText += "\n--- 解析完了 ---\nブラウザのコンソール(F12)にファイル一覧を出力したぞ！";
-                console.log("--- Wasm Unpacker End ---");
-            } catch (err) {
-                console.error("Wasm Execution Error:", err);
-                output.innerText += `\nエラー発生: ${err.message}`;
-            } finally {
-                // 確保したメモリは必ず解放！
-                WasmInstance._free(bufferPtr);
-                console.log("Memory memory_status: freed");
+        try {
+            console.log("--- Wasm Core Logic Start ---");
+            // C++のメソッドを呼び出し
+            unpacker.list_contents(bufferPtr, uint8Array.length);
+            console.log("--- Wasm Core Logic End ---");
+            output.innerText = "解析成功！コンソールを見よ！";
+        } catch (err) {
+            console.error("Wasm Execution Error:", err);
+            output.innerText = `エラー発生: ${err.message}`;
+        } finally {
+            if (bufferPtr && freeFunc) {
+                freeFunc(bufferPtr);
+                console.log("memory_status: freed");
             }
-        };
+        }
+    };
 
-        // 3. ページ推移ロジック
-        document.getElementById('startBtn').addEventListener('click', () => {
-            const nextStage = "stage.html";
-            console.log(`next_stage: ${nextStage}`);
-            window.location.href = nextStage;
-        });
+    // 3. ページ推移
+    document.getElementById('startBtn').addEventListener('click', () => {
+        console.log("stage.htmlへ転進する！");
+        window.location.href = 'stage.html';
+    });
 
-        // ロゴクリックでトップ（自分自身）へ
-        document.getElementById('logoBtn').addEventListener('click', () => {
-            window.location.reload();
-        });
-    </script>
+    document.getElementById('logoBtn').addEventListener('click', () => {
+        window.location.reload();
+    });
+</script>
 </body>
 </html>
