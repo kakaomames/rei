@@ -128,12 +128,112 @@ a?
               <div class="boxcontent">
                 <script type="module" src="https://xeroxapp032.vercel.app/proxy?u=https://www.chunkbase.com/_astro/Dw7_WF2kZ80n.js"></script>
                 <script type="module">
-  var c=(e,l)=>()=>(l||e((l={exports:{}}).exports,l),l.exports);var p=c((u,d)=>{typeof d<"u"&&(d=void 0);typeof u<"u"&&(u=void 0);function v(){jQuery.fn.reverse=[].reverse,Array.prototype.remove=function(e,l){var i=this.slice((l||e)+1||this.length);return this.length=e<0?this.length+e:e,this.push.apply(this,i)},(function(e,l){var i=["DOMMouseScroll","mousewheel","MozMousePixelScroll"];if(e.event.fixHooks)for(var a=i.length;a;)e.event.fixHooks[i[--a]]=e.event.mouseHooks;e.event.special.mousewheel={setup:function(){if(this.addEventListener)for(var n=i.length;n;)this.addEventListener(i[--n],s,!1);else this.onmousewheel=s},teardown:function(){if(this.removeEventListener)for(var n=i.length;n;)this.removeEventListener(i[--n],s,!1);else this.onmousewheel=null}};function s(n){var t=n||window.event,o=[].slice.call(arguments,1),r=0,h=0,f=0;return n=e.event.fix(t),n.type="mousewheel",t.wheelDelta&&(r=t.wheelDelta/120),t.detail&&(t.type==i[2]?(this.removeEventListener(i[0],s,!1),r=-t.detail/42):r=-t.detail/3),f=r,t.axis!==l&&t.axis===t.HORIZONTAL_AXIS&&(f=0,h=-1*r),t.wheelDeltaY!==l&&(f=t.wheelDeltaY/120),t.wheelDeltaX!==l&&(h=-1*t.wheelDeltaX/120),o.unshift(n,r,h,f),(e.event.dispatch||e.event.handle).apply(this,o)}})(jQuery),(function(e){var l='[data-dismiss="alert"]',i=function(a){e(a).on("click",l,this.close)};i.prototype.close=function(a){var s=e(this),n=s.attr("data-target"),t;if(n||(n=s.attr("href"),n=n&&n.replace(/.*(?=#[^\s]*$)/,"")),t=e(n),a&&a.preventDefault(),t.length||(t=s.hasClass("alert")?s:s.parent()),t.trigger(a=e.Event("close")),a.isDefaultPrevented())return;t.removeClass("in");function o(){t.trigger("closed").remove()}e.support.transition&&t.hasClass("fade")?t.on(e.support.transition.end,o):o()},e.fn.alert=function(a){return this.each(function(){var s=e(this),n=s.data("alert");n||s.data("alert",n=new i(this)),typeof a=="string"&&n[a].call(s)})},e.fn.alert.Constructor=i,e(function(){e("body").on("click.alert.data-api",l,i.prototype.close)})})(window.jQuery)}v.call(typeof window<"u"?window:globalThis)});export default p();
-  //# sourceMappingURL=DF-GTRCydE-N.js.map
+  var c = (e, l) => () => (l || e((l = {
+  exports: {}
+}).exports, l), l.exports);
+var p = c((u, d) => {
+  typeof d < "u" && (d = void 0);
+  typeof u < "u" && (u = void 0);
+
+  function v() {
+    jQuery.fn.reverse = [].reverse, Array.prototype.remove = function(e, l) {
+      var i = this.slice((l || e) + 1 || this.length);
+      return this.length = e < 0 ? this.length + e : e, this.push.apply(this, i)
+    }, (function(e, l) {
+      var i = ["DOMMouseScroll", "mousewheel", "MozMousePixelScroll"];
+      if (e.event.fixHooks)
+        for (var a = i.length; a;) e.event.fixHooks[i[--a]] = e.event.mouseHooks;
+      e.event.special.mousewheel = {
+        setup: function() {
+          if (this.addEventListener)
+            for (var n = i.length; n;) this.addEventListener(i[--n], s, !1);
+          else this.onmousewheel = s
+        },
+        teardown: function() {
+          if (this.removeEventListener)
+            for (var n = i.length; n;) this.removeEventListener(i[--n], s, !1);
+          else this.onmousewheel = null
+        }
+      };
+
+      function s(n) {
+        var t = n || window.event,
+          o = [].slice.call(arguments, 1),
+          r = 0,
+          h = 0,
+          f = 0;
+        return n = e.event.fix(t), n.type = "mousewheel", t.wheelDelta && (r = t.wheelDelta / 120), t.detail && (t.type == i[2] ? (this.removeEventListener(i[0], s, !1), r = -t.detail / 42) : r = -t.detail / 3), f = r, t.axis !== l && t.axis === t.HORIZONTAL_AXIS && (f = 0, h = -1 * r), t.wheelDeltaY !== l && (f = t.wheelDeltaY / 120), t.wheelDeltaX !== l && (h = -1 * t.wheelDeltaX / 120), o.unshift(n, r, h, f), (e.event.dispatch || e.event.handle).apply(this, o)
+      }
+    })(jQuery), (function(e) {
+      var l = '[data-dismiss="alert"]',
+        i = function(a) {
+          e(a).on("click", l, this.close)
+        };
+      i.prototype.close = function(a) {
+        var s = e(this),
+          n = s.attr("data-target"),
+          t;
+        if (n || (n = s.attr("href"), n = n && n.replace(/.*(?=#[^\s]*$)/, "")), t = e(n), a && a.preventDefault(), t.length || (t = s.hasClass("alert") ? s : s.parent()), t.trigger(a = e.Event("close")), a.isDefaultPrevented()) return;
+        t.removeClass("in");
+
+        function o() {
+          t.trigger("closed").remove()
+        }
+        e.support.transition && t.hasClass("fade") ? t.on(e.support.transition.end, o) : o()
+      }, e.fn.alert = function(a) {
+        return this.each(function() {
+          var s = e(this),
+            n = s.data("alert");
+          n || s.data("alert", n = new i(this)), typeof a == "string" && n[a].call(s)
+        })
+      }, e.fn.alert.Constructor = i, e(function() {
+        e("body").on("click.alert.data-api", l, i.prototype.close)
+      })
+    })(window.jQuery)
+  }
+  v.call(typeof window < "u" ? window : globalThis)
+});
+export default p();  //# sourceMappingURL=DF-GTRCydE-N.js.map
                 </script>
                 <script type="module">
-  var l=(u,r)=>()=>(r||u((r={exports:{}}).exports,r),r.exports);var a=l((o,t)=>{typeof t<"u"&&(t=void 0);typeof o<"u"&&(o=void 0);function d(){function u(n,i){if(typeof n=="object"&&n!=null&&typeof i=="object"&&i!=null){var f=[0,0];for(var e in n)f[0]++;for(var e in i)f[1]++;if(f[0]-f[1]!==0)return!1;for(var e in n)if(!(e in i)||!u(n[e],i[e]))return!1;for(var e in i)if(!(e in n)||!u(i[e],n[e]))return!1;return!0}else return n===i}function r(n,i){var f;return function(){clearTimeout(f);var e=arguments;f=setTimeout(function(){n.apply(this,e)},i||1)}}globalThis.deepEqual=u,globalThis.__CB__debounce=r}d.call(typeof window<"u"?window:globalThis)});export default a();
-  //# sourceMappingURL=DG3VTVBP6MKW.js.map
+  var l = (u, r) => () => (r || u((r = {
+  exports: {}
+}).exports, r), r.exports);
+var a = l((o, t) => {
+  typeof t < "u" && (t = void 0);
+  typeof o < "u" && (o = void 0);
+
+  function d() {
+    function u(n, i) {
+      if (typeof n == "object" && n != null && typeof i == "object" && i != null) {
+        var f = [0, 0];
+        for (var e in n) f[0]++;
+        for (var e in i) f[1]++;
+        if (f[0] - f[1] !== 0) return !1;
+        for (var e in n)
+          if (!(e in i) || !u(n[e], i[e])) return !1;
+        for (var e in i)
+          if (!(e in n) || !u(i[e], n[e])) return !1;
+        return !0
+      } else return n === i
+    }
+
+    function r(n, i) {
+      var f;
+      return function() {
+        clearTimeout(f);
+        var e = arguments;
+        f = setTimeout(function() {
+          n.apply(this, e)
+        }, i || 1)
+      }
+    }
+    globalThis.deepEqual = u, globalThis.__CB__debounce = r
+  }
+  d.call(typeof window < "u" ? window : globalThis)
+});
+export default a();
+//# sourceMappingURL=DG3VTVBP6MKW.js.map
                 </script>
                 <script type="module" src="https://xeroxapp032.vercel.app/proxy?u=https://www.chunkbase.com/_astro/CjmQTeTWe-0G.js"></script>
                 <script type="module" src="https://xeroxapp032.vercel.app/proxy?u=https://www.chunkbase.com/_astro/DeDpOBIYLtII.js"></script>
@@ -141,20 +241,192 @@ a?
                 <script type="module" src="https://xeroxapp032.vercel.app/proxy?u=https://www.chunkbase.com/_astro/N6sYsm_uHNTh.js"></script>
                 <script type="module" src="https://xeroxapp032.vercel.app/proxy?u=https://www.chunkbase.com/_astro/B6SM9kDq_g3j.js"></script>
                 <script>
-  window.CB3FinderAppConfig ={"pois":"all","initiallyVisiblePois":["spawn","village","buriedTreasure","bastionRemnant","endCity","trialChamber","netherFortress","ruinedPortalOverworld","ancientCity","slimeChunk","woodlandMansion"],"dimensions":["overworld","nether","end"],"showBiomeFilter":true,"hideGridLines":true,"showHeightsToggle":true,"showBiomeHeightSelection":true,"filterPoisByZoomLevel":true,"renderImg":true,"chunkWidths":"full"}
-                </script>
+  window.CB3FinderAppConfig = {
+  "pois": "all",
+  "initiallyVisiblePois": ["spawn", "village", "buriedTreasure", "bastionRemnant", "endCity", "trialChamber", "netherFortress", "ruinedPortalOverworld", "ancientCity", "slimeChunk", "woodlandMansion"],
+  "dimensions": ["overworld", "nether", "end"],
+  "showBiomeFilter": true,
+  "hideGridLines": true,
+  "showHeightsToggle": true,
+  "showBiomeHeightSelection": true,
+  "filterPoisByZoomLevel": true,
+  "renderImg": true,
+  "chunkWidths": "full"
+}                </script>
                 <script type="module" src="https://xeroxapp032.vercel.app/proxy?u=https://www.chunkbase.com/_astro/DvDPuTmQ6t80.js"></script>
                 <script type="module">
-  var p=(u,h)=>()=>(h||u((h={exports:{}}).exports,h),h.exports);var w=p((m,g)=>{typeof g<"u"&&(g=void 0);typeof m<"u"&&(m=void 0);function _(){var u=(function(){function f(i,n){var t;if(typeof Symbol>"u"||i[Symbol.iterator]==null){if(Array.isArray(i)||(t=o(i))||n){t&&(i=t);var e=0;return function(){return e>=i.length?{done:!0}:{done:!1,value:i[e++]}}}throw new TypeError(`Invalid attempt to iterate non-iterable instance.
-  In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)}return t=i[Symbol.iterator](),t.next.bind(t)}function o(i,n){if(i){if(typeof i=="string")return a(i,n);var t=Object.prototype.toString.call(i).slice(8,-1);if(t==="Object"&&i.constructor&&(t=i.constructor.name),t==="Map"||t==="Set")return Array.from(i);if(t==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t))return a(i,n)}}function a(i,n){(n==null||n>i.length)&&(n=i.length);for(var t=0,e=new Array(n);t<n;t++)e[t]=i[t];return e}function l(i,n){for(var t=0;t<n.length;t++){var e=n[t];e.enumerable=e.enumerable||!1,e.configurable=!0,"value"in e&&(e.writable=!0),Object.defineProperty(i,e.key,e)}}function c(i,n,t){return n&&l(i.prototype,n),i}var s=(function(){function i(t){if(t===void 0&&(t={}),!(t.maxSize&&t.maxSize>0))throw new TypeError("`maxSize` must be a number greater than 0");this.maxSize=t.maxSize,this.onEviction=t.onEviction,this.cache=new Map,this.oldCache=new Map,this._size=0}var n=i.prototype;return n._set=function(e,r){if(this.cache.set(e,r),this._size++,this._size>=this.maxSize){if(this._size=0,typeof this.onEviction=="function")for(var d=f(this.oldCache.entries()),v;!(v=d()).done;){var b=v.value,y=b[0],z=b[1];this.onEviction(y,z)}this.oldCache=this.cache,this.cache=new Map}},n.get=function(e){if(this.cache.has(e))return this.cache.get(e);if(this.oldCache.has(e)){var r=this.oldCache.get(e);return this.oldCache.delete(e),this._set(e,r),r}},n.set=function(e,r){return this.cache.has(e)?this.cache.set(e,r):this._set(e,r),this},n.has=function(e){return this.cache.has(e)||this.oldCache.has(e)},n.peek=function(e){if(this.cache.has(e))return this.cache.get(e);if(this.oldCache.has(e))return this.oldCache.get(e)},n.delete=function(e){var r=this.cache.delete(e);return r&&this._size--,this.oldCache.delete(e)||r},n.clear=function(){this.cache.clear(),this.oldCache.clear(),this._size=0},c(i,[{key:"size",get:function(){for(var e=0,r=f(this.oldCache.keys()),d;!(d=r()).done;){var v=d.value;this.cache.has(v)||e++}return Math.min(this._size+e,this.maxSize)}}]),i})();return s})();function h(f,o){var a=new u(o),l=function(){var c=o.hash.apply(null,arguments);if(a.has(c))return a.get(c);var s=f.apply(null,arguments);return typeof s<"u"&&a.set(c,s),s};return l.clear=function(){a.clear()},l}globalThis.QuickLRU=u,globalThis.memoizeQuickLRU=h}_.call(typeof window<"u"?window:globalThis)});export default w();
-  //# sourceMappingURL=DFfoZ79rzMiS.js.map
+  var p = (u, h) => () => (h || u((h = {
+  exports: {}
+}).exports, h), h.exports);
+var w = p((m, g) => {
+  typeof g < "u" && (g = void 0);
+  typeof m < "u" && (m = void 0);
+
+  function _() {
+    var u = (function() {
+      function f(i, n) {
+        var t;
+        if (typeof Symbol > "u" || i[Symbol.iterator] == null) {
+          if (Array.isArray(i) || (t = o(i)) || n) {
+            t && (i = t);
+            var e = 0;
+            return function() {
+              return e >= i.length ? {
+                done: !0
+              } : {
+                done: !1,
+                value: i[e++]
+              }
+            }
+          }
+          throw new TypeError(`Invalid attempt to iterate non-iterable instance.
+  In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)
+        }
+        return t = i[Symbol.iterator](), t.next.bind(t)
+      }
+
+      function o(i, n) {
+        if (i) {
+          if (typeof i == "string") return a(i, n);
+          var t = Object.prototype.toString.call(i).slice(8, -1);
+          if (t === "Object" && i.constructor && (t = i.constructor.name), t === "Map" || t === "Set") return Array.from(i);
+          if (t === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t)) return a(i, n)
+        }
+      }
+
+      function a(i, n) {
+        (n == null || n > i.length) && (n = i.length);
+        for (var t = 0, e = new Array(n); t < n; t++) e[t] = i[t];
+        return e
+      }
+
+      function l(i, n) {
+        for (var t = 0; t < n.length; t++) {
+          var e = n[t];
+          e.enumerable = e.enumerable || !1, e.configurable = !0, "value" in e && (e.writable = !0), Object.defineProperty(i, e.key, e)
+        }
+      }
+
+      function c(i, n, t) {
+        return n && l(i.prototype, n), i
+      }
+      var s = (function() {
+        function i(t) {
+          if (t === void 0 && (t = {}), !(t.maxSize && t.maxSize > 0)) throw new TypeError("`maxSize` must be a number greater than 0");
+          this.maxSize = t.maxSize, this.onEviction = t.onEviction, this.cache = new Map, this.oldCache = new Map, this._size = 0
+        }
+        var n = i.prototype;
+        return n._set = function(e, r) {
+          if (this.cache.set(e, r), this._size++, this._size >= this.maxSize) {
+            if (this._size = 0, typeof this.onEviction == "function")
+              for (var d = f(this.oldCache.entries()), v; !(v = d()).done;) {
+                var b = v.value,
+                  y = b[0],
+                  z = b[1];
+                this.onEviction(y, z)
+              }
+            this.oldCache = this.cache, this.cache = new Map
+          }
+        }, n.get = function(e) {
+          if (this.cache.has(e)) return this.cache.get(e);
+          if (this.oldCache.has(e)) {
+            var r = this.oldCache.get(e);
+            return this.oldCache.delete(e), this._set(e, r), r
+          }
+        }, n.set = function(e, r) {
+          return this.cache.has(e) ? this.cache.set(e, r) : this._set(e, r), this
+        }, n.has = function(e) {
+          return this.cache.has(e) || this.oldCache.has(e)
+        }, n.peek = function(e) {
+          if (this.cache.has(e)) return this.cache.get(e);
+          if (this.oldCache.has(e)) return this.oldCache.get(e)
+        }, n.delete = function(e) {
+          var r = this.cache.delete(e);
+          return r && this._size--, this.oldCache.delete(e) || r
+        }, n.clear = function() {
+          this.cache.clear(), this.oldCache.clear(), this._size = 0
+        }, c(i, [{
+          key: "size",
+          get: function() {
+            for (var e = 0, r = f(this.oldCache.keys()), d; !(d = r()).done;) {
+              var v = d.value;
+              this.cache.has(v) || e++
+            }
+            return Math.min(this._size + e, this.maxSize)
+          }
+        }]), i
+      })();
+      return s
+    })();
+
+    function h(f, o) {
+      var a = new u(o),
+        l = function() {
+          var c = o.hash.apply(null, arguments);
+          if (a.has(c)) return a.get(c);
+          var s = f.apply(null, arguments);
+          return typeof s < "u" && a.set(c, s), s
+        };
+      return l.clear = function() {
+        a.clear()
+      }, l
+    }
+    globalThis.QuickLRU = u, globalThis.memoizeQuickLRU = h
+  }
+  _.call(typeof window < "u" ? window : globalThis)
+});
+export default w();
+//# sourceMappingURL=DFfoZ79rzMiS.js.map
                 </script>
                 <script type="module" src="https://xeroxapp032.vercel.app/proxy?u=https://www.chunkbase.com/_astro/GvITmQR1YFa7.js"></script>
                 <script type="module" src="https://xeroxapp032.vercel.app/proxy?u=https://www.chunkbase.com/_astro/BGGir4i-VM_U.js"></script>
                 <script type="module" src="https://xeroxapp032.vercel.app/proxy?u=https://www.chunkbase.com/_astro/B7YIOWCcUt32.js"></script>
                 <script type="module">
-  var f={init:function(d){var r=new QuickLRU({maxSize:32}),s={};d.forEach(function(t,h){t.addEventListener("message",function(e){if(e.data.type==="sharedTaskPerformResult"){var a=e.data.key,i=e.data.result;r.set(a,i),s[a].forEach(function(n){n(i)}),delete s[a]}else if(e.data.type==="sharedTaskGet"){var a=e.data.key;if(r.has(a)){t.postMessage({type:"sharedTaskResult",key:a,result:r.get(a)});return}if(s[a]){s[a].push(function(u){t.postMessage({type:"sharedTaskResult",key:a,result:u})});return}s[a]=[],t.postMessage({type:"sharedTaskPerform",key:a})}},!1)})}};globalThis.CB3SharedTaskManagerMain=f;
-  //# sourceMappingURL=Ckm0lHGQKlNd.js.map
+  var f = {
+  init: function(d) {
+    var r = new QuickLRU({
+        maxSize: 32
+      }),
+      s = {};
+    d.forEach(function(t, h) {
+      t.addEventListener("message", function(e) {
+        if (e.data.type === "sharedTaskPerformResult") {
+          var a = e.data.key,
+            i = e.data.result;
+          r.set(a, i), s[a].forEach(function(n) {
+            n(i)
+          }), delete s[a]
+        } else if (e.data.type === "sharedTaskGet") {
+          var a = e.data.key;
+          if (r.has(a)) {
+            t.postMessage({
+              type: "sharedTaskResult",
+              key: a,
+              result: r.get(a)
+            });
+            return
+          }
+          if (s[a]) {
+            s[a].push(function(u) {
+              t.postMessage({
+                type: "sharedTaskResult",
+                key: a,
+                result: u
+              })
+            });
+            return
+          }
+          s[a] = [], t.postMessage({
+            type: "sharedTaskPerform",
+            key: a
+          })
+        }
+      }, !1)
+    })
+  }
+};
+globalThis.CB3SharedTaskManagerMain = f;
+//# sourceMappingURL=Ckm0lHGQKlNd.js.map
                 </script>
                 <script type="module" src="https://xeroxapp032.vercel.app/proxy?u=https://www.chunkbase.com/_astro/B4lC4z16Utyi.js"></script>
                 <script type="module" src="https://xeroxapp032.vercel.app/proxy?u=https://www.chunkbase.com/_astro/BtHdOLc1TM0i.js"></script>
