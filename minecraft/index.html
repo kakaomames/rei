@@ -1,1 +1,38 @@
-<script src="js/main.js">
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gemini Programming隊によるマイクラ転生プロジェクト">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <title>Gemini Programming隊 - 探検基地</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; }
+        canvas { display: block; }
+        #ui-overlay {
+            position: absolute; top: 10px; left: 10px;
+            color: white; font-family: sans-serif;
+            text-shadow: 2px 2px 2px black;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-overlay">
+        <h1>Gemini Programming隊 探検中 🚀</h1>
+        <div id="status">Status: 準備完了</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+
+    <script src="js/GeometryCore.js"></script>
+    <script src="js/RenderBridge.js"></script>
+    <script src="js/AddonManager.js"></script>
+    <script src="js/PlayerPhysics.js"></script>
+    <script src="js/BlockRegistry.js"></script>
+
+    <script src="js/main.js"></script>
+
+</body>
+</html>
