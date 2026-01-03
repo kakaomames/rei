@@ -1,23 +1,43 @@
-// 【main.js】
-async function startGravityTest() {
-    RenderBridge.init();
-
-    // 1. 地面を設置 (grass block)
-    const grassData = await AddonManager.loadBlock('grass'); 
-    grassData.geometry.forEach(cube => RenderBridge.createMesh(cube, grassMaterial));
-
-    // 2. スティーブを読み込んで召喚
-    const response = await fetch('RP/models/entity/steve.geometry.json');
-    const steveRaw = await response.json();
-    const steveCubes = GeometryCore.parse(JSON.stringify(steveRaw));
+// main.js
+async function startMission() {
+    const statusEl = document.getElementById('status');
     
-    PlayerPhysics.init(steveCubes, steveSkinMaterial);
+    try {
+        statusEl.innerText = "Status: 3D基地を初期化中...";
+        RenderBridge.init();
+        console.log("RenderBridge: OK");
 
-    // 3. ゲームループ（毎フレーム実行）
-    function loop() {
-        // 地面データの配列を渡して物理演算！
-        PlayerPhysics.update(grassData.geometry); 
-        requestAnimationFrame(loop);
+        statusEl.innerText = "Status: BP/RPデータを取得中...";
+        // 🚩 ここでパスが正しいかチェック！
+        // https://kakaomames.github.io/rei/minecraft/BP/blocks/grass.json にあるか？
+        const grassBlock = await AddonManager.loadBlock('grass');
+        console.log("AddonManager: OK", grassBlock);
+
+        statusEl.innerText = "Status: スティーブを召喚中...";
+        const response = await fetch('RP/models/entity/steve.geometry.json');
+        if (!response.ok) throw new Error("SteveのJSONが見つかりません！");
+        const steveData = await response.json();
+        const steveCubes = GeometryCore.parse(JSON.stringify(steveData));
+        
+        // 仮のマテリアル
+        const steveMat = new THREE.MeshStandardMaterial({ color: 0x00ffaa });
+        PlayerPhysics.init(steveCubes, steveMat);
+
+        statusEl.innerText = "Status: 重力テスト開始！";
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            PlayerPhysics.update(grassBlock.geometry);
+            RenderBridge.render();
+        }
+        animate();
+
+    } catch (error) {
+        console.error("作戦失敗:", error);
+        statusEl.innerText = "Error: " + error.message;
+        statusEl.style.color = "red";
     }
-    loop();
 }
+
+// 実行！
+startMission();
