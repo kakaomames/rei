@@ -1,46 +1,27 @@
-// RenderBridge.js (強化版)
-(function() {
-    window.RenderBridge = {
-        scene: null,
-        loader: new THREE.TextureLoader(),
+// RenderBridge.js の init 部分
+init: function() {
+    const canvas = document.getElementById('game-canvas');
+    this.scene = new THREE.Scene();
+    
+    // HTMLのcanvasを指定してレンダラーを作成
+    this.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    
+    // カメラ（これがないと何も見えない！）
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    this.camera.position.set(0, 35, 50); // スティーブが落ちるのを見守る位置
+    this.camera.lookAt(0, 0, 0);
 
-        init: function() {
-            this.scene = new THREE.Scene();
-            // 背景を空っぽっぽく青くしてみる（任意）
-            this.scene.background = new THREE.Color(0x87CEEB);
-            console.log("RenderBridge: 3D基地、アドオン対応完了！🔭");
-        },
+    // 光源（これがないと真っ暗！）
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(10, 20, 10);
+    this.scene.add(light);
+    this.scene.add(new THREE.AmbientLight(0x404040));
 
-        // assets/textures/ から画像を読み込む専用関数
-        createBlockMaterial: function(fileName) {
-            const texture = this.loader.load(`RP/vannilas/v1/textures/${fileName}`);
-            
-            // 重要：マイクラのドット感を出すための「魔法の呪文」
-            texture.magFilter = THREE.NearestFilter;
-            texture.minFilter = THREE.NearestFilter;
-            texture.colorSpace = THREE.SRGBColorSpace; // 色味を正しく出す
+    console.log("RenderBridge: Canvas接続完了！モニター点灯！📺");
+},
 
-            return new THREE.MeshStandardMaterial({ 
-                map: texture,
-                transparent: true, // ガラスや草のために透明度も許可
-                alphaTest: 0.5     // 境界線をクッキリさせる
-            });
-        },
-
-        createMesh: function(cube, material) {
-            const size = cube.size;
-            const origin = cube.origin;
-            const geometry = new THREE.BoxGeometry(size[0], size[1], size[2]);
-            const mesh = new THREE.Mesh(geometry, material);
-
-            // 中心座標へのオフセット計算
-            mesh.position.set(
-                origin[0] + size[0] / 2,
-                origin[1] + size[1] / 2,
-                origin[2] + size[2] / 2
-            );
-
-            this.scene.add(mesh);
-        }
-    };
-})();
+render: function() {
+    this.renderer.render(this.scene, this.camera);
+}
