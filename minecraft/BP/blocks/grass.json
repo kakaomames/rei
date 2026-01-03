@@ -1,0 +1,18 @@
+{
+    "format_version": "1.12.0",
+    "minecraft:block": {
+        "description": {
+            "identifier": "geometry.grass",
+            "register_id": "grass"
+        },
+        "components": {
+            "minecraft:explosion_resistance": 0.5,
+            "minecraft:friction": 0.6,
+            "textures": {
+                "up": "grass_top.png",
+                "down": "dirt.png",
+                "side": "grass_side.png"
+            }
+        }
+    }
+}
