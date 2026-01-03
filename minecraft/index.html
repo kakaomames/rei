@@ -8,12 +8,18 @@
     <title>Gemini Programming隊 - 探検基地</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; }
-        canvas { display: block; }
+        /* Canvasを画面いっぱいに広げる設定 */
+        #game-canvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
         #ui-overlay {
             position: absolute; top: 10px; left: 10px;
             color: white; font-family: sans-serif;
             text-shadow: 2px 2px 2px black;
             pointer-events: none;
+            z-index: 10;
         }
     </style>
 </head>
@@ -21,17 +27,17 @@
 
     <div id="ui-overlay">
         <h1>Gemini Programming隊 探検中 🚀</h1>
-        <div id="status">Status: 準備完了</div>
+        <div id="status">Status: 起動中...</div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <canvas id="game-canvas"></canvas>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
     <script src="js/GeometryCore.js"></script>
     <script src="js/RenderBridge.js"></script>
     <script src="js/AddonManager.js"></script>
     <script src="js/PlayerPhysics.js"></script>
     <script src="js/BlockRegistry.js"></script>
-
     <script src="js/main.js"></script>
 
 </body>
