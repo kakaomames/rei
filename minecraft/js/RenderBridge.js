@@ -13,7 +13,7 @@
 
         // assets/textures/ から画像を読み込む専用関数
         createBlockMaterial: function(fileName) {
-            const texture = this.loader.load(`assets/textures/${fileName}`);
+            const texture = this.loader.load(`RP/vannilas/v1/textures/${fileName}`);
             
             // 重要：マイクラのドット感を出すための「魔法の呪文」
             texture.magFilter = THREE.NearestFilter;
