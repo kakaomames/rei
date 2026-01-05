@@ -4,16 +4,14 @@ on:
   push:
     branches: [ "main" ]
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 */10 * * *' # 10時間おきに巡回
   workflow_dispatch:
 
 jobs:
   wake-up-base:
     runs-on: ubuntu-latest
-    # 403エラーをぶっ飛ばすための権限付与！
-    permissions:
-      contents: write
-      codespaces: write
+    # エラーが出る場合は permissions ごと一旦削除して OK！
+    # デフォルトの権限で gh コマンドが通るか試すぞ。
       
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -22,23 +20,30 @@ jobs:
     steps:
       - name: 📡 基地の状態を確認 & 起動
         run: |
-          echo "Target Codespace: $CODESPACE_NAME"
-          # 状態を確認
+          echo "target_name: $CODESPACE_NAME"
+          # codespaces list を取得して状態を確認
+          # --jq のクエリが空文字を返さないように注意して組むぞ
           STATUS=$(gh codespace list --json name,state --jq ".[] | select(.name==\"$CODESPACE_NAME\") | .state")
-          echo "current_status: $STATUS"
+          print(f"status_result: {STATUS}")
           
-          if [ "$STATUS" != "Available" ]; then
-            echo "基地が沈黙中。再起動シーケンス開始... 🔥"
-            gh codespace resume -c $CODESPACE_NAME
-          else
-            echo "✅ 基地はすでに稼働中だ！"
+          if [ -z "$STATUS" ]; then
+            echo "❌ 基地が見つかりません。シークレットの名前を確認してください！"
+            exit 1
           fi
 
-      - name: 🧪 最終疎通テスト (Port 5000)
+          if [ "$STATUS" != "Available" ]; then
+            echo "基地が沈黙中（$STATUS）。再起動シーケンス開始... 🔥"
+            gh codespace resume -c $CODESPACE_NAME
+          else
+            echo "✅ 基地はすでに稼働中だ！全システムグリーン！"
+          fi
+
+      - name: 🧪 最終疎通テスト
         run: |
-          sleep 10
-          # ポート5000番がPublicになっていれば、ここから叩けるぞ！
+          sleep 15
+          # ポート5000番を叩いて生存確認
           TARGET_URL="https://${CODESPACE_NAME}-5000.app.github.dev/"
-          echo "testing_url: $TARGET_URL"
-          RESPONSE=$(curl -L -s -o /dev/null -w "%{http_code}" $TARGET_URL)
+          echo "checking_url: $TARGET_URL"
+          # -k は証明書エラー対策、-L はリダイレクト対策だ
+          RESPONSE=$(curl -k -L -s -o /dev/null -w "%{http_code}" $TARGET_URL)
           echo "http_response: $RESPONSE"
