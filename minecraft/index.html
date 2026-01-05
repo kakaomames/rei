@@ -4,30 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
-    <title>Gemini Craft - アクション実装！🏃💨</title>
+    <meta name="description" content="Gemini programming隊 - 統合サバイバルシステム">
+    <meta name="author" content="Gemini programming隊">
+    <meta property="og:title" content="Gemini Craft Inventory Edition">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <meta name="robots" content="index,follow">
+    <title>Gemini Craft - Inventory System ⚒️</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: sans-serif; }
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Arial', sans-serif; }
         canvas { display: block; }
+        
+        /* クロスヘア */
         #crosshair {
             position: absolute; top: 50%; left: 50%;
             width: 20px; height: 20px; margin: -10px 0 0 -10px;
             color: white; font-size: 24px; text-align: center; line-height: 20px;
             pointer-events: none; z-index: 10;
         }
+
+        /* インベントリ UI */
+        #inventory-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: none; justify-content: center;
+            align-items: center; z-index: 100;
+        }
+        #inventory-window {
+            background: #c6c6c6; border: 4px solid #555; padding: 20px;
+            display: grid; grid-template-columns: repeat(9, 45px); gap: 5px;
+            box-shadow: inset -4px -4px #888, inset 4px 4px #fff;
+        }
+        .inv-slot {
+            width: 45px; height: 45px; background: #8b8b8b;
+            border: 2px solid #373737; display: flex; align-items: center;
+            justify-content: center; font-size: 24px; cursor: pointer;
+            box-shadow: inset -2px -2px #555, inset 2px 2px #333;
+        }
+        .inv-slot:hover { background: #aaa; }
+
+        /* ストレージUI */
+        #storage-ui {
+            position: absolute; top: 10px; right: 10px;
+            width: 220px; background: rgba(0,0,0,0.7);
+            color: white; padding: 10px; border-radius: 8px;
+            font-size: 12px; z-index: 20;
+        }
+        .btn {
+            background: #4CAF50; border: none; color: white; 
+            padding: 5px 10px; cursor: pointer; border-radius: 4px;
+            width: 100%; margin-top: 5px;
+        }
+
+        /* サバイバルUI */
         #ui-info {
             position: absolute; top: 10px; left: 10px;
             color: white; background: rgba(0,0,0,0.6);
             padding: 10px; border-radius: 8px; pointer-events: none;
         }
+        #clock-ui {
+            position: absolute; top: 110px; left: 10px;
+            color: #fff; background: rgba(0,0,0,0.6);
+            padding: 8px; border-radius: 8px; font-weight: bold;
+        }
+        #survival-ui {
+            position: absolute; bottom: 80px; left: 50%;
+            transform: translateX(-50%); width: 350px; pointer-events: none;
+        }
+        .bar-container { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .icon-row { font-size: 18px; letter-spacing: 2px; }
+        #xp-container {
+            width: 100%; height: 8px; background: rgba(0,0,0,0.5);
+            border: 1px solid #333; position: relative;
+        }
+        #xp-bar { width: 0%; height: 100%; background: #7cfc00; transition: width 0.3s; }
+
+        /* ホットバー */
+        #hotbar {
+            position: absolute; bottom: 20px; left: 50%;
+            transform: translateX(-50%); display: flex; gap: 5px;
+            background: rgba(0,0,0,0.5); padding: 5px; border-radius: 5px;
+        }
+        .slot {
+            width: 40px; height: 40px; border: 2px solid #555;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 20px;
+        }
+        .slot.active { border-color: #fff; background: rgba(255,255,255,0.2); }
     </style>
 </head>
 <body>
 
     <div id="ui-info">
-        <b>Gemini programming隊：アクション班</b><br>
-        Space: ジャンプ / Shift: スニーク<br>
-        WASD: 移動 / マウス: 視点
+        <b>Gemini programming隊：拠点</b><br>
+        [E] インベントリ開閉 / [Click] 画面固定<br>
+        [WSAD] 移動 / [Space] ジャンプ
     </div>
+
+    <div id="clock-ui">Time: 06:00 ☀️</div>
+
+    <div id="inventory-overlay">
+        <div id="inventory-window">
+            </div>
+    </div>
+
+    <div id="storage-ui">
+        <b>📦 Storage Manager</b>
+        <div id="db-status">DB: 接続中...</div>
+        <button class="btn" onclick="document.getElementById('file-input').click()">Import .mcpack</button>
+        <input type="file" id="file-input" style="display:none" accept=".mcpack,.mcaddon,.mcworld">
+        <hr>
+        <div id="data-list" style="max-height: 80px; overflow-y: auto;">保存データなし</div>
+    </div>
+
+    <div id="survival-ui">
+        <div class="bar-container">
+            <div id="hp-row" class="icon-row">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
+            <div id="hunger-row" class="icon-row">🍖🍖🍖🍖🍖🍖🍖🍖🍖🍖</div>
+        </div>
+        <div id="xp-container"><div id="xp-bar"></div></div>
+    </div>
+    
+    <div id="hotbar">
+        <div id="hot-0" class="slot active">🌿</div>
+        <div id="hot-1" class="slot">🪨</div>
+        <div id="hot-2" class="slot">⛏️</div>
+        <div id="hot-3" class="slot">🍎</div>
+        <div id="hot-4" class="slot"></div>
+        <div id="hot-5" class="slot"></div>
+        <div id="hot-6" class="slot"></div>
+        <div id="hot-7" class="slot"></div>
+        <div id="hot-8" class="slot"></div>
+    </div>
+
     <div id="crosshair">+</div>
 
     <script type="importmap">
@@ -36,119 +143,161 @@
     <script type="module">
         import * as THREE from 'three';
 
-        // --- 1. 基本設定 ---
+        // --- 1. インベントリ管理 JS ---
+        const inventoryData = {
+            isOpen: false,
+            slots: Array(27).fill(null).map((_, i) => (i < 5 ? ["🍎", "🪵", "⛏️", "🌿", "🪨"][i] : null)),
+            hotbar: ["🌿", "🪨", "⛏️", "🍎", "", "", "", "", ""],
+            activeIndex: 0
+        };
+
+        function toggleInventory() {
+            inventoryData.isOpen = !inventoryData.isOpen;
+            const overlay = document.getElementById('inventory-overlay');
+            overlay.style.display = inventoryData.isOpen ? 'flex' : 'none';
+            
+            if (inventoryData.isOpen) {
+                document.exitPointerLock();
+                renderInventory();
+            } else {
+                document.body.requestPointerLock();
+            }
+        }
+
+        function renderInventory() {
+            const win = document.getElementById('inventory-window');
+            win.innerHTML = '';
+            // 27スロット分生成
+            inventoryData.slots.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = 'inv-slot';
+                div.innerText = item || '';
+                div.onclick = () => {
+                    console.log(`Slot ${i} selected: ${item}`);
+                    // ここにアイテム移動ロジックを追加可能
+                };
+                win.appendChild(div);
+            });
+        }
+
+        // --- 2. 既存のロジック拡張 ---
+        class GeminiStorage {
+            constructor() { this.dbName = "GeminiCraftDB"; this.db = null; }
+            async init() {
+                return new Promise((resolve) => {
+                    const request = indexedDB.open(this.dbName, 1);
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('addons')) db.createObjectStore('addons', { keyPath: 'id' });
+                        if (!db.objectStoreNames.contains('worlds')) db.createObjectStore('worlds', { keyPath: 'id' });
+                    };
+                    request.onsuccess = (e) => {
+                        this.db = e.target.result;
+                        document.getElementById('db-status').innerText = "DB: OK ✅";
+                        resolve();
+                    };
+                });
+            }
+            async saveData(storeName, data) {
+                const tx = this.db.transaction(storeName, "readwrite");
+                await tx.objectStore(storeName).put(data);
+                console.log(`Data saved to ${storeName}:`, data.id);
+            }
+        }
+
+        const storage = new GeminiStorage();
+        await storage.init();
+
+        // Three.js 基本設定
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87ceeb);
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-        const sun = new THREE.DirectionalLight(0xffffff, 1.0);
-        sun.position.set(10, 50, 10);
-        scene.add(sun);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
 
-        // 地面（1陣の成果）
+        // 地形 (16x16)
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const grassMat = new THREE.MeshStandardMaterial({ color: 0x55aa55 });
-        const world = new THREE.Group();
-        scene.add(world);
-        for(let x=0; x<20; x++) {
-            for(let z=0; z<20; z++) {
-                const block = new THREE.Mesh(geometry, grassMat);
-                block.position.set(x - 10, -1, z - 10);
-                world.add(block);
+        const mat = new THREE.MeshStandardMaterial({ color: 0x55aa55 });
+        for(let x=0; x<16; x++) {
+            for(let z=0; z<16; z++) {
+                const b = new THREE.Mesh(geometry, mat);
+                b.position.set(x, 0, z);
+                scene.add(b);
             }
         }
 
-        // --- 2. プレイヤーの状態管理 ---
-        let player = {
-            height: 1.6,
-            sneakHeight: 1.2,
-            speed: 0.1,
-            sneakSpeed: 0.04,
-            jumpStrength: 0.15,
-            velocity: new THREE.Vector3(0, 0, 0),
-            isGrounded: false,
-            yaw: 0,
-            pitch: 0
-        };
-
+        let player = { pos: new THREE.Vector3(8, 2, 8), vel: new THREE.Vector3(0, 0, 0), yaw: 0, pitch: 0 };
         const keys = {};
-        document.addEventListener('keydown', (e) => { 
-            keys[e.code] = true;
-            console.log(`Key Down: ${e.code}`);
-        });
-        document.addEventListener('keyup', (e) => { keys[e.code] = false; });
+        let stats = { hp: 20, hunger: 20, xp: 0, worldTime: 600 };
 
-        // 視点移動
-        document.addEventListener('click', () => document.body.requestPointerLock());
+        // --- 3. イベントリスナー ---
+        document.addEventListener('keydown', (e) => {
+            keys[e.code] = true;
+            // Eキーでインベントリ
+            if (e.code === 'KeyE') toggleInventory();
+            // 数字キーでホットバー切り替え
+            if (e.key >= 1 && e.key <= 9) {
+                inventoryData.activeIndex = parseInt(e.key) - 1;
+                updateHotbarUI();
+            }
+        });
+        document.addEventListener('keyup', (e) => keys[e.code] = false);
+        document.addEventListener('click', () => {
+            if (!inventoryData.isOpen) document.body.requestPointerLock();
+        });
+
         document.addEventListener('mousemove', (e) => {
             if (document.pointerLockElement === document.body) {
                 player.yaw -= e.movementX * 0.002;
                 player.pitch -= e.movementY * 0.002;
                 player.pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, player.pitch));
-                camera.rotation.order = "YXZ";
-                camera.rotation.y = player.yaw;
-                camera.rotation.x = player.pitch;
+                camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
             }
         });
 
-        // --- 3. 物理演算 ＆ 移動ループ ---
-        function updatePlayer() {
-            // 現在の速度（重力）
-            const gravity = -0.008;
-            player.velocity.y += gravity;
-            
-            // 接地判定（簡易版：y=0以下にならない）
-            const currentHeight = keys['ShiftLeft'] ? player.sneakHeight : player.height;
-            const floorY = 0; 
-            
-            if (camera.position.y <= floorY + currentHeight) {
-                if (player.velocity.y < 0) {
-                    player.velocity.y = 0;
-                    player.isGrounded = true;
-                }
-                camera.position.y = floorY + currentHeight;
-            } else {
-                player.isGrounded = false;
+        function updateHotbarUI() {
+            for (let i = 0; i < 9; i++) {
+                const slot = document.getElementById(`hot-${i}`);
+                slot.className = i === inventoryData.activeIndex ? 'slot active' : 'slot';
             }
+        }
 
-            // ジャンプ処理
-            if (keys['Space'] && player.isGrounded) {
-                player.velocity.y = player.jumpStrength;
-                player.isGrounded = false;
-                console.log(`Jump! Power: ${player.jumpStrength}`);
-            }
-
-            // 移動計算
-            const currentSpeed = keys['ShiftLeft'] ? player.sneakSpeed : player.speed;
-            const moveDir = new THREE.Vector3();
-            if (keys['KeyW']) moveDir.z -= 1;
-            if (keys['KeyS']) moveDir.z += 1;
-            if (keys['KeyA']) moveDir.x -= 1;
-            if (keys['KeyD']) moveDir.x += 1;
+        function updateUI() {
+            const h = Math.max(0, Math.ceil(stats.hp / 2));
+            document.getElementById('hp-row').innerText = "❤️".repeat(h) + "🖤".repeat(10 - h);
+            const hu = Math.max(0, Math.ceil(stats.hunger / 2));
+            document.getElementById('hunger-row').innerText = "🍖".repeat(hu) + "🦴".repeat(10 - hu);
+            document.getElementById('xp-bar').style.width = `${stats.xp % 100}%`;
             
-            moveDir.normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), player.yaw);
-            
-            camera.position.x += moveDir.x * currentSpeed;
-            camera.position.z += moveDir.z * currentSpeed;
-            camera.position.y += player.velocity.y;
-
-            // 定期的なログ出力
-            if (Math.abs(player.velocity.y) > 0.01) {
-                console.log(`Velocity Y: ${player.velocity.y.toFixed(4)} | Grounded: ${player.isGrounded}`);
-            }
+            stats.worldTime = (stats.worldTime + 0.5) % 2400;
+            const hrs = Math.floor(stats.worldTime / 100).toString().padStart(2, '0');
+            document.getElementById('clock-ui').innerText = `Time: ${hrs}:00 ☀️`;
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            updatePlayer();
+            
+            if (!inventoryData.isOpen) {
+                const speed = keys['ShiftLeft'] ? 0.15 : 0.08;
+                if (keys['KeyW']) { player.pos.x -= Math.sin(player.yaw) * speed; player.pos.z -= Math.cos(player.yaw) * speed; }
+                if (keys['KeyS']) { player.pos.x += Math.sin(player.yaw) * speed; player.pos.z += Math.cos(player.yaw) * speed; }
+                if (keys['KeyA']) { player.pos.x -= Math.cos(player.yaw) * speed; player.pos.z += Math.sin(player.yaw) * speed; }
+                if (keys['KeyD']) { player.pos.x += Math.cos(player.yaw) * speed; player.pos.z -= Math.sin(player.yaw) * speed; }
+
+                if (keys['Space'] && player.pos.y <= 2.1) player.vel.y = 0.15;
+                player.vel.y -= 0.008; player.pos.y += player.vel.y;
+                if (player.pos.y < 2) { player.pos.y = 2; player.vel.y = 0; }
+            }
+
+            camera.position.copy(player.pos);
+            updateUI();
             renderer.render(scene, camera);
         }
-        animate();
 
+        animate();
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
