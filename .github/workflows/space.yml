@@ -14,7 +14,8 @@ jobs:
     # デフォルトの権限で gh コマンドが通るか試すぞ。
       
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 標準のトークンから、作成した強力なトークンに変更！
+      GH_TOKEN: ${{ secrets.MY_PAT }}
       CODESPACE_NAME: ${{ secrets.MY_CODESPACE_NAME }}
       
     steps:
