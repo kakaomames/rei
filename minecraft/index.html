@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Craft - インベントリ9枠拡張 🛠️</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #87CEEB; font-family: sans-serif; }
+        canvas { display: block; }
+        #crosshair {
+            position: absolute; top: 50%; left: 50%;
+            width: 20px; height: 20px; margin: -10px 0 0 -10px;
+            color: white; font-size: 24px; text-align: center; line-height: 20px;
+            pointer-events: none; z-index: 10;
+        }
+        /* インベントリUI：9スロット用に調整 */
+        #inventory-overlay {
+            position: absolute; bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid #555; background: #c6c6c6;
+            padding: 5px; display: flex; gap: 5px; z-index: 100;
+        }
+        .slot {
+            width: 50px; height: 50px; background: #8b8b8b;
+            border: 2px solid #373737; display: flex;
+            flex-direction: column; justify-content: center; align-items: center; 
+            font-size: 20px; position: relative;
+        }
+        .slot.selected { border-color: #ffffff; box-shadow: 0 0 10px #fff; background: #ababab; }
+        .slot-num { position: absolute; top: 2px; left: 2px; font-size: 10px; color: #ddd; }
+        
+        #ui-info {
+            position: absolute; top: 10px; left: 10px;
+            color: white; background: rgba(0,0,0,0.6);
+            padding: 10px; border-radius: 8px; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-info">
+        <b>Gemini programming隊：フル装備</b><br>
+        数字キー [1-9]: スロット選択<br>
+        右クリック: 設置 / 左クリック: 破壊
+    </div>
+    <div id="crosshair">+</div>
+    <div id="inventory-overlay"></div>
+
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- 1. インベントリ拡張 (9種類) ---
+        const inventoryData = [
+            { id: 0, name: "grass",   icon: "🌱", color: 0x55aa55 },
+            { id: 1, name: "dirt",    icon: "🧱", color: 0x8b4513 },
+            { id: 2, name: "stone",   icon: "🪨", color: 0x808080 },
+            { id: 3, name: "diamond", icon: "💎", color: 0x00ffff },
+            { id: 4, name: "wood",    icon: "🪵", color: 0x654321 },
+            { id: 5, name: "leaf",    icon: "🍃", color: 0x228b22 },
+            { id: 6, name: "gold",    icon: "🟡", color: 0xffd700 },
+            { id: 7, name: "iron",    icon: "⚪", color: 0xdcdcdc },
+            { id: 8, name: "bedrock", icon: "⬛", color: 0x333333 }
+        ];
+        let selectedSlot = 0;
+        console.log(`Inventory Initialized: ${inventoryData.length} slots.`);
+        console.log(`Current select: ${inventoryData[selectedSlot].name}`);
+
+        // マテリアル生成
+        const blockMaterials = {};
+        inventoryData.forEach(item => {
+            blockMaterials[item.name] = new THREE.MeshStandardMaterial({ color: item.color });
+        });
+
+        // --- 2. Three.js セットアップ ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87ceeb);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        sunLight.position.set(10, 50, 10);
+        scene.add(sunLight);
+
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const worldGroup = new THREE.Group();
+        scene.add(worldGroup);
+
+        // 初期地面
+        for(let x=0; x<16; x++) {
+            for(let z=0; z<16; z++) {
+                const block = new THREE.Mesh(geometry, blockMaterials["grass"]);
+                block.position.set(x, 0, z);
+                block.userData.type = "grass";
+                worldGroup.add(block);
+            }
+        }
+
+        // --- 3. UI 制御 ---
+        const inventoryOverlay = document.getElementById('inventory-overlay');
+        function renderInventory() {
+            inventoryOverlay.innerHTML = '';
+            inventoryData.forEach((item, index) => {
+                const slot = document.createElement('div');
+                slot.className = `slot ${index === selectedSlot ? 'selected' : ''}`;
+                
+                const num = document.createElement('span');
+                num.className = 'slot-num';
+                num.innerText = index + 1;
+                
+                slot.appendChild(num);
+                slot.appendChild(document.createTextNode(item.icon));
+                inventoryOverlay.appendChild(slot);
+            });
+            console.log(`UI Updated. Selected slot: ${selectedSlot + 1}`);
+        }
+        renderInventory();
+
+        document.addEventListener('keydown', (e) => {
+            // 1〜9キーの判定
+            if (e.key >= '1' && e.key <= '9') {
+                selectedSlot = parseInt(e.key) - 1;
+                const item = inventoryData[selectedSlot];
+                console.log(`Slot changed to: ${e.key} | Item: ${item.name} | Color: ${item.color.toString(16)}`);
+                renderInventory();
+            }
+        });
+
+        // --- 4. 設置 ＆ 破壊 ---
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2(0, 0);
+
+        window.addEventListener('mousedown', (e) => {
+            if (document.pointerLockElement !== document.body) return;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(worldGroup.children);
+
+            if (e.button === 0) { // 左クリック
+                if (intersects.length > 0) {
+                    const target = intersects[0].object;
+                    console.log(`Action: Destroy | Block: ${target.userData.type} | Pos: ${target.position.x},${target.position.y},${target.position.z}`);
+                    worldGroup.remove(target);
+                }
+            } else if (e.button === 2) { // 右クリック
+                if (intersects.length > 0) {
+                    const intersect = intersects[0];
+                    const pos = intersect.object.position.clone().add(intersect.face.normal);
+                    
+                    const item = inventoryData[selectedSlot];
+                    const newBlock = new THREE.Mesh(geometry, blockMaterials[item.name]);
+                    newBlock.position.copy(pos);
+                    newBlock.userData.type = item.name;
+                    worldGroup.add(newBlock);
+                    
+                    console.log(`Action: Place | Block: ${item.name} | TargetPos: ${pos.x},${pos.y},${pos.z}`);
+                }
+            }
+        });
+        window.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // --- 5. 操作ループ ---
+        camera.position.set(8, 5, 15);
+        camera.lookAt(8, 0, 8);
+        document.addEventListener('click', () => document.body.requestPointerLock());
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
