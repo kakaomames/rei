@@ -1,4 +1,4 @@
 {
-  "name": "Gemini Programming Base",
-  "postStartCommand": "pip install flask flask-socketio && python app.py"
+  "name": "Gemini Programming Minecraft",
+  "postStartCommand": "pip install flask flask-socketio && python minecraft.py"
 }
