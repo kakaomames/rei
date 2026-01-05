@@ -1,0 +1,56 @@
+name: minecraft-通信 🛰️
+
+on:
+  push:
+    branches: [ "main" ]
+  schedule:
+    # 隊員の要望通り、定期的に巡回（10時間おき、または1時間おき）
+    - cron: '0 * * * *'
+  workflow_dispatch: # 手動出撃ボタン！
+
+jobs:
+  wake-up-base:
+    runs-on: ubuntu-latest
+    env:
+      # GitHubの権限を使うための合言葉
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      CODESPACE_NAME: ${{ secrets.MY_CODESPACE_NAME }} # リポジトリの設定で追加してくれ！
+      
+    steps:
+      - name: 🛠️ 装備の確認 (GitHub CLI)
+        run: |
+          gh --version
+          echo "GitHub CLI is ready to go! 🛡️"
+
+      - name: 📡 基地の現在の状態を確認
+        id: check_status
+        run: |
+          # 基地の状態を取得
+          STATUS=$(gh codespace list --json name,state --jq ".[] | select(.name==\"$CODESPACE_NAME\") | .state")
+          echo "Current Status: $STATUS"
+          echo "base_state=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: ⚡ 基地を強制起動 (Resume)
+        if: steps.check_status.outputs.base_state != 'Available'
+        run: |
+          echo "基地が沈黙しています... 再起動シーケンス開始！🔥"
+          gh codespace resume -c $CODESPACE_NAME
+          echo "再起動命令を送信しました！📡"
+
+      - name: 🧪 最終接続テスト
+        run: |
+          # 基地が立ち上がるまで少し待機
+          sleep 20
+          TARGET_URL="https://$CODESPACE_NAME-5000.app.github.dev"
+          echo "Testing connection to: $TARGET_URL"
+          python minecraft.py
+          
+          # curlで通信確認！
+          RESPONSE=$(curl -L -s -o /dev/null -w "%{http_code}" $TARGET_URL)
+          echo "Response Code: $RESPONSE"
+          
+          if [ "$RESPONSE" == "200" ]; then
+            echo "✅ 基地の完全復旧を確認！探検を再開する！✨"
+          else
+            echo "⚠️ 起動しましたが、アプリが応答しません。手動確認を求む！"
+          fi
