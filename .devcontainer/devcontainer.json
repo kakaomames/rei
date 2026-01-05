@@ -1,0 +1,4 @@
+{
+  "name": "Gemini Programming Base",
+  "postStartCommand": "pip install flask flask-socketio && python app.py"
+}
