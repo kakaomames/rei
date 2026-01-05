@@ -25,7 +25,7 @@ jobs:
           # codespaces list を取得して状態を確認
           # --jq のクエリが空文字を返さないように注意して組むぞ
           STATUS=$(gh codespace list --json name,state --jq ".[] | select(.name==\"$CODESPACE_NAME\") | .state")
-          print(f"status_result: {STATUS}")
+          # print(f"status_result: {STATUS}")
           
           if [ -z "$STATUS" ]; then
             echo "❌ 基地が見つかりません。シークレットの名前を確認してください！"
