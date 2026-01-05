@@ -10,30 +10,65 @@
     <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
     <meta name="robots" content="index,follow">
     <title>Gemini Craft - Inventory System ⚒️</title>
-    <style src="./style.css"></style><!-- ここに全てのcssがあります。追加する場合はこのタグの下に新しいstyleタグを置いて、記入してください。 -->
+    <link rel="stylesheet" href="./style.css"><!-- ここに全てのcssがあります。追加する場合はこのタグの下に新しいstyleタグを置いて、記入してください。 -->
+    <link rel="stylesheet" href="./style.css">
+    <style>
+        /* モバイル対応のための追加スタイル 📱 */
+        body { touch-action: none; overflow: hidden; -webkit-user-select: none; user-select: none; }
+        
+        /* モバイル用コントローラー */
+        #mobile-controls {
+            position: fixed; bottom: 20px; left: 20px;
+            display: none; grid-template-columns: repeat(3, 50px); gap: 10px;
+            z-index: 100;
+        }
+        .touch-btn {
+            width: 50px; height: 50px; background: rgba(255,255,255,0.3);
+            border: 2px solid #fff; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: white;
+        }
+        #btn-jump { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; }
+        #btn-inv { position: fixed; top: 10px; right: 10px; width: 50px; height: 50px; background: rgba(0,0,0,0.5); }
+
+        @media (max-width: 768px) {
+            #mobile-controls { display: grid; }
+            #ui-info { font-size: 10px; top: 5px; left: 5px; }
+            #hotbar { transform: scale(0.8); bottom: 5px; }
+            #survival-ui { transform: scale(0.8); bottom: 70px; left: 5px; }
+        }
+
+        /* インベントリスロットをタップしやすく */
+        .inv-slot { min-width: 40px; min-height: 40px; cursor: pointer; }
+    </style>
 </head>
 <body>
 
     <div id="ui-info">
         <b>Gemini programming隊：拠点</b><br>
-        [E] インベントリ開閉 / [Click] 画面固定<br>
-        [WSAD] 移動 / [Space] ジャンプ
+        [E/Tap] インベントリ / [Move] タッチ操作
     </div>
 
     <div id="clock-ui">Time: 06:00 ☀️</div>
 
     <div id="inventory-overlay">
-        <div id="inventory-window">
-            </div>
+        <div id="inventory-window"></div>
     </div>
+
+    <div id="mobile-controls">
+        <div></div><div class="touch-btn" id="btn-w">W</div><div></div>
+        <div class="touch-btn" id="btn-a">A</div><div class="touch-btn" id="btn-s">S</div><div class="touch-btn" id="btn-d">D</div>
+    </div>
+    <div class="touch-btn" id="btn-jump">UP</div>
+    <div class="touch-btn" id="btn-inv">🎒</div>
 
     <div id="storage-ui">
         <b>📦 Storage Manager</b>
         <div id="db-status">DB: 接続中...</div>
-        <button class="btn" onclick="document.getElementById('file-input').click()">Import .mcpack</button>
+        <button class="btn" onclick="document.getElementById('file-input').click()">Import</button>
         <input type="file" id="file-input" style="display:none" accept=".mcpack,.mcaddon,.mcworld">
         <hr>
-        <div id="data-list" style="max-height: 80px; overflow-y: auto;">保存データなし</div>
+        <div id="data-list" style="max-height: 50px; overflow-y: auto;">保存データなし</div>
     </div>
 
     <div id="survival-ui">
@@ -45,15 +80,15 @@
     </div>
     
     <div id="hotbar">
-        <div id="hot-0" class="slot active">🌿</div>
-        <div id="hot-1" class="slot">🪨</div>
-        <div id="hot-2" class="slot">⛏️</div>
-        <div id="hot-3" class="slot">🍎</div>
-        <div id="hot-4" class="slot"></div>
-        <div id="hot-5" class="slot"></div>
-        <div id="hot-6" class="slot"></div>
-        <div id="hot-7" class="slot"></div>
-        <div id="hot-8" class="slot"></div>
+        <div id="hot-0" class="slot active" onclick="selectHotbar(0)">🌿</div>
+        <div id="hot-1" class="slot" onclick="selectHotbar(1)">🪨</div>
+        <div id="hot-2" class="slot" onclick="selectHotbar(2)">⛏️</div>
+        <div id="hot-3" class="slot" onclick="selectHotbar(3)">🍎</div>
+        <div id="hot-4" class="slot" onclick="selectHotbar(4)"></div>
+        <div id="hot-5" class="slot" onclick="selectHotbar(5)"></div>
+        <div id="hot-6" class="slot" onclick="selectHotbar(6)"></div>
+        <div id="hot-7" class="slot" onclick="selectHotbar(7)"></div>
+        <div id="hot-8" class="slot" onclick="selectHotbar(8)"></div>
     </div>
 
     <div id="crosshair">+</div>
@@ -74,32 +109,41 @@
 
         function toggleInventory() {
             inventoryData.isOpen = !inventoryData.isOpen;
+            console.log(`inventoryData.isOpen: ${inventoryData.isOpen}`);
             const overlay = document.getElementById('inventory-overlay');
             overlay.style.display = inventoryData.isOpen ? 'flex' : 'none';
             
             if (inventoryData.isOpen) {
-                document.exitPointerLock();
+                if(document.pointerLockElement) document.exitPointerLock();
                 renderInventory();
             } else {
-                document.body.requestPointerLock();
+                if(!isMobile()) document.body.requestPointerLock();
             }
         }
 
         function renderInventory() {
             const win = document.getElementById('inventory-window');
             win.innerHTML = '';
-            // 27スロット分生成
             inventoryData.slots.forEach((item, i) => {
                 const div = document.createElement('div');
                 div.className = 'inv-slot';
                 div.innerText = item || '';
                 div.onclick = () => {
                     console.log(`Slot ${i} selected: ${item}`);
-                    // ここにアイテム移動ロジックを追加可能
                 };
                 win.appendChild(div);
             });
         }
+
+        // ホットバー選択用
+        window.selectHotbar = (i) => {
+            inventoryData.activeIndex = i;
+            console.log(`activeIndex: ${inventoryData.activeIndex}`);
+            updateHotbarUI();
+        };
+
+        // モバイル判定
+        const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
         // --- 2. 既存のロジック拡張 ---
         class GeminiStorage {
@@ -119,17 +163,11 @@
                     };
                 });
             }
-            async saveData(storeName, data) {
-                const tx = this.db.transaction(storeName, "readwrite");
-                await tx.objectStore(storeName).put(data);
-                console.log(`Data saved to ${storeName}:`, data.id);
-            }
         }
 
         const storage = new GeminiStorage();
         await storage.init();
 
-        // Three.js 基本設定
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -139,7 +177,6 @@
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
         scene.add(ambientLight);
 
-        // 地形 (16x16)
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const mat = new THREE.MeshStandardMaterial({ color: 0x55aa55 });
         for(let x=0; x<16; x++) {
@@ -154,20 +191,49 @@
         const keys = {};
         let stats = { hp: 20, hunger: 20, xp: 0, worldTime: 600 };
 
-        // --- 3. イベントリスナー ---
+        // --- 3. イベントリスナー (モバイル対応) ---
+        const setupMobileEvents = (id, key) => {
+            const btn = document.getElementById(id);
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
+            btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
+        };
+
+        if(isMobile()) {
+            setupMobileEvents('btn-w', 'KeyW');
+            setupMobileEvents('btn-a', 'KeyA');
+            setupMobileEvents('btn-s', 'KeyS');
+            setupMobileEvents('btn-d', 'KeyD');
+            setupMobileEvents('btn-jump', 'Space');
+            document.getElementById('btn-inv').onclick = toggleInventory;
+        }
+
         document.addEventListener('keydown', (e) => {
             keys[e.code] = true;
-            // Eキーでインベントリ
             if (e.code === 'KeyE') toggleInventory();
-            // 数字キーでホットバー切り替え
-            if (e.key >= 1 && e.key <= 9) {
-                inventoryData.activeIndex = parseInt(e.key) - 1;
-                updateHotbarUI();
-            }
+            if (e.key >= 1 && e.key <= 9) selectHotbar(parseInt(e.key) - 1);
         });
         document.addEventListener('keyup', (e) => keys[e.code] = false);
+
+        // タッチでの視点移動
+        let touchX = 0, touchY = 0;
+        document.addEventListener('touchstart', (e) => {
+            if(inventoryData.isOpen) return;
+            touchX = e.touches[0].pageX;
+            touchY = e.touches[0].pageY;
+        });
+        document.addEventListener('touchmove', (e) => {
+            if(inventoryData.isOpen || e.target.closest('.touch-btn')) return;
+            const dx = e.touches[0].pageX - touchX;
+            const dy = e.touches[0].pageY - touchY;
+            player.yaw -= dx * 0.005;
+            player.pitch -= dy * 0.005;
+            player.pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, player.pitch));
+            touchX = e.touches[0].pageX;
+            touchY = e.touches[0].pageY;
+        });
+
         document.addEventListener('click', () => {
-            if (!inventoryData.isOpen) document.body.requestPointerLock();
+            if (!inventoryData.isOpen && !isMobile()) document.body.requestPointerLock();
         });
 
         document.addEventListener('mousemove', (e) => {
@@ -175,7 +241,6 @@
                 player.yaw -= e.movementX * 0.002;
                 player.pitch -= e.movementY * 0.002;
                 player.pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, player.pitch));
-                camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
             }
         });
 
@@ -193,14 +258,13 @@
             document.getElementById('hunger-row').innerText = "🍖".repeat(hu) + "🦴".repeat(10 - hu);
             document.getElementById('xp-bar').style.width = `${stats.xp % 100}%`;
             
-            stats.worldTime = (stats.worldTime + 0.5) % 2400;
+            stats.worldTime = (stats.worldTime + 0.1) % 2400;
             const hrs = Math.floor(stats.worldTime / 100).toString().padStart(2, '0');
             document.getElementById('clock-ui').innerText = `Time: ${hrs}:00 ☀️`;
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            
             if (!inventoryData.isOpen) {
                 const speed = keys['ShiftLeft'] ? 0.15 : 0.08;
                 if (keys['KeyW']) { player.pos.x -= Math.sin(player.yaw) * speed; player.pos.z -= Math.cos(player.yaw) * speed; }
@@ -212,7 +276,7 @@
                 player.vel.y -= 0.008; player.pos.y += player.vel.y;
                 if (player.pos.y < 2) { player.pos.y = 2; player.vel.y = 0; }
             }
-
+            camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
             camera.position.copy(player.pos);
             updateUI();
             renderer.render(scene, camera);
