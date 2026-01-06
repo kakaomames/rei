@@ -3,7 +3,7 @@ on:
   workflow_dispatch: # これで「Run workflow」ボタンが出現する！
 permissions:
   contents: write
-  discussions: write # Codespacesを操作する権限を与える！
+  pages: write # Codespacesを操作する権限を与える！
 
 jobs:
   start-server:
