@@ -1,0 +1,38 @@
+name: Remote WSS Server Start
+on:
+  workflow_dispatch: # 手動で「Run workflow」ボタンを押すと発動！
+
+jobs:
+  start-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Run Server in Codespaces
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 1. 既存のCodespaceを探す
+          CS_NAME=$(gh cs list --json name -q '.[0].name')
+          echo "Connecting to Codespace: $CS_NAME"
+
+          # 2. Codespaceの中に、エコー機能付きserver.jsを送り込む！
+          gh cs ssh -c $CS_NAME -- "cat <<EOF > server.js
+          const WebSocket = require('ws');
+          const wss = new WebSocket.Server({ port: 8080 });
+          wss.on('connection', (ws, req) => {
+            const path = req.url;
+            ws.on('message', (msg) => {
+              if(path === '/text') ws.send(msg.toString());
+            });
+          });
+          EOF"
+
+          # 3. ライブラリインストールと起動
+          gh cs ssh -c $CS_NAME -- "npm install ws && node server.js &"
+
+          # 4. ポートを「Public」にして外部から繋がるようにする
+          gh cs ports visibility 8080:public -c $CS_NAME
+          
+          echo "Server is now LIVE and PUBLIC at port 8080!"
