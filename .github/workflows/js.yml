@@ -1,67 +1,98 @@
 name: Remote WSS Server Start
 on:
-  workflow_dispatch: # これで「Run workflow」ボタンが出現する！
-permissions:
-  contents: write
-  pages: write # Codespacesを操作する権限を与える！
+  workflow_dispatch:
 
 jobs:
   start-server:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
       - name: Force Start and Run Server
         env:
-         GH_TOKEN: ${{ secrets.MY_MASTER_TOKEN }}
-         NAME: "super-duper-capybara-q79696754xqq3rrr" # 直接書いてもOKだ！
+          # ここに直接名前を焼き付けておく！
+          CS_NAME: "super-duper-capybara-q79696754xqq3rrr"
+          GH_TOKEN: ${{ secrets.MY_MASTER_TOKEN }}
         run: |
-          echo "Target Codespace: $CODESPACE_NAME"
+          echo "Target Base: $CS_NAME"
           
-          # 1. 基地が存在するかチェック
-          if ! gh codespace list | grep -q "$CODESPACE_NAME"; then
-            echo "❌ 基地が見つかりません！Secretの『CODESPACE_NAME』が正しいか確認してください！"
-            exit 1
-          fi
+          # -c フラグを使って「この基地だ！」と断定する。これで対話は発生しない！
+          echo "基地に強行突入します..."
+          gh codespace ssh -c "$CS_NAME" -- "npm install ws && cat <<EOF > server.js
+          const WebSocket = require('ws');
+          const wss = new WebSocket.Server({ port: 8080 });
+          wss.on('connection', (ws, req) => {
+            ws.on('message', (msg) => { if (req.url === '/text') ws.send(msg.toString()); });
+          });
+          EOF
+          (node server.js > server.log 2>&1 &)"
+          
+          echo "ポートを公開設定に変更中..."
+          gh codespace ports visibility 8080:public -c "$CS_NAME"
+          
+          echo "✅ 【完全勝利】 サーバーが起動しました！"
+#name: Remote WSS Server Start
+#on:
+#  workflow_dispatch: # これで「Run workflow」ボタンが出現する！
+#permissions:
+#  contents: write
+#  pages: write # Codespacesを操作する権限を与える！
+
+#jobs:
+#  start-server:
+ #   runs-on: ubuntu-latest
+ #   steps:
+#      - name: Checkout Repository
+#        uses: actions/checkout@v4
+
+##      - name: Force Start and Run Server
+ #       env:
+#         GH_TOKEN: ${{ secrets.MY_MASTER_TOKEN }}
+ #        NAME: "super-duper-capybara-q79696754xqq3rrr" # 直接書いてもOKだ！
+#        run: |
+ #         echo "Target Codespace: $CODESPACE_NAME"
+          
+  #        # 1. 基地が存在するかチェック
+  #        if ! gh codespace list | grep -q "$CODESPACE_NAME"; then
+  #          echo "❌ 基地が見つかりません！Secretの『CODESPACE_NAME』が正しいか確認してください！"
+  #          exit 1
+   #       fi
 
           # 2. 強行潜入（SSH）してサーバーコードを設置
           # SSHを叩くことで、Shutdown状態のCodespaceも自動でStartingになるぞ！
-          echo "基地に潜入中...（自動起動を待機しています）"
-          gh codespace ssh --codespace "$CODESPACE_NAME" -- "cat <<EOF > server.js
-          const WebSocket = require('ws');
-          const wss = new WebSocket.Server({ port: 8080 });
+#          echo "基地に潜入中...（自動起動を待機しています）"#
+#          gh codespace ssh --codespace "$CODESPACE_NAME" -- "cat <<EOF > server.js
+#          const WebSocket = require('ws');
+ #         const wss = new WebSocket.Server({ port: 8080 });
 
-          wss.on('connection', (ws, req) => {
-            const path = req.url;
-            console.log('New connection on path:', path);
-            
-            ws.on('message', (msg) => {
-              const messageString = msg.toString();
-              // /text パスならそのままエコーバック
-              if (path === '/text') {
-                ws.send(messageString);
-              } else {
-                // それ以外は全員にブロードキャスト
-                wss.clients.forEach(client => {
-                  if (client.readyState === WebSocket.OPEN) {
-                    client.send(messageString);
-                  }
-                });
-              }
-            });
-          });
-          console.log('WSS Server is running on port 8080...');
-          EOF"
+#          wss.on('connection', (ws, req) => {
+ #           const path = req.url;
+  #          console.log('New connection on path:', path);
+#            
+  #          ws.on('message', (msg) => {
+   #           const messageString = msg.toString();
+   ##           // /text パスならそのままエコーバック
+   #           if (path === '/text') {
+    #            ws.send(messageString);
+     #         } else {
+     #           // それ以外は全員にブロードキャスト
+    #            wss.clients.forEach(client => {
+     #             if (client.readyState === WebSocket.OPEN) {
+      #              client.send(messageString);
+    #              }
+     #           });
+    #          }
+   #         });
+ #         });
+  #        console.log('WSS Server is running on port 8080...');
+  #        EOF"
           
           # 3. ライブラリインストールとバックグラウンド起動
-          # & を使ってバックグラウンドで動かし続ける
-          echo "ライブラリをインストールしてサーバーを起動します..."
-          gh codespace ssh --codespace "$CODESPACE_NAME" -- "npm install ws && (node server.js > server.log 2>&1 &)"
+   #       # & を使ってバックグラウンドで動かし続ける
+   #       echo "ライブラリをインストールしてサーバーを起動します..."
+    #      gh codespace ssh --codespace "$CODESPACE_NAME" -- "npm install ws && (node server.js > server.log 2>&1 &)"
           
           # 4. ポートを「Public」に設定
           # これをしないと外部（Safari）から wss:// で繋がらないぞ！
-          echo "ポート8080を公開設定にします..."
-          gh codespace ports visibility 8080:public --codespace "$CODESPACE_NAME"
+   #       echo "ポート8080を公開設定にします..."
+    #      gh codespace ports visibility 8080:public --codespace "$CODESPACE_NAME"
           
-          echo "✅ 【ミッション完了】 サーバーが起動し、世界に公開されました！"
+ #         echo "✅ 【ミッション完了】 サーバーが起動し、世界に公開されました！"
