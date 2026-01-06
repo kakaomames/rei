@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Gemini Programming Team - Minecraft Web Online Project">
+    <meta name="author" content="Kakaomames">
+    <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
+    <title>Minecraft Web Online - Log Terminal</title>
+    <style>
+        body { background: #1a1a1a; color: #0f0; font-family: monospace; padding: 20px; }
+        #logo { width: 50px; vertical-align: middle; }
+        #terminal { background: #000; border: 2px solid #333; height: 400px; overflow-y: scroll; padding: 10px; margin-top: 20px; }
+        .log-entry { border-bottom: 1px solid #222; margin-bottom: 5px; padding: 2px; }
+        .error { color: #ff5555; }
+        .success { color: #55ff55; }
+        .info { color: #5555ff; }
+        .response { color: #ffff55; background: #333; display: block; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1><img src="https://kakaomames.github.io/rei/logo.png" id="logo"> 通信分析ターミナル 🫡</h1>
+    
+    <input type="text" id="urlInput" style="width: 70%;" value="wss://echo.websocket.org">
+    <button onclick="connect()">接続開始</button>
+    <button onclick="clearLog()">ログクリア</button>
+
+    <div id="terminal"></div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const now = new Date().toLocaleTimeString();
+            entry.innerHTML = `[${now}] ${message}`;
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight;
+            console.log(`[${type}] ${message}`);
+        }
+
+        let socket;
+        function connect() {
+            const url = document.getElementById('urlInput').value;
+            addLog(`接続試行中... URL: ${url}`, 'info');
+
+            try {
+                socket = new WebSocket(url);
+
+                addLog(`WebSocketオブジェクト作成成功。State: ${socket.readyState}`, 'success');
+
+                socket.onopen = (event) => {
+                    addLog(`【接続成功】 サーバーと握手しました！`, 'success');
+                    addLog(`プロトコル: ${socket.protocol || 'default'}`, 'info');
+                    socket.send("Hello Gemini Programming Team!");
+                };
+
+                socket.onmessage = (event) => {
+                    addLog(`【レスポンス受信】 データが届きました！`, 'info');
+                    const dataDisplay = `<span class="response">${event.data}</span>`;
+                    addLog(`内容: ${dataDisplay}`, 'info');
+                };
+
+                socket.onerror = (event) => {
+                    addLog(`【エラー発生】 通信が遮断されたか、URLが間違っています。`, 'error');
+                    addLog(`詳細: HTTPS環境からのWS接続はSafariでブロックされます。`, 'error');
+                };
+
+                socket.onclose = (event) => {
+                    addLog(`【切断】 通信が終了しました。 コード: ${event.code}, 理由: ${event.reason || 'なし'}`, 'info');
+                };
+
+            } catch (e) {
+                addLog(`致命的なエラー: ${e.message}`, 'error');
+            }
+        }
+
+        function clearLog() { terminal.innerHTML = ''; }
+    </script>
+</body>
+</html>
