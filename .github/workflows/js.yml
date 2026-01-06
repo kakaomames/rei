@@ -14,8 +14,8 @@ jobs:
 
       - name: Force Start and Run Server
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CODESPACE_NAME: ${{ secrets.CODESPACE_NAME }}
+         GH_TOKEN: ${{ secrets.MY_MASTER_TOKEN }}
+         NAME: "super-duper-capybara-q79696754xqq3rrr" # 直接書いてもOKだ！
         run: |
           echo "Target Codespace: $CODESPACE_NAME"
           
