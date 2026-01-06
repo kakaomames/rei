@@ -1,24 +1,20 @@
-name: Remote WSS Server Start
-on:
-  workflow_dispatch: # 手動で「Run workflow」ボタンを押すと発動！
-
-jobs:
-  start-server:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Run Server in Codespaces
+- name: Force Start and Run Server
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CODESPACE_NAME: ${{ secrets.CODESPACE_NAME }}
         run: |
-          # 1. 既存のCodespaceを探す
-          CS_NAME=$(gh cs list --json name -q '.[0].name')
-          echo "Connecting to Codespace: $CS_NAME"
+          echo "target_name: $CODESPACE_NAME"
+          
+          # 1. 基地が存在するかだけ確認
+          if ! gh codespace list | grep -q "$CODESPACE_NAME"; then
+            echo "❌ 基地が見つかりません！"
+            exit 1
+          fi
 
-          # 2. Codespaceの中に、エコー機能付きserver.jsを送り込む！
-          gh cs ssh -c $CS_NAME -- "cat <<EOF > server.js
+          # 2. 直接SSHで中に入ってサーバーコードを設置
+          # これだけでCodespaceは勝手に「起動(Starting)」になるぞ！
+          echo "基地に潜入中...（自動起動を待機）"
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- "cat <<EOF > server.js
           const WebSocket = require('ws');
           const wss = new WebSocket.Server({ port: 8080 });
           wss.on('connection', (ws, req) => {
@@ -28,11 +24,11 @@ jobs:
             });
           });
           EOF"
-
-          # 3. ライブラリインストールと起動
-          gh cs ssh -c $CS_NAME -- "npm install ws && node server.js &"
-
-          # 4. ポートを「Public」にして外部から繋がるようにする
-          gh cs ports visibility 8080:public -c $CS_NAME
           
-          echo "Server is now LIVE and PUBLIC at port 8080!"
+          # 3. ライブラリインストールとバックグラウンド起動
+          gh codespace ssh --codespace "$CODESPACE_NAME" -- "npm install ws && (node server.js > server.log 2>&1 &)"
+          
+          # 4. ポートをPublic化（外部のSafariから繋ぐために必須！）
+          gh codespace ports visibility 8080:public --codespace "$CODESPACE_NAME"
+          
+          echo "✅ 全工程完了！SafariからWSSで突撃せよ！"
