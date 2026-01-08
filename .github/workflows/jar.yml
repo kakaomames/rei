@@ -35,7 +35,7 @@ jobs:
           
           # 隊員、ここにJARファイルの直リンクを貼るんだ！
           # 今回は例として変数を定義しておくぞ。
-          JAR_URL="ここにJARのURLを貼ってくれ！" 
+          JAR_URL="https://github.com/kakaomames/rei/releases/download/1-21-8/1.21.8.jar" 
           
           echo "downloading from: $JAR_URL"
           # curlでリソースを確保！
