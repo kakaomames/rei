@@ -1,9 +1,14 @@
-name: Custom Command Execution
+name: Custom Command Execution and Deploy
 
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch: # 手動実行もできるようにしておこう！
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   execute-commands:
@@ -13,66 +18,82 @@ jobs:
       - name: リポジトリをチェックアウト
         uses: actions/checkout@v4
 
-      - name: Pythonのセットアップ
-        uses: actions/setup-Node@v4
+      - name: Node.jsのセットアップ
+        uses: actions/setup-node@v4
         with:
-          node-version: '3.x'
+          node-version: '20'
 
-      - name: 好きなコマンドを実行 (Shell)
-        run: |
-          echo "現在のディレクトリを確認するぞ！"
-          ls -la
-          echo "OSの情報を確認だ！"
-          uname -a
-          echo "curlでセットアップ情報を取得するイメージ（実行はnpxで行う）"
-          # Node.jsがインストールされているか確認！
-          curl --version || node -v
-          # CheerpJ CLI をグローバルにインストール！
-          npm install -g @leaningtech/cheerpj-cli
-          npx @leaningtech/cheerpj-cli@latest run app.jar
+      - name: Pythonのセットアップ
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
-      - name: Pythonスクリプトで変数を出力しながら実行
+      - name: JARファイルを外部から取得 (25MB制限突破！)
         run: |
-          # 隊員のJARファイルを指定して実行！
-          cheerpj run my_app.jar
-          python -c "import os
+          echo "ミッション：巨大なJARファイルを外部から調達するぞ！"
+          mkdir -p public/jar
+          
+          # 隊員、ここにJARファイルの直リンクを貼るんだ！
+          # 今回は例として変数を定義しておくぞ。
+          JAR_URL="ここにJARのURLを貼ってくれ！" 
+          
+          echo "downloading from: $JAR_URL"
+          # curlでリソースを確保！
+          curl -L "$JAR_URL" -o public/jar/1.21.8.jar
+          
+          echo "file_size: $(du -h public/jar/1.21.8.jar)"
+
+      - name: PythonスクリプトでHTML生成
+        run: |
+          python -c "
+          import os
 
           def generate_cheerpj_html(jar_filename):
-         # 1. ターゲットの確認
-           target = jar_filename
-           print(f"target: {target}")
+              target = jar_filename
+              print(f'target: {target}')
+              
+              logo_url = 'https://kakaomames.github.io/rei/logo.png'
+              print(f'logo_url: {logo_url}')
 
-         # 2. ロゴURLの取得（隊員指定）
-          logo_url = "https://kakaomames.github.io/rei/logo.png"
-          print(f"logo_url: {logo_url}")
+              html_content = f'''<!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset=\"utf-8\">
+              <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+              <meta name=\"description\" content=\"Gemini programming unit - Project 1.21.8\">
+              <meta name=\"author\" content=\"Gemini programming隊\">
+              <link rel=\"icon\" href=\"{logo_url}\">
+              <title>Gemini Explorer - 1.21.8</title>
+              <script src=\"https://cjrtnc.leaningtech.com/3.0/loader.js\"></script>
+              <style>
+                  body {{ background: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding: 50px; }}
+              </style>
+          </head>
+          <body>
+              <img src=\"{logo_url}\" alt=\"Logo\" style=\"width:100px;\">
+              <h1>Mission: 1.21.8 Launchpad</h1>
+              <div id=\"container\"></div>
+              <script>
+                  cheerpjInit().then(() => {{
+                      cheerpjRunJar(\"/app/archive/{target}\");
+                  }});
+              </script>
+          </body>
+          </html>'''
+              
+              output_path = 'public/jar/index.html'
+              with open(output_path, 'w', encoding='utf-8') as f:
+                  f.write(html_content)
+              
+              print(f'status: {output_path} generated!')
 
-         # 3. HTML構造の構築
-         html_content = f"""
-         <!DOCTYPE html>
-         <html>
-         <head>
-          <meta charset="utf-8">
-          <meta name="description" content="Gemini programming unit's WASM project">
-          <meta name="author" content="Gemini programming隊">
-          <link rel="icon" href="{logo_url}">
-          <script src="https://cjrtnc.leaningtech.com/3.0/loader.js"></script>
-         </head>
-         <body>
-         <script>
-            cheerpjInit().then(() => {{
-                cheerpjRunJar("/app/archive/{target}");
-            }});
-         </script>
-         </body>
-         </html>
-         """
-         print("html_content: [Generated Successfully]")
+          generate_cheerpj_html('1.21.8.jar')
+          "
 
-         # 4. ファイル書き出し
-         with open("index.html", "w", encoding="utf-8") as f:
-          f.write(html_content)
-          
-           print(f"status: index.html has been created for {target}!")
+      - name: Pagesへアップロード準備
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
 
-          # 実行
-           generate_cheerpj_html("my_adventure.jar")"
+      - name: GitHub Pagesへデプロイ！🚀
+        uses: actions/deploy-pages@v4
