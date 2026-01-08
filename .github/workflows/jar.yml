@@ -54,19 +54,76 @@ jobs:
           print(f'logo_url:{logo_url}')
 
           html_content = f'''<!DOCTYPE html>
+          <!DOCTYPE html>
           <html>
-          <head>
-              <meta charset=\"utf-8\">
-              <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-              <link rel=\"icon\" href=\"{logo_url}\">
-              <title>Gemini Explorer - 1.21.8</title>
-              <script src=\"https://cjrtnc.leaningtech.com/3.0/loader.js\"></script>
-              <style>body{{background:#1a1a1a;color:white;text-align:center;padding:50px;}}</style>
+           <head>
+           <meta charset="utf-8">
+           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+           <meta name="description" content="Gemini programming unit - Pokemon Quest Style Project">
+           <meta name="author" content="Gemini programming隊">
+           <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
+           <title>Gemini Explorer - Mission Control</title>
+    
+           <script src="https://cjrtnc.leaningtech.com/3.0/loader.js"></script>
+    
+           <style>
+             body { background: #1a1a1a; color: white; font-family: 'Inter', sans-serif; text-align: center; padding: 20px; margin: 0; }
+             .container { max-width: 800px; margin: 0 auto; }
+             img.logo { width: 100px; filter: drop-shadow(0 0 10px rgba(0,255,0,0.5)); }
+        
+             /* ポケクエ風ボタン */
+             .quest-btn {
+               background: #ffcc00; color: #333; border: 4px solid #fff; padding: 15px 30px;
+               font-weight: bold; font-size: 1.2em; border-radius: 15px; cursor: pointer;
+               box-shadow: 0 5px 0 #b38f00; transition: all 0.1s; margin-top: 20px;
+             }
+             .quest-btn:active { transform: translateY(5px); box-shadow: none; }
+
+             /* 隊員のデバッグUIを統合 */
+             #devtoolsUI {
+               margin: 20px auto; background: #111; color: #0f0; padding: 15px;
+               border-radius: 12px; width: 90%; border: 1px solid #0f0;
+               box-shadow: 0 0 15px rgba(0,255,0,0.3); text-align: left;
+             }
+           #logBox {
+               width: 100%; height: 200px; background: #000; color: #0f0;
+               border: 1px solid #333; overflow: auto; font-family: monospace; padding: 10px;
+           }
+           </style>
           </head>
           <body>
-              <img src=\"{logo_url}\" style=\"width:100px;\">
-              <h1>1.21.8 Mission Control</h1>
-              <script>
+           <div class="container">
+           <img src="https://kakaomames.github.io/rei/logo.png" class="logo">
+           <h1>1.21.8 Mission Control</h1>
+        
+           <div class="info-bar">📡 ステータス: CheerpJ エンジン起動中...</div>
+
+           <button class="quest-btn" id="nextStageBtn">次のステージへ出発！ 🚀</button>
+
+           <div id="devtoolsUI">
+            <div id="devtoolsTabs"><b>System Logs</b></div>
+            <div id="logBox" id="statusLog">Loading JAR resource...</div>
+           </div>
+           </div>
+
+          <script>
+          // 1. ページ推移のミッション！
+           document.getElementById('nextStageBtn').addEventListener('click', function() {
+               console.log("Next stage requested!");
+            window.location.href = 'stage_select.html'; // 対象のhtmlへ飛ばすぞ！
+           });
+
+             // 2. ローカルデータのセーブ/ロード（JSON形式）
+           const partyData = {
+            teamName: "Gemini programming隊",
+            pokemon: ["Pikachu", "Eevee"],
+            items: { "Potion": 5, "Berry": 10 }
+          };
+           // 保存の練習だ！
+          localStorage.setItem('quest_data', JSON.stringify(partyData));
+          console.log("Party data saved as JSON!");
+
+                // 3. CheerpJ 実行
                   cheerpjInit().then(() => {{ cheerpjRunJar(\"/app/archive/{target}\"); }});
               </script>
           </body>
