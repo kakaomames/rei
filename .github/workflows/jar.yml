@@ -1,0 +1,78 @@
+name: Custom Command Execution
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # 手動実行もできるようにしておこう！
+
+jobs:
+  execute-commands:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Pythonのセットアップ
+        uses: actions/setup-Node@v4
+        with:
+          node-version: '3.x'
+
+      - name: 好きなコマンドを実行 (Shell)
+        run: |
+          echo "現在のディレクトリを確認するぞ！"
+          ls -la
+          echo "OSの情報を確認だ！"
+          uname -a
+          echo "curlでセットアップ情報を取得するイメージ（実行はnpxで行う）"
+          # Node.jsがインストールされているか確認！
+          curl --version || node -v
+          # CheerpJ CLI をグローバルにインストール！
+          npm install -g @leaningtech/cheerpj-cli
+          npx @leaningtech/cheerpj-cli@latest run app.jar
+
+      - name: Pythonスクリプトで変数を出力しながら実行
+        run: |
+          # 隊員のJARファイルを指定して実行！
+          cheerpj run my_app.jar
+          python -c "import os
+
+          def generate_cheerpj_html(jar_filename):
+         # 1. ターゲットの確認
+           target = jar_filename
+           print(f"target: {target}")
+
+         # 2. ロゴURLの取得（隊員指定）
+          logo_url = "https://kakaomames.github.io/rei/logo.png"
+          print(f"logo_url: {logo_url}")
+
+         # 3. HTML構造の構築
+         html_content = f"""
+         <!DOCTYPE html>
+         <html>
+         <head>
+          <meta charset="utf-8">
+          <meta name="description" content="Gemini programming unit's WASM project">
+          <meta name="author" content="Gemini programming隊">
+          <link rel="icon" href="{logo_url}">
+          <script src="https://cjrtnc.leaningtech.com/3.0/loader.js"></script>
+         </head>
+         <body>
+         <script>
+            cheerpjInit().then(() => {{
+                cheerpjRunJar("/app/archive/{target}");
+            }});
+         </script>
+         </body>
+         </html>
+         """
+         print("html_content: [Generated Successfully]")
+
+         # 4. ファイル書き出し
+         with open("index.html", "w", encoding="utf-8") as f:
+          f.write(html_content)
+          
+           print(f"status: index.html has been created for {target}!")
+
+          # 実行
+           generate_cheerpj_html("my_adventure.jar")"
