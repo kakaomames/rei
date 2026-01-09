@@ -479,7 +479,7 @@ div:hover>.hoverable
 	background:#111 url(img/darkNoise.jpg);
 	background:url(img/shadedBorders.png) left top/100% 100%,#111 url(img/darkNoise.jpg);
 	text-align:center;
-	z-index:100000000000;
+	z-index:100;
 	line-height:150%;
 	font-size:20px;
 }
@@ -3165,5 +3165,6 @@ MOBILE
 .mobile #comments, .mobile #cookies {display:none;}
 .mobile #focusButtons, .mobile #compactOverlay/*, .mobile #buildingsTitle*/
 {display:block;}
+
 
 /**{overflow:hidden!important;}*/
