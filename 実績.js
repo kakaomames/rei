@@ -1,7 +1,7 @@
 (function(Scratch) {
   'use strict';
 
-  let normalSound = 'https://assets.scratch.mit.edu/internalapi/asset/83a9787d4cb6f3b7632b4ddfebf74367.wav/get/';
+  let normalSound = 'data:audio/mp3;base64,';
   let goalSound = 'https://assets.scratch.mit.edu/internalapi/asset/33890530f637c307324da54f3a4d417a.wav/get/';
   let customIconUrl = '';
 
