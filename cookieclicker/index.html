@@ -1,114 +1,51 @@
+
 <!DOCTYPE html>
-<html lang="en-US">
-  <head>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
     <title>クッキークリッカー</title>
+    <link rel="stylesheet" href="style.css">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
     <meta name="robots" content="noindex,nofollow">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <style>
-      * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0
-}
+</head>
+<body>
+    <div id="wrapper">
+        <div id="sectionLeft" class="inset">
+            <div id="cookiesAnchor">
+                <div id="bakeryNameAnchor"><div id="bakeryName"></div></div>
+                <div id="cookiesNumber"></div>
+                <div id="cookiesPerSecond"></div>
+            </div>
+            <div id="cookieAnchor">
+                <div id="bigCookie"></div>
+                <div id="cookieNumbers"></div>
+            </div>
+            <div id="sectionLeftInfo"></div>
+        </div>
 
-html {
-  line-height: 1.15;
-  -webkit-text-size-adjust: 100%;
-  color: #313131;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
-}
+        <div id="sectionMiddle" class="inset">
+            <div id="comments">
+                <div id="commentsText"></div>
+            </div>
+            <div id="rows"></div>
+            <div id="menu"></div>
+        </div>
 
-body {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  min-height: 100vh
-}
+        <div id="sectionRight" class="inset">
+            <div id="store">
+                <div id="storeTitle" class="inset title">ストア</div>
+                <div id="upgrades"></div>
+                <div id="products"></div>
+            </div>
+        </div>
 
-.main-content {
-  margin: 8rem auto;
-  padding-left: 1.5rem;
-  max-width: 60rem
-}
-
-@media (width <=720px) {
-  .main-content {
-    margin-top: 4rem
-  }
-}
-
-.h2 {
-  line-height: 2.25rem;
-  font-size: 1.5rem;
-  font-weight: 500
-}
-
-@media (width <=720px) {
-  .h2 {
-    line-height: 1.5rem;
-    font-size: 1.25rem
-  }
-}
-
-#challenge-error-text {
-  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iI0IyMEYwMyIgZD0iTTE2IDNhMTMgMTMgMCAxIDAgMTMgMTNBMTMuMDE1IDEzLjAxNSAwIDAgMCAxNiAzbTAgMjRhMTEgMTEgMCAxIDEgMTEtMTEgMTEuMDEgMTEuMDEgMCAwIDEtMTEgMTEiLz48cGF0aCBmaWxsPSIjQjIwRjAzIiBkPSJNMTcuMDM4IDE4LjYxNUgxNC44N0wxNC41NjMgOS41aDIuNzgzem0tMS4wODQgMS40MjdxLjY2IDAgMS4wNTcuMzg4LjQwNy4zODkuNDA3Ljk5NCAwIC41OTYtLjQwNy45ODQtLjM5Ny4zOS0xLjA1Ny4zODktLjY1IDAtMS4wNTYtLjM4OS0uMzk4LS4zODktLjM5OC0uOTg0IDAtLjU5Ny4zOTgtLjk4NS40MDYtLjM5NyAxLjA1Ni0uMzk3Ii8+PC9zdmc+");
-  background-repeat: no-repeat;
-  background-size: contain;
-  padding-left: 34px
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #222;
-    color: #d9d9d9
-  }
-}
-    </style>
-    <meta http-equiv="refresh" content="360">
-  </head>
-  <body>
-    <div class="main-wrapper" role="main">
-      <div class="main-content">
-        <noscript>
-          <div class="h2">
-            <span id="challenge-error-text">続行するにはJavaScriptとCookieを有効にしてください</span>
-          </div>
-        </noscript>
-      </div>
+        <div id="tooltipAnchor"><div id="tooltip" class="inset"></div></div>
+        <div id="debugLog"></div>
+        <div id="fpsCounter"></div>
     </div>
-    <script>
-      (function() {
-  window._cf_chl_opt = {
-    cvId: '3',
-    cZone: 'orteil.dashnet.org',
-    cType: 'managed',
-    cRay: '9bafdfedad8628c4',
-    cH: 'xwMqQqNpPGTbPoWz05X4fGMnaAejF4kQ80bJrMcOTBA-1767919136-1.2.1.1-zrvLdU.uwr0pbIHhizTcH7Lko4PhDYMIjfqEN8IpxgT7iOjnLBuwaDa2RRDDzo5D',
-    cUPMDTk: "\/rei\/cookieclicker\/?__cf_chl_tk=Tb7aVIj4AmLPxJNinaryr.oTMsbvn2myZLPkTvaJIZo-1767919136-1.0.1.1-28CUD2gZwFqfHYXHtOvfCk9r9UIkz3Vgg_2ncZJaITM",
-    cFPWv: 'g',
-    cITimeS: '1767919136',
-    cTplC: 0,
-    cTplV: 5,
-    cTplB: '0',
-    fa: "\/rei\/cookieclicker\/?__cf_chl_f_tk=Tb7aVIj4AmLPxJNinaryr.oTMsbvn2myZLPkTvaJIZo-1767919136-1.0.1.1-28CUD2gZwFqfHYXHtOvfCk9r9UIkz3Vgg_2ncZJaITM",
-    md: 'TD.bSkBpb5.WZy9y8zq3pvqhb3CEFLCXcm3_Sl2BZuA-1767919136-1.2.1.1-STIe5oyUR8oQ47LTBdMgWF9rHVub401pNqEP8IHeADl3qyuWN7rK6frazHD4ycMFqJtL4kII73u16Uda6qA5dB3_7Fhq_u.OArAoaW3XWLCv8cOkweTeDYMhqPLBkbVC6neG4JJ2GgpqHHUx06WZpCPlXX3UIQ0DLaILPzPIxXdHo40vICWj4Jh_zpoTtvoB_XLb.S9W0cimqKWpftXOiwincCqdJLIig3xIv0l1GzqJO0XSNmKHTuA45y0lrbHvZK9Qf6qL1Rknh08zbkzLdRwOpHxfi7nvmjSagV4erlfOg2C7yFzOXbYhv0iKDkSfXuwugT.CmmHi2jWoePl8wSxN5KHFIhzFIdt9y0amsPrOdedmqKi1jxNfCaV4XlXjw3qwS.Mk8eR.NXbywlXIGafwNLDrfGd6WoklxkOr.4OZkYeBfVMxdIT_jabpoEaa6EiYj78U6W4dFyzoWO5OvIGzW4uuPveffzm1kbWZEr4N2IHtVZ_4HvU616tm2CA_u9_NfvWdoRgWHxA_O0lpa4mh0fHRHKDShrpOUujK56jTX5KPeBmvN_n5Xlmg2EJneq9eUroeBl0RbJf.icvkOFLeiKhh1sSaJGDoS1FI0.zzD850HfAJrfOH6yuEWHrawDEFc1h10Hx4eSET9nNW7Cy5BtvRYRUUc1wPF7CNjsqOttMK3zd3p7ulO9fQAJbXLdNtTb2BwnuTuRYCmK3Al8x2yjwu8xCDfP8soQfhXVFGuSTXQ0c1QffDMreDzZMxOL3jFucmL3sRyGDtmaZ1Qp_2AaZdkFck8E5kycTJhq8kfC2uX2d2ixVJGjjjCPHVO1ZMm11wQJHFE2ihSWFyJjmTnmGylw92gW1MfIqyu5vAnXP1f28JryDDr.kbh1PiIpYRjajgSGc79AXFpbBIdvR1MlJHfUa_JHZ9DBVpxqU',
-    mdrd: 'tkZ4c8RCgvp41eG37SBrkfhZZbMjb19Ewsl.u.8DamE-1767919136-1.2.1.1-eRwSDhLrLh9hK1FaUX6jw446Hv2WOoTL4mr4L_ISR9X8zUfQYQ94TqxHgTiz9Pna82XYgekhhCqOUr95Ls9G1urqbk7VDojMhcIhBQmKcbaZ0DKbke8XKLUdgCJP_mlL8dc0VeMpPC1kBseUzPITpLoM2dyP8uogS7eRrcHUd3hjN_4ftXyrYGzDoYsqyyw4EipS_.o3kgkohDxG4D01pMEMpmqYtiugz7EHl_P2ULEz1qrgFY6KwbM35gcjs1A9TCTuqG_Bi4w__U1AEuwUY18gdTLDnMOQhMy66HivAzRp9Qo.uMWI36uLGl9CHNsirA22oiv3IvuqufVdwpbVSLT_cgZGyTYUHcgmy5e6B7ya2dT8U3RjiULQaxzQmfJIggaeiFQjsCtdD5Fs1NHqe5DCsDopd5vwCuarLnc9Ik_R61OnjrvLhS6GDH9npnJmIdgY8ySU2vNDRurVY588dXmIsyLpa16jl7PCbNQUR5RyzweVPKVNNuVWN5Al5Q6wKa3cJf8PlgsT8T2zcivOFe2YvIl4_WfV0yD22prCAedxuySU1yzJr5zj.Nq3X_7bBT5amELCnhfEEGGUBvj5QkU18wp3S5RxGDBLuOUmJwPicqer.JfK9fOjCFPmpKkL8R6giKW4JtssOm0hZZsB6qK2chLGotRv3Re.JMt.xflRAD9vK21p6JA.SPsBTdHSF5l5GBsbfBbxkzVyg2OuzetGr.ZL23DBZvSnXWbyY_dmD1zDcMXTMfHQoa5NuUdeWxeoKrS7DStr5YwSvFB1To8edVsLCKGD1sSIf_7THN3daNN7m2_m43zB5b_uVeEZ.hd.6UIQTjuTe2mHbwS0VFccACEqZvsMpkzga_Sma.5au.fAknqSmjWNtmYW_Atk2fDs3RMtEuhiPNp6olY5Z8VN1HdUZ.VNGtgtVOhQDWZX1.1Aco_dDHlIWN38Mgf59GVHae_qmI.IUQzOgBiZZMUB8PIFEiBbtV3uv0GuFcoeUxCM51JVCyXvZzqb3H9yeVHBJiqRZrFRFlPUTdXf7K5A7PQsTuun.FQQg8H4JyNquVJABbVok_uQHz2ICKUP1r4HR547CfCjaxUV5IKppkWVig8pmo.CM7DM1J9.MkwfeVOEn00sE62FK6LhqDquL.uEQHJK5FfyR0pzxoI3Jz2T3kDd3FH9ts_xyOmxEhe_XFvK9N0vRsX63B6Z4T.xmi_sgyjSNkRDafTeAPF6DnutqhEx0Ks3I0j3SnFmut1RXGDKScjLChQTKAH45yrk6hP2ZRi5amA9JnbUgp77iItVQk4DcEmQEz4P04sDyJ.dzTlxLZhQAVyS7TLBJXDVDWyTphLmf_LruLKSwZG8npShkoNo1vu1.Fjjg1dwXeewL5Gnx1WrELnlA6yIZvnUkCFlIvkI2icM6ThJuyPL1cdHmiIBdMW2dbXVmHVPYM4liIfamE1pfytsDwTJoN.3NHRvNPTuK45hmgBjz3Heb.pGWewTrf5RsGxlfSQHU53fAvOKgG3IIN60cNbIQv4p7N4j8ZcakCgGp6QgcM71c4F_6skA5ZKGHiTFFWq4LHn2F_w9B5n5O458vx2NplMwHO5Ljme_3.2FQJUAURGZmqTViyAXKZVnbdwkcLfCuXe7xxNtwzMnlaP8OEVpaZ9YRAp.nHHnkwZrpXuUE8Inq9aLssbJB5pUjKl1GA1A2iizOSshT0_1I4H1c38D1jlUlN91B0Q0qE11UHCV8jLs3H4Qt1C7UDnlbSCf39QgyTsdtglmbA3g6eF2DG_ohCPeY1WSuxQhnepY71k2g094XxVXMvllR26KQ5eOc2wLmBn1bFWYYF9CypuTEs5k41vsARUvaZMojWzNOamFIl7eLmDOyzhfrqyv.9ZUxFQ14sD4xgW_RbbZVV54Vg81mFY9Mwc5iYeUlGB.KSvTAQOGFFLc1tKarq0abKRbXEa8PNl9sHqQ9u9D3MMbfhSLkzML_Ly97Rp6x1.sHJLiX8asQWFKcCxZVDHr_K4sOawtOIbj2p.q_hDc7QptCvoVr_s4_ERo0auAMmgl_pif3ww.jVDWlO4uKhSkgjtDVCkW9cIx1685JP0rVCgBLqEP.RFrqpqWIpYv.Xlp_TuQFM_OzzLUATH2Dzf0AFtBCI7ljYrCgeGhTX.ypALur.Ce4PHlsxOrojrf7uefMPpbGcjwsu8eWrCyjjCrXr68xO_K6kFDrp_hIYwyMUw.yuToqShXUQp4w1w.CVyyyGTIMy2T2qYzfq27E16qWedjQXxjAnMFhotw.O_D1hK.sbv_WDq1bxniz2zeA3IMkdlZbhD7hjZOUnm1igesT9kfASWuys.mBy_LttfqxeqILS7iIQkIFS7F1PVZ13.Frmt2cfa33FkXY3WVHTFCZHSC6YBILpmNVNRzmaCOq_Sk0dOrfOGWQxfH2IwxZmBsUi00T8vfvyK5bMq06J9w9SMJpTW0tevkWWgahzc3C3HAONt_1VEFsjqeP4aAbslDCEBaH0xyFQ',
-  };
-  var a = document.createElement('script');
-  a.src = '/cdn-cgi/challenge-platform/h/g/orchestrate/chl_page/v1?ray=9bafdfedad8628c4';
-  window._cf_chl_opt.cOgUHash = location.hash === '' && location.href.indexOf('#') !== -1 ? '#' : location.hash;
-  window._cf_chl_opt.cOgUQuery = location.search === '' && location.href.slice(0, location.href.length - window._cf_chl_opt.cOgUHash.length).indexOf('?') !== -1 ? '?' : location.search;
-  if (window.history && window.history.replaceState) {
-    var ogU = location.pathname + window._cf_chl_opt.cOgUQuery + window._cf_chl_opt.cOgUHash;
-    history.replaceState(null, null, "\/rei\/cookieclicker\/?__cf_chl_rt_tk=Tb7aVIj4AmLPxJNinaryr.oTMsbvn2myZLPkTvaJIZo-1767919136-1.0.1.1-28CUD2gZwFqfHYXHtOvfCk9r9UIkz3Vgg_2ncZJaITM" + window._cf_chl_opt.cOgUHash);
-    a.onload = function() {
-      history.replaceState(null, null, ogU);
-    }
-  }
-  document.getElementsByTagName('head')[0].appendChild(a);
-}());
-    </script>
-  </body>
+
+    <script src="main.js"></script>
+</body>
 </html>
