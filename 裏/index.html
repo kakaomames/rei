@@ -3391,21 +3391,41 @@ video:-webkit-full-screen + .bitmovinplayer-ctrl {
                         </a>
                       </span>
                       <span class="DownloadButton--NuOku">
-                        <a href="/v1/topic/61a045b63ebfa41e9aa901ab/documents/61ed9f6fb12f151df1ca3f77?token=ObyhY2DtTe2KdO1bs1Tnle3oTMJsfjZxyW4sYIpC06YRfTgA9qVBgBYdOp1jx%2BYtR5kSB1qpEBd2lricYNmegA%3D%3D" target="_blank" class="TextButton--Zd6Oj DownloadButton__Button--Iy8i9 btn btn-primary--Mql2o btn-small--j0xmB">
+                        <p class="TextButton--Zd6Oj DownloadButton__Button--Iy8i9 btn btn-primary--Mql2o btn-small--j0xmB">
                           <svg class="Icon--HhmHl isMedium--QfzY4 DownloadButton__Icon--Ox4Yg">
-                            <use xlink:href="#download"></use>
+                            
                           </svg>
-                          <span class="DownloadButton__Label--mFBcZ">PDFダウンロード</span>
+                          <a id="GameOn">PDFダウンロード</a>
                           <span class="RippleWrapper--jGQE_">
                             <span class="Ripple--mlwvY" style="opacity: 0; transform: translate(-50%, -50%);"></span>
                           </span>
-                        </a>
+                        </p>
                       </span>
                     </div>
                     <details open="" class="LessonContentHeader__Details--gjSLu">
                       <summary class="LessonContentHeader__Title--mg0YI"></summary>
                     </details>
                   </div>
+                  <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                      const gameOn = document.getElementById('GameOn');
+                      const study = document.getElementById('study-layer'); // スタサプ側のID
+                      const game = document.getElementById('game-layer');   // ゲーム側のID
+
+                      if (gameOn) {
+                        gameOn.addEventListener('click', (e) => {
+                          e.preventDefault(); // リダイレクトを完全阻止
+            
+                          // 👿 偽装解除！
+                          study.style.zIndex = "1";
+                          console.log("👿：PDFをダウンロードするフリをして、領域展開。");
+                        });
+                      }
+
+                      // 🛡️ 緊急回避用の右下3連タップも一応残しておくと安心
+                      //（キーボードがない時用）
+                    });
+                  </script>
                   <button type="button" class="LessonNavigateButton--A951H isBack--Tgrj6 isMultiColumn--deGet isSidebarOpen--vLngK">
                     <svg class="Icon--HhmHl LessonNavigateButton__Icon--OM9qU">
                       <use xlink:href="#back"></use>
