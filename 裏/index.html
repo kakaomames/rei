@@ -207,5 +207,26 @@ if(a){a=a.getCampaignStates({isActive:!0});for(var d in a)g(d)}};k();h()},initOp
   
   </body>
   </study>
+<game>
+  
+</game> 
+<script>
+        document.addEventListener('keydown', (e) => {
+            const study = document.getElementById('study');
+            
+            // Shift + P で「制作モード」：スタサプを背後に飛ばす
+            if (e.shiftKey && e.key === 'P') {
+                study.style.zIndex = "1";
+                console.log("😈 シールド展開解除。");
+            }
+            
+            // Shift + S で「スタサプモード」：一瞬で隠す
+            if (e.shiftKey && e.key === 'S') {
+                study.style.zIndex = "99999999";
+                console.log("🛡️ 緊急回避！スタサプ復帰。");
+            }
+        });
+    </script>
+
 
 </html>
