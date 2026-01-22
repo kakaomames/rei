@@ -801,10 +801,10 @@ AddLanguage('JA','japanese',{
 		"謎のウサギは哺乳類でありながら産卵することが判明、カモノハシの祖先である可能性を示唆。"
 	],
 	"Ticker (misc)": [
-		"でしょう。"
+		""
 	],
-	"You feel like making cookies. But nobody wants to eat your cookies.": "ん。",
-	"Your first batch goes to the trash. The neighborhood raccoon barely touches it.": "。",
+	"You feel like making cookies. But nobody wants to eat your cookies.": "",
+	"Your first batch goes to the trash. The neighborhood raccoon barely touches it.": "",
 	"Your family accepts to try some of your cookies.": "",
 	"Your cookies are popular in the neighborhood.": "近所で人気",
 	"People are starting to talk about your cookies.": "噂になっています。",
