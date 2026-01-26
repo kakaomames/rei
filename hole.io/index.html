@@ -1,6 +1,40 @@
 <!DOCTYPE html>
 <html lang="en-us">
+<script>
+// 隊長！ブラウザの「離脱機能」を物理的に封鎖するぞ！
 
+(function() {
+    console.log("🛡️ Redirect Blocker: System Online.");
+
+    // 1. window.location をフリーズさせる試み
+    // (完全なフリーズはブラウザ制限があるため、Proxyで監視)
+    const originalLocation = window.location.href;
+    
+    // 2. ページを離れようとした時に強制的に引き止める
+    window.onbeforeunload = function() {
+        console.log("🚫 リダイレクトを検知しました。探検を続行します！");
+        // 戻るボタンを押したのと同じ効果、または離脱を阻止
+        return "ゲームを続行しますか？"; 
+    };
+
+    // 3. 最も効果的な「上書き」：window.open などを無効化
+    window.open = function() {
+        console.log("🚫 window.open がブロックされました。");
+        return null;
+    };
+
+    // 4. location.replace などをダミー関数に置き換え（可能な場合）
+    try {
+        const noop = () => console.log("🚫 Redirect attempt blocked.");
+        window.location.replace = noop;
+        window.location.assign = noop;
+    } catch (e) {
+        console.log("⚠️ Location object is protected, but monitoring continues.");
+    }
+
+    console.log(f"Current_Safe_URL:{originalLocation}");
+})();
+</script>
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
