@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini programming隊 - IndexedDB通信探検機</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: #1e293b; padding: 25px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); }
+        h1 { color: #38bdf8; text-align: center; border-bottom: 2px dashed #38bdf8; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        label { display: block; margin-bottom: 5px; color: #94a3b8; font-weight: bold; }
+        input, textarea, select { width: 100%; padding: 12px; background: #334155; border: 1px solid #475569; color: white; border-radius: 6px; box-sizing: border-box; }
+        textarea { height: 80px; }
+        .full-width { grid-column: span 2; }
+        .btn-group { margin: 25px 0; display: flex; gap: 10px; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .btn-send { background-color: #38bdf8; color: #0f172a; }
+        .btn-clear { background-color: #f43f5e; color: white; }
+        button:hover { opacity: 0.9; transform: scale(0.98); }
+        
+        #response-area { background: #000; color: #10b981; padding: 15px; border-radius: 6px; margin-top: 10px; font-family: monospace; border: 1px solid #334155; max-height: 150px; overflow-y: auto; }
+        .log-section { margin-top: 25px; }
+        #log-display { background: #0f172a; color: #fbbf24; padding: 15px; border-radius: 6px; height: 180px; overflow-y: auto; white-space: pre-wrap; font-size: 13px; border-left: 4px solid #fbbf24; }
+        .db-status { font-size: 12px; color: #94a3b8; text-align: right; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📡 IndexedDB ログ通信探検機</h1>
+    
+    <div class="grid">
+        <div class="field full-width">
+            <label>🔗 ターゲットURL:</label>
+            <input type="text" id="urlInput" value="https://httpbin.org/post">
+        </div>
+        <div class="field">
+            <label>🛠️ メソッド:</label>
+            <select id="methodSelect">
+                <option value="POST">POST</option>
+                <option value="GET">GET</option>
+                <option value="DELETE">DELETE</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>👤 クッキー設定:</label>
+            <input type="text" id="cookieInput" placeholder="user=kakaomame">
+        </div>
+        <div class="field full-width">
+            <label>📦 ペイロード:</label>
+            <textarea id="payloadInput">{"cmd": "save", "data": "pokemon"}</textarea>
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-send" onclick="executeMission()">🚀 送信 & DB保存</button>
+        <button class="btn-clear" onclick="clearAll()">🧹 全消去</button>
+    </div>
+
+    <div id="response-area">レスポンス待機中...</div>
+
+    <div class="log-section">
+        <label>📜 永続化ログ (IndexedDBから読み込み中):</label>
+        <div id="log-display">Loading...</div>
+        <div id="db-info" class="db-status">DB Status: Disconnected</div>
+    </div>
+</div>
+
+<script>
+    // --- IndexedDB 設定 ---
+    let db;
+    let logs = "";
+    const DB_NAME = "GeminiProgDB";
+    const STORE_NAME = "ExplorerLogs";
+
+    // DBの初期化
+    const request = indexedDB.open(DB_NAME, 1);
+
+    request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        db.createObjectStore(STORE_NAME, { keyPath: "id" });
+        console.log("IndexedDB: Store created.");
+    };
+
+    request.onsuccess = (event) => {
+        db = event.target.result;
+        document.getElementById('db-info').textContent = "DB Status: Connected ✅";
+        loadLogsFromDB(); // 起動時にDBからログを復元
+    };
+
+    // --- 隊員指定のログ機能（DB連動版） ---
+    async function customLog(logText) {
+        // 1. メモリ上の変数を更新（"と"で繋ぐ）
+        if (logs === "") {
+            logs = logText;
+        } else {
+            logs = logText + " と " + logs;
+        }
+        console.log(`new_log_added: ${logText}`);
+
+        // 2. 画面表示更新
+        document.getElementById('log-display').textContent = logs;
+
+        // 3. IndexedDBに保存
+        const transaction = db.transaction([STORE_NAME], "readwrite");
+        const store = transaction.objectStore(STORE_NAME);
+        store.put({ id: "main_log", content: logs });
+    }
+
+    // DBからログを読み込む
+    function loadLogsFromDB() {
+        const transaction = db.transaction([STORE_NAME], "readonly");
+        const store = transaction.objectStore(STORE_NAME);
+        const getRequest = store.get("main_log");
+
+        getRequest.onsuccess = () => {
+            if (getRequest.result) {
+                logs = getRequest.result.content;
+                document.getElementById('log-display').textContent = logs;
+                console.log("IndexedDB: Logs restored.");
+            } else {
+                document.getElementById('log-display').textContent = "ログはありません。探検を始めましょう！";
+            }
+        };
+    }
+
+    // クリア処理
+    function clearAll() {
+        logs = "";
+        document.getElementById('log-display').textContent = "クリアされました。";
+        const transaction = db.transaction([STORE_NAME], "readwrite");
+        const store = transaction.objectStore(STORE_NAME);
+        store.delete("main_log");
+        console.log("IndexedDB: Data cleared.");
+    }
+
+    // --- 通信処理 ---
+    async function executeMission() {
+        const responseArea = document.getElementById('response-area');
+        
+        const url = document.getElementById('urlInput').value;
+        await customLog(`ターゲット決定:${url}`);
+        
+        const method = document.getElementById('methodSelect').value;
+        await customLog(`メソッド:${method}`);
+        
+        const payload = document.getElementById('payloadInput').value;
+        await customLog(`ペイロード決定`);
+
+        try {
+            await customLog("通信試行中...");
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: method !== 'GET' ? payload : null
+            });
+            
+            const resultText = await response.text();
+            await customLog(`受信完了:${response.status}`);
+            responseArea.textContent = resultText;
+        } catch (e) {
+            await customLog(`失敗:${e.message}`);
+            responseArea.textContent = "Error: " + e.message;
+        }
+    }
+</script>
+
+</body>
+</html>
