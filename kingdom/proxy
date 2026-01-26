@@ -1,0 +1,343 @@
+{
+    "xiaomi": {
+        "adsense": {
+            "client": "ca-pub-7151632855683728",
+            "slot": "5589763599"
+        }
+    },
+    "adsense": {
+        "client": "ca-pub-9277187477340577",
+        "slot": "2518779793"
+    },
+    "facebook": {
+        "appId": "365815270676633",
+        "groupId": "mergecraftgroup"
+    },
+    "amazon": {
+        "id": "B0922VXRPZ",
+        "package": "com.cleverapps.mergecraft",
+        "adMob": {
+            "rewarded": "ca-app-pub-9277187477340577/9035892899"
+        },
+        "appLovin": {
+            "rewarded": "1018a0d1db825565",
+            "interstitial": "b9e7470d056bdff1",
+            "banner": "horizontal-not-used"
+        }
+    },
+    "instant": {
+        "appId": "126844939376182",
+        "groupId": "110350677808060",
+        "rewarded": "129195502474459",
+        "interstitial": "129195289141147",
+        "banner": "774207007973302"
+    },
+    "ok": {
+        "appId": "512000742814",
+        "groupId": "60620856950954"
+    },
+    "vk": {
+        "appId": "7776586",
+        "shortname": "mergecraft",
+        "groupId": "mergecraft_group"
+    },
+    "mm": {
+        "appId": "783650",
+        "privateKey": "34f0c62fb0e1d0ac35d00c75acbe6cb5",
+        "groupId": "mergecraft"
+    },
+    "mbga": {
+        "appId": "12026923",
+        "groupId": "32869830"
+    },
+    "draugiem": {
+        "appId": "mergecraft",
+        "groupId": "mergest-kingdom"
+    },
+    "fotostrana": {
+        "appId": "mergecraft",
+        "privateKey": "33af4305d7414b380c3636f3b03fb70f",
+        "groupId": "352927"
+    },
+    "yandex": {
+        "appId": "171361",
+        "counter": 102191518
+    },
+    "gdcom": {
+        "appId": "b5203bfef51242c39690c761321d769f"
+    },
+    "msstart": {
+        "appId": "9PLXKMCM96Q9",
+        "name": "Mergest Kingdom"
+    },
+    "kongregate": {
+        "name": "mergest-kingdom"
+    },
+    "crazy": {
+        "name": "mergest-kingdom"
+    },
+    "microsoft": {
+        "appId": "9PGVXWXRWX7S"
+    },
+    "discord": {
+        "appId": "1276646101914615872",
+        "groupUrl": "https://discord.gg/mergecraft"
+    },
+    "telegram": {
+        "botName": "MergestKingdomBot"
+    },
+    "android": {
+        "adMob": {
+            "rewarded": "ca-app-pub-9277187477340577/1571471850"
+        },
+        "package": "com.cleverapps.mergecraft",
+        "appLovin": {
+            "rewarded": "0518a8a3edf0e32e",
+            "interstitial": "b51ed76af84a2cb1",
+            "banner": "horizontal-not-used"
+        },
+        "yandexAds": {
+            "rewarded": "R-M-2420998-2",
+            "interstitial": "R-M-2420998-6",
+            "banner": "horizontal-not-used"
+        }
+    },
+    "ios": {
+        "id": "1562149254",
+        "package": "com.cleverapps.mergecraft",
+        "adMob": {
+            "rewarded": "ca-app-pub-9277187477340577/1877597767"
+        },
+        "appLovin": {
+            "rewarded": "d9acd5a63f0ea2fb",
+            "interstitial": "3a318da3c28fa212",
+            "banner": "horizontal-not-used"
+        }
+    },
+    "rustore": {
+        "yandexAds": {
+            "rewarded": "R-M-7306778-1",
+            "interstitial": "R-M-7306778-2",
+            "banner": "horizontal-not-used"
+        },
+        "appId": "87802303"
+    },
+    "yandexWebAds": {
+        "banner": "R-A-7340069-5",
+        "rewarded": {
+            "touch": "R-A-7340069-4",
+            "desktop": "R-A-7340069-3"
+        }
+    },
+    "mygames": {
+        "appId": "16836",
+        "gcId": "0.2013937"
+    },
+    "business": "cleverapps",
+    "terms": {
+        "slimmerbits": {
+            "privacy": "https://slimmerbits.com/legal/privacy.html",
+            "terms": "https://slimmerbits.com/legal/terms.html"
+        },
+        "zareef": {
+            "privacy": "https://cleverappssg.com/legal/privacy.html",
+            "terms": "https://cleverappssg.com/legal/terms.html"
+        },
+        "cleverapps": {
+            "privacy": "https://cleverappssg.com/legal/privacy.html",
+            "terms": "https://cleverappssg.com/legal/terms.html"
+        }
+    },
+    "title": "Mergest Kingdom: merge puzzle",
+    "orientation": "horizontal",
+    "testers": {
+        "draugiem": {
+            "ids": [
+                "5531190",
+                "5533303",
+                "5536860",
+                "5720568"
+            ]
+        },
+        "fotostrana": {
+            "ids": [
+                "FS_113127743",
+                "FS_113139202",
+                "FS_113154744"
+            ]
+        },
+        "microsoft": {
+            "deviceIds": [
+                "MS_af64328e-3371-73c1-367c-92bb6d560ed5",
+                "MS_3c940659-7a68-99e0-0ef2-0e4369a5372f",
+                "MS_bafafe21-499a-26aa-44dc-f74662bff405",
+                "MS_9c82c0be-a17d-a981-11b7-4a85ec0661a4",
+                "MS_089e6329-8b28-c5e4-7b60-1f56b5b4b126",
+                "MS_4f1d23b6-386a-8d55-93d7-c1702d0a5a81",
+                "MS_459d1c26-a293-f56b-b56c-84f410e3830b",
+                "MS_13c53147-883c-b6e0-6c56-2aae159ed6d1",
+                "MS_c8d2d30b-2a32-573b-219f-eaa7cbbd6f35",
+                "MS_3a4afd8a-dd2d-0825-80cd-f934c2532139",
+                "MS_23c2dc13-9079-0550-596d-4eed01b6b286",
+                "MS_6378b951-4936-bcb7-09a0-6d3256a5dce2",
+                "MS_a2b78f51-6681-3e0d-f92b-3092d976a7db",
+                "MS_b57b15af-a981-b87d-1577-97d985bbb3b1"
+            ]
+        },
+        "mygames": {
+            "ids": [
+                "223914816",
+                "224977482",
+                "224977211",
+                "224977565"
+            ]
+        },
+        "mm": {
+            "ids": [
+                "12485194034381634037",
+                "14225752454745236203"
+            ]
+        },
+        "mbga": {
+            "ids": [
+                "mbga.jp:157478302"
+            ]
+        },
+        "sp_mbga": {
+            "ids": [
+                "mbga.jp:157478302"
+            ]
+        },
+        "msstart": {
+            "ids": [
+                "e913873c-3848-4155-a881-edb315e30692",
+                "6e83dcbf-29fd-40f9-abed-83cf80d6194a",
+                "54de395d-d6e0-4f83-8ed9-7b68e4de19e0",
+                "c869c9f1-1729-4247-882e-fc1e0c37fbc6",
+                "5fb5e261-5781-4730-ac0e-b5984c8e89d3",
+                "ddaa100f-c0e3-4159-ad84-5f24bd0859b1"
+            ]
+        },
+        "android": {
+            "deviceIds": [
+                "45f0caa5-d1ab-4b03-8e09-a0b63b17c181",
+                "839d10f8-0da0-40fa-a4e9-02885ff0973a",
+                "17ef0ac8-71fa-47d1-941b-70924e8a031e",
+                "217ac5d3-6b67-48e8-8fe8-0fff1108c808",
+                "75f21832-7a24-47cc-9e88-8c4f461fc06d",
+                "aca92164-3f00-4115-84c3-2ab54ed7ba7b",
+                "b1ae8117-ff55-4159-b9ad-18e4d05a9da8",
+                "cb3ed72f-c604-4c51-84fa-2ffaa9acb849",
+                "85c137ac-0a55-45cd-bd8a-b8be552beea8",
+                "2105ba80-4607-4ae3-a3a8-866aa7fb63b9",
+                "24280e2d-6603-415e-a064-d794cbda6437",
+                "c07beae6-3277-4c72-83ec-26cba72eeb36",
+                "9107a111-7da9-4f18-903b-fd7a19d1de0e",
+                "57ef186f-eb6c-470a-a8ba-d9575c623c26",
+                "d2f4787d-fd18-4414-abec-d01f9a1c72c9",
+                "b1b7e593-9557-451f-b8d4-05888173de9c",
+                "962ec82c-2f2e-45e9-952b-c1c494436e2e",
+                "084a1812-f4da-4326-955d-dc0b6957a950"
+            ]
+        },
+        "rustore": {
+            "deviceIds": [
+                "45f0caa5-d1ab-4b03-8e09-a0b63b17c181",
+                "839d10f8-0da0-40fa-a4e9-02885ff0973a",
+                "17ef0ac8-71fa-47d1-941b-70924e8a031e",
+                "217ac5d3-6b67-48e8-8fe8-0fff1108c808",
+                "75f21832-7a24-47cc-9e88-8c4f461fc06d",
+                "aca92164-3f00-4115-84c3-2ab54ed7ba7b",
+                "b1ae8117-ff55-4159-b9ad-18e4d05a9da8",
+                "cb3ed72f-c604-4c51-84fa-2ffaa9acb849",
+                "85c137ac-0a55-45cd-bd8a-b8be552beea8",
+                "2105ba80-4607-4ae3-a3a8-866aa7fb63b9",
+                "24280e2d-6603-415e-a064-d794cbda6437",
+                "c07beae6-3277-4c72-83ec-26cba72eeb36",
+                "9107a111-7da9-4f18-903b-fd7a19d1de0e",
+                "57ef186f-eb6c-470a-a8ba-d9575c623c26",
+                "d2f4787d-fd18-4414-abec-d01f9a1c72c9",
+                "b1b7e593-9557-451f-b8d4-05888173de9c",
+                "962ec82c-2f2e-45e9-952b-c1c494436e2e",
+                "084a1812-f4da-4326-955d-dc0b6957a950"
+            ]
+        },
+        "vk": {
+            "ids": [
+                "8593874",
+                "519644122",
+                "559432346",
+                "120601236",
+                "13506358",
+                "662073098",
+                "4252816",
+                "575473277",
+                "201054870",
+                "9938687",
+                "16681526",
+                "9933151",
+                "99189882",
+                "451315686",
+                "244780021",
+                "62287676",
+                "858300556",
+                "493261263",
+                "870476180",
+                "394324092",
+                "3284030",
+                "764485912",
+                "92285907"
+            ]
+        },
+        "samsung": {
+            "ids": [
+                "sI+Uq1MmA2LUsgKD9grmbg3TMi1Pe0mqNdDPc1oSTX4="
+            ]
+        }
+    },
+    "facebookLogin": true,
+    "deployment": "https://mergecraft.cleverappssg.com",
+    "debugMode": false,
+    "testPlatform": false,
+    "manualPermissions": true,
+    "manualStartMetrics": true,
+    "migrateLocalStorage": true,
+    "cloudStorage": true,
+    "debug": {
+        "adMob": {
+            "rewarded": "ca-app-pub-3940256099942544/5224354917",
+            "devices": {
+                "ios": [
+                    "c7891b07b3e4e87a3048ccbf10f0f072",
+                    "f9edca19f15e81731c339a89630dfaf4",
+                    "7e95681d75706063b80c0425a911bab5"
+                ]
+            }
+        },
+        "yandex": {
+            "rewarded_yandex": "demo-rewarded-yandex",
+            "rewarded_mytarget": "demo-rewarded-mytarget",
+            "interstitial_yandex": "demo-interstitial-yandex",
+            "banner_yandex": "demo-banner-yandex"
+        },
+        "samsung": {
+            "interstitial": "fd210d27178e4542a4fe2972f899903c",
+            "rewarded": "0d370a9a087049a7ab82879b21b69a57",
+            "adMob": {
+                "interstitial": "ca-app-pub-3940256099942544/1033173712",
+                "rewarded": "ca-app-pub-3940256099942544/5354046379"
+            }
+        }
+    },
+    "samsung": {
+        "interstitial": "fd210d27178e4542a4fe2972f899903c",
+        "rewarded": "0d370a9a087049a7ab82879b21b69a57",
+        "adMob": {
+            "interstitial": "ca-app-pub-2937613396445963/2146963832",
+            "rewarded": "ca-app-pub-2937613396445963/4555056206"
+        }
+    },
+    "notificationsApiURL": "https://notifications.cleverappssg.com",
+    "multiApiURL": "https://multi.cleverappssg.com",
+    "syncApiURL": "https://mergecraft.cleverappssg.com/mergecraft-rest"
+}
