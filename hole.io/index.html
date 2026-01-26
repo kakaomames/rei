@@ -8,23 +8,23 @@
 	<meta name="description" content="Absorb everyone into your black hole in the new game - Hole.io! Play for free online." />
 	<meta name="keywords" content="Hole.io, holeio" />
 	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<meta property="og:image" content="images/hole-share.jpg">	
+	<meta property="og:image" content="images/hole-share.jpg?v=1">	
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:title" content="Hole.io">
 	<meta name="twitter:description" content="Absorb everyone into your black hole in the new game - Hole.io! Play for free online.">
-	<meta name="twitter:image:src" content="https://kevin.games/hole/hole-share.jpg">
-	<link rel="shortcut icon" href="favicon.png">
-	<link rel="stylesheet" href="TemplateData/style64.css?v1">
-	<link rel="stylesheet" href="libs/tingle.min.css">
-	<link rel="preload" href="TemplateData/roadbg.jpg" as="image">
+	<meta name="twitter:image:src" content="https://kevin.games/hole/hole-share.jpg?v=1">
+	<link rel="shortcut icon" href="favicon.png?v=1">
+	<link rel="stylesheet" href="TemplateData/style64.css?v=1">
+	<link rel="stylesheet" href="libs/tingle.min.css?v=1">
+	<link rel="preload" href="TemplateData/roadbg.jpg?v=1" as="image">
 	<script type="text/javascript"> var CONFIG = {}; CONFIG.BuildPath = "b/4"</script>
 	<script async src="ads.jsp" onerror="adBlockFunction();"></script>
-	<script src="TemplateData/UnityProgress.js?v1"></script>
-	<script src="b/4/gameWebGL.js" async></script>
+	<script src="TemplateData/UnityProgress.js?v=1"></script>
+	<script src="b/4/gameWebGL.js?v=1" async></script>
 </head>
 
 <body>
-
+<base href="https://kakaomames.github.io/rei/hole.io/">
 	<div class="webgl-content">
 		<canvas id="gameContainer"></canvas>
 		<div id="bg"></div>
@@ -183,8 +183,8 @@ function inIframe () {
 			window.HasAdBlock = true;
 		}
 	</script>
-	<script src="libs/jquery-3.3.1.min.js"></script>
-	<script src="libs/tingle.min.js"></script>
+	<script src="libs/jquery-3.3.1.min.js?v=1"></script>
+	<script src="libs/tingle.min.js?v=1"></script>
 	<script>
 		window.gameLoaded = function () {
 			window.sendMessageToUnity("{\"eventName\": \"setBundlesPath\",\"data\": {\"path\": \"" + CONFIG.BuildPath +"\"}}");
@@ -278,7 +278,7 @@ function inIframe () {
 
 		window.fetchApi = function () {
 			console.log('received from api');
-			fetch('json/hole_kills_1.json')
+			fetch('json/hole_kills_1.json?v=1')
 				.then(function (response) {
 					return response.json();
 				})
@@ -286,7 +286,7 @@ function inIframe () {
 					console.log("kills:");
 					window.makeLeaderBoard('boardKills', myJson, 'Kills', '22');
 				});
-			fetch('json/hole_score_1.json')
+			fetch('json/hole_score_1.json?v=1')
 				.then(function (response) {
 					return response.json();
 				})
