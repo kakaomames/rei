@@ -2,7 +2,77 @@
 <html>
 <head>
     <title>Tetris</title>
+    
+    <script>
+        (function() {
+    // ターゲットとなる古いドメインと、新しいベースURL
+    const OLD_DOMAIN = "games.mobinozer.com";
+    const NEW_BASE = "kakaomames.github.io/rei/%E3%83%86%E3%83%88%E3%83%AA%E3%82%B9";
 
+    console.log("📡 広域ドメイン監視システム、稼働開始...");
+
+    // URLを書き換える共通ロジック
+    function rewriteURL(originalUrl) {
+        if (typeof originalUrl === 'string' && originalUrl.includes(OLD_DOMAIN)) {
+            // URLのドメイン以降のパスを抽出して、自分のURLと合体させる
+            // 例: https://games.mobinozer.com/path/to/asset.png 
+            // -> https://kakaomames.github.io/rei/テトリス/path/to/asset.png
+            const urlParts = originalUrl.split(OLD_DOMAIN);
+            const newUrl = NEW_BASE + urlParts[1].replace(/^\//, '');
+            console.log(`[Intercepted] ${originalUrl} \n            -> ${newUrl}`);
+            return newUrl;
+        }
+        return originalUrl;
+    }
+
+    // 1. 画像などの属性変更を監視
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                // img, audio, video などの src 属性を持つ要素をチェック
+                if (node.src) node.src = rewriteURL(node.src);
+                
+                // 背景画像 (Inline Style)
+                if (node.style && node.style.backgroundImage) {
+                    const bg = node.style.backgroundImage;
+                    if (bg.includes(OLD_DOMAIN)) {
+                        node.style.backgroundImage = bg.replace(/https?:\/\/[^"')]*/, (match) => rewriteURL(match));
+                    }
+                }
+            });
+        });
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    // 2. XMLHttpRequest (古い通信) の横取り
+    const open = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function() {
+        arguments[1] = rewriteURL(arguments[1]);
+        return open.apply(this, arguments);
+    };
+
+    // 3. fetch (新しい通信) の横取り
+    const originalFetch = window.fetch;
+    window.fetch = function() {
+        if (typeof arguments[0] === 'string') {
+            arguments[0] = rewriteURL(arguments[0]);
+        }
+        return originalFetch.apply(this, arguments);
+    };
+
+    // 4. CSS 内の URL 指定を強制上書き（動的な Style タグ生成）
+    const style = document.createElement('style');
+    style.innerHTML = `
+        [style*="${OLD_DOMAIN}"] {
+            /* インラインスタイルへの対策（ブラウザにより動作が限定的） */
+        }
+    `;
+    document.head.appendChild(style);
+
+    console.log("✅ 全アセットの強制リダイレクト設定が完了しました！");
+})();
+    </script>
+    
     <meta charset="utf-8"/>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
