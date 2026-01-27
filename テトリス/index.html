@@ -1,115 +1,649 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
+  <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Gemini programming隊 - 統合キーボードミッション">
-    <title>Gemini Tetris x Keyboard</title>
-    <style>
-        body { background: #000; color: #0f0; margin: 0; display: flex; flex-direction: column; align-items: center; overflow: hidden; height: 100vh; }
-        #logo { width: 40px; margin: 5px; }
-        canvas { border: 2px solid #0f0; background: #000; max-height: 50vh; }
-        .btn-toggle { position: fixed; top: 10px; right: 10px; z-index: 10000; padding: 10px; background: #222; color: #fff; border: 1px solid #0f0; border-radius: 5px; cursor: pointer; }
-    </style>
-</head>
-<body>
+      <script>
+//ブロック
+block = [
+[
+    //ブロック0
+    [
+        [0, 0, 0, 0],
+        [1, 1, 1, 0],
+        [0, 1, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 1, 0, 0],
+        [0, 1, 1, 0],
+        [0, 1, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 1, 0, 0],
+        [1, 1, 1, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 1, 0, 0],
+        [1, 1, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 0, 0],
+    ]
+],
+[
+    //ブロック1
+    [
+        [0, 0, 0, 0],
+        [1, 1, 1, 0],
+        [1, 0, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [1, 0, 0, 0],
+        [1, 0, 0, 0],
+        [1, 1, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 0, 0, 0],
+        [0, 0, 1, 0],
+        [1, 1, 1, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [1, 1, 0, 0],
+        [0, 1, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 0, 0],
+    ]
+],
+[
+    //ブロック2
+    [
+        [0, 0, 0, 0],
+        [1, 1, 0, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 1, 0, 0],
+        [1, 1, 0, 0],
+        [1, 0, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 0, 0, 0],
+        [1, 1, 0, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 1, 0, 0],
+        [1, 1, 0, 0],
+        [1, 0, 0, 0],
+        [0, 0, 0, 0],
+    ]
+],
+[
+    //ブロック3
+    [
+        [0, 0, 0, 0],
+        [0, 1, 1, 0],
+        [1, 1, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [1, 0, 0, 0],
+        [1, 1, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 0, 0, 0],
+        [0, 1, 1, 0],
+        [1, 1, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [1, 0, 0, 0],
+        [1, 1, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 0, 0],
+    ]
+],
+[
+    //ブロック4
+    [
+        [0, 0, 0, 0],
+        [1, 1, 1, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [1, 1, 0, 0],
+        [1, 0, 0, 0],
+        [1, 0, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 0, 0, 0],
+        [1, 0, 0, 0],
+        [1, 1, 1, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 1, 0, 0],
+        [0, 1, 0, 0],
+        [1, 1, 0, 0],
+        [0, 0, 0, 0],
+    ]
+],
+[
+    //ブロック5
+    [
+        [0, 0, 0, 0],
+        [1, 1, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 0, 1, 0],
+        [0, 0, 1, 0],
+        [0, 0, 1, 0],
+        [0, 0, 1, 0],
+    ],
+    [
+        [0, 0, 0, 0],
+        [1, 1, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 0, 1, 0],
+        [0, 0, 1, 0],
+        [0, 0, 1, 0],
+        [0, 0, 1, 0],
+    ]
+],
+[
+    //ブロック6
+    [
+        [0, 0, 0, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 0, 0, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 0, 0, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0],
+    ],
+    [
+        [0, 0, 0, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0],
+    ]
+]
+];
+    
+//ブロックの色
+biro = ['#c71585', '#4169e1', '#f0ffff', '#ffa07a', '#ffff00', '#00ffff', '#8a2be2'];
 
-    <button class="btn-toggle" onclick="toggleKB()">⌨️ キーボード切替</button>
-    <img id="logo" src="https://kakaomames.github.io/rei/logo.png" alt="Logo">
-    <div style="font-family: monospace;">SCORE: <span id="score">0</span></div>
-    <canvas id="tetris" width="200" height="400"></canvas>
+function tsugiwotsukuru() {
+    // 次のブロックを作る
+    btsugi = Math.floor(Math.random() * 7);
 
-    <script>
-        // --- テトリス基本エンジン ---
-        const canvas = document.getElementById('tetris');
-        const context = canvas.getContext('2d');
-        context.scale(20, 20);
+    // 次のブロックを表示するためのキャンバスを取得
+    tsugigamen = document.getElementById('tsugi');
+    ct = tsugigamen.getContext('2d');
 
-        let arena = Array.from({length: 20}, () => Array(10).fill(0));
-        let player = { pos: {x: 4, y: 0}, matrix: [[0,1,0],[1,1,1],[0,0,0]], score: 0 };
+    // 表示前に消す
+    ct.clearRect(0, 0, 79, 79);
 
-        function draw() {
-            context.fillStyle = '#000';
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            arena.forEach((row, y) => row.forEach((val, x) => {
-                if(val) { context.fillStyle = '#0f0'; context.fillRect(x, y, 1, 1); }
-            }));
-            player.matrix.forEach((row, y) => row.forEach((val, x) => {
-                if(val) { context.fillStyle = '#fff'; context.fillRect(x + player.pos.x, y + player.pos.y, 1, 1); }
-            }));
-        }
+    // そこに描画する
+    kaku(ct, 0, 0, 0, btsugi);
+}
 
-        // --- 隊員作：フルキーボード JS (統合版) ---
-        function setupKeyboard() {
-            const container = document.createElement('div');
-            container.id = 'gk-container';
-            Object.assign(container.style, {
-                position: 'fixed', bottom: '0', left: '0', width: '100%',
-                backgroundColor: 'rgba(30, 30, 30, 0.95)', color: 'white',
-                padding: '10px 0', fontFamily: 'sans-serif', zIndex: '9999',
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                boxShadow: '0 -5px 15px rgba(0,0,0,0.5)', transition: '0.3s'
-            });
-
-            const display = document.createElement('div');
-            Object.assign(display.style, {
-                width: '90%', height: '30px', backgroundColor: '#000', color: '#0f0',
-                border: '1px solid #555', marginBottom: '5px', padding: '5px', fontSize: '14px'
-            });
-            display.innerText = "> READY...";
-            container.appendChild(display);
-
-            const rows = [
-                ["1","2","3","4","5","6","7","8","9","0"],
-                ["Q","W","E","R","T","Y","U","I","O","P"],
-                ["A","S","D","F","G","H","J","K","L"],
-                ["Z","X","C","V","B","N","M"]
-            ];
-
-            rows.forEach(rowChars => {
-                const rowDiv = document.createElement('div');
-                rowDiv.style.display = 'flex';
-                rowChars.forEach(char => {
-                    const key = document.createElement('div');
-                    key.innerText = char;
-                    Object.assign(key.style, {
-                        width: '32px', height: '40px', margin: '2px', backgroundColor: '#444',
-                        borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', boxShadow: '0 2px #222'
-                    });
-                    
-                    key.onclick = () => {
-                        display.innerText = "> KEY: " + char;
-                        // --- テトリス操作に変換！ ---
-                        if(char === 'A') player.pos.x--;
-                        if(char === 'D') player.pos.x++;
-                        if(char === 'S') player.pos.y++;
-                        if(char === 'W') rotate(player.matrix);
-                        console.log(`Command_Sent: ${char}`);
-                    };
-                    rowDiv.appendChild(key);
-                });
-                container.appendChild(rowDiv);
-            });
-
-            document.body.appendChild(container);
-        }
-
-        function rotate(m) {
-            for (let y = 0; y < m.length; ++y) {
-                for (let x = 0; x < y; ++x) [m[x][y], m[y][x]] = [m[y][x], m[x][y]];
+function kakunin(bx, by, muki, shurui) {
+    p = block[shurui][muki];
+    for (n = 0; n < 4; n++) {
+        for (m = 0; m < 4; m++) {
+            if (p[n][m] == 1) {
+                // ブロックを描画する位置が空欄かどうかを調べる
+                // Xが範囲外のところには動かせない
+                if ((bx + m < 0) || (bx + m > 11)) {
+                    return false;
+                }
+                // Yが範囲外のところには動かせない
+                if ((by + n < 0) || (by + n > 21)) {
+                    return false;
+                }
+                // 空欄ではない場合は動かせない
+                if (jyoutai[by + n][bx + m] != 100) {
+                    return false;
+                }
             }
-            m.forEach(row => row.reverse());
+        }
+    }
+            return true;
+}
+
+function shitaidou() {
+    // 下に移動する
+    // 描く先のCanvasを取得
+    gamegamen = document.getElementById('game');
+    cg = gamegamen.getContext('2d');
+ 
+    // 現在の座標と向きを保存
+    maenoix = ix;
+    maenoiy = iy;
+    maenoimuki = imuki;
+
+    // 消す
+    kesu(cg, ix, iy, imuki, ishurui);
+
+    // 移動
+    iy = iy + 1;
+
+    // 音を出す
+    //document.getElementById('ochiru').play();
+
+    // 移動できるかどうかを確認する
+    kekka = kakunin(ix, iy, imuki, ishurui);
+    if (kekka) {
+        // 移動できる
+        // 新しい位置に描く
+        kaku(cg, ix, iy, imuki, ishurui);
+    } else {
+        // 移動できない
+        // 移動前の場所・向きに戻す
+        ix = maenoix;
+        iy = maenoiy;
+        imuki = maenoimuki;
+        kaku(cg, ix, iy, imuki, ishurui);
+    
+        // この位置を当たり判定用の配列に設定する
+        p = block[ishurui][imuki];
+        for (n = 0; n < 4; n++) {
+            for (m = 0; m < 4; m++) {
+                if (p[n][m] == 1) {
+                    jyoutai[iy + n][ix + m] = ishurui;
+                }
+            }
         }
 
-        function toggleKB() {
-            const kb = document.getElementById('gk-container');
-            kb.style.display = (kb.style.display === 'none') ? 'flex' : 'none';
+        // 音を出す
+        //document.getElementById('don').play();
+
+        // ライン消しと得点計算する
+        tokutenkeisan()
+
+        // 次のブロックとして設定したものが落ちてくるようにする
+        ix = 4;
+        iy = 0;
+        ishurui = btsugi;
+        imuki = 0;
+        kaku(cg, ix, iy, imuki, ishurui);
+
+        // そこに置けるかを判定
+        kekka = kakunin(ix, iy, imuki, ishurui);
+        if (!kekka) {
+            // 重なっているのでゲームオーバー
+
+            // 音を出す
+            //document.getElementById('gameover').play();
+
+            // メッセージを出す
+            alert('ゲームオーバー');
+
+            
+            // 実行中であることを止める
+            jikkou = false;
         }
 
-        setupKeyboard();
-        setInterval(() => { draw(); }, 100);
-        console.log("隊長！隊員のキーボードとテトリスの同期に成功しました！⌨️🔥");
-    </script>
-</body>
+        // さらに次のブロックを設定
+        tsugiwotsukuru();
+    }
+
+    // 時間を少しずつ速くする
+   // jikan = jikan - 1;
+    if (jikan < 50) {
+        // すごく速くなったら元に戻す
+        jikan = 1000;
+    }
+}
+
+function ugokasu(e) {
+    // 描く先のCanvasを取得
+    gamegamen = document.getElementById('game');
+    cg = gamegamen.getContext('2d');
+
+    // 現在の座標と向きを保存
+    maenoix = ix;
+    maenoiy = iy;
+    maenoimuki = imuki;
+
+    // いまのブロックを消す
+    kesu(cg, ix, iy, imuki, ishurui);
+
+    // ［→］キーが押されたかどうか
+    if (e.keyCode == 39) {
+        // 右に移動
+        ix = ix + 1;
+        // 音を鳴らす
+        //document.getElementById('kaiten').play();
+    }
+
+    // ［←］キーが押されたかどうか
+    if (e.keyCode == 37) {
+        // 左に移動
+        ix = ix - 1;
+        // 音を鳴らす
+        //document.getElementById('kaiten').play();
+    }
+
+    // ［↑］キーが押されたかどうか
+    if (e.keyCode == 38) {
+        // 回転する
+        imuki = imuki + 1;
+        if (imuki > 3) {
+            imuki = 0;
+        }
+        // 音を鳴らす
+        //document.getElementById('kaiten').play();
+    }
+
+    // ［↓］キーが押されたときは下に移動させる
+    if (e.keyCode == 40) {
+        shitaidou();
+    }
+    
+    // 移動・回転できるかどうかを確認
+    kekka = kakunin(ix, iy, imuki, ishurui);
+    if (!kekka) {
+        // 回転・移動できない
+        // 元に戻す
+        ix = maenoix;
+        iy = maenoiy;
+        imuki = maenoimuki;
+    }
+
+    // 新しい場所にブロックを描く
+    kaku(cg, ix, iy, imuki, ishurui);
+}
+
+function kesu(c, bx, by, imuki, shurui) {
+    // 消す処理にする
+    c.globalCompositeOperation = 'destination-out';
+    // 描く（実際は消える）
+    kaku(c, bx, by, imuki, shurui);
+    // 元の描く処理に戻す
+    c.globalCompositeOperation = 'source-over';
+}
+
+function kaku(c, bx, by, muki, shurui){
+    // ブロックの色と線
+    c.fillStyle = biro[shurui];
+    c.strokeStyle = '#333333';
+    c.lineWidth = 3; 
+
+    // パターンを決める
+    p = block[shurui][muki];
+    
+    // パターン通りに描く
+    for (n = 0; n < 4; n++) {
+        for (m = 0; m < 4; m++) {
+            // 描くかどうか
+            if (p[n][m] == 1) {
+                // ここに描く
+                c.fillRect((bx + m) * 20, (by + n) * 20, 20, 20);
+                c.strokeRect((bx + m) * 20, (by + n) * 20, 20, 20);
+            }
+        }
+    }
+}
+
+// ブロックの状態の変数
+jyoutai = [];
+
+function tokutenkeisan() {
+    kosuu = 0;
+
+    // 全ラインをチェック
+    for (y = 0; y < 21; y++) {
+        sorottenai = false;
+        for (x = 1; x <= 10; x++) {
+            if (jyoutai[y][x] == 100) {
+                // ブロックがない（隙間または壁）
+                sorottenai = true;
+            }
+        }
+        
+        if (!sorottenai) {
+            // 揃ってる
+            kosuu = kosuu + 1;
+    
+            // 音を出す
+            // document.getElementById('kieru').play();
+    
+            // 上から詰める
+            for (k = y; k > 0; k--) {
+                for (x = 1; x <= 10; x++) {
+                    jyoutai[k][x] = jyoutai[k - 1][x];
+                }
+            }
+        }    
+    }
+
+    // ブロックを全部描き直す
+    // 1.キャンバスを取得する
+    gamegamen = document.getElementById('game');
+    cg = gamegamen.getContext('2d');
+
+    // 2.全部消す
+    cg.clearRect(0, 0, 239, 439);
+
+    // 3.ブロックがあるところを描く
+    for (y = 0; y < 22; y++) {
+        for (x = 0; x < 12; x++) {
+            if ((jyoutai[y][x] != 100) &&(jyoutai[y][x] != 99)) {
+                // ブロックを描く
+                cg.fillStyle = biro[jyoutai[y] [x]];
+                cg.strokeStyle = '#333333';
+                cg.lineWidth = 3;
+                cg.fillRect(x * 20, y * 20, 20, 20);
+                cg.strokeRect(x * 20, y * 20, 20, 20);
+            }
+        }
+    }
+
+    // 得点を計算する
+    switch (kosuu) {
+        case 1:
+            tokuten = tokuten + 10;
+            break;
+        case 2:
+            tokuten = tokuten + 20;
+            break;
+        case 3:
+            tokuten = tokuten + 100;
+            break;
+        case 4:
+            tokuten = tokuten + 1000;
+            // 4ラインのときは効果音を鳴らす
+            // document.getElementById('zenbu').play();
+            break;
+    }
+
+    // 得点を表示する
+    tgamen = document.getElementById('tokuten');
+    tgamen.innerHTML = tokuten;
+}
+
+function jikandeugokasu() {
+    if (jikkou) {
+        // 実行中
+        // 下に動かす
+        shitaidou();
+        // 次の時間を設定
+        setTimeout(jikandeugokasu, jikan);
+    } 
+}
+
+function gamekaishi() {
+    gamegamen = document.getElementById('game');
+    cg = gamegamen.getContext('2d');
+
+    // 画面を消す
+    cg.clearRect(0, 0, 239, 439);
+
+    // 得点を0にする
+    tokuten = 0;
+
+    // ゲーム中に設定し、タイマーを設定する
+    jikkou = true;
+    jikan = 1000;
+    setTimeout(jikandeugokasu, jikan);
+
+    // 状態をクリア
+    jyoutai = new Array(22);
+    for (i = 0; i < 22; i++) {
+        jyoutai[i] = new Array(12);
+        for (j = 0; j < 12; j++) {
+            jyoutai[i][j] = 100;
+        }
+    }
+
+    // 壁を設定
+    for (i = 0; i < 22; i++) {
+        jyoutai[i][0] = 99;
+    }
+
+    for (i = 0; i < 22; i++) {
+        jyoutai[i][11] = 99;
+    }
+
+    for (i = 0; i < 12; i++) {
+        jyoutai[21][i] = 99;
+    }
+
+    // ランダムなブロックを作る
+    ix = 4;
+    iy = 0;
+    imuki = 0;
+    ishurui = Math.floor(Math.random() * 7);
+
+    // 次のブロックをセットする
+    tsugiwotsukuru();
+
+    kaku(cg, ix, iy, imuki, ishurui);
+}
+
+function hajime() {
+    // 背景のCanvasを取得
+    backgamen = document.getElementById('back');
+    cb = backgamen.getContext('2d');
+
+    // 塗りを設定
+    cb.fillStyle = '#CCCCCC';
+
+    // 線を設定
+    cb.strokeStyle = '#333333';
+    cb.lineWidth = 3;
+
+    // 四角形を塗る
+    cb.fillRect(0, 0, 20, 20);
+
+    // 四角形の枠線を描く
+    cb.strokeRect(0, 0, 20, 20);
+
+    // 左壁を描く
+    x = 0;
+    y = 0;
+
+    for (i = 0; i < 22; i++) {
+        cb.fillRect(x, y, 20, 20);
+        cb.strokeRect(x, y, 20, 20);
+        y = y + 20;
+    }
+
+    // 右壁を描く
+    x = 220;
+    y = 0;
+
+    for (i = 0; i < 22; i++) {
+        cb.fillRect(x, y, 20, 20);
+        cb.strokeRect(x, y, 20, 20);
+        y = y + 20;
+    }
+
+    // 下壁を描く
+    x = 0;
+    y = 420;
+
+    for (i = 0; i < 22; i++) {
+        cb.fillRect(x, y, 20, 20);
+        cb.strokeRect(x, y, 20, 20);
+        x = x + 20;
+    }
+}
+
+</script>
+    <style>
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+    <title>テトリス sutudiy</title>
+  </head>
+<html>
+    <head>
+        <script src="program.js"></script>
+        <audio id="kaiten" preload="auto">
+            <source src="oto/kaiten.mp3" type="audio/mp3">
+        </audio>
+        <audio id="ochiru" preload="auto">
+            <source src="oto/ochiru.mp3" type="audio/mp3">
+        </audio>
+        <audio id="don" preload="auto">
+            <source src="oto/don.mp3" type="audio/mp3">
+        </audio>
+        <audio id="kieru" preload="auto">
+            <source src="oto/kieru.mp3" type="audio/mp3">
+        </audio>
+        <audio id="zenbu" preload="auto">
+            <source src="oto/zenbu.mp3" type="audio/mp3">
+        </audio>
+        <audio id="gameover" preload="auto">
+            <source src="oto/gameover.mp3" type="audio/mp3">
+        </audio>
+    </head>
+    <body onload="hajime()" onkeydown="ugokasu(event)">
+        <div style="position:absolute; left:20px; top:10px">
+            <h1>テトリス</h1>
+            <div style="width:380px;">
+                スコア：<span id="tokuten">0</span>
+            </div>
+            </div>
+            <canvas id="back" width="240" height="440"
+                style="position:absolute; left:20px; top:150px; background-color: black"></canvas>
+            <canvas id="game" width="240" height="440"
+                style="position:absolute; left:20px; top:150px; background-color: transparent"></canvas>
+            <canvas id="tsugi" width="80" height="80"
+                style="position:absolute; left:300px; top:150px; background-color: black"></canvas>
+            <button id="kaishibtn"
+                style="position: absolute; left:300px;top:300px; width:80px; height:50px" onclick="gamekaishi()">
+                ゲーム<br>スタート
+            </button>
+        </body>
 </html>
