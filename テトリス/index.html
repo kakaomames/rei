@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Gemini programming隊 - 統合キーボードミッション">
+    <title>Gemini Tetris x Keyboard</title>
+    <style>
+        body { background: #000; color: #0f0; margin: 0; display: flex; flex-direction: column; align-items: center; overflow: hidden; height: 100vh; }
+        #logo { width: 40px; margin: 5px; }
+        canvas { border: 2px solid #0f0; background: #000; max-height: 50vh; }
+        .btn-toggle { position: fixed; top: 10px; right: 10px; z-index: 10000; padding: 10px; background: #222; color: #fff; border: 1px solid #0f0; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <button class="btn-toggle" onclick="toggleKB()">⌨️ キーボード切替</button>
+    <img id="logo" src="https://kakaomames.github.io/rei/logo.png" alt="Logo">
+    <div style="font-family: monospace;">SCORE: <span id="score">0</span></div>
+    <canvas id="tetris" width="200" height="400"></canvas>
+
+    <script>
+        // --- テトリス基本エンジン ---
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+        context.scale(20, 20);
+
+        let arena = Array.from({length: 20}, () => Array(10).fill(0));
+        let player = { pos: {x: 4, y: 0}, matrix: [[0,1,0],[1,1,1],[0,0,0]], score: 0 };
+
+        function draw() {
+            context.fillStyle = '#000';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            arena.forEach((row, y) => row.forEach((val, x) => {
+                if(val) { context.fillStyle = '#0f0'; context.fillRect(x, y, 1, 1); }
+            }));
+            player.matrix.forEach((row, y) => row.forEach((val, x) => {
+                if(val) { context.fillStyle = '#fff'; context.fillRect(x + player.pos.x, y + player.pos.y, 1, 1); }
+            }));
+        }
+
+        // --- 隊員作：フルキーボード JS (統合版) ---
+        function setupKeyboard() {
+            const container = document.createElement('div');
+            container.id = 'gk-container';
+            Object.assign(container.style, {
+                position: 'fixed', bottom: '0', left: '0', width: '100%',
+                backgroundColor: 'rgba(30, 30, 30, 0.95)', color: 'white',
+                padding: '10px 0', fontFamily: 'sans-serif', zIndex: '9999',
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                boxShadow: '0 -5px 15px rgba(0,0,0,0.5)', transition: '0.3s'
+            });
+
+            const display = document.createElement('div');
+            Object.assign(display.style, {
+                width: '90%', height: '30px', backgroundColor: '#000', color: '#0f0',
+                border: '1px solid #555', marginBottom: '5px', padding: '5px', fontSize: '14px'
+            });
+            display.innerText = "> READY...";
+            container.appendChild(display);
+
+            const rows = [
+                ["1","2","3","4","5","6","7","8","9","0"],
+                ["Q","W","E","R","T","Y","U","I","O","P"],
+                ["A","S","D","F","G","H","J","K","L"],
+                ["Z","X","C","V","B","N","M"]
+            ];
+
+            rows.forEach(rowChars => {
+                const rowDiv = document.createElement('div');
+                rowDiv.style.display = 'flex';
+                rowChars.forEach(char => {
+                    const key = document.createElement('div');
+                    key.innerText = char;
+                    Object.assign(key.style, {
+                        width: '32px', height: '40px', margin: '2px', backgroundColor: '#444',
+                        borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', boxShadow: '0 2px #222'
+                    });
+                    
+                    key.onclick = () => {
+                        display.innerText = "> KEY: " + char;
+                        // --- テトリス操作に変換！ ---
+                        if(char === 'A') player.pos.x--;
+                        if(char === 'D') player.pos.x++;
+                        if(char === 'S') player.pos.y++;
+                        if(char === 'W') rotate(player.matrix);
+                        console.log(`Command_Sent: ${char}`);
+                    };
+                    rowDiv.appendChild(key);
+                });
+                container.appendChild(rowDiv);
+            });
+
+            document.body.appendChild(container);
+        }
+
+        function rotate(m) {
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < y; ++x) [m[x][y], m[y][x]] = [m[y][x], m[x][y]];
+            }
+            m.forEach(row => row.reverse());
+        }
+
+        function toggleKB() {
+            const kb = document.getElementById('gk-container');
+            kb.style.display = (kb.style.display === 'none') ? 'flex' : 'none';
+        }
+
+        setupKeyboard();
+        setInterval(() => { draw(); }, 100);
+        console.log("隊長！隊員のキーボードとテトリスの同期に成功しました！⌨️🔥");
+    </script>
+</body>
+</html>
