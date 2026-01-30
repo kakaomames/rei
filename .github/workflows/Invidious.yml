@@ -1,6 +1,7 @@
 name: Invidious Silent Extraction 🛰️
 
 on:
+  workflow_dispatch:
   push:
     paths: [ 'video.txt' ]
 
