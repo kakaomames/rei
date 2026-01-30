@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gemini programming隊 - 音響作戦本部ポータル">
+    <meta name="keywords" content="Minecraft, Audio, Merger, Converter, vgmstream, Gemini">
+    <meta name="author" content="カカオマメ & Gemini">
+    <meta property="og:title" content="Gemini Audio Hub">
+    <meta property="og:description" content="マイクラ音声統合・変換・解析の全てのミッションはここから始まる。">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Audio Mission Control | Gemini programming隊 🛰️</title>
+    <style>
+        :root { --primary: #2ecc71; --secondary: #3498db; --bg: #1a1a1a; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: white; text-align: center; padding: 50px 20px; margin: 0; }
+        .logo { width: 120px; filter: drop-shadow(0 0 10px var(--primary)); margin-bottom: 20px; }
+        h1 { font-size: 2.5em; letter-spacing: 2px; color: var(--primary); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1000px; margin: 50px auto; }
+        
+        /* 隊員指定のカードデザイン */
+        .card { 
+            background: #252525; border: 2px solid #444; padding: 30px; border-radius: 15px; 
+            cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden;
+        }
+        .card:hover { border-color: var(--primary); transform: translateY(-10px); background: #333; }
+        .card h2 { margin-top: 0; color: var(--secondary); }
+        .card p { color: #aaa; font-size: 0.9em; line-height: 1.6; }
+        .badge { background: var(--primary); color: black; font-weight: bold; padding: 5px 10px; border-radius: 5px; font-size: 0.7em; position: absolute; top: 10px; right: 10px; }
+    </style>
+</head>
+<body>
+
+    <img src="https://kakaomames.github.io/rei/logo.png" alt="Gemini Logo" class="logo">
+    <h1>🔊 AUDIO MISSION HUB</h1>
+    <p>Gemini programming隊・音響作戦本部へようこそ。隊員、作戦を選べ！</p>
+
+    <div class="grid">
+        <div class="card" id="btn-merger">
+            <span class="badge">ACTIVE</span>
+            <h2>音声統合機</h2>
+            <p>複数ファイルを連結し、Windows風プログレスバーで可視化しながら1つのWAVへ統合する。</p>
+        </div>
+
+        <div class="card" id="btn-converter">
+            <span class="badge">ACTIVE</span>
+            <h2>万能変換機</h2>
+            <p>FFmpeg.wasmを搭載。WAVをマイクラ用のoggやmp3、m4aへ一括変換する。</p>
+        </div>
+
+        <div class="card" id="btn-vgmstream">
+            <span class="badge" style="background:#e67e22;">UNDER DEV</span>
+            <h2>特殊音声解析機</h2>
+            <p>vgmstream統合版。fsbやwemなど、ゲーム特有の難解なフォーマットを解読する。</p>
+        </div>
+    </div>
+
+    <script>
+        // 隊員指定の遷移方法で実装！
+        document.getElementById('btn-merger').addEventListener('click', function() {
+            window.location.href = 'お.html';
+        });
+
+        document.getElementById('btn-converter').addEventListener('click', function() {
+            window.location.href = 'か.html';
+        });
+
+        document.getElementById('btn-vgmstream').addEventListener('click', function() {
+            // まだ開発中だけど、アラートを出して期待感を高める！
+            alert("隊員！このエリアは現在 vgmstream.wasm をコンパイル中だ。待機してくれ！");
+            window.location.href = 'き.html';
+        });
+    </script>
+
+</body>
+</html>
