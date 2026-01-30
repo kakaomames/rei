@@ -1,0 +1,21 @@
+services:
+  db:
+    image: docker.io/library/postgres:14-alpine
+    environment:
+      - POSTGRES_DB=invidious
+      - POSTGRES_USER=kemal
+      - POSTGRES_PASSWORD=kemal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kemal -d invidious"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  invidious:
+    image: quay.io/invidious/invidious:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - INVIDIOUS_DATABASE_URL=postgres://kemal:kemal@db:5432/invidious
+    depends_on:
+      db:
+        condition: service_healthy
