@@ -1,0 +1,78 @@
+name: Invidious Silent Extraction 🛰️
+
+on:
+  push:
+    paths: [ 'video.txt' ]
+
+jobs:
+  extract-and-rescue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Invidiousの起動 (Docker)
+      - name: Deploy Invidious Engine
+        run: |
+          # 隊員指定のソースをベースにしたDockerイメージ等を利用
+          # 今回は公式の構成でまずは立ち上げるぞ！
+          curl -L https://raw.githubusercontent.com/iv-org/invidious/master/docker-compose.yml -o docker-compose.yml
+          
+          # データベース（Postgres）と本体を起動
+          docker compose up -d invidious db
+          
+          # 起動完了まで少し待機（Invidiousが起きるまで時間がかかるんだ）
+          echo "Waking up Invidious engine..."
+          sleep 45
+
+      # 2. クッキーなしでAPIからURLを奪取 & DL
+      - name: Python Mission Control
+        run: |
+          python -c "
+          import requests, uuid, os, subprocess, time
+
+          # video.txt 読み込み
+          with open('video.txt', 'r') as f:
+              video_id = f.read().strip()
+          print(f'target_id:{video_id}')
+
+          # UUID生成
+          task_id = str(uuid.uuid4())
+          print(f'task_id:{task_id}')
+          os.makedirs(task_id, exist_ok=True)
+
+          # LocalhostのInvidious APIを叩く（ここがクッキーいらずの魔法！）
+          api_endpoint = f'http://localhost:3000/api/v1/videos/{video_id}'
+          
+          try:
+              # プロキシ経由の動画URLを取得するようにパラメータを調整
+              # ?local=true をつけるとInvidious自身がプロキシになる
+              response = requests.get(api_endpoint, params={'local': 'true'})
+              data = response.json()
+              
+              # Proxy用URLを抽出（これがActionsサーバー経由でDLするための鍵！）
+              # Invidiousが動画を中継してくれるURLだ
+              video_data = data['formatStreams'][0]
+              proxy_url = f'http://localhost:3000{video_data[\"url\"]}'
+              print(f'proxy_url_found:{proxy_url[:60]}...')
+
+              # 3. そのURLから動画を保存（Actionsなら爆速！）
+              # ここで curl コマンドを使って保存だ！
+              subprocess.run(['curl', '-L', proxy_url, '-o', f'{task_id}/video.mp4'])
+              print(f'status:saved_to_{task_id}/video.mp4')
+
+              # 4. 完了報告としてvideo.txtを更新
+              with open('video.txt', 'w') as f:
+                  f.write(task_id)
+
+          except Exception as e:
+              print(f'error:{e}')
+          "
+
+      # 3. 成果物をリポジトリに届ける！
+      - name: Deliver Spoils
+        run: |
+          git config --global user.name 'Gemini-Bot'
+          git config --global user.email 'bot@gemini.team'
+          git add .
+          git commit -m \"Mission Complete: Recovered via Invidious [skip ci]\"
+          git push
