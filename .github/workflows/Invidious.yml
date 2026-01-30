@@ -10,69 +10,102 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. Invidiousの起動 (Docker)
-      - name: Deploy Invidious Engine
+      # 1. 検問（20文字以上ならKill）
+      - name: Security Check
         run: |
-          # 隊員指定のソースをベースにしたDockerイメージ等を利用
-          # 今回は公式の構成でまずは立ち上げるぞ！
-          curl -L https://raw.githubusercontent.com/iv-org/invidious/master/docker-compose.yml -o docker-compose.yml
-          
-          # データベース（Postgres）と本体を起動
-          docker compose up -d invidious db
-          
-          # 起動完了まで少し待機（Invidiousが起きるまで時間がかかるんだ）
-          echo "Waking up Invidious engine..."
-          sleep 45
+          python -c "
+          import sys
+          with open('video.txt', 'r') as f:
+              v = f.read().strip()
+          print(f'current_v:{v}')
+          if len(v) >= 20: sys.exit(1)
+          "
 
-      # 2. クッキーなしでAPIからURLを奪取 & DL
+      # 2. docker-compose.yml をその場で作成（確実にdbとinvidiousを定義！）
+      - name: Create Docker Compose File
+        run: |
+          cat <<EOF > docker-compose.yml
+          services:
+            db:
+              image: docker.io/library/postgres:14-alpine
+              environment:
+                - POSTGRES_DB=invidious
+                - POSTGRES_USER=kemal
+                - POSTGRES_PASSWORD=kemal
+              healthcheck:
+                test: ["CMD-SHELL", "pg_isready -U kemal -d invidious"]
+                interval: 5s
+                timeout: 5s
+                retries: 5
+            invidious:
+              image: quay.io/invidious/invidious:latest
+              ports:
+                - "3000:3000"
+              environment:
+                - INVIDIOUS_DATABASE_URL=postgres://kemal:kemal@db:5432/invidious
+              depends_on:
+                db:
+                  condition: service_healthy
+          EOF
+
+      # 3. 起動！
+      - name: Deploy Invidious Stack
+        run: |
+          docker compose up -d
+          echo "Waiting for Invidious to stabilize..."
+          sleep 60 # DBが立ち上がってからInvidiousが準備完了するまで少し長めに待つぞ
+
+      # 4. URL奪取 & DL (Python)
       - name: Python Mission Control
         run: |
           python -c "
           import requests, uuid, os, subprocess, time
 
-          # video.txt 読み込み
           with open('video.txt', 'r') as f:
               video_id = f.read().strip()
           print(f'target_id:{video_id}')
 
-          # UUID生成
           task_id = str(uuid.uuid4())
           print(f'task_id:{task_id}')
           os.makedirs(task_id, exist_ok=True)
 
-          # LocalhostのInvidious APIを叩く（ここがクッキーいらずの魔法！）
+          # ローカルのAPIを叩く
           api_endpoint = f'http://localhost:3000/api/v1/videos/{video_id}'
           
           try:
-              # プロキシ経由の動画URLを取得するようにパラメータを調整
-              # ?local=true をつけるとInvidious自身がプロキシになる
+              # local=trueでプロキシ経由のURLをリクエスト
               response = requests.get(api_endpoint, params={'local': 'true'})
+              print(f'api_status:{response.status_code}')
               data = response.json()
               
-              # Proxy用URLを抽出（これがActionsサーバー経由でDLするための鍵！）
-              # Invidiousが動画を中継してくれるURLだ
+              # 動画ストリームの取得
               video_data = data['formatStreams'][0]
-              proxy_url = f'http://localhost:3000{video_data[\"url\"]}'
-              print(f'proxy_url_found:{proxy_url[:60]}...')
+              proxy_relative_url = video_data['url']
+              proxy_full_url = f'http://localhost:3000{proxy_relative_url}'
+              print(f'proxy_url_ready:{proxy_full_url[:60]}...')
 
-              # 3. そのURLから動画を保存（Actionsなら爆速！）
-              # ここで curl コマンドを使って保存だ！
-              subprocess.run(['curl', '-L', proxy_url, '-o', f'{task_id}/video.mp4'])
-              print(f'status:saved_to_{task_id}/video.mp4')
+              # curlでDL（html以外はcurlの掟！）
+              print('Starting download...')
+              subprocess.run(['curl', '-L', proxy_full_url, '-o', f'{task_id}/video.mp4'], check=True)
+              print(f'file_saved: {task_id}/video.mp4')
 
-              # 4. 完了報告としてvideo.txtを更新
+              # video.txt 更新
               with open('video.txt', 'w') as f:
                   f.write(task_id)
 
           except Exception as e:
-              print(f'error:{e}')
+              print(f'error_occured:{e}')
+              # 失敗した時のためにログを残す
+              with open(f'{task_id}/error.log', 'w') as f:
+                  f.write(str(e))
           "
 
-      # 3. 成果物をリポジトリに届ける！
+      # 5. コミット & プッシュ
       - name: Deliver Spoils
+        if: always() # エラーが起きてもログを回収するために常に実行
         run: |
           git config --global user.name 'Gemini-Bot'
           git config --global user.email 'bot@gemini.team'
           git add .
-          git commit -m \"Mission Complete: Recovered via Invidious [skip ci]\"
+          git commit -m \"Mission Progress: Recovery attempted [skip ci]\" || echo "No changes to commit"
           git push
