@@ -3,109 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Programming隊 - ステルスデコーダー</title>
+    <title>Gemini programming隊 - デコーダーv2</title>
     <style>
-        /* カカオマメ隊員こだわりのCSSをそのまま継承 */
         body { background: #010a01; color: #33ff33; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; padding: 30px; }
-        h2 { text-shadow: 0 0 10px #33ff33; letter-spacing: 5px; border-bottom: 2px solid #33ff33; }
-        .box { background: rgba(0, 40, 0, 0.8); border: 1px solid #33ff33; box-shadow: 0 0 15px rgba(51, 255, 51, 0.2); padding: 20px; margin: 15px; width: 80%; max-width: 600px; border-radius: 5px; position: relative; overflow: hidden; }
-        video { width: 100%; max-width: 200px; display: block; margin: 0 auto; filter: drop-shadow(0 0 10px gold); border: 2px solid #555; }
-        button { width: 100%; padding: 15px; background: #111; color: #33ff33; border: 1px solid #33ff33; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        button:hover { background: #33ff33; color: #000; box-shadow: 0 0 20px #33ff33; }
-        #log { height: 150px; overflow-y: auto; font-size: 12px; background: #000; padding: 10px; border: 1px inset #33ff33; white-space: pre-wrap; }
-        input[type="file"] { background: #111; color: #33ff33; border: 1px solid #33ff33; width: 100%; padding: 5px; margin-bottom: 10px; }
-
-        /* スキャン中のアニメーション */
-        .scanning::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: #33ff33; animation: scan 2s infinite linear; opacity: 0.8; }
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+        h2 { text-shadow: 0 0 10px #33ff33; border-bottom: 2px solid #33ff33; }
+        .box { background: rgba(0, 40, 0, 0.8); border: 1px solid #33ff33; padding: 20px; margin: 15px; width: 90%; max-width: 700px; border-radius: 5px; position: relative; }
+        video { width: 100%; max-width: 250px; display: block; margin: 0 auto 20px; filter: drop-shadow(0 0 10px gold); }
+        #log { height: 120px; overflow-y: auto; background: #000; padding: 10px; border: 1px inset #33ff33; font-size: 12px; margin-bottom: 10px; }
+        .result-area { border-top: 2px dashed #33ff33; padding-top: 15px; text-align: center; }
+        .preview-content { max-width: 100%; border: 2px solid gold; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h2>🚀 ステルス・デコーダー</h2>
-    
-    <div class="box" id="mainBox">
-        <h3>1. 輸送機（動画）の選択・確認</h3>
-        <input type="file" id="videoPicker" accept="video/*">
-        <video id="stealthVideo" controls loop>
-            <source src="/m/a.mp4" type="video/mp4">
-        </video>
+    <h2>🛰️ インテリジェンス・デコーダー v2</h2>
+
+    <div class="box">
+        <input type="file" id="targetFile"  style="margin-bottom:15px;">
+        <video id="previewVideo" controls loop></video>
+        <button onclick="decodeV2()" style="width:100%; padding:15px; background:#111; color:#33ff33; border:1px solid #33ff33; cursor:pointer; font-weight:bold;">シークエンス解析開始</button>
     </div>
 
     <div class="box">
-        <h3>2. 解析シークエンス</h3>
-        <button onclick="extractTest()">データ抽出実行！</button>
-    </div>
-
-    <div class="box">
-        <h3>3. ログ出力（解析結果）</h3>
-        <pre id="log"></pre>
+        <pre id="log">ステータス: 待機中...</pre>
+        <div id="resultArea" class="result-area">
+            </div>
     </div>
 
     <script>
-        // ファイルが選択されたらビデオを更新
-        document.getElementById('videoPicker').addEventListener('change', function(e) {
+        const log = (msg) => document.getElementById('log').innerText += msg + "\n";
+
+        // ファイル選択時にビデオをプレビュー
+        document.getElementById('targetFile').addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if (file) {
-                const url = URL.createObjectURL(file);
-                document.getElementById('stealthVideo').src = url;
-                console.log(`新機体受領: ${file.name} (${file.size} bytes)`);
-            }
+            if (file) document.getElementById('previewVideo').src = URL.createObjectURL(file);
         });
 
-        async function extractTest() {
-            const logElement = document.getElementById('log');
-            const mainBox = document.getElementById('mainBox');
-            const videoPicker = document.getElementById('videoPicker');
+        async function decodeV2() {
+            const file = document.getElementById('targetFile').files[0];
+            if (!file) return alert("隊員！解析対象の動画を選んでくれ！");
+
+            const logEl = document.getElementById('log');
+            const resultArea = document.getElementById('resultArea');
+            logEl.innerText = "🚀 解析シークエンス開始...\n";
+            resultArea.innerHTML = "";
+
+            const buffer = await file.arrayBuffer();
+            const uint8 = new Uint8Array(buffer);
+
+            const enc = new TextEncoder();
+            const dec = new TextDecoder();
+
+            const marker = "SECRET_V2";
+            const separator = "::DATA::";
+
+            // 1. 合言葉を探す
+            const markerIdx = findSequence(uint8, enc.encode(marker));
+            if (markerIdx === -1) {
+                log("❌ 警告：SECRET_V2 マーカー未検出。");
+                return;
+            }
+
+            // 2. 境界線を探す
+            const sepIdx = findSequence(uint8, enc.encode(separator), markerIdx);
+            if (sepIdx === -1) {
+                log("❌ 警告：データ境界線 ::DATA:: が見つかりません。");
+                return;
+            }
+
+            // 3. メタデータを抽出
+            const metaPart = uint8.slice(markerIdx + marker.length, sepIdx);
+            const meta = JSON.parse(dec.decode(metaPart));
+            log(`✅ メタデータ受信: ${meta.name} (${meta.type})`);
             
-            logElement.innerText = "🛰️ スキャン開始...\n";
-            mainBox.classList.add('scanning'); // アニメーション開始！
+            // 決定した値を報告！
+            console.log(`targetName:${meta.name}`);
 
-            try {
-                let buffer;
-                if (videoPicker.files[0]) {
-                    // 選択されたファイルから読み込む
-                    buffer = await videoPicker.files[0].arrayBuffer();
-                } else {
-                    // ファイル未選択ならサーバーのデフォルトを読み込む
-                    const response = await fetch('/m/a.mp4');
-                    buffer = await response.arrayBuffer();
-                }
+            // 4. 実データを抽出
+            const dataPart = uint8.slice(sepIdx + separator.length);
+            log(`📦 実データ救出完了: ${dataPart.length} bytes`);
 
-                const uint8View = new Uint8Array(buffer);
-                console.log(`バイナリ展開完了: ${uint8View.length} bytes`);
+            // 5. 自動展開
+            deployData(dataPart, meta);
+        }
 
-                // 2. マーカーをバイナリで探す ("SECRET")
-                const marker = [83, 69, 67, 82, 69, 84];
-                let startIndex = -1;
+        // バイナリ内検索関数
+        function findSequence(data, seq, start = 0) {
+            for (let i = start; i < data.length - seq.length; i++) {
+                if (seq.every((b, j) => data[i + j] === b)) return i;
+            }
+            return -1;
+        }
 
-                for (let i = 0; i < uint8View.length - marker.length; i++) {
-                    let match = true;
-                    for (let j = 0; j < marker.length; j++) {
-                        if (uint8View[i + j] !== marker[j]) { match = false; break; }
-                    }
-                    if (match) { startIndex = i; break; }
-                }
+        // データの種類に合わせて画面に出す
+        function deployData(data, meta) {
+            const blob = new Blob([data], { type: meta.type });
+            const url = URL.createObjectURL(blob);
+            const area = document.getElementById('resultArea');
+            
+            area.innerHTML = `<h4>🎁 復元アイテム: ${meta.name}</h4>`;
 
-                // 擬似的な読み込み待ち（ハッカーっぽく！）
-                await new Promise(r => setTimeout(r, 1000));
-
-                if (startIndex !== -1) {
-                    const dataPart = uint8View.slice(startIndex + marker.length);
-                    const decoder = new TextDecoder('utf-8');
-                    const decodedText = decoder.decode(dataPart);
-
-                    logElement.innerText += "✅ データの救出に成功しました！\n";
-                    logElement.innerText += "--------------------------------\n";
-                    logElement.innerText += decodedText + "\n";
-                    
-                    console.log(`decodedText:${decodedText}`);
-                } else {
-                    logElement.innerText += "❌ 警告：マーカーが見つかりません。通常の動画です。\n";
-                }
-            } catch (e) {
-                logElement.innerText += `⚠️ システムエラー: ${e.message}\n`;
-            } finally {
-                mainBox.classList.remove('scanning'); // アニメーション停止
+            if (meta.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = 'preview-content';
+                area.appendChild(img);
+            } else if (meta.type.startsWith('video/')) {
+                const vid = document.createElement('video');
+                vid.src = url;
+                vid.controls = true;
+                vid.className = 'preview-content';
+                area.appendChild(vid);
+            } else if (meta.type.startsWith('audio/')) {
+                const aud = document.createElement('audio');
+                aud.src = url;
+                aud.controls = true;
+                area.appendChild(aud);
+            } else {
+                // それ以外（テキストやJSON、SVGなど）はダウンロード提供
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = meta.name;
+                a.innerText = "💾 ファイルをダウンロードして確認";
+                a.style.color = "gold";
+                area.appendChild(a);
             }
         }
     </script>
