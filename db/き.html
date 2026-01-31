@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini programming隊 - データ工作機</title>
+    <style>
+        body { background: #001f3f; color: #0074D9; font-family: 'Courier New', monospace; padding: 20px; }
+        .factory { border: 2px dashed #0074D9; padding: 20px; border-radius: 10px; background: rgba(0,0,0,0.5); }
+        h1 { color: #7FDBFF; border-bottom: 2px solid #7FDBFF; padding-bottom: 10px; }
+        .input-group { margin: 15px 0; }
+        button { background: #7FDBFF; color: #001f3f; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #39CCCC; }
+        textarea { width: 100%; height: 100px; background: #000; color: #00ff00; border: 1px solid #0074D9; }
+    </style>
+</head>
+<body>
+    <h1>🛠️ データ輸送機・製造工場</h1>
+    <div class="factory">
+        <div class="input-group">
+            <label>1. ベースとなる動画を選択 (a.mp4等):</label><br>
+            <input type="file" id="videoFile" accept="video/*">
+        </div>
+
+        <div class="input-group">
+            <label>2. 隠したいテキストデータ (JSON等):</label><br>
+            <textarea id="textData" placeholder='{"stage":1, "data":"ここにバイナリやテキストを詰め込む"}'></textarea>
+        </div>
+
+        <div class="input-group">
+            <label>3. 隠したいファイルがあれば選択 (オプション):</label><br>
+            <input type="file" id="extraFile">
+        </div>
+
+        <button onclick="buildStealthFile()">🚀 工作開始（合体！）</button>
+    </div>
+
+    <div id="status" style="margin-top:20px; color:#FF851B;"></div>
+
+    <script>
+        async function buildStealthFile() {
+            const status = document.getElementById('status');
+            const videoInput = document.getElementById('videoFile');
+            const textData = document.getElementById('textData').value;
+            const extraFile = document.getElementById('extraFile').files[0];
+
+            if (!videoInput.files[0]) {
+                alert("隊員！ベースの動画を忘れているぞ！");
+                return;
+            }
+
+            status.innerText = "🛰️ 工作中... しばし待て...";
+
+            // 1. 動画をバイナリとして読み込む
+            const videoArrayBuffer = await videoInput.files[0].arrayBuffer();
+            const videoUint8 = new Uint8Array(videoArrayBuffer);
+            console.log(`Base Video: ${videoUint8.length} bytes`);
+
+            // 2. 合言葉（マーカー）を作成: "SECRET"
+            const marker = new TextEncoder().encode("SECRET");
+
+            // 3. テキストデータをバイナリ化
+            const textUint8 = new TextEncoder().encode(textData);
+
+            // 4. 追加ファイルがあればそれもバイナリ化
+            let extraUint8 = new Uint8Array(0);
+            if (extraFile) {
+                const extraBuffer = await extraFile.arrayBuffer();
+                extraUint8 = new Uint8Array(extraBuffer);
+            }
+
+            // 5. すべてを合体！ [動画] + [合言葉] + [テキスト] + [追加ファイル]
+            const finalBlob = new Blob([videoUint8, marker, textUint8, extraUint8], { type: 'video/mp4' });
+            
+            // 6. ダウンロードリンクを作成して自動クリック
+            const url = URL.createObjectURL(finalBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "stealth_package.mp4"; // 動画のフリをしたデータ塊
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            status.innerText = `✅ 工作完了！サイズ: ${finalBlob.size} bytes\n「stealth_package.mp4」を保存したぞ！`;
+            console.log(`Final Size: ${finalBlob.size}`);
+        }
+    </script>
+</body>
+</html>
