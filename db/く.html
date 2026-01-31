@@ -96,38 +96,51 @@
 
         // データの種類に合わせて画面に出す
         function deployData(data, meta) {
-            const blob = new Blob([data], { type: meta.type });
-            const url = URL.createObjectURL(blob);
-            const area = document.getElementById('resultArea');
-            
-            area.innerHTML = `<h4>🎁 復元アイテム: ${meta.name}</h4>`;
+    const blob = new Blob([data], { type: meta.type });
+    const url = URL.createObjectURL(blob);
+    const area = document.getElementById('resultArea');
+    
+    // エリアをリセットしつつ情報を表示
+    area.innerHTML = `<h4>🎁 復元アイテム: ${meta.name}</h4>`;
 
-            if (meta.type.startsWith('image/')) {
-                const img = document.createElement('img');
-                img.src = url;
-                img.className = 'preview-content';
-                area.appendChild(img);
-            } else if (meta.type.startsWith('video/')) {
-                const vid = document.createElement('video');
-                vid.src = url;
-                vid.controls = true;
-                vid.className = 'preview-content';
-                area.appendChild(vid);
-            } else if (meta.type.startsWith('audio/')) {
-                const aud = document.createElement('audio');
-                aud.src = url;
-                aud.controls = true;
-                area.appendChild(aud);
-            } else {
-                // それ以外（テキストやJSON、SVGなど）はダウンロード提供
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = meta.name;
-                a.innerText = "💾 ファイルをダウンロードして確認";
-                a.style.color = "gold";
-                area.appendChild(a);
-            }
-        }
+    // --- 1. プレビューの生成 ---
+    if (meta.type.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = 'preview-content';
+        area.appendChild(img);
+    } else if (meta.type.startsWith('video/')) {
+        const vid = document.createElement('video');
+        vid.src = url;
+        vid.controls = true;
+        vid.className = 'preview-content';
+        area.appendChild(vid);
+    } else if (meta.type.startsWith('audio/')) {
+        const aud = document.createElement('audio');
+        aud.src = url;
+        aud.controls = true;
+        area.appendChild(aud);
+    }
+
+    // --- 2. 隊員待望の「ダウンロードボタン」設置！ ---
+    const dlBtn = document.createElement('button');
+    dlBtn.innerText = `💾 「${meta.name}」をフォルダに確保！`;
+    dlBtn.style.marginTop = "15px";
+    dlBtn.style.background = "#FFDC00"; // 目立つ黄色！
+    dlBtn.style.color = "#000";
+    
+    dlBtn.onclick = () => {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = meta.name; // 元のファイル名で保存
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        console.log(`downloadInitiated:${meta.name}`);
+    };
+    
+    area.appendChild(dlBtn);
+}
     </script>
 </body>
 </html>
