@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Programming隊 - ステルスデコーダー</title>
+    <style>
+        /* カカオマメ隊員こだわりのCSSをそのまま継承 */
+        body { background: #010a01; color: #33ff33; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; padding: 30px; }
+        h2 { text-shadow: 0 0 10px #33ff33; letter-spacing: 5px; border-bottom: 2px solid #33ff33; }
+        .box { background: rgba(0, 40, 0, 0.8); border: 1px solid #33ff33; box-shadow: 0 0 15px rgba(51, 255, 51, 0.2); padding: 20px; margin: 15px; width: 80%; max-width: 600px; border-radius: 5px; position: relative; overflow: hidden; }
+        video { width: 100%; max-width: 200px; display: block; margin: 0 auto; filter: drop-shadow(0 0 10px gold); border: 2px solid #555; }
+        button { width: 100%; padding: 15px; background: #111; color: #33ff33; border: 1px solid #33ff33; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button:hover { background: #33ff33; color: #000; box-shadow: 0 0 20px #33ff33; }
+        #log { height: 150px; overflow-y: auto; font-size: 12px; background: #000; padding: 10px; border: 1px inset #33ff33; white-space: pre-wrap; }
+        input[type="file"] { background: #111; color: #33ff33; border: 1px solid #33ff33; width: 100%; padding: 5px; margin-bottom: 10px; }
+
+        /* スキャン中のアニメーション */
+        .scanning::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: #33ff33; animation: scan 2s infinite linear; opacity: 0.8; }
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+    </style>
+</head>
+<body>
+    <h2>🚀 ステルス・デコーダー</h2>
+    
+    <div class="box" id="mainBox">
+        <h3>1. 輸送機（動画）の選択・確認</h3>
+        <input type="file" id="videoPicker" accept="video/*">
+        <video id="stealthVideo" controls loop>
+            <source src="/m/a.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="box">
+        <h3>2. 解析シークエンス</h3>
+        <button onclick="extractTest()">データ抽出実行！</button>
+    </div>
+
+    <div class="box">
+        <h3>3. ログ出力（解析結果）</h3>
+        <pre id="log"></pre>
+    </div>
+
+    <script>
+        // ファイルが選択されたらビデオを更新
+        document.getElementById('videoPicker').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                document.getElementById('stealthVideo').src = url;
+                console.log(`新機体受領: ${file.name} (${file.size} bytes)`);
+            }
+        });
+
+        async function extractTest() {
+            const logElement = document.getElementById('log');
+            const mainBox = document.getElementById('mainBox');
+            const videoPicker = document.getElementById('videoPicker');
+            
+            logElement.innerText = "🛰️ スキャン開始...\n";
+            mainBox.classList.add('scanning'); // アニメーション開始！
+
+            try {
+                let buffer;
+                if (videoPicker.files[0]) {
+                    // 選択されたファイルから読み込む
+                    buffer = await videoPicker.files[0].arrayBuffer();
+                } else {
+                    // ファイル未選択ならサーバーのデフォルトを読み込む
+                    const response = await fetch('/m/a.mp4');
+                    buffer = await response.arrayBuffer();
+                }
+
+                const uint8View = new Uint8Array(buffer);
+                console.log(`バイナリ展開完了: ${uint8View.length} bytes`);
+
+                // 2. マーカーをバイナリで探す ("SECRET")
+                const marker = [83, 69, 67, 82, 69, 84];
+                let startIndex = -1;
+
+                for (let i = 0; i < uint8View.length - marker.length; i++) {
+                    let match = true;
+                    for (let j = 0; j < marker.length; j++) {
+                        if (uint8View[i + j] !== marker[j]) { match = false; break; }
+                    }
+                    if (match) { startIndex = i; break; }
+                }
+
+                // 擬似的な読み込み待ち（ハッカーっぽく！）
+                await new Promise(r => setTimeout(r, 1000));
+
+                if (startIndex !== -1) {
+                    const dataPart = uint8View.slice(startIndex + marker.length);
+                    const decoder = new TextDecoder('utf-8');
+                    const decodedText = decoder.decode(dataPart);
+
+                    logElement.innerText += "✅ データの救出に成功しました！\n";
+                    logElement.innerText += "--------------------------------\n";
+                    logElement.innerText += decodedText + "\n";
+                    
+                    console.log(`decodedText:${decodedText}`);
+                } else {
+                    logElement.innerText += "❌ 警告：マーカーが見つかりません。通常の動画です。\n";
+                }
+            } catch (e) {
+                logElement.innerText += `⚠️ システムエラー: ${e.message}\n`;
+            } finally {
+                mainBox.classList.remove('scanning'); // アニメーション停止
+            }
+        }
+    </script>
+</body>
+</html>
