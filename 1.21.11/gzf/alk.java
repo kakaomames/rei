@@ -1,0 +1,12 @@
+public class alk {
+   public static final aba<alj> a = a("pong_response");
+   public static final aba<alm> b = b("ping_request");
+
+   private static <T extends aay<ali>> aba<T> a(String $$0) {
+      return new aba(aaz.b, amo.b($$0));
+   }
+
+   private static <T extends aay<all>> aba<T> b(String $$0) {
+      return new aba(aaz.a, amo.b($$0));
+   }
+}
