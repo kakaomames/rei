@@ -3,55 +3,48 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PH-Translator Web Edition">
-    <title>PH-Translator Web | 起動待機中</title>
+    <title>PH-Translator Web | CheerpJ 4.2</title>
     
     <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
-    <script src="https://cjrtnc.leaningtech.com/3.0/loader.js"></script>
+    
+    <script src="https://cjrtnc.leaningtech.com/4.2/loader.js"></script>
 
     <style>
-        body { margin: 0; background: #0d1117; color: #58a6ff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        #status-bar { margin-bottom: 15px; font-weight: bold; text-shadow: 0 0 10px rgba(88, 166, 255, 0.5); }
-        #container { border: 1px solid #30363d; background: #000; width: 854px; height: 480px; }
+        body { margin: 0; background: #0d1117; color: #58a6ff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        #status-bar { margin-bottom: 10px; font-weight: bold; }
+        #container { border: 2px solid #30363d; background: #000; width: 854px; height: 480px; }
     </style>
 </head>
 <body>
 
-    <div id="status-bar">🛰️ 遠隔ブランチより物資(JAR)を転送中...</div>
+    <div id="status-bar">🚀 最新エンジン v4.2 起動準備中...</div>
     <div id="container"></div>
 
     <script>
-    // window.onload を使って、loader.js が完全に読み込まれてから実行するぞ！
     window.onload = async function() {
         const status = document.getElementById("status-bar");
         
         try {
-            // CheerpJが読み込まれているか最終確認
-            if (typeof cheerpjInit === "undefined") {
-                throw new Error("CheerpJ Loaderが見つかりません。ネットワークを確認してください。");
-            }
-
-            status.innerText = "🔌 CheerpJ エンジンを接続中...";
+            status.innerText = "📡 CheerpJ 4.2 接続開始...";
+            // 履歴によると、4.x系も cheerpjInit() を使用するぞ
             await cheerpjInit();
             
             const container = document.getElementById("container");
             await cheerpjCreateDisplay(854, 480, container);
             
-            // ターゲットURL
+            // masterブランチのJARを狙撃！
             const jarURL = "https://github.com/kakaomames/rei/raw/refs/heads/master/1.21.11.jar";
             const classpath = jarURL;
             const mainClass = "Main"; 
 
-            console.log("jarURL:" + jarURL);
-            console.log("mainClass:" + mainClass);
-
-            status.innerText = "🚀 29MBのJARを読み込み中... (500のツールも見守っているぞ)";
+            console.log("Connecting to JAR: " + jarURL);
+            status.innerText = "🔥 29MBの物資を転送中... (Java 17サポートモード)";
             
             const exitCode = await cheerpjRunMain(mainClass, classpath);
             status.innerText = "✅ 任務完了。終了コード: " + exitCode;
         } catch (e) {
-            status.innerText = "❌ 起動失敗！F12を確認せよ。";
-            console.error("Error details:", e);
+            status.innerText = "❌ 起動失敗。F12を確認！";
+            console.error("Critical Error:", e);
         }
     };
     </script>
