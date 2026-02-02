@@ -3,21 +3,23 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PH-Translator Web | CheerpJ 4.2</title>
+    <meta name="description" content="PH-Translator Web Edition - Gemini programming隊 遠隔司令部">
+    <meta property="og:title" content="PH-Translator Web">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <title>PH-Translator Web | CDN狙撃モード</title>
     
     <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
-    
     <script src="https://cjrtnc.leaningtech.com/4.2/loader.js"></script>
 
     <style>
-        body { margin: 0; background: #0d1117; color: #58a6ff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        #status-bar { margin-bottom: 10px; font-weight: bold; }
-        #container { border: 2px solid #30363d; background: #000; width: 854px; height: 480px; }
+        body { margin: 0; background: #0d1117; color: #58a6ff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        #status-bar { margin-bottom: 15px; font-weight: bold; text-shadow: 0 0 10px rgba(88, 166, 255, 0.5); }
+        #container { border: 1px solid #30363d; background: #000; width: 854px; height: 480px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
-    <div id="status-bar">🚀 最新エンジン v4.2 起動準備中...</div>
+    <div id="status-bar">🛰️ CDNトンネル経由で masterブランチより物資転送中...</div>
     <div id="container"></div>
 
     <script>
@@ -25,25 +27,26 @@
         const status = document.getElementById("status-bar");
         
         try {
-            status.innerText = "📡 CheerpJ 4.2 接続開始...";
-            // 履歴によると、4.x系も cheerpjInit() を使用するぞ
+            status.innerText = "🔌 CheerpJ 4.2 エンジン点火...";
             await cheerpjInit();
             
             const container = document.getElementById("container");
             await cheerpjCreateDisplay(854, 480, container);
             
-            // masterブランチのJARを狙撃！
-            const jarURL = "https://github.com/kakaomames/rei/raw/refs/heads/master/1.21.11.jar";
-            const classpath = jarURL;
-            const mainClass = "net.minecraft.client.main.Main";
+            // 【重要】 jsDelivrを使って masterブランチの解凍フォルダを狙い撃ち！
+            // これで10,000個のファイルに直接アクセスできるぞ
+            const classpath = "https://cdn.jsdelivr.net/gh/kakaomames/rei@master/1.21.11/";
+            const mainClass = "net.minecraft.client.main.Main"; 
 
-            console.log("Connecting to JAR: " + jarURL);
-            status.innerText = "🔥 29MBの物資を転送中... (Java 17サポートモード)";
+            console.log("Target Classpath (CDN): " + classpath);
+            status.innerText = "🚀 10,000個の資材をスキャン中... (時間がかかるぞ！)";
             
+            // 実行開始！
             const exitCode = await cheerpjRunMain(mainClass, classpath);
+            
             status.innerText = "✅ 任務完了。終了コード: " + exitCode;
         } catch (e) {
-            status.innerText = "❌ 起動失敗。F12を確認！";
+            status.innerText = "❌ 転送エラー！F12でログを確認せよ。";
             console.error("Critical Error:", e);
         }
     };
