@@ -1,0 +1,249 @@
+public interface adb extends abg, ali {
+   default wv b() {
+      return wv.b;
+   }
+
+   void a(adc var1);
+
+   void a(agw var1);
+
+   void a(add var1);
+
+   void a(aeo var1);
+
+   void a(ade var1);
+
+   void a(afs var1);
+
+   void a(aft var1);
+
+   void a(afu var1);
+
+   void a(adg var1);
+
+   void a(aff var1);
+
+   void a(adh var1);
+
+   void a(adi var1);
+
+   void a(adj var1);
+
+   void a(ahk var1);
+
+   void a(afi var1);
+
+   void a(aeh var1);
+
+   void a(aeg var1);
+
+   void a(aga var1);
+
+   void a(aex var1);
+
+   void a(adu var1);
+
+   void a(adv var1);
+
+   void a(aez var1);
+
+   void a(adw var1);
+
+   void a(adx var1);
+
+   void a(aei var1);
+
+   void a(agq var1);
+
+   void a(agx var1);
+
+   void a(aek var1);
+
+   void a(aem var1);
+
+   void a(aer var1);
+
+   void a(adq var1);
+
+   void a(ael var1);
+
+   void a(aes var1);
+
+   void a(aew var1);
+
+   void a(afa var1);
+
+   void a(afb var1);
+
+   void a(afp var1);
+
+   void a(afq var1);
+
+   void a(aet var1);
+
+   void a(afh var1);
+
+   void a(afm var1);
+
+   void a(afn var1);
+
+   void a(afv var1);
+
+   void a(afw var1);
+
+   void a(afy var1);
+
+   void a(afz var1);
+
+   void a(agv var1);
+
+   void a(ago var1);
+
+   void a(agp var1);
+
+   void a(agr var1);
+
+   void a(ags var1);
+
+   void a(agt var1);
+
+   void a(agu var1);
+
+   void a(agz var1);
+
+   void a(aha var1);
+
+   void a(afx var1);
+
+   void a(agn var1);
+
+   void a(ahd var1);
+
+   void a(ahh var1);
+
+   void a(ahg var1);
+
+   void a(ahn var1);
+
+   void a(aej var1);
+
+   void a(aho var1);
+
+   void a(ahq var1);
+
+   void a(ahr var1);
+
+   void a(ahu var1);
+
+   void a(ahv var1);
+
+   void a(afj var1);
+
+   void a(afk var1);
+
+   void a(afl var1);
+
+   void a(adn var1);
+
+   void a(agj var1);
+
+   void a(aep var1);
+
+   void a(agf var1);
+
+   void a(agg var1);
+
+   void a(agh var1);
+
+   void a(agi var1);
+
+   void a(age var1);
+
+   void a(ahl var1);
+
+   void a(adk var1);
+
+   void a(ady var1);
+
+   void a(afc var1);
+
+   void a(aht var1);
+
+   void a(agb var1);
+
+   void a(afg var1);
+
+   void a(adt var1);
+
+   void a(ahj var1);
+
+   void a(ads var1);
+
+   void a(ahw var1);
+
+   void a(afo var1);
+
+   void a(ahm var1);
+
+   void a(aeu var1);
+
+   void a(afd var1);
+
+   void a(afe var1);
+
+   void a(aey var1);
+
+   void a(agl var1);
+
+   void a(ahb var1);
+
+   void a(agk var1);
+
+   void a(adf var1);
+
+   void a(agd var1);
+
+   void a(ahc var1);
+
+   void a(ahe var1);
+
+   void a(ahf var1);
+
+   void a(adr var1);
+
+   void a(agc var1);
+
+   void a(adz var1);
+
+   void a(adm var1);
+
+   void a(aea var1);
+
+   void a(ahi var1);
+
+   void a(adp var1);
+
+   void a(ado var1);
+
+   void a(aef var1);
+
+   void a(afr var1);
+
+   void a(agm var1);
+
+   void a(agy var1);
+
+   void a(ahp var1);
+
+   void a(ahs var1);
+
+   void a(aec var1);
+
+   void a(aeb var1);
+
+   void a(aed var1);
+
+   void a(aee var1);
+
+   void a(aen var1);
+}
