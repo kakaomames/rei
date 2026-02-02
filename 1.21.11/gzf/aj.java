@@ -1,0 +1,133 @@
+import com.mojang.serialization.Codec;
+
+public class aj {
+   public static final Codec<am<?>> a;
+   public static final cc b;
+   public static final cj c;
+   public static final cj d;
+   public static final bo e;
+   public static final ce f;
+   public static final db g;
+   public static final cv h;
+   public static final br i;
+   public static final bm j;
+   public static final bx k;
+   public static final au l;
+   public static final ba m;
+   public static final ds n;
+   public static final dm o;
+   public static final at p;
+   public static final cy q;
+   public static final cy r;
+   public static final be s;
+   public static final dr t;
+   public static final cf u;
+   public static final ck v;
+   public static final av w;
+   public static final cy x;
+   public static final dp y;
+   public static final ch z;
+   public static final bb A;
+   public static final bl B;
+   public static final dt C;
+   public static final bk D;
+   public static final bz E;
+   public static final aw F;
+   public static final dd G;
+   public static final dj H;
+   public static final ci I;
+   public static final cy J;
+   public static final cy K;
+   public static final dg L;
+   public static final ar M;
+   public static final dq N;
+   public static final ch O;
+   public static final bi P;
+   public static final aq Q;
+   public static final cp R;
+   public static final cu S;
+   public static final cu T;
+   public static final cw U;
+   public static final cw V;
+   public static final dk W;
+   public static final cn X;
+   public static final du Y;
+   public static final bk Z;
+   public static final bk aa;
+   public static final cj ab;
+   public static final ch ac;
+   public static final cy ad;
+   public static final da ae;
+   public static final da af;
+   public static final bw ag;
+
+   private static <T extends am<?>> T a(String $$0, T $$1) {
+      return (am)jq.a(mi.ak, (String)$$0, $$1);
+   }
+
+   public static am<?> a(jq<am<?>> $$0) {
+      return b;
+   }
+
+   static {
+      a = mi.ak.q();
+      b = (cc)a("impossible", new cc());
+      c = (cj)a("player_killed_entity", new cj());
+      d = (cj)a("entity_killed_player", new cj());
+      e = (bo)a("enter_block", new bo());
+      f = (ce)a("inventory_changed", new ce());
+      g = (db)a("recipe_unlocked", new db());
+      h = (cv)a("player_hurt_entity", new cv());
+      i = (br)a("entity_hurt_player", new br());
+      j = (bm)a("enchanted_item", new bm());
+      k = (bx)a("filled_bucket", new bx());
+      l = (au)a("brewed_potion", new au());
+      m = (ba)a("construct_beacon", new ba());
+      n = (ds)a("used_ender_eye", new ds());
+      o = (dm)a("summoned_entity", new dm());
+      p = (at)a("bred_animals", new at());
+      q = (cy)a("location", new cy());
+      r = (cy)a("slept_in_bed", new cy());
+      s = (be)a("cured_zombie_villager", new be());
+      t = (dr)a("villager_trade", new dr());
+      u = (cf)a("item_durability_changed", new cf());
+      v = (ck)a("levitation", new ck());
+      w = (av)a("changed_dimension", new av());
+      x = (cy)a("tick", new cy());
+      y = (dp)a("tame_animal", new dp());
+      z = (ch)a("placed_block", new ch());
+      A = (bb)a("consume_item", new bb());
+      B = (bl)a("effects_changed", new bl());
+      C = (dt)a("used_totem", new dt());
+      D = (bk)a("nether_travel", new bk());
+      E = (bz)a("fishing_rod_hooked", new bz());
+      F = (aw)a("channeled_lightning", new aw());
+      G = (dd)a("shot_crossbow", new dd());
+      H = (dj)a("spear_mobs", new dj());
+      I = (ci)a("killed_by_arrow", new ci());
+      J = (cy)a("hero_of_the_village", new cy());
+      K = (cy)a("voluntary_exile", new cy());
+      L = (dg)a("slide_down_block", new dg());
+      M = (ar)a("bee_nest_destroyed", new ar());
+      N = (dq)a("target_hit", new dq());
+      O = (ch)a("item_used_on_block", new ch());
+      P = (bi)a("default_block_use", new bi());
+      Q = (aq)a("any_block_use", new aq());
+      R = (cp)a("player_generates_container_loot", new cp());
+      S = (cu)a("thrown_item_picked_up_by_entity", new cu());
+      T = (cu)a("thrown_item_picked_up_by_player", new cu());
+      U = (cw)a("player_interacted_with_entity", new cw());
+      V = (cw)a("player_sheared_equipment", new cw());
+      W = (dk)a("started_riding", new dk());
+      X = (cn)a("lightning_strike", new cn());
+      Y = (du)a("using_item", new du());
+      Z = (bk)a("fall_from_height", new bk());
+      aa = (bk)a("ride_entity_in_lava", new bk());
+      ab = (cj)a("kill_mob_near_sculk_catalyst", new cj());
+      ac = (ch)a("allay_drop_item_on_block", new ch());
+      ad = (cy)a("avoid_vibration", new cy());
+      ae = (da)a("recipe_crafted", new da());
+      af = (da)a("crafter_recipe_crafted", new da());
+      ag = (bw)a("fall_after_explosion", new bw());
+   }
+}
