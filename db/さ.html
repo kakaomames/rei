@@ -63,39 +63,66 @@
         let finalData = { "color": {} };
 
         // --- ⚙️ 共通のファイル処理エンジン ---
-        async function startProtocol(files) {
-            if (files.length === 0) return;
-            status.textContent = "PROTOCOL START...";
+        // --- ⚙️ 修正されたファイル処理エンジン ---
+async function startProtocol(files) {
+    if (files.length === 0) return;
+    
+    // ギャラリーやデータをリセット（追加ではなく上書きしたい場合）
+    // gallery.innerHTML = ''; 
+    // finalData = { "color": {} };
+
+    status.textContent = "PROTOCOL START...";
+    console.log(`a: Processing ${files.length} files...`);
+
+    for (let file of files) {
+        // PNG以外はスキップだ！
+        if (!file.type.match('image.*')) continue;
+
+        const name = file.name.replace('.png', '');
+        status.textContent = `ANALYZING: ${name}`;
+
+        try {
+            const pixels = await processImage(file);
+            finalData.color[name] = pixels;
             
-            for (let file of files) {
-                const name = file.name.replace('.png', '');
-                status.textContent = `ANALYZING: ${name}`;
-                
-                const pixels = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = new Image();
-                        img.onload = async () => {
-                            ctx.drawImage(img, 0, 0, 16, 16);
-                            const pix = ctx.getImageData(0, 0, 16, 16).data;
-                            let res = [];
-                            for (let i = 0; i < pix.length; i += 4) {
-                                res.push([pix[i], pix[i+1], pix[i+2]]);
-                                // 慎重派ウェイト（1ピクセルごとには重すぎるので0.5ms相当の微小ウェイト）
-                                if (i % 64 === 0) await new Promise(r => setTimeout(r, 1)); 
-                            }
-                            console.log(`a: ${name} determined.`); // 決定時に出力
-                            resolve(res);
-                        };
-                        img.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                });
-                finalData.color[name] = pixels;
-            }
-            status.textContent = "✅ ALL COMPLETE.";
-            dlBtn.style.display = "inline-block";
+            // ビューアー機能がある場合は、ここでカードを追加表示
+            createTextureCard(name, pixels); 
+            
+            console.log(`a: ${name} determined.`); 
+        } catch (err) {
+            console.error(`a: Error processing ${name}:`, err);
         }
+    }
+    
+    status.textContent = "✅ ALL COMPLETE.";
+    dlBtn.style.display = "inline-block";
+}
+
+// 1つの画像をPromiseで確実に処理する関数
+function processImage(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                // ここでCanvasに描画してピクセルを取得
+                ctx.clearRect(0, 0, 16, 16); // 前の画像を消す
+                ctx.drawImage(img, 0, 0, 16, 16);
+                const pix = ctx.getImageData(0, 0, 16, 16).data;
+                
+                let res = [];
+                for (let i = 0; i < pix.length; i += 4) {
+                    res.push([pix[i], pix[i+1], pix[i+2]]);
+                }
+                resolve(res);
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
 
         // --- 🖱️ 方法A: ドラッグ＆ドロップの制御 ---
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(n => {
