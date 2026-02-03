@@ -2,55 +2,74 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="description" content="ダブル入力対応・高信頼性テクスチャスキャナー">
+    <meta name="description" content="解析済みブロックを一覧表示する高機能スキャナー">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hybrid Scanner - Gemini Programming隊</title>
+    <title>Block Viewer Scanner - Gemini Programming隊</title>
     <style>
         body { font-family: 'Courier New', monospace; background: #000; color: #0f0; text-align: center; padding: 20px; }
-        .box { border: 2px solid #333; background: #111; padding: 20px; display: inline-block; width: 400px; }
+        .box { border: 2px solid #333; background: #111; padding: 20px; display: inline-block; width: 450px; vertical-align: top; }
         
-        /* 1. ドラッグ＆ドロップ領域 */
-        #drop-zone { 
-            border: 3px dashed #0f0; 
-            padding: 40px; 
-            margin-bottom: 20px; 
-            background: #001100;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        #drop-zone.hover { background: #004400; border-style: solid; }
+        #drop-zone { border: 3px dashed #0f0; padding: 40px; margin-bottom: 20px; background: #001100; cursor: pointer; }
+        #drop-zone.hover { background: #004400; }
 
-        /* 2. ファイル選択ボタン（Input） */
-        .input-section { 
-            border-top: 1px solid #333; 
-            padding-top: 20px; 
-            margin-top: 10px; 
+        .input-section { border-top: 1px solid #333; padding-top: 20px; }
+        
+        /* メインのプレビューCanvas */
+        #scan-canvas { image-rendering: pixelated; width: 128px; height: 128px; border: 1px solid #0f0; margin: 10px 0; }
+        
+        /* 🚩 ここが重要：解析済みブロックを並べるエリア */
+        #gallery { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 15px; 
+            margin-top: 30px; 
+            border-top: 2px double #333;
+            padding-top: 20px;
         }
-        #file-input { color: #0f0; }
 
-        canvas { image-rendering: pixelated; width: 256px; height: 256px; border: 1px solid #0f0; margin: 10px 0; }
-        #status { color: #ff0; font-weight: bold; min-height: 1.2em; }
-        button#dl-btn { background: #0f0; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; margin-top: 10px; display: none; }
+        /* 個別のブロックカード */
+        .block-card {
+            background: #222;
+            border: 1px solid #0f0;
+            padding: 8px;
+            width: 100px;
+            text-align: center;
+            box-shadow: 0 0 5px #0f0;
+        }
+        .block-card canvas {
+            image-rendering: pixelated;
+            width: 64px;
+            height: 64px;
+            display: block;
+            margin: 0 auto 5px;
+        }
+        .block-name {
+            font-size: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #status { color: #ff0; font-weight: bold; margin: 10px 0; }
+        button#dl-btn { background: #0f0; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; display: none; }
     </style>
 </head>
 <body>
     <img src="https://kakaomames.github.io/rei/logo.png" alt="logo" style="width: 50px;">
-    <h1>📡 HYBRID INPUT SCANNER</h1>
+    <h1>📡 BLOCK VISUAL SCANNER</h1>
 
     <div class="box">
-        <div id="drop-zone">
-            ここにファイルをドロップ！<br>(D&D MODE)
-        </div>
-
+        <div id="drop-zone">ここにファイルをドロップ！</div>
         <div class="input-section">
-            <p style="font-size: 0.8em;">↑が動かない場合はこちらから：</p>
             <input type="file" id="file-input" accept="image/png" multiple>
         </div>
-
         <canvas id="scan-canvas" width="16" height="16"></canvas>
         <div id="status">READY...</div>
         <button id="dl-btn">💾 JSON DOWNLOAD</button>
     </div>
+
+    <div id="gallery"></div>
 
     <script>
         const dropZone = document.getElementById('drop-zone');
@@ -59,93 +78,97 @@
         const canvas = document.getElementById('scan-canvas');
         const ctx = canvas.getContext('2d');
         const dlBtn = document.getElementById('dl-btn');
+        const gallery = document.getElementById('gallery');
 
         let finalData = { "color": {} };
 
-        // --- ⚙️ 共通のファイル処理エンジン ---
-        // --- ⚙️ 修正されたファイル処理エンジン ---
-async function startProtocol(files) {
-    if (files.length === 0) return;
-    
-    // ギャラリーやデータをリセット（追加ではなく上書きしたい場合）
-    // gallery.innerHTML = ''; 
-    // finalData = { "color": {} };
-
-    status.textContent = "PROTOCOL START...";
-    console.log(`a: Processing ${files.length} files...`);
-
-    for (let file of files) {
-        // PNG以外はスキップだ！
-        if (!file.type.match('image.*')) continue;
-
-        const name = file.name.replace('.png', '');
-        status.textContent = `ANALYZING: ${name}`;
-
-        try {
-            const pixels = await processImage(file);
-            finalData.color[name] = pixels;
+        async function startProtocol(files) {
+            if (files.length === 0) return;
+            status.textContent = "PROTOCOL STARTING...";
             
-            // ビューアー機能がある場合は、ここでカードを追加表示
-            createTextureCard(name, pixels); 
-            
-            console.log(`a: ${name} determined.`); 
-        } catch (err) {
-            console.error(`a: Error processing ${name}:`, err);
-        }
-    }
-    
-    status.textContent = "✅ ALL COMPLETE.";
-    dlBtn.style.display = "inline-block";
-}
-
-// 1つの画像をPromiseで確実に処理する関数
-function processImage(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                // ここでCanvasに描画してピクセルを取得
-                ctx.clearRect(0, 0, 16, 16); // 前の画像を消す
-                ctx.drawImage(img, 0, 0, 16, 16);
-                const pix = ctx.getImageData(0, 0, 16, 16).data;
+            for (let file of files) {
+                if (!file.type.match('image.*')) continue;
+                const name = file.name.replace('.png', '');
                 
-                let res = [];
-                for (let i = 0; i < pix.length; i += 4) {
-                    res.push([pix[i], pix[i+1], pix[i+2]]);
+                try {
+                    const pixels = await processImage(file);
+                    finalData.color[name] = pixels;
+                    
+                    // ✅ ここで「ブロックカード」を生成して並べる！
+                    createTextureCard(name, pixels);
+                    
+                    console.log(`a: ${name} determined.`); 
+                } catch (err) {
+                    console.error("a: Error", err);
                 }
-                resolve(res);
-            };
-            img.onerror = reject;
-            img.src = e.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
+            }
+            status.textContent = "✅ ALL BLOCKS SCANNED.";
+            dlBtn.style.display = "inline-block";
+        }
 
-        // --- 🖱️ 方法A: ドラッグ＆ドロップの制御 ---
+        function processImage(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.clearRect(0, 0, 16, 16);
+                        ctx.drawImage(img, 0, 0, 16, 16);
+                        const pix = ctx.getImageData(0, 0, 16, 16).data;
+                        let res = [];
+                        for (let i = 0; i < pix.length; i += 4) {
+                            res.push([pix[i], pix[i+1], pix[i+2]]);
+                        }
+                        resolve(res);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ✅ 渡されたピクセルデータから小さなカードを作る関数
+        function createTextureCard(name, pixels) {
+            const card = document.createElement('div');
+            card.className = 'block-card';
+
+            const miniCanvas = document.createElement('canvas');
+            miniCanvas.width = 16;
+            miniCanvas.height = 16;
+            const mCtx = miniCanvas.getContext('2d');
+
+            // 16x16を描画
+            const imgData = mCtx.createImageData(16, 16);
+            for (let i = 0; i < pixels.length; i++) {
+                imgData.data[i * 4] = pixels[i][0];
+                imgData.data[i * 4 + 1] = pixels[i][1];
+                imgData.data[i * 4 + 2] = pixels[i][2];
+                imgData.data[i * 4 + 3] = 255;
+            }
+            mCtx.putImageData(imgData, 0, 0);
+
+            const label = document.createElement('div');
+            label.className = 'block-name';
+            label.textContent = name;
+
+            card.appendChild(miniCanvas);
+            card.appendChild(label);
+            gallery.appendChild(card); // ギャラリーに追加！
+        }
+
+        // D&D イベント
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(n => {
             dropZone.addEventListener(n, e => { e.preventDefault(); e.stopPropagation(); });
         });
-        dropZone.addEventListener('dragover', () => dropZone.classList.add('hover'));
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('hover'));
-        dropZone.addEventListener('drop', (e) => {
-            dropZone.classList.remove('hover');
-            startProtocol(e.dataTransfer.files);
-        });
-
-        // --- 📂 方法B: ファイル選択の制御 ---
+        dropZone.addEventListener('drop', (e) => startProtocol(e.dataTransfer.files));
         fileInput.addEventListener('change', (e) => startProtocol(e.target.files));
 
-        // --- 💾 保存 ---
         dlBtn.addEventListener('click', () => {
             const blob = new Blob([JSON.stringify(finalData, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'multi_texture.json';
             a.click();
-            console.log("a: multi_texture.json downloaded.");
         });
     </script>
 </body>
