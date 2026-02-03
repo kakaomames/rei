@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="解析済みJSONデータの復元・確認ツール">
+    <meta name="author" content="Gemini Programming隊 & カカオマメ隊員">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Texture Viewer - Gemini Programming隊</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #222; color: #fff; text-align: center; padding: 20px; }
+        .upload-section { border: 2px dashed #555; padding: 30px; margin-bottom: 30px; background: #333; cursor: pointer; }
+        #gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        
+        /* 復元されたカード */
+        .texture-card { 
+            background: #444; 
+            border: 2px solid #0f0; 
+            padding: 10px; 
+            border-radius: 8px; 
+            width: 180px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .texture-card canvas { 
+            image-rendering: pixelated; 
+            width: 128px; 
+            height: 128px; 
+            border: 1px solid #000;
+            background: #000;
+        }
+        .texture-name { margin-top: 10px; font-weight: bold; word-break: break-all; color: #0f0; }
+        .pixel-count { font-size: 0.8em; color: #aaa; }
+        
+        img.logo { width: 60px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <img src="https://kakaomames.github.io/rei/logo.png" alt="logo" class="logo">
+    <h1>📋 TEXTURE DATA VIEWER</h1>
+    
+    <div class="upload-section" onclick="document.getElementById('json-input').click()">
+        解析したJSONファイルを選択してくれ！
+        <input type="file" id="json-input" accept="application/json" style="display:none">
+    </div>
+
+    <div id="gallery">
+        </div>
+
+    <script>
+        const jsonInput = document.getElementById('json-input');
+        const gallery = document.getElementById('gallery');
+
+        jsonInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    renderGallery(data);
+                } catch (err) {
+                    alert("JSONの形式が正しくないみたいだぞ、隊員！");
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function renderGallery(data) {
+            gallery.innerHTML = ''; // クリア
+            const colors = data.color;
+
+            if (!colors) {
+                alert("JSONの中に 'color' キーが見つからないぞ！");
+                return;
+            }
+
+            // 各テクスチャを復元
+            Object.keys(colors).forEach(name => {
+                const pixelData = colors[name];
+                createTextureCard(name, pixelData);
+            });
+            
+            console.log(`a: Gallery rendered with ${Object.keys(colors).length} items.`);
+        }
+
+        function createTextureCard(name, pixels) {
+            const card = document.createElement('div');
+            card.className = 'texture-card';
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 16;
+            canvas.height = 16;
+            const ctx = canvas.getContext('2d');
+
+            // --- ピクセルデータの復元描画 ---
+            const imgData = ctx.createImageData(16, 16);
+            for (let i = 0; i < pixels.length; i++) {
+                const r = pixels[i][0];
+                const g = pixels[i][1];
+                const b = pixels[i][2];
+                
+                // imageDataは [R, G, B, A, R, G, B, A...] の順
+                imgData.data[i * 4] = r;
+                imgData.data[i * 4 + 1] = g;
+                imgData.data[i * 4 + 2] = b;
+                imgData.data[i * 4 + 3] = 255; // 不透明度MAX
+            }
+            ctx.putImageData(imgData, 0, 0);
+
+            const nameTag = document.createElement('div');
+            nameTag.className = 'texture-name';
+            nameTag.textContent = name;
+
+            const countTag = document.createElement('div');
+            countTag.className = 'pixel-count';
+            countTag.textContent = `${pixels.length} pixels`;
+
+            card.appendChild(canvas);
+            card.appendChild(nameTag);
+            card.appendChild(countTag);
+            gallery.appendChild(card);
+        }
+    </script>
+</body>
+</html>
