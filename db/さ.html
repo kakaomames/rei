@@ -2,173 +2,59 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="description" content="解析済みブロックを一覧表示する高機能スキャナー">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Block Viewer Scanner - Gemini Programming隊</title>
+    <title>JSON to Image Recovery - Gemini Programming隊</title>
     <style>
-        body { font-family: 'Courier New', monospace; background: #000; color: #0f0; text-align: center; padding: 20px; }
-        .box { border: 2px solid #333; background: #111; padding: 20px; display: inline-block; width: 450px; vertical-align: top; }
-        
-        #drop-zone { border: 3px dashed #0f0; padding: 40px; margin-bottom: 20px; background: #001100; cursor: pointer; }
-        #drop-zone.hover { background: #004400; }
-
-        .input-section { border-top: 1px solid #333; padding-top: 20px; }
-        
-        /* メインのプレビューCanvas */
-        #scan-canvas { image-rendering: pixelated; width: 128px; height: 128px; border: 1px solid #0f0; margin: 10px 0; }
-        
-        /* 🚩 ここが重要：解析済みブロックを並べるエリア */
-        #gallery { 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: center; 
-            gap: 15px; 
-            margin-top: 30px; 
-            border-top: 2px double #333;
-            padding-top: 20px;
-        }
-
-        /* 個別のブロックカード */
-        .block-card {
-            background: #222;
-            border: 1px solid #0f0;
-            padding: 8px;
-            width: 100px;
-            text-align: center;
-            box-shadow: 0 0 5px #0f0;
-        }
-        .block-card canvas {
-            image-rendering: pixelated;
-            width: 64px;
-            height: 64px;
-            display: block;
-            margin: 0 auto 5px;
-        }
-        .block-name {
-            font-size: 10px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        #status { color: #ff0; font-weight: bold; margin: 10px 0; }
-        button#dl-btn { background: #0f0; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; display: none; }
+        body { background: #111; color: #0f0; font-family: monospace; text-align: center; }
+        #viewer { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 20px; }
+        .block-unit { border: 1px solid #0f0; padding: 5px; background: #222; }
+        canvas { image-rendering: pixelated; width: 64px; height: 64px; }
     </style>
 </head>
 <body>
-    <img src="https://kakaomames.github.io/rei/logo.png" alt="logo" style="width: 50px;">
-    <h1>📡 BLOCK VISUAL SCANNER</h1>
-
-    <div class="box">
-        <div id="drop-zone">ここにファイルをドロップ！</div>
-        <div class="input-section">
-            <input type="file" id="file-input" accept="image/png" multiple>
-        </div>
-        <canvas id="scan-canvas" width="16" height="16"></canvas>
-        <div id="status">READY...</div>
-        <button id="dl-btn">💾 JSON DOWNLOAD</button>
-    </div>
-
-    <div id="gallery"></div>
+    <h1>🛠️ JSON RECOVERY UNIT</h1>
+    <p>さっきダウンロードした .json を選んでみてくれ！</p>
+    <input type="file" id="json-loader" accept=".json">
+    <div id="viewer"></div>
 
     <script>
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('file-input');
-        const status = document.getElementById('status');
-        const canvas = document.getElementById('scan-canvas');
-        const ctx = canvas.getContext('2d');
-        const dlBtn = document.getElementById('dl-btn');
-        const gallery = document.getElementById('gallery');
+        document.getElementById('json-loader').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const data = JSON.parse(ev.target.result);
+                const viewer = document.getElementById('viewer');
+                viewer.innerHTML = ''; // リセット
 
-        let finalData = { "color": {} };
+                // JSON内の各ブロックをループで回す
+                for (const name in data.color) {
+                    const pixels = data.color[name];
+                    
+                    // カード作成
+                    const unit = document.createElement('div');
+                    unit.className = 'block-unit';
+                    
+                    // Canvasで画像を復元！
+                    const can = document.createElement('canvas');
+                    can.width = 16;
+                    can.height = 16;
+                    const ctx = can.getContext('2d');
+                    const imgData = ctx.createImageData(16, 16);
 
-        async function startProtocol(files) {
-            if (files.length === 0) return;
-            status.textContent = "PROTOCOL STARTING...";
-            
-            for (let file of files) {
-                if (!file.type.match('image.*')) continue;
-                const name = file.name.replace('.png', '');
-                
-                try {
-                    const pixels = await processImage(file);
-                    finalData.color[name] = pixels;
-                    
-                    // ✅ ここで「ブロックカード」を生成して並べる！
-                    createTextureCard(name, pixels);
-                    
-                    console.log(`a: ${name} determined.`); 
-                } catch (err) {
-                    console.error("a: Error", err);
+                    for (let i = 0; i < pixels.length; i++) {
+                        imgData.data[i * 4] = pixels[i][0];     // R
+                        imgData.data[i * 4 + 1] = pixels[i][1]; // G
+                        imgData.data[i * 4 + 2] = pixels[i][2]; // B
+                        imgData.data[i * 4 + 3] = 255;          // A (不透明)
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+
+                    unit.appendChild(can);
+                    unit.innerHTML += `<br>${name}`;
+                    viewer.appendChild(unit);
                 }
-            }
-            status.textContent = "✅ ALL BLOCKS SCANNED.";
-            dlBtn.style.display = "inline-block";
-        }
-
-        function processImage(file) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        ctx.clearRect(0, 0, 16, 16);
-                        ctx.drawImage(img, 0, 0, 16, 16);
-                        const pix = ctx.getImageData(0, 0, 16, 16).data;
-                        let res = [];
-                        for (let i = 0; i < pix.length; i += 4) {
-                            res.push([pix[i], pix[i+1], pix[i+2]]);
-                        }
-                        resolve(res);
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // ✅ 渡されたピクセルデータから小さなカードを作る関数
-        function createTextureCard(name, pixels) {
-            const card = document.createElement('div');
-            card.className = 'block-card';
-
-            const miniCanvas = document.createElement('canvas');
-            miniCanvas.width = 16;
-            miniCanvas.height = 16;
-            const mCtx = miniCanvas.getContext('2d');
-
-            // 16x16を描画
-            const imgData = mCtx.createImageData(16, 16);
-            for (let i = 0; i < pixels.length; i++) {
-                imgData.data[i * 4] = pixels[i][0];
-                imgData.data[i * 4 + 1] = pixels[i][1];
-                imgData.data[i * 4 + 2] = pixels[i][2];
-                imgData.data[i * 4 + 3] = 255;
-            }
-            mCtx.putImageData(imgData, 0, 0);
-
-            const label = document.createElement('div');
-            label.className = 'block-name';
-            label.textContent = name;
-
-            card.appendChild(miniCanvas);
-            card.appendChild(label);
-            gallery.appendChild(card); // ギャラリーに追加！
-        }
-
-        // D&D イベント
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(n => {
-            dropZone.addEventListener(n, e => { e.preventDefault(); e.stopPropagation(); });
-        });
-        dropZone.addEventListener('drop', (e) => startProtocol(e.dataTransfer.files));
-        fileInput.addEventListener('change', (e) => startProtocol(e.target.files));
-
-        dlBtn.addEventListener('click', () => {
-            const blob = new Blob([JSON.stringify(finalData, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'multi_texture.json';
-            a.click();
+                console.log("a: Recovery complete for JSON data.");
+            };
+            reader.readAsText(file);
         });
     </script>
 </body>
