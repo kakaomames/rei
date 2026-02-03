@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="超高精度・リアルタイム可視化テクスチャ解析ツール">
+    <meta name="author" content="Gemini Programming隊 & カカオマメ隊員">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Visual Scanner - Gemini Programming隊</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #000; color: #0f0; text-align: center; padding: 20px; overflow-x: hidden; }
+        .main-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        
+        /* モニター部分 */
+        .monitor { border: 4px solid #333; background: #111; padding: 10px; position: relative; width: 340px; }
+        #scan-canvas { image-rendering: pixelated; width: 320px; height: 320px; border: 1px solid #0f0; }
+        
+        /* 進捗バー */
+        .progress-box { width: 100%; height: 30px; border: 2px solid #0f0; margin-top: 10px; position: relative; background: #002200; }
+        #progress-fill { width: 0%; height: 100%; background: #0f0; box-shadow: 0 0 10px #0f0; transition: width 0.1s; }
+        #percent-text { position: absolute; width: 100%; top: 5px; left: 0; color: #000; font-weight: bold; mix-blend-mode: difference; }
+
+        /* リアルタイムJSON */
+        .json-panel { width: 400px; height: 450px; background: #050505; border: 2px solid #0f0; padding: 10px; text-align: left; position: relative; }
+        #json-stream { font-size: 12px; height: 400px; overflow-y: hidden; white-space: pre-wrap; word-break: break-all; color: #0f0; }
+        .panel-title { background: #0f0; color: #000; padding: 2px 10px; font-weight: bold; margin-bottom: 5px; }
+
+        button { background: #0f0; color: #000; border: none; padding: 12px 24px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        button:hover { background: #0c0; box-shadow: 0 0 15px #0f0; }
+        img.logo { width: 50px; }
+    </style>
+</head>
+<body>
+    <img src="https://kakaomames.github.io/rei/logo.png" alt="logo" class="logo">
+    <h1>📡 DEEP SCANNING PROTOCOL</h1>
+
+    <div class="main-container">
+        <div class="monitor">
+            <div class="panel-title">VISUAL FEED</div>
+            <canvas id="scan-canvas" width="16" height="16"></canvas>
+            <div class="progress-box">
+                <div id="progress-fill"></div>
+                <div id="percent-text">READY: 0%</div>
+            </div>
+            <div id="status">ファイルを待機中...</div>
+        </div>
+
+        <div class="json-panel">
+            <div class="panel-title">LIVE JSON STREAM</div>
+            <div id="json-stream">{ "color": { "analyzing": [] } }</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <input type="file" id="file-input" accept="image/png">
+        <button id="dl-btn" style="display:none">💾 ANALYZED DATA DL</button>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const canvas = document.getElementById('scan-canvas');
+        const ctx = canvas.getContext('2d');
+        const jsonStream = document.getElementById('json-stream');
+        const progressFill = document.getElementById('progress-fill');
+        const percentText = document.getElementById('percent-text');
+        const statusText = document.getElementById('status');
+        const dlBtn = document.getElementById('dl-btn');
+
+        let finalData = { "color": {} };
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = async () => {
+                    const name = file.name.replace('.png', '');
+                    await runDeepScan(img, name);
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        async function runDeepScan(img, name) {
+            // 解析用バッファ
+            const buffer = document.createElement('canvas');
+            buffer.width = 16;
+            buffer.height = 16;
+            const bCtx = buffer.getContext('2d');
+            bCtx.drawImage(img, 0, 0, 16, 16);
+            const pix = bCtx.getImageData(0, 0, 16, 16).data;
+
+            let pixelArray = [];
+            finalData.color[name] = [];
+
+            for (let y = 0; y < 16; y++) {
+                for (let x = 0; x < 16; x++) {
+                    const i = (y * 16 + x) * 4;
+                    const rgb = [pix[i], pix[i+1], pix[i+2]];
+                    
+                    // データを追加
+                    pixelArray.push(rgb);
+                    finalData.color[name].push(rgb);
+
+                    // --- 演出：Canvas更新 ---
+                    ctx.clearRect(0, 0, 16, 16);
+                    ctx.drawImage(img, 0, 0, 16, 16);
+                    ctx.strokeStyle = '#fff';
+                    ctx.strokeRect(x, y, 1, 1); // 今ここ！枠
+
+                    // --- 演出：JSONストリーム更新 ---
+                    // 最新の10件くらいを表示し続けることで「流れている感」を出す
+                    const streamText = JSON.stringify(finalData, null, 2);
+                    jsonStream.textContent = streamText;
+                    jsonStream.scrollTop = jsonStream.scrollHeight; // 常に下へスクロール
+
+                    // --- 演出：プログレスバー更新 ---
+                    const count = y * 16 + x + 1;
+                    const percent = Math.floor((count / 256) * 100);
+                    progressFill.style.width = percent + '%';
+                    percentText.textContent = `ANALYZING: ${percent}%`;
+                    statusText.textContent = `SCANNING PIXEL: ${count}/256`;
+
+                    // 決定のたびにプリント（コンソール）
+                    console.log(`a: pixel_${count} determined -> ${rgb}`);
+
+                    // 慎重派ウェイト（20ms）
+                    await new Promise(r => setTimeout(r, 20));
+                }
+            }
+
+            statusText.textContent = "✅ PROTOCOL COMPLETE.";
+            dlBtn.style.display = 'inline-block';
+        }
+
+        dlBtn.addEventListener('click', () => {
+            const blob = new Blob([jsonStream.textContent], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pixel_data.json';
+            a.click();
+            console.log("a: Download confirmed.");
+        });
+    </script>
+</body>
+</html>
