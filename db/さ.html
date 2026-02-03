@@ -2,59 +2,133 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>JSON to Image Recovery - Gemini Programming隊</title>
+    <title>JSON to SVG Generator - Gemini Programming隊</title>
     <style>
-        body { background: #111; color: #0f0; font-family: monospace; text-align: center; }
-        #viewer { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 20px; }
-        .block-unit { border: 1px solid #0f0; padding: 5px; background: #222; }
-        canvas { image-rendering: pixelated; width: 64px; height: 64px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #00ff00; text-align: center; padding: 20px; }
+        .container { background: #222; border: 2px solid #00ff00; padding: 20px; border-radius: 8px; max-width: 600px; margin: 20px auto; }
+        h1 { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
+        input[type="file"] { margin-bottom: 20px; }
+        #svg-output { border: 1px dashed #00ff00; padding: 10px; min-height: 100px; max-height: 300px; overflow: auto; background: #000; text-align: left; font-size: 0.8em; }
+        #svg-preview { border: 1px solid #00ff00; margin: 20px auto; display: block; background: #000; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        button:hover { background: #00cc00; }
+        .block-card { display: flex; align-items: center; justify-content: center; flex-direction: column; margin: 10px; }
+        .block-card svg { border: 1px solid #0f0; background: #000; width: 64px; height: 64px; image-rendering: pixelated; } /* 拡大表示 */
+        #gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <h1>🛠️ JSON RECOVERY UNIT</h1>
-    <p>さっきダウンロードした .json を選んでみてくれ！</p>
-    <input type="file" id="json-loader" accept=".json">
-    <div id="viewer"></div>
+    <h1>📐 JSON to SVG Generator</h1>
+    <p>解析済みJSONをアップロードして、SVGを生成・ダウンロードするぞ！</p>
+
+    <div class="container">
+        <input type="file" id="json-loader" accept=".json">
+        <div id="svg-output">SVGコードがここに表示されるぞ！</div>
+        <button id="dl-svg-btn" style="display:none;">📥 SVGをダウンロード</button>
+    </div>
+
+    <h2>🎨 プレビューギャラリー</h2>
+    <div id="gallery"></div>
 
     <script>
-        document.getElementById('json-loader').addEventListener('change', function(e) {
+        const jsonLoader = document.getElementById('json-loader');
+        const svgOutput = document.getElementById('svg-output');
+        const dlSvgBtn = document.getElementById('dl-svg-btn');
+        const gallery = document.getElementById('gallery');
+
+        let currentSvgString = ''; // ダウンロード用のSVG文字列を保持
+
+        jsonLoader.addEventListener('change', async function(e) {
             const file = e.target.files[0];
+            if (!file) return;
+
             const reader = new FileReader();
             reader.onload = function(ev) {
-                const data = JSON.parse(ev.target.result);
-                const viewer = document.getElementById('viewer');
-                viewer.innerHTML = ''; // リセット
-
-                // JSON内の各ブロックをループで回す
-                for (const name in data.color) {
-                    const pixels = data.color[name];
+                try {
+                    const data = JSON.parse(ev.target.result);
                     
-                    // カード作成
-                    const unit = document.createElement('div');
-                    unit.className = 'block-unit';
-                    
-                    // Canvasで画像を復元！
-                    const can = document.createElement('canvas');
-                    can.width = 16;
-                    can.height = 16;
-                    const ctx = can.getContext('2d');
-                    const imgData = ctx.createImageData(16, 16);
-
-                    for (let i = 0; i < pixels.length; i++) {
-                        imgData.data[i * 4] = pixels[i][0];     // R
-                        imgData.data[i * 4 + 1] = pixels[i][1]; // G
-                        imgData.data[i * 4 + 2] = pixels[i][2]; // B
-                        imgData.data[i * 4 + 3] = 255;          // A (不透明)
+                    if (data.color) {
+                        gallery.innerHTML = ''; // ギャラリーをリセット
+                        // 各ブロックデータに対してSVGを生成
+                        for (const name in data.color) {
+                            const pixels = data.color[name];
+                            const svg = generateSvgFromPixels(pixels);
+                            displaySvgBlock(name, svg); // ギャラリーに表示
+                            
+                            // 最初のブロックのSVGコードをメイン出力に表示＆ダウンロード用に保存
+                            if (!currentSvgString) {
+                                currentSvgString = svg;
+                                svgOutput.textContent = svg;
+                                dlSvgBtn.style.display = 'inline-block';
+                            }
+                        }
+                        console.log("a: SVG generation complete.");
+                    } else {
+                        alert("JSONに'color'データが見つからないぞ！");
                     }
-                    ctx.putImageData(imgData, 0, 0);
-
-                    unit.appendChild(can);
-                    unit.innerHTML += `<br>${name}`;
-                    viewer.appendChild(unit);
+                } catch (err) {
+                    alert("JSONの形式が不正だ！エラー:" + err);
+                    console.error("a: JSON parsing error:", err);
                 }
-                console.log("a: Recovery complete for JSON data.");
             };
             reader.readAsText(file);
+        });
+
+        // ピクセルデータからSVG文字列を生成する核心部分！
+        function generateSvgFromPixels(pixels) {
+            let svgRects = '';
+            for (let i = 0; i < pixels.length; i++) {
+                const r = pixels[i][0];
+                const g = pixels[i][1];
+                const b = pixels[i][2];
+                const hexColor = rgbToHex(r, g, b); // RGBをHEXに変換
+
+                const x = i % 16;
+                const y = Math.floor(i / 16);
+
+                // 1ピクセルをSVGの<rect>タグで表現
+                svgRects += `<rect x="${x}" y="${y}" width="1" height="1" fill="${hexColor}" />\n`;
+            }
+
+            // SVG全体の構造
+            return `<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">\n${svgRects}</svg>`;
+        }
+
+        // RGBを16進数カラーコードに変換
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        // 生成されたSVGをギャラリーに表示する
+        function displaySvgBlock(name, svgString) {
+            const card = document.createElement('div');
+            card.className = 'block-card';
+
+            const svgContainer = document.createElement('div');
+            svgContainer.innerHTML = svgString; // SVG文字列を直接HTMLに挿入！
+
+            const label = document.createElement('div');
+            label.textContent = name;
+
+            card.appendChild(svgContainer);
+            card.appendChild(label);
+            gallery.appendChild(card);
+        }
+
+        // SVGダウンロード機能
+        dlSvgBtn.addEventListener('click', function() {
+            if (currentSvgString) {
+                const blob = new Blob([currentSvgString], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'generated_texture.svg'; // ダウンロードファイル名
+                a.click();
+                URL.revokeObjectURL(url);
+                console.log("a: SVG downloaded successfully.");
+            } else {
+                alert("ダウンロードするSVGがまだないぞ！");
+            }
         });
     </script>
 </body>
