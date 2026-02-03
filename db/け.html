@@ -2,84 +2,103 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="Gemini Programming隊によるテクスチャ解析ツール">
+    <meta name="author" content="カカオマメ & Gemini">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Programming隊 - Texture Analyzer</title>
+    <title>Texture to JSON DL - Gemini Programming隊</title>
     <style>
-        body { font-family: sans-serif; background: #222; color: #fff; text-align: center; }
-        .container { padding: 20px; }
-        #drop-zone { border: 2px dashed #555; padding: 40px; margin: 20px auto; width: 300px; cursor: pointer; }
-        pre { background: #000; padding: 15px; text-align: left; overflow-x: auto; max-height: 400px; }
-        canvas { display: none; }
+        body { font-family: 'Courier New', monospace; background: #1a1a1a; color: #00ff00; text-align: center; padding: 20px; }
+        .box { border: 2px solid #00ff00; padding: 20px; border-radius: 10px; display: inline-block; background: #000; }
+        #drop-zone { border: 2px dashed #00ff00; padding: 30px; margin: 20px; cursor: pointer; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; margin: 5px; }
+        button:hover { background: #00cc00; }
+        pre { text-align: left; background: #111; padding: 10px; border: 1px solid #333; max-height: 300px; overflow: auto; color: #00ff00; }
+        img.logo { width: 100px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📦 Texture to JSON Converter</h1>
-        <p>16x16の画像をアップロードしてくれ、隊員！</p>
-        <input type="file" id="file-input" multiple accept="image/png">
-        <div id="drop-zone">ここにファイルをドロップするか選択</div>
+    <img src="https://kakaomames.github.io/rei/logo.png" alt="logo" class="logo">
+    <div class="box">
+        <h1>📦 JSON DL 隊員用ツール</h1>
+        <p>16x16のpngを投げ込んでくれ！</p>
         
-        <h2>📜 生成されたJSON</h2>
-        <button id="copy-btn">JSONをコピー</button>
+        <input type="file" id="file-input" multiple accept="image/png" style="display:none">
+        <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+            ここにファイルをドロップ or クリック
+        </div>
+
+        <div id="controls" style="display:none">
+            <button id="dl-btn">🔥 JSONをダウンロード</button>
+            <button onclick="location.reload()">🔄 リセット</button>
+        </div>
+
+        <h2>📜 プレビュー</h2>
         <pre id="result-json">{}</pre>
     </div>
 
-    <canvas id="proc-canvas" width="16" height="16"></canvas>
+    <canvas id="proc-canvas" width="16" height="16" style="display:none"></canvas>
 
     <script>
         const fileInput = document.getElementById('file-input');
-        const dropZone = document.getElementById('drop-zone');
         const resultJson = document.getElementById('result-json');
+        const dlBtn = document.getElementById('dl-btn');
+        const controls = document.getElementById('controls');
         const canvas = document.getElementById('proc-canvas');
         const ctx = canvas.getContext('2d');
 
         let finalData = { "color": {} };
 
-        // ファイル選択時のイベント
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        fileInput.addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if (files.length === 0) return;
 
-        async function handleFiles(files) {
-            finalData.color = {}; // 初期化
+            finalData.color = {}; 
             
             for (let file of files) {
-                const fileName = file.name.split('.')[0]; // dirt.png -> dirt
-                const imgData = await processImage(file);
-                finalData.color[fileName] = imgData;
+                const name = file.name.replace('.png', '');
+                const pixels = await analyze(file);
+                finalData.color[name] = pixels;
+                console.log(`Determined: ${name}`); // 値が決定するたびに出力
             }
 
             resultJson.textContent = JSON.stringify(finalData, null, 2);
-            console.log("JSON generated for: ", Object.keys(finalData.color));
-        }
+            controls.style.display = 'block';
+        });
 
-        function processImage(file) {
+        function analyze(file) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
-                reader.onload = (e) => {
+                reader.onload = (event) => {
                     const img = new Image();
                     img.onload = () => {
-                        // Canvasに16x16で描画
                         ctx.clearRect(0, 0, 16, 16);
                         ctx.drawImage(img, 0, 0, 16, 16);
-                        
-                        const pixData = ctx.getImageData(0, 0, 16, 16).data;
-                        let pixelArray = [];
-                        
-                        // 1ピクセルずつ[R, G, B]を取得
-                        for (let i = 0; i < pixData.length; i += 4) {
-                            pixelArray.push([pixData[i], pixData[i+1], pixData[i+2]]);
+                        const data = ctx.getImageData(0, 0, 16, 16).data;
+                        let res = [];
+                        for (let i = 0; i < data.length; i += 4) {
+                            res.push([data[i], data[i+1], data[i+2]]);
                         }
-                        resolve(pixelArray);
+                        resolve(res);
                     };
-                    img.src = e.target.result;
+                    img.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
             });
         }
 
-        // コピー機能
-        document.getElementById('copy-btn').addEventListener('click', () => {
-            navigator.clipboard.writeText(resultJson.textContent);
-            alert("JSONをコピーしたぞ、隊員！🫡");
+        // 💾 ダウンロード処理の核心部分！
+        dlBtn.addEventListener('click', () => {
+            const jsonString = JSON.stringify(finalData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'texture_data.json'; // 保存ファイル名
+            a.click();
+            
+            URL.revokeObjectURL(url); // メモリ解放
+            console.log("Download triggered: texture_data.json");
         });
     </script>
 </body>
