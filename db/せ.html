@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemiprocraft - Unicode Analyzer</title>
+    <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/opentype.js@latest/dist/opentype.min.js"></script>
+    <style>
+        body { background: #1a1a1a; color: #00ff00; font-family: monospace; padding: 20px; }
+        .drop-zone { border: 2px dashed #444; padding: 40px; text-align: center; margin-bottom: 20px; cursor: pointer; }
+        .drop-zone:hover { border-color: #00ff00; background: #222; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+        .glyph-card { background: #222; border: 1px solid #333; padding: 10px; text-align: center; }
+        canvas { background: white; margin-bottom: 5px; border-radius: 4px; }
+        .code { font-size: 12px; color: #ffcc00; display: block; }
+        .name { font-size: 10px; color: #888; overflow: hidden; text-overflow: ellipsis; }
+    </style>
+</head>
+<body>
+    <h1>🔍 ユニコード鑑定所 (Font Analyzer)</h1>
+    <div id="dropZone" class="drop-zone">ここにフォントファイル(.otf, .ttf)をドロップしろ！</div>
+    <div id="glyphGrid" class="grid"></div>
+
+    <script>
+    function missionLog(t, m, d = null) {
+        console.log(`[${t}] ${m}`, d || "");
+    }
+
+    // ドラッグ＆ドロップ処理
+    const dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('dragover', (e) => e.preventDefault());
+    dropZone.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+
+        missionLog("NETWORK", `ファイル受信: ${file.name}`);
+        const buffer = await file.arrayBuffer();
+        
+        try {
+            // opentype.js でフォントを解析
+            const font = opentype.parse(buffer);
+            renderGlyphs(font);
+        } catch (err) {
+            missionLog("ERROR", "フォントの解析に失敗！", err.message);
+        }
+    });
+
+    function renderGlyphs(font) {
+        const grid = document.getElementById('glyphGrid');
+        grid.innerHTML = '';
+        missionLog("SYSTEM", "グリフのレンダリング開始...");
+
+        // 全てのグリフをループ
+        for (let i = 0; i < font.numGlyphs; i++) {
+            const glyph = font.glyphs.get(i);
+            
+            // ユニコードを持っていない文字（制御文字など）は飛ばす
+            if (!glyph.unicode) continue;
+
+            const hex = glyph.unicode.toString(16).toUpperCase().padStart(4, '0');
+            const uCode = `\\u${hex}`;
+            
+            // カード作成
+            const card = document.createElement('div');
+            card.className = 'glyph-card';
+            
+            // プレビュー用のCanvas
+            const canvas = document.createElement('canvas');
+            canvas.width = 60;
+            canvas.height = 60;
+            const ctx = canvas.getContext('2d');
+            const path = glyph.getPath(5, 50, 48);
+            path.draw(ctx);
+
+            card.innerHTML = `
+                <span class="code">${uCode}</span>
+                <span class="name">${glyph.name || 'no-name'}</span>
+            `;
+            card.prepend(canvas);
+
+            // クリックでコードをコピー
+            card.onclick = () => {
+                navigator.clipboard.writeText(uCode);
+                alert(`回収成功！: ${uCode}`);
+                missionLog("ACTION", "コードをコピーしたぞ！", uCode);
+            };
+
+            grid.appendChild(card);
+        }
+        missionLog("SYSTEM", "全グリフの特定完了！");
+    }
+    </script>
+</body>
+</html>
