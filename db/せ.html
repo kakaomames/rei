@@ -3,23 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemiprocraft - Unicode Analyzer</title>
+    <title>Gemiprocraft - Ultimate Analyzer</title>
     <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
     <script src="https://cdn.jsdelivr.net/npm/opentype.js@latest/dist/opentype.min.js"></script>
     <style>
-        body { background: #1a1a1a; color: #00ff00; font-family: monospace; padding: 20px; }
-        .drop-zone { border: 2px dashed #444; padding: 40px; text-align: center; margin-bottom: 20px; cursor: pointer; }
-        .drop-zone:hover { border-color: #00ff00; background: #222; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
-        .glyph-card { background: #222; border: 1px solid #333; padding: 10px; text-align: center; }
-        canvas { background: white; margin-bottom: 5px; border-radius: 4px; }
-        .code { font-size: 12px; color: #ffcc00; display: block; }
-        .name { font-size: 10px; color: #888; overflow: hidden; text-overflow: ellipsis; }
+        body { background: #1a1a1a; color: #00ff00; font-family: 'Courier New', monospace; padding: 20px; }
+        .control-panel { background: #222; padding: 20px; border: 1px solid #444; margin-bottom: 20px; }
+        .drop-zone { border: 2px dashed #00ff00; padding: 20px; text-align: center; margin-bottom: 10px; }
+        textarea { width: 100%; height: 100px; background: #000; color: #00ff00; border: 1px solid #444; margin-top: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .card { background: #2d2d2d; border: 1px solid #555; padding: 15px; text-align: center; transition: 0.2s; }
+        .card:hover { transform: translateY(-5px); border-color: #ffcc00; }
+        .code-display { font-size: 14px; font-weight: bold; color: #ffcc00; display: block; margin: 10px 0; }
+        .name-label { font-size: 11px; color: #aaa; word-break: break-all; }
+        button { background: #00ff00; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #ffcc00; }
     </style>
 </head>
 <body>
-    <h1>🔍 ユニコード鑑定所 (Font Analyzer)</h1>
-    <div id="dropZone" class="drop-zone">ここにフォントファイル(.otf, .ttf)をドロップしろ！</div>
+
+    <h1>🔍 Gemiprocraft - 万能ユニコード鑑定所</h1>
+
+    <div class="control-panel">
+        <div class="drop-zone" id="dropZone">
+            📂 フォントファイル (.otf / .ttf) をドロップ、または選択
+            <input type="file" id="fontInput" accept=".otf,.ttf" style="display:block; margin: 10px auto;">
+        </div>
+        
+        <p>📜 または Icomoon JSON を貼り付け：</p>
+        <textarea id="jsonInput" placeholder='{"glyphs": [...] } ここにJSONをペーストしろ！'></textarea>
+        <button id="analyzeJsonBtn" style="margin-top: 10px;">JSONを解析開始</button>
+    </div>
+
     <div id="glyphGrid" class="grid"></div>
 
     <script>
@@ -27,69 +42,73 @@
         console.log(`[${t}] ${m}`, d || "");
     }
 
-    // ドラッグ＆ドロップ処理
-    const dropZone = document.getElementById('dropZone');
-    dropZone.addEventListener('dragover', (e) => e.preventDefault());
-    dropZone.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (!file) return;
-
-        missionLog("NETWORK", `ファイル受信: ${file.name}`);
-        const buffer = await file.arrayBuffer();
-        
+    // --- JSON解析モード ---
+    document.getElementById('analyzeJsonBtn').onclick = () => {
+        const rawJson = document.getElementById('jsonInput').value;
         try {
-            // opentype.js でフォントを解析
-            const font = opentype.parse(buffer);
-            renderGlyphs(font);
-        } catch (err) {
-            missionLog("ERROR", "フォントの解析に失敗！", err.message);
+            const data = JSON.parse(rawJson);
+            renderFromJson(data);
+        } catch (e) {
+            missionLog("ERROR", "JSONの形式が正しくないぞ！", e.message);
         }
-    });
+    };
 
-    function renderGlyphs(font) {
+    function renderFromJson(data) {
         const grid = document.getElementById('glyphGrid');
         grid.innerHTML = '';
-        missionLog("SYSTEM", "グリフのレンダリング開始...");
+        missionLog("SYSTEM", "JSONからデータを抽出中...");
 
-        // 全てのグリフをループ
+        // icomoon.json の glyphs 配列を探検
+        const glyphs = data.glyphs || [];
+        glyphs.forEach(g => {
+            const codePoint = g.extras.codePoint;
+            const hex = codePoint.toString(16).toUpperCase().padStart(4, '0');
+            const uCode = `\\u${hex}`;
+            const name = g.extras.name || "unnamed";
+
+            createCard(uCode, name, "SVGデータあり");
+        });
+    }
+
+    // --- フォントファイル解析モード ---
+    document.getElementById('fontInput').onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const buffer = await file.arrayBuffer();
+        const font = opentype.parse(buffer);
+        renderFromFont(font);
+    };
+
+    function renderFromFont(font) {
+        const grid = document.getElementById('glyphGrid');
+        grid.innerHTML = '';
+        missionLog("SYSTEM", "Fontファイルからグリフを抽出中...");
+
         for (let i = 0; i < font.numGlyphs; i++) {
             const glyph = font.glyphs.get(i);
-            
-            // ユニコードを持っていない文字（制御文字など）は飛ばす
             if (!glyph.unicode) continue;
 
             const hex = glyph.unicode.toString(16).toUpperCase().padStart(4, '0');
-            const uCode = `\\u${hex}`;
-            
-            // カード作成
-            const card = document.createElement('div');
-            card.className = 'glyph-card';
-            
-            // プレビュー用のCanvas
-            const canvas = document.createElement('canvas');
-            canvas.width = 60;
-            canvas.height = 60;
-            const ctx = canvas.getContext('2d');
-            const path = glyph.getPath(5, 50, 48);
-            path.draw(ctx);
-
-            card.innerHTML = `
-                <span class="code">${uCode}</span>
-                <span class="name">${glyph.name || 'no-name'}</span>
-            `;
-            card.prepend(canvas);
-
-            // クリックでコードをコピー
-            card.onclick = () => {
-                navigator.clipboard.writeText(uCode);
-                alert(`回収成功！: ${uCode}`);
-                missionLog("ACTION", "コードをコピーしたぞ！", uCode);
-            };
-
-            grid.appendChild(card);
+            createCard(`\\u${hex}`, glyph.name || `glyph-${i}`);
         }
-        missionLog("SYSTEM", "全グリフの特定完了！");
+    }
+
+    // --- 共通カード作成関数 ---
+    function createCard(code, name, extra = "") {
+        const grid = document.getElementById('glyphGrid');
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <span class="name-label">${name}</span>
+            <span class="code-display">${code}</span>
+            <small style="color:#555">${extra}</small>
+        `;
+        card.onclick = () => {
+            navigator.clipboard.writeText(code);
+            missionLog("ACTION", "回収成功！", code);
+            alert(`クリップボードに格納したぞ！\n${code}`);
+        };
+        grid.appendChild(card);
     }
     </script>
 </body>
