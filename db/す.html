@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Gemiprocraft - Input Icon Test</title>
+    <style>
+        /* 1. フォントを定義 */
+        @font-face {
+            font-family: 'KakaomameFont';
+            src: url('Untitled.otf') format('opentype');
+        }
+
+        /* 2. テキストボックスにフォントを適用 */
+        .icon-input {
+            font-family: 'KakaomameFont', 'Arial', sans-serif;
+            font-size: 30px;
+            width: 100%;
+            padding: 10px;
+            background: #1a1a1a;
+            color: #00ff00;
+            border: 2px solid #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 style="color: #ffcc00;">💎 アイコン入力テスト</h2>
+    <input type="text" id="myInput" class="icon-input" placeholder="ここにユニコードが入るぞ...">
+
+    <script>
+    async function MCmain() {
+        const input = document.getElementById('myInput');
+        
+        // JSで強制的に自作アイコンのユニコードを注入してみる
+        const iconCode = "\uF000";
+        console.log(f"iconCode:{iconCode}");
+        
+        input.value = iconCode; 
+        missionLog("ACTION", "テキストボックスにお宝を注入したぞ！", iconCode);
+    }
+
+    function missionLog(t, m, d) {
+        console.log(`[${t}] ${m} : ${d}`);
+    }
+
+    MCmain();
+    </script>
+</body>
+</html>
