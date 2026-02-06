@@ -60,7 +60,7 @@
 
         // 0x2000 (一般句読点や装飾記号) から 0x2BFF (矢印や数学記号) あたりが面白いぞ
         const start = 0x2000;
-        const end = 0x2BFF; 
+        const end = 0x3BFF; 
 
         for (let i = start; i <= end; i++) {
             const hex = i.toString(16).toUpperCase().padStart(4, '0');
