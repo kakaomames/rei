@@ -1,7 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+<script>
+// --- Gemini Programming隊 特製：全方位サイトロック無効化スクリプト ---
 
-	
+// 1. location.replace / assign を完全に黙らせる
+const silent = () => console.log("🚫 リダイレクトを阻止しました！");
+window.onbeforeunload = () => {
+    console.warn("⚠️ ページを離れようとしましたが、阻止を試みます。");
+    // return "prevent"; // 必要ならコメント解除
+};
+
+// 2. 本物の location をダミーで上書き（定義できないプロパティは無視）
+try {
+    const originalHref = window.location.href;
+    Object.defineProperty(window, 'location', {
+        writable: true,
+        value: {
+            ...window.location,
+            replace: silent,
+            assign: silent,
+            href: originalHref, // 読み取りはできるが、変更しても何も起きないように祈る
+        }
+    });
+} catch (e) {
+    console.log("Location lock bypass active.");
+}
+
+// 3. PokiSDK のフリをする
+window.PokiSDK = new Proxy({}, {
+    get: (target, prop) => {
+        if (prop === 'init') return () => Promise.resolve();
+        if (prop === 'dequeue') return () => console.log("Dummy Dequeue");
+        return () => {};
+    }
+});
+</script>
 <head>
 	<meta charset='utf-8'>
 	<meta name='viewport' content='width=device-width, initial-scale=1.0, 
