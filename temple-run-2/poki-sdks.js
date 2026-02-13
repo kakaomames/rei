@@ -267,7 +267,7 @@
         if (c !== `${s}` || void 0 === s) return s && console.error(`PokiSDK: expected funnel ${s} got ${c} (${l})`), void(s = void 0);
         s++
       }
-      if (console.log({
+      if (window.PokiSDK({
           type: "pokiMessageEvent",
           content: {
             event: "pokiTrackingMeasure",
