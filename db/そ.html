@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Local Font Implementation for Russian Cursive Project">
+    <meta name="author" content="Kakaomame & Gemini Programming Team">
+    <title>Comforter Local Load</title>
+    <style>
+        /* 1. 確保したフォントファイルを定義 */
+        @font-face {
+            font-family: 'ComforterLocal';
+            src: url('Comforter-Regular.woff2') format('woff2'),
+                 url('Comforter-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .logo { width: 60px; margin-bottom: 20px; }
+
+        /* 2. 筆記体波線をさらに「読めなく」調整 */
+        .cursive-attack {
+            font-family: 'ComforterLocal', cursive;
+            font-size: 80px;
+            color: #00ffcc;
+            /* 文字間隔を極限まで詰めて「波」に見せる */
+            letter-spacing: -12px; 
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+            margin: 40px 0;
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+
+        .cursive-attack:hover {
+            letter-spacing: -20px; /* ホバーでさらに圧縮！ */
+            color: #ff0055;
+        }
+
+        #mission-log {
+            width: 80%;
+            height: 150px;
+            background: #111;
+            color: #0f0;
+            border: 1px solid #555;
+            padding: 15px;
+            font-family: monospace;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <img src="https://kakaomames.github.io/rei/logo.png" alt="Logo" class="logo">
+
+    <h1>Local Font Attack: Comforter</h1>
+
+    <div class="cursive-attack" id="target">
+        минимум
+    </div>
+
+    <div id="mission-log">
+        [SYSTEM]: ローカルフォント "Comforter-Regular" のロードを試行中...<br>
+        [INFO]: woff2 形式を優先使用。フォントライセンス(OFL 1.1)を遵守。<br>
+        [ACTION]: letter-spacing を -12px に設定。可読性を 0% に近づけました。<br>
+        [LOG]: マウスを重ねると圧縮率がさらに上昇します。
+    </div>
+
+    <script>
+        // 隊員の要望：値が変わったときにログに出す
+        const target = document.getElementById('target');
+        const log = document.getElementById('mission-log');
+
+        target.addEventListener('mouseenter', () => {
+            log.innerHTML += `<br>[UPDATE]: 圧縮率上昇！ letter-spacing: -20px`;
+            log.scrollTop = log.scrollHeight;
+        });
+    </script>
+</body>
+</html>
