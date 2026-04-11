@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gemini Programming隊 ミッション2: NEON STRIKER">
+    <meta name="author" content="カカオマメ">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <title>WE: Neon Striker</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #050505; font-family: 'Courier New', Courier, monospace; cursor: crosshair; }
+        canvas { display: block; }
+        #ui { position: absolute; top: 20px; left: 20px; color: #ff00ff; font-size: 20px; pointer-events: none; }
+        #msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 40px; text-align: center; display: none; background: rgba(0,0,0,0.7); padding: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="ui">KILLS: <span id="score">0</span></div>
+    <div id="msg">MISSION FAILED<br><span style="font-size: 20px;">Click to Re-deploy</span></div>
+    <canvas id="gameCanvas"></canvas>
+
+<script>
+function missionLog(type, message) {
+    console.log(`[${new Date().toISOString()}] [${type}] ${message}`);
+}
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const msgEl = document.getElementById('msg');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let score = 0;
+let gameActive = true;
+let enemies = [];
+let bullets = [];
+let particles = [];
+
+// 敵の生成クラス
+class Enemy {
+    constructor() {
+        this.size = Math.random() * 20 + 20;
+        this.x = Math.random() * (canvas.width - this.size);
+        this.y = -this.size;
+        this.speed = Math.random() * 2 + 1 + (score / 50);
+        this.color = `hsl(${Math.random() * 60 + 300}, 100%, 50%)`; // ピンク〜紫
+    }
+    update() {
+        this.y += this.speed;
+        if (this.y > canvas.height) gameOver();
+    }
+    draw() {
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
+        ctx.fillRect(this.x, this.y, this.size, this.size);
+        ctx.shadowBlur = 0;
+    }
+}
+
+// 弾のクラス
+class Bullet {
+    constructor(x, y, targetX, targetY) {
+        this.x = x;
+        this.y = y;
+        const angle = Math.atan2(targetY - y, targetX - x);
+        this.vx = Math.cos(angle) * 15;
+        this.vy = Math.sin(angle) * 15;
+    }
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+    }
+    draw() {
+        ctx.fillStyle = '#0ff';
+        ctx.fillRect(this.x - 2, this.y - 2, 5, 5);
+    }
+}
+
+function spawnParticles(x, y, color) {
+    for (let i = 0; i < 8; i++) {
+        particles.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 0.5) * 8,
+            life: 1.0,
+            color
+        });
+    }
+}
+
+function update() {
+    if (!gameActive) return;
+
+    if (Math.random() < 0.03) enemies.push(new Enemy());
+
+    bullets.forEach((b, bi) => {
+        b.update();
+        if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) bullets.splice(bi, 1);
+        
+        enemies.forEach((e, ei) => {
+            if (b.x > e.x && b.x < e.x + e.size && b.y > e.y && b.y < e.y + e.size) {
+                spawnParticles(e.x + e.size/2, e.y + e.size/2, e.color);
+                enemies.splice(ei, 1);
+                bullets.splice(bi, 1);
+                score++;
+                scoreEl.innerText = score;
+                missionLog("KILL", `ターゲット撃破。現在の戦績: ${score}`);
+            }
+        });
+    });
+
+    enemies.forEach(e => e.update());
+    
+    particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy; p.life -= 0.03;
+        if (p.life <= 0) particles.splice(i, 1);
+    });
+}
+
+function draw() {
+    ctx.fillStyle = 'rgba(5, 5, 5, 0.3)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    enemies.forEach(e => e.draw());
+    bullets.forEach(b => b.draw());
+    particles.forEach(p => {
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, 3, 3);
+    });
+    ctx.globalAlpha = 1.0;
+}
+
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+
+function gameOver() {
+    if (!gameActive) return;
+    gameActive = false;
+    msgEl.style.display = 'block';
+    missionLog("STATE", "エリア侵入を許しました。ミッション終了。");
+}
+
+canvas.addEventListener('mousedown', (e) => {
+    if (gameActive) {
+        bullets.push(new Bullet(canvas.width / 2, canvas.height - 20, e.clientX, e.clientY));
+    } else {
+        location.reload();
+    }
+});
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') window.location.href = 'index.html';
+});
+
+loop();
+missionLog("SYSTEM", "NEON STRIKER 起動。");
+</script>
+</body>
+</html>
