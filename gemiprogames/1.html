@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gemini Programming隊による超高速開発ゲーム">
+    <meta name="keywords" content="Minecraft, WE, Game, JavaScript, HighQuality">
+    <meta name="author" content="カカオマメ">
+    <meta property="og:title" content="Geometric Escape Boost">
+    <meta property="og:description" content="短時間で最高の爽快感を。">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <title>WE: Geometric Escape</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', Courier, monospace; }
+        canvas { display: block; }
+        #ui { position: absolute; top: 20px; left: 20px; color: #0f0; font-size: 20px; pointer-events: none; }
+        #msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; font-size: 40px; text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="ui">SCORE: <span id="score">0</span></div>
+    <div id="msg">GAME OVER<br><span style="font-size: 20px;">Click to Restart</span></div>
+    <canvas id="gameCanvas"></canvas>
+
+<script>
+/**
+ * missionLog: 値の変化を監視し、ログに出力する隊の基本プロトコル
+ */
+function missionLog(type, message) {
+    console.log(`[${new Date().toISOString()}] [${type}] ${message}`);
+}
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const msgEl = document.getElementById('msg');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let score = 0;
+let gameActive = true;
+let particles = [];
+
+// プレイヤーオブジェクト
+const player = {
+    x: 100,
+    y: canvas.height / 2,
+    size: 20,
+    color: '#00ccff',
+    dy: 0,
+    jumpForce: -8,
+    gravity: 0.4
+};
+
+// 障害物
+const obstacles = [];
+const obstacleSpeed = 5;
+
+function createObstacle() {
+    const size = Math.random() * 50 + 20;
+    obstacles.push({
+        x: canvas.width,
+        y: Math.random() * (canvas.height - size),
+        w: size,
+        h: size,
+        color: '#ff0055'
+    });
+}
+
+function spawnParticles(x, y, color) {
+    for (let i = 0; i < 10; i++) {
+        particles.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 10,
+            vy: (Math.random() - 0.5) * 10,
+            life: 1.0,
+            color
+        });
+    }
+}
+
+function update() {
+    if (!gameActive) return;
+
+    // プレイヤー物理
+    player.dy += player.gravity;
+    player.y += player.dy;
+
+    // 壁判定
+    if (player.y + player.size > canvas.height || player.y < 0) {
+        gameOver();
+    }
+
+    // 障害物更新
+    if (Math.random() < 0.02) createObstacle();
+
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+        const o = obstacles[i];
+        o.x -= obstacleSpeed + (score / 100);
+
+        // 衝突判定
+        if (player.x < o.x + o.w && player.x + player.size > o.x &&
+            player.y < o.y + o.h && player.y + player.size > o.y) {
+            gameOver();
+        }
+
+        // スコア加算
+        if (o.x + o.w < 0) {
+            obstacles.splice(i, 1);
+            score += 10;
+            scoreEl.innerText = score;
+            missionLog("SCORE_UP", `現在のスコア: ${score}`);
+        }
+    }
+
+    // パーティクル更新
+    particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.02;
+        if (p.life <= 0) particles.splice(i, 1);
+    });
+}
+
+function draw() {
+    // 背景（残像効果）
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // パーティクル
+    particles.forEach(p => {
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, 4, 4);
+    });
+    ctx.globalAlpha = 1.0;
+
+    // プレイヤー
+    ctx.fillStyle = player.color;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = player.color;
+    ctx.fillRect(player.x, player.y, player.size, player.size);
+    ctx.shadowBlur = 0;
+
+    // 障害物
+    obstacles.forEach(o => {
+        ctx.fillStyle = o.color;
+        ctx.fillRect(o.x, o.y, o.w, o.h);
+    });
+}
+
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+
+function gameOver() {
+    if (!gameActive) return;
+    gameActive = false;
+    spawnParticles(player.x, player.y, player.color);
+    msgEl.style.display = 'block';
+    missionLog("STATE_CHANGE", "ゲームオーバー: リトライ待機中");
+}
+
+function resetGame() {
+    score = 0;
+    scoreEl.innerText = score;
+    player.y = canvas.height / 2;
+    player.dy = 0;
+    obstacles.length = 0;
+    particles.length = 0;
+    gameActive = true;
+    msgEl.style.display = 'none';
+    missionLog("STATE_CHANGE", "ゲームリセット: 再出撃！");
+}
+
+// 入力イベント
+document.addEventListener('mousedown', () => {
+    if (gameActive) {
+        player.dy = player.jumpForce;
+        spawnParticles(player.x, player.y + player.size/2, '#fff');
+    } else {
+        resetGame();
+    }
+});
+
+// ページ遷移プロトコル（ミッションの一環）
+document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') {
+        missionLog("ACTION", "退却コマンド実行。");
+        window.location.href = 'index.html'; 
+    }
+});
+
+loop();
+missionLog("SYSTEM", "ゲームエンジン起動完了。探検開始！");
+
+</script>
+</body>
+</html>
