@@ -6,70 +6,37 @@
     <meta name="description" content="WE Project: Potman Physics Simulation">
     <meta name="author" content="カカオマメ">
     <meta name="project" content="Gemini programming隊 壺男プロジェクト">
-    <meta name="engine" content="Matter.js">
-    <meta name="environment" content="Web Edition">
-    <title>Potman WE - Physics Console</title>
+    <title>Potman WE - Manual Grip</title>
     <style>
-        body { 
-            margin: 0; 
-            padding: 0; 
-            overflow: hidden; 
-            background: #1a1a1a; 
-            color: #00ff00; 
-            font-family: 'Courier New', Courier, monospace;
-        }
+        body { margin: 0; padding: 0; overflow: hidden; background: #1a1a1a; color: #00ff00; font-family: monospace; }
         canvas { display: block; }
-        #logo { 
-            position: fixed; 
-            top: 15px; 
-            left: 15px; 
-            width: 60px; 
-            z-index: 100;
-            filter: drop-shadow(0 0 5px rgba(0,255,0,0.5));
-        }
+        #logo { position: fixed; top: 15px; left: 15px; width: 60px; z-index: 100; }
         #mission-console {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #00ff00;
-            padding: 10px;
-            max-height: 150px;
-            overflow-y: auto;
-            font-size: 12px;
-            pointer-events: none; /* ゲームの邪魔をしない */
+            position: fixed; bottom: 20px; left: 20px; right: 140px;
+            background: rgba(0, 0, 0, 0.8); border: 1px solid #00ff00;
+            padding: 10px; max-height: 100px; overflow-y: auto; font-size: 12px; pointer-events: none;
         }
-        .log-entry { margin-bottom: 4px; border-bottom: 1px dotted #333; }
+        .log-entry { margin-bottom: 2px; border-bottom: 1px dotted #333; }
+        /* グリップボタンのスタイル */
+        #grip-btn {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 90px; height: 90px; border-radius: 50%;
+            background: rgba(255, 0, 0, 0.5); border: 4px solid #fff;
+            color: #fff; font-weight: bold; font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            user-select: none; touch-action: none; z-index: 1000;
+            transition: transform 0.1s;
+        }
+        #grip-btn.active { background: rgba(0, 255, 0, 0.7); transform: scale(0.9); }
     </style>
 </head>
 <body>
-
-    <img id="logo" src="https://kakaomames.github.io/rei/logo.png" alt="Gemini programming隊 Logo">
-
-    <div id="mission-console">
-        <div class="log-entry">[SYSTEM] ミッションコントロール起動中...</div>
-    </div>
+    <img id="logo" src="https://kakaomames.github.io/rei/logo.png" alt="logo">
+    <div id="grip-btn">GRIP</div>
+    <div id="mission-console"><div class="log-entry">[SYSTEM] ミッション開始準備完了...</div></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-
     <script src="physics.js"></script>
     <script src="main.js"></script>
-
-    <script>
-        // HTML側からもmissionLogを飛ばせるように統合
-        const originalLog = window.missionLog;
-        window.missionLog = (type, message) => {
-            if(originalLog) originalLog(type, message); // JS側の関数を叩く
-            
-            const consoleEl = document.getElementById('mission-console');
-            const entry = document.createElement('div');
-            entry.className = 'log-entry';
-            entry.innerText = `[${type}] ${message}`;
-            consoleEl.prepend(entry); // 最新を上に
-        };
-        
-        missionLog("BOOT", "HTMLインターフェースの接続に成功。");
-    </script>
 </body>
 </html>
