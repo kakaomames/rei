@@ -1,10 +1,9 @@
 /**
- * Potman Web Edition: 10000m Mission - Hammer Collision Fix
+ * Potman Web Edition: 10000m Mission - Final Tech
  * main.js - Gemini programming隊 
  */
 
 const missionLog = (type, message) => {
-    console.log(`[${type}] ${message}`);
     const consoleEl = document.getElementById('mission-console');
     if (consoleEl) {
         const entry = document.createElement('div');
@@ -12,34 +11,44 @@ const missionLog = (type, message) => {
         entry.innerText = `[${type}] ${message}`;
         consoleEl.prepend(entry);
     }
+    console.log(`[${type}] ${message}`);
 };
 
-const WORLD_HEIGHT = 10000 * 100;
+const WORLD_HEIGHT = 10000 * 100; 
 const VIEW_WIDTH = window.innerWidth;
 const VIEW_HEIGHT = window.innerHeight;
 const CHUNK_SIZE = 1200;
 
 PhysicsEngine.init('game-canvas', 1.0);
 
-// --- プレイヤー生成 ---
+// --- プレイヤー & 鶴橋センサー ---
 const pot = PhysicsEngine.createDynamicCircle(VIEW_WIDTH / 2, WORLD_HEIGHT - 200, 30, { 
-    render: { fillStyle: '#555' },
-    frictionAir: 0.04, 
-    friction: 0.8,
-    label: "PLAYER_POT"
+    render: { fillStyle: '#555' }
 });
 
-// 【新設】鶴橋の先端センサー（物理体として作成）
-const hammerHead = PhysicsEngine.createDynamicCircle(VIEW_WIDTH / 2, WORLD_HEIGHT - 300, 15, {
-    isSensor: true, // 他の物体を弾き飛ばさないが、衝突は検知する
+const hammerHead = PhysicsEngine.createDynamicCircle(VIEW_WIDTH / 2, WORLD_HEIGHT - 350, 15, {
+    isSensor: true,
     render: { fillStyle: '#aaa' },
-    label: "HAMMER_HEAD"
+    gravityScale: 0 // 鶴橋自体の重力を無視
 });
 
-const hammerLength = 130;
+const hammerLength = 140;
 const chunks = {};
+let isGrip = false;
 
-// --- 地質生成 ---
+// --- GRIP UI制御 ---
+const gripBtn = document.getElementById('grip-btn');
+const setGrip = (val) => {
+    isGrip = val;
+    gripBtn.classList.toggle('active', val);
+};
+
+gripBtn.addEventListener('mousedown', () => setGrip(true));
+window.addEventListener('mouseup', () => setGrip(false));
+gripBtn.addEventListener('touchstart', (e) => { e.preventDefault(); setGrip(true); }, {passive: false});
+window.addEventListener('touchend', () => setGrip(false));
+
+// --- 地質生成 (Chunkシステム) ---
 const generateChunk = (chunkY) => {
     if (chunks[chunkY]) return;
     chunks[chunkY] = true;
@@ -52,58 +61,60 @@ const generateChunk = (chunkY) => {
         const y = (chunkY * CHUNK_SIZE) + (Math.random() * CHUNK_SIZE);
         let w, h, angle, color, friction;
         if (altitude < 2000) { w = 200; h = 40; angle = (Math.random()-0.5)*0.3; color = '#d2b48c'; friction = 0.5; }
-        else if (altitude < 7000) { w = 100; h = 60; angle = Math.random()*Math.PI; color = '#808080'; friction = 0.6; }
-        else { w = 50; h = 150; angle = (Math.random()-0.5)*1.5; color = '#e0ffff'; friction = 0.02; }
+        else if (altitude < 7000) { w = 120; h = 70; angle = Math.random()*Math.PI; color = '#808080'; friction = 0.6; }
+        else { w = 60; h = 180; angle = (Math.random()-0.5)*1.5; color = '#e0ffff'; friction = 0.02; }
 
-        PhysicsEngine.createStaticRect(x, y, w, h, { angle: angle, friction: friction, render: { fillStyle: color }, label: "ROCK" });
+        PhysicsEngine.createStaticRect(x, y, w, h, { angle: angle, friction: friction, render: { fillStyle: color } });
     }
 };
 
-PhysicsEngine.createStaticRect(VIEW_WIDTH / 2, WORLD_HEIGHT - 20, VIEW_WIDTH * 10, 40, { render: { fillStyle: '#222' }, label: "GROUND" });
+PhysicsEngine.createStaticRect(VIEW_WIDTH / 2, WORLD_HEIGHT - 20, VIEW_WIDTH * 10, 40, { render: { fillStyle: '#222' } });
 
-// --- 操作統合プロトコル ---
+// --- 入力・物理ロジック ---
 const canvas = PhysicsEngine.render.canvas;
 
 const handleInput = (clientX, clientY) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = clientX - rect.left + PhysicsEngine.render.bounds.min.x;
-    const y = clientY - rect.top + PhysicsEngine.render.bounds.min.y;
+    const x = clientX - canvas.getBoundingClientRect().left + PhysicsEngine.render.bounds.min.x;
+    const y = clientY - canvas.getBoundingClientRect().top + PhysicsEngine.render.bounds.min.y;
 
     const dx = x - pot.position.x;
     const dy = y - pot.position.y;
     const angle = Math.atan2(dy, dx);
 
-    // 鶴橋の目標座標
     const targetX = pot.position.x + Math.cos(angle) * hammerLength;
     const targetY = pot.position.y + Math.sin(angle) * hammerLength;
 
-    // 前回の位置からの移動量（反動計算用）
     const moveX = targetX - hammerHead.position.x;
     const moveY = targetY - hammerHead.position.y;
 
-    // センサー（hammerHead）を強制移動
+    // 鶴橋をマウスに追従（物理速度を無視して配置）
     Matter.Body.setPosition(hammerHead, { x: targetX, y: targetY });
 
-    // 【重要】センサーが静止物体と衝突しているかチェック
-    const staticBodies = Matter.Composite.allBodies(PhysicsEngine.world).filter(b => b.isStatic);
-    const collisions = Matter.Query.collides(hammerHead, staticBodies);
+    if (isGrip) {
+        const staticBodies = Matter.Composite.allBodies(PhysicsEngine.world).filter(b => b.isStatic);
+        const collisions = Matter.Query.collides(hammerHead, staticBodies);
 
-    if (collisions.length > 0) {
-        // 当たっている場合、移動量の逆方向に力を加える
-        const forceMagnitude = 0.008; 
-        PhysicsEngine.applyForce(pot, pot.position, { 
-            x: -moveX * forceMagnitude, 
-            y: -moveY * forceMagnitude 
-        });
+        if (collisions.length > 0) {
+            const forceMagnitude = 0.012; 
+            PhysicsEngine.applyForce(pot, pot.position, { 
+                x: -moveX * forceMagnitude, 
+                y: -moveY * forceMagnitude 
+            });
+            if(Math.abs(moveX) > 10) missionLog("PHYSICS", "Climbing...");
+        }
     }
 };
 
 canvas.addEventListener('mousemove', (e) => handleInput(e.clientX, e.clientY));
-canvas.addEventListener('touchmove', (e) => { if (e.cancelable) e.preventDefault(); handleInput(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
-canvas.addEventListener('touchstart', (e) => { if (e.cancelable) e.preventDefault(); handleInput(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+canvas.addEventListener('touchmove', (e) => { 
+    if (e.cancelable) e.preventDefault(); 
+    handleInput(e.touches[0].clientX, e.touches[0].clientY); 
+}, { passive: false });
 
-// --- 更新・描画ループ ---
+// --- 更新ループ ---
 Matter.Events.on(PhysicsEngine.engine, 'beforeUpdate', () => {
+    Matter.Body.setVelocity(hammerHead, { x: 0, y: 0 }); // センサーが勝手に動かないように固定
+
     const lookAtX = pot.position.x - VIEW_WIDTH / 2;
     const lookAtY = pot.position.y - VIEW_HEIGHT * 0.6;
     Matter.Render.lookAt(PhysicsEngine.render, {
@@ -118,18 +129,15 @@ Matter.Events.on(PhysicsEngine.engine, 'beforeUpdate', () => {
 
 Matter.Events.on(PhysicsEngine.render, 'afterRender', () => {
     const ctx = PhysicsEngine.render.context;
-    const offsetX = PhysicsEngine.render.bounds.min.x;
-    const offsetY = PhysicsEngine.render.bounds.min.y;
+    const offX = PhysicsEngine.render.bounds.min.x;
+    const offY = PhysicsEngine.render.bounds.min.y;
 
-    // 持ち手（線）の描画
     ctx.beginPath();
     ctx.lineWidth = 6;
-    ctx.strokeStyle = '#8b4513';
-    ctx.moveTo(pot.position.x - offsetX, pot.position.y - offsetY);
-    ctx.lineTo(hammerHead.position.x - offsetX, hammerHead.position.y - offsetY);
+    ctx.strokeStyle = isGrip ? '#00ff00' : '#8b4513'; 
+    ctx.moveTo(pot.position.x - offX, pot.position.y - offY);
+    ctx.lineTo(hammerHead.position.x - offX, hammerHead.position.y - offY);
     ctx.stroke();
-    
-    // 先端の描画は PhysicsEngine 側で自動で行われる（dynamicCircleのため）
 });
 
-missionLog("ACTION", "ガチ当たり判定センサー実装完了。岩を掴め！⚒️");
+missionLog("ACTION", "10000m絶壁、攻略開始！⚒️");
