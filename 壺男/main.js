@@ -1,11 +1,6 @@
 /**
- * Potman Web Edition: 10000m Mission - Final Integration
+ * Potman Web Edition: 10000m Mission - Vertical & Horizontal Fix
  * main.js - Gemini programming隊 
- * * 修正内容:
- * 1. マウス/タッチ操作の統合 (handleInput)
- * 2. 永久移動バグ修正 (摩擦と空気抵抗の活用)
- * 3. 10000m動的地質生成 (Chunkシステム)
- * 4. カメラ追従ロジック
  */
 
 // --- ログ出力ユニット ---
@@ -29,11 +24,10 @@ const CHUNK_SIZE = 1200;
 // 物理エンジンの起動
 PhysicsEngine.init('game-canvas', 1.0);
 
-// --- プレイヤー生成 (PhysicsEngineの修正を反映) ---
-// physics.js側のdefaultOptionsで frictionAir: 0.05 程度を推奨
+// --- プレイヤー生成 ---
 const pot = PhysicsEngine.createDynamicCircle(VIEW_WIDTH / 2, WORLD_HEIGHT - 200, 30, { 
     render: { fillStyle: '#555' },
-    frictionAir: 0.04, // 永久移動防止用の空気抵抗
+    frictionAir: 0.04, 
     friction: 0.8,
     label: "PLAYER_POT"
 });
@@ -50,28 +44,27 @@ const generateChunk = (chunkY) => {
     chunks[chunkY] = true;
 
     const altitude = (WORLD_HEIGHT - (chunkY * CHUNK_SIZE)) / 100;
-    
-    // 1チャンクに12個のゴツゴツした岩を生成
-    for (let i = 0; i < 12; i++) {
-        const x = Math.random() * VIEW_WIDTH;
+    missionLog("GEOLOGY", `高度 ${altitude.toFixed(0)}m 地点を調査中...`);
+
+    // 横幅を VIEW_WIDTH の 3倍 くらいにして、左右の探索範囲を広げる
+    const spawnRange = VIEW_WIDTH * 3;
+    const offsetLeft = -VIEW_WIDTH;
+
+    for (let i = 0; i < 20; i++) {
+        const x = Math.random() * spawnRange + offsetLeft;
         const y = (chunkY * CHUNK_SIZE) + (Math.random() * CHUNK_SIZE);
         
         let w, h, angle, color, friction;
 
-        if (altitude < 2000) { // 低層
-            w = Math.random() * 250 + 100; h = 40;
-            angle = (Math.random() - 0.5) * 0.3;
-            color = '#d2b48c'; friction = 0.5;
-        } else if (altitude < 7000) { // 中層
-            w = Math.random() * 120 + 40; h = Math.random() * 80 + 40;
-            angle = Math.random() * Math.PI;
-            color = '#808080'; friction = 0.6;
-        } else { // 高層 (氷山)
-            w = Math.random() * 100 + 20; h = Math.random() * 200 + 50;
-            angle = (Math.random() - 0.5) * 1.5;
-            color = '#e0ffff'; friction = 0.02;
+        if (altitude < 2000) {
+            w = 200; h = 40; angle = (Math.random() - 0.5) * 0.3; color = '#d2b48c'; friction = 0.5;
+        } else if (altitude < 7000) {
+            w = 100; h = 60; angle = Math.random() * Math.PI; color = '#808080'; friction = 0.6;
+        } else {
+            w = 50; h = 150; angle = (Math.random() - 0.5) * 1.5; color = '#e0ffff'; friction = 0.02;
         }
 
+        // 引数の順番: (x, y, w, h, options)
         PhysicsEngine.createStaticRect(x, y, w, h, {
             angle: angle,
             friction: friction,
@@ -80,8 +73,8 @@ const generateChunk = (chunkY) => {
     }
 };
 
-// 初期の地面
-PhysicsEngine.createStaticRect(VIEW_WIDTH / 2, WORLD_HEIGHT - 20, VIEW_WIDTH, 40, {
+// 初期の地面（幅広に設定）
+PhysicsEngine.createStaticRect(VIEW_WIDTH / 2, WORLD_HEIGHT - 20, VIEW_WIDTH * 10, 40, {
     render: { fillStyle: '#222' }
 });
 
@@ -93,7 +86,7 @@ const handleInput = (clientX, clientY) => {
     const x = clientX - rect.left;
     const y = clientY - rect.top;
 
-    // ワールド座標換算
+    // ワールド座標換算 (カメラの bounds.min を考慮)
     const worldX = x + PhysicsEngine.render.bounds.min.x;
     const worldY = y + PhysicsEngine.render.bounds.min.y;
 
@@ -111,7 +104,7 @@ const handleInput = (clientX, clientY) => {
     const collisions = Matter.Query.point(staticBodies, { x: newHammerX, y: newHammerY });
 
     if (collisions.length > 0) {
-        const forceMagnitude = 0.006; // 感度調整
+        const forceMagnitude = 0.008; 
         PhysicsEngine.applyForce(pot, pot.position, { 
             x: -moveX * forceMagnitude, 
             y: -moveY * forceMagnitude 
@@ -120,32 +113,27 @@ const handleInput = (clientX, clientY) => {
     hammerPos = { x: newHammerX, y: newHammerY };
 };
 
-// マウス移動
-canvas.addEventListener('mousemove', (e) => {
-    handleInput(e.clientX, e.clientY);
-});
+canvas.addEventListener('mousemove', (e) => handleInput(e.clientX, e.clientY));
 
-// タッチ移動 (スワイプ)
 canvas.addEventListener('touchmove', (e) => {
     if (e.cancelable) e.preventDefault();
-    const touch = e.touches[0];
-    handleInput(touch.clientX, touch.clientY);
+    handleInput(e.touches[0].clientX, e.touches[0].clientY);
 }, { passive: false });
 
-// タッチ開始
 canvas.addEventListener('touchstart', (e) => {
     if (e.cancelable) e.preventDefault();
-    const touch = e.touches[0];
-    handleInput(touch.clientX, touch.clientY); // 開始時に位置を同期
+    handleInput(e.touches[0].clientX, e.touches[0].clientY);
 }, { passive: false });
 
 // --- 更新・描画ループ ---
 Matter.Events.on(PhysicsEngine.engine, 'beforeUpdate', () => {
-    // カメラ追従
+    // 【修正】全方向カメラ追従
+    const lookAtX = pot.position.x - VIEW_WIDTH / 2;
     const lookAtY = pot.position.y - VIEW_HEIGHT * 0.6;
+
     Matter.Render.lookAt(PhysicsEngine.render, {
-        min: { x: 0, y: lookAtY },
-        max: { x: VIEW_WIDTH, y: lookAtY + VIEW_HEIGHT }
+        min: { x: lookAtX, y: lookAtY },
+        max: { x: lookAtX + VIEW_WIDTH, y: lookAtY + VIEW_HEIGHT }
     });
 
     // チャンク動的生成
@@ -175,4 +163,4 @@ Matter.Events.on(PhysicsEngine.render, 'afterRender', () => {
     ctx.restore();
 });
 
-missionLog("ACTION", "全システム統合完了。10000mへの挑戦を開始せよ！⚒️");
+missionLog("ACTION", "全方向探査システム起動。左右の壁も活用して登りましょう！⚒️");
