@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemiprocraft - High-Spec Hub</title>
+    <meta name="description" content="Gemini programming隊 開発ダッシュボード。Galaxy S26並のハイスペックUI。">
+    <meta name="author" content="カカオマメ">
+    <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
+    
+    <style>
+        :root {
+            --bg-base: #000000;
+            --bg-card: #121212;
+            --accent-blue: #2196F3; /* Galaxy風の青 */
+            --accent-green: #00ff88; /* 隊員カラー */
+            --yt-red: #FF0000; /* YouTube赤 */
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Roboto', 'Segoe UI', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* サイドバー（YouTubeリスペクト） */
+        aside {
+            width: 240px;
+            background-color: var(--bg-base);
+            padding: 20px 0;
+            border-right: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .side-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .side-item:hover { background: #222; }
+        .side-item.active { background: #333; font-weight: bold; }
+
+        /* メインコンテンツエリア */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            scroll-behavior: smooth;
+        }
+
+        /* ヒーローバナー（Galaxy S26 販促ページ風） */
+        .hero-banner {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #333;
+            margin-bottom: 40px;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            background: linear-gradient(90deg, #fff, var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* マイクラのブロック風カードレイアウト */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .content-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            border: 1px solid #222;
+        }
+
+        .content-card:hover {
+            transform: scale(1.03);
+            border-color: var(--accent-green);
+        }
+
+        .thumbnail {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info { padding: 15px; }
+        .info h4 { margin: 0 0 8px 0; font-size: 1.1rem; }
+        .info p { margin: 0; color: var(--text-secondary); font-size: 0.9rem; }
+
+        /* フローティング・アクションボタン */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .fab:hover { transform: rotate(90deg) scale(1.1); }
+
+    </style>
+</head>
+<body>
+
+<aside>
+    <div style="padding: 0 24px 20px;">
+        <img src="https://kakaomames.github.io/rei/logo.png" style="width:50px; border-radius:50%;" alt="Logo">
+    </div>
+    <a href="#" class="side-item active">🏠 ホーム</a>
+    <a href="#" class="side-item">📦 WE 開発ログ</a>
+    <a href="#" class="side-item">👾 ポケモンDB</a>
+    <a href="#" class="side-item">⚙️ 設定</a>
+</aside>
+
+<main>
+    <section class="hero-banner">
+        <div class="hero-text">
+            <p style="color: var(--accent-blue); font-weight: bold;">NEW RELEASE</p>
+            <h1>Galaxy S26 Level <br> Performance.</h1>
+            <p>Gemiprocraft WE Engine v3.0</p>
+        </div>
+        <img src="https://kakaomames.github.io/rei/logo.png" style="width:150px; filter: drop-shadow(0 0 30px var(--accent-blue));" alt="">
+    </section>
+
+    <h2 style="margin-bottom: 20px;">注目のプロジェクト（YouTube風）</h2>
+    
+    <div class="grid-layout">
+        <div class="content-card">
+            <div class="thumbnail" style="background: linear-gradient(45deg, #2c3e50, #000);">Minecraft WE</div>
+            <div class="info">
+                <h4>Chunk Generator v2</h4>
+                <p>128,000 views • 2 hours ago</p>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="thumbnail" style="background: linear-gradient(45deg, #e67e22, #000);">PokéQuest</div>
+            <div class="info">
+                <h4>JSON Save System</h4>
+                <p>56,000 views • 1 day ago</p>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="thumbnail" style="background: linear-gradient(45deg, #27ae60, #000);">OSM Map</div>
+            <div class="info">
+                <h4>Tokyo Rail Generation</h4>
+                <p>89,000 views • 3 days ago</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="fab" id="fab-action">+</div>
+
+<script>
+    function missionLog(type, message) {
+        const timestamp = new Date().toLocaleTimeString();
+        console.log(`%c[${timestamp}] [${type}] %c${message}`, "color: #2196F3; font-weight: bold;", "color: #fff;");
+    }
+
+    document.getElementById('fab-action').onclick = () => {
+        missionLog("ACTION", "新しいミッションを開始します（新規プロジェクト作成）");
+        alert("新規プロジェクト・エディタを起動します...");
+    };
+
+    window.onload = () => {
+        missionLog("SYSTEM", "Galaxy S26 級のハイスペック・ダッシュボードを起動しました。");
+    };
+</script>
+
+</body>
+</html>
