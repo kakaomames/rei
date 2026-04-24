@@ -26,7 +26,8 @@ const PhysicsEngine = {
                 width: window.innerWidth,
                 height: window.innerHeight,
                 wireframes: false,
-                background: '#1a1a1a'
+                background: '#1a1a1a',
+                hasBounds: true // カメラ（境界）移動を有効にする
             }
         });
 
@@ -38,35 +39,33 @@ const PhysicsEngine = {
         missionLog("SYSTEM", `物理世界を生成。重力設定: ${gravityY}`);
     },
 
-    // 静的オブジェクト（地面・壁）の作成
-    createStaticRect: function(x, y, w, h, label = "StaticObject") {
-        const obj = Matter.Bodies.rectangle(x, y, w, h, { 
+    // 静的オブジェクト（地面・壁・岩）の作成
+    createStaticRect: function(x, y, w, h, options = {}) {
+        const defaultOptions = { 
             isStatic: true,
             render: { fillStyle: '#444' }
-        });
+        };
+        const obj = Matter.Bodies.rectangle(x, y, w, h, { ...defaultOptions, ...options });
         Matter.Composite.add(this.world, obj);
-        missionLog("GEOLOGY", `${label}を配置: [${x}, ${y}]`);
         return obj;
     },
 
-    // 動的オブジェクト（壺・岩・ポケモン等）の作成
+    // 動的オブジェクト（壺・ポケモン等）の作成
     createDynamicCircle: function(x, y, radius, options = {}) {
         const defaultOptions = {
-            restitution: 0.5, // 跳ね返り
-            friction: 0.1,    // 摩擦
-            density: 0.001    // 密度
+            restitution: 0.1, // 跳ね返り（壺男はあまり跳ねない）
+            friction: 0.5,    // 摩擦
+            density: 0.01     // 密度
         };
         const obj = Matter.Bodies.circle(x, y, radius, { ...defaultOptions, ...options });
         Matter.Composite.add(this.world, obj);
         
-        // 値の変化を監視する簡易的な仕組み（y座標が大きく動いた時など）
-        missionLog("ACTION", `動的オブジェクト生成: radius ${radius}`);
+        missionLog("ACTION", `動的オブジェクト生成: radius ${radius} at [${x.toFixed(0)}, ${y.toFixed(0)}]`);
         return obj;
     },
 
     // 外力を加える
     applyForce: function(body, position, force) {
         Matter.Body.applyForce(body, position, force);
-        missionLog("PHYSICS", `外力適用: Force(${force.x.toFixed(2)}, ${force.y.toFixed(2)})`);
     }
 };
