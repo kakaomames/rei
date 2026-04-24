@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="WE Project: Potman Physics Simulation">
+    <meta name="author" content="カカオマメ">
+    <meta name="project" content="Gemini programming隊 壺男プロジェクト">
+    <meta name="engine" content="Matter.js">
+    <meta name="environment" content="Web Edition">
+    <title>Potman WE - Physics Console</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            background: #1a1a1a; 
+            color: #00ff00; 
+            font-family: 'Courier New', Courier, monospace;
+        }
+        canvas { display: block; }
+        #logo { 
+            position: fixed; 
+            top: 15px; 
+            left: 15px; 
+            width: 60px; 
+            z-index: 100;
+            filter: drop-shadow(0 0 5px rgba(0,255,0,0.5));
+        }
+        #mission-console {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            padding: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 12px;
+            pointer-events: none; /* ゲームの邪魔をしない */
+        }
+        .log-entry { margin-bottom: 4px; border-bottom: 1px dotted #333; }
+    </style>
+</head>
+<body>
+
+    <img id="logo" src="https://kakaomames.github.io/rei/logo.png" alt="Gemini programming隊 Logo">
+
+    <div id="mission-console">
+        <div class="log-entry">[SYSTEM] ミッションコントロール起動中...</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+    <script src="物理演算.js"></script>
+    <script src="main.js"></script>
+
+    <script>
+        // HTML側からもmissionLogを飛ばせるように統合
+        const originalLog = window.missionLog;
+        window.missionLog = (type, message) => {
+            if(originalLog) originalLog(type, message); // JS側の関数を叩く
+            
+            const consoleEl = document.getElementById('mission-console');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerText = `[${type}] ${message}`;
+            consoleEl.prepend(entry); // 最新を上に
+        };
+        
+        missionLog("BOOT", "HTMLインターフェースの接続に成功。");
+    </script>
+</body>
+</html>
