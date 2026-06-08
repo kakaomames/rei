@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Audio Player</title>
+<style>
+body{
+    font-family:sans-serif;
+    padding:20px;
+}
+
+button{
+    font-size:20px;
+    margin:4px;
+}
+
+input[type="range"]{
+    width:300px;
+}
+
+#seekbar{
+    width:100%;
+    max-width:500px;
+}
+</style>
+</head>
+<body>
+
+<h2>音声プレイヤー</h2>
+
+<input type="file" id="fileInput">
+
+<br><br>
+
+<button id="playBtn">▶</button>
+<button id="pauseBtn">⏸</button>
+<button id="stopBtn">■</button>
+
+<br><br>
+
+音量:
+<input type="range" id="volume" min="0" max="100" value="100">
+
+<br><br>
+
+<input type="range" id="seekbar" min="0" max="100" value="0">
+
+<br>
+
+<span id="time">00:00 / 00:00</span>
+
+<p id="status">ファイル未選択</p>
+
+<script>
+let audio = null;
+
+const fileInput = document.getElementById("fileInput");
+const playBtn = document.getElementById("playBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const stopBtn = document.getElementById("stopBtn");
+const volume = document.getElementById("volume");
+const seekbar = document.getElementById("seekbar");
+const timeText = document.getElementById("time");
+const status = document.getElementById("status");
+
+function formatTime(sec){
+    if (isNaN(sec)) return "00:00";
+
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+
+    return String(m).padStart(2,"0")
+        + ":"
+        + String(s).padStart(2,"0");
+}
+
+fileInput.addEventListener("change", () => {
+
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    if(audio){
+        audio.pause();
+        URL.revokeObjectURL(audio.src);
+    }
+
+    const url = URL.createObjectURL(file);
+
+    audio = new Audio(url);
+    audio.loop = true;
+
+    status.textContent = file.name;
+
+    audio.addEventListener("loadedmetadata", () => {
+        seekbar.max = audio.duration;
+        timeText.textContent =
+            `00:00 / ${formatTime(audio.duration)}`;
+    });
+
+    audio.addEventListener("timeupdate", () => {
+        seekbar.value = audio.currentTime;
+
+        timeText.textContent =
+            `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+    });
+});
+
+playBtn.addEventListener("click", async () => {
+    if(!audio) return;
+
+    try{
+        await audio.play();
+    }catch{
+        status.textContent = "再生できません";
+    }
+});
+
+pauseBtn.addEventListener("click", () => {
+    if(audio) audio.pause();
+});
+
+stopBtn.addEventListener("click", () => {
+    if(!audio) return;
+
+    audio.pause();
+    audio.currentTime = 0;
+});
+
+volume.addEventListener("input", () => {
+    if(audio){
+        audio.volume = volume.value / 100;
+    }
+});
+
+seekbar.addEventListener("input", () => {
+    if(audio){
+        audio.currentTime = seekbar.value;
+    }
+});
+</script>
+
+</body>
+</html>
