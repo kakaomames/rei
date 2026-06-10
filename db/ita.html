@@ -1,0 +1,113 @@
+<!-- Img To Audio 略してita -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="楽譜画像から音楽を生成するWebツール「楽譜toMusic☆」の探検基地">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <title>楽譜toMusic☆ 探検基地</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; text-align: center; }
+        #logo { width: 100px; display: block; margin: 0 auto; }
+        #mission-log-box { 
+            text-align: left; height: 150px; overflow-y: scroll; background: #222; 
+            color: #0f0; padding: 10px; font-family: monospace; font-size: 12px; 
+            margin: 20px auto; width: 80%; border-radius: 5px; 
+        }
+        .btn { display: inline-block; padding: 10px 20px; background: #4CAF50; color: white; text-decoration: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        #output { font-family: monospace; font-size: 10px; white-space: pre; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <img src="https://kakaomames.github.io/rei/logo.png" id="logo" alt="隊ロゴ">
+    <h1>楽譜toMusic☆ 探検基地</h1>
+
+    <input type="file" id="upload" accept="image/*">
+    <button id="analyze-btn" onclick="runPipeline()">楽譜を解析して音楽化する！</button>
+    
+    <div id="status-area"></div>
+    <div id="mission-log-box"></div>
+    
+    <div id="result-buttons" style="display: none;">
+        <a id="json-download-btn" class="btn">JSONデータをダウンロード</a>
+        <a id="wav-download-btn" class="btn">WAV音声をダウンロード</a>
+    </div>
+
+    <pre id="output"></pre>
+
+    <script>
+        // ログ機能
+        function missionLog(type, message) {
+            const timestamp = new Date().toISOString();
+            const logBox = document.getElementById('mission-log-box');
+            logBox.textContent += `[${timestamp}] [${type}] ${message}\n`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        // 解析クラス
+        class ScoreParser {
+            constructor(aaText) {
+                this.lines = aaText.split('\n');
+                this.noteDict = {
+                    10: "G6", 9: "F6", 8: "E6", 7: "D6", 6: "C6", 5: "B5", 4: "A5",
+                    3: "G5", 2: "F5", 1: "E5", 0: "D5", -1: "C5", -2: "B4", -3: "A4",
+                    -4: "G4", -5: "F4", -6: "E4", -7: "D4", -8: "C4", -9: "B3", -10: "A3"
+                };
+            }
+            findStaffLines() {
+                return this.lines.map((line, i) => (line.match(/[=-]/g) || []).length > 20 ? i : -1).filter(i => i !== -1);
+            }
+            detectNotes(staffIndices) {
+                return this.lines.flatMap((line, r) => 
+                    line.split('').map((char, c) => (char === '*' || char === '@') ? {r, c, pitch: staffIndices[0] - r} : null)
+                ).filter(n => n).map(n => ({...n, note: this.noteDict[n.pitch] || "Unknown"}));
+            }
+        }
+
+        // メイン処理
+        async function runPipeline() {
+            const file = document.getElementById('upload').files[0];
+            if (!file) { alert("楽譜画像をアップロードしてください！"); return; }
+
+            missionLog("ACTION", "解析開始！");
+            document.getElementById('status-area').textContent = "🔍 探検中：AA生成と解析を実行しています...";
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    // AA変換ロジック
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 100; // 解析用に解像度を調整
+                    canvas.height = Math.floor(img.height * (100 / img.width));
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+                    let ascii = "";
+                    const charMap = "@#%*+=-:. ";
+                    for (let i = 0; i < data.length; i += 4) {
+                        const brightness = (data[i] * 0.2126 + data[i+1] * 0.7152 + data[i+2] * 0.0722) / 255;
+                        ascii += charMap[Math.floor(brightness * (charMap.length - 1))];
+                        if ((i / 4 + 1) % canvas.width === 0) ascii += "\n";
+                    }
+                    
+                    document.getElementById('output').textContent = ascii;
+                    const parser = new ScoreParser(ascii);
+                    const staff = parser.findStaffLines();
+                    const notes = parser.detectNotes(staff);
+                    
+                    missionLog("SUCCESS", `解析完了！ ${notes.length} 個の音符を特定しました。`);
+                    document.getElementById('status-area').textContent = "✨ 音楽データ準備完了！";
+                    document.getElementById('result-buttons').style.display = "block";
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
+
