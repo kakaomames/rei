@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Gemini programming隊特製 - 運営排除型・超安全P2Pエンドツーエンド暗号化通信システム">
+    <meta name="author" content="Gemini programming隊">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WE-P2P">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0d0d12">
+    <meta name="format-detection" content="telephone=no">
+    
+    <meta property="og:title" content="WE P2P Explorer Terminal">
+    <meta property="og:description" content="Decentralized Cryptographic Node Connection">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <meta property="og:type" content="website">
+
+    <title>WE P2P Cryptographic Terminal</title>
+    <link rel="icon" type="image/png" href="https://kakaomames.github.io/rei/logo.png">
+    
+    <style>
+        :root {
+            --bg-color: #0a0a0f;
+            --panel-bg: rgba(20, 20, 35, 0.85);
+            --border-color: #00e676;
+            --accent-glow: rgba(0, 230, 118, 0.3);
+            --text-main: #e0e0ff;
+            --text-dim: #707090;
+            --blue-accent: #00b0ff;
+            --blue-glow: rgba(0, 176, 255, 0.3);
+            --orange-accent: #ff9100;
+        }
+
+        /* サイバーグリッド背景 */
+        body {
+            margin: 0;
+            padding: 15px;
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(rgba(0, 230, 118, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 230, 118, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace, -apple-system, sans-serif;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        header img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px var(--border-color));
+            animation: pulse 3s infinite alternate;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin: 8px 0 2px 0;
+            color: var(--border-color);
+            text-shadow: 0 0 8px var(--accent-glow);
+            letter-spacing: 2px;
+        }
+
+        .system-status {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        /* 豪華なネオンパネル基盤 */
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+            border-radius: 12px;
+            padding: 18px;
+            backdrop-filter: blur(8px);
+            box-shadow: inset 0 0 15px rgba(0, 230, 118, 0.05), 0 8px 32px rgba(0,0,0,0.5);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border-radius: 12px;
+            pointer-events: none;
+            box-shadow: 0 0 0 0 transparent;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .panel.active-neon-blue {
+            border-color: var(--blue-accent);
+            box-shadow: inset 0 0 15px rgba(0, 176, 255, 0.05), 0 0 15px var(--blue-glow);
+        }
+
+        .panel h3 {
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(112, 112, 144, 0.3);
+            padding-bottom: 6px;
+            color: #fff;
+        }
+
+        /* 高級感のあるSFボタン */
+        button {
+            background: linear-gradient(135deg, rgba(0, 230, 118, 0.2), rgba(0, 230, 118, 0.05));
+            color: var(--border-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            font-weight: bold;
+            font-family: inherit;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 4px var(--border-color);
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        button:hover:not(:disabled) {
+            background: rgba(0, 230, 118, 0.3);
+            box-shadow: 0 0 15px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            border-color: #444;
+            background: #111;
+            color: #555;
+            text-shadow: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* 暗号データ用インプット/テキストエリア */
+        textarea {
+            width: 100%;
+            box-sizing: border-box;
+            background: rgba(10, 10, 15, 0.9);
+            color: #00ff66;
+            border: 1px solid rgba(112, 112, 144, 0.5);
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 5px;
+            resize: vertical;
+            font-family: monospace;
+            font-size: 0.75rem;
+            outline: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        textarea:focus {
+            border-color: var(--border-color);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,230,118,0.2);
+        }
+
+        /* QRコード描画エリア */
+        #qrcode canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 220px;
+            margin: 12px auto;
+            display: block;
+            border: 4px solid #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 280px;
+            margin: 10px auto;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px dashed var(--blue-accent);
+        }
+
+        /* 特製マトリクス風ミッションログ */
+        #log-area {
+            background: #050508;
+            color: #00ff33;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            height: 140px;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #222;
+            box-shadow: inset 0 0 10px rgba(0,0,0,1);
+        }
+
+        /* 近未来チャットUI */
+        .chat-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 180px;
+            overflow-y: auto;
+            background: rgba(5, 5, 8, 0.9);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(112, 112, 144, 0.2);
+        }
+
+        .msg {
+            margin: 2px 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            max-width: 80%;
+            word-break: break-all;
+            line-height: 1.4;
+        }
+
+        .msg.me {
+            background: linear-gradient(135deg, #004d40, #00796b);
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 1px;
+            box-shadow: 0 2px 8px rgba(0,77,64,0.4);
+        }
+
+        .msg.peer {
+            background: linear-gradient(135deg, #1f2937, #111827);
+            color: #e2e8f0;
+            align-self: flex-start;
+            border-bottom-left-radius: 1px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .sub-text {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin: 6px 0 2px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @keyframes pulse {
+            from { filter: drop-shadow(0 0 8px rgba(0, 230, 118, 0.2)); }
+            to { filter: drop-shadow(0 0 18px rgba(0, 230, 118, 0.6)); }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+
+<header>
+    <img src="https://kakaomames.github.io/rei/logo.png" alt="WE Logo">
+    <h1>WE P2P CRYPTO NODE</h1>
+    <div class="system-status">SECURE LAYER ACTIVE // ZERO-SERVER MODE</div>
+</header>
+
+<div class="container">
+    <div class="panel" id="panel-setup">
+        <h3><span>⚡</span> NODE INITIALIZATION</h3>
+        <button id="btn-initiate">HOST START (GENERATE OFFER)</button>
+        <button id="btn-join" style="background: linear-gradient(135deg, rgba(0, 176, 255, 0.2), rgba(0, 176, 255, 0.05)); color: var(--blue-accent); border-color: var(--blue-accent); text-shadow: 0 0 4px var(--blue-accent); margin-top: 10px;">PEER START (JOIN NETWORK)</button>
+    </div>
+
+    <div class="panel" id="panel-local-output" style="display: none;">
+        <h3 id="local-title"><span>📡</span> LOCAL NODE KEY</h3>
+        <p class="sub-text">METHOD A: TARGET DEVICE SCANS THIS QR</p>
+        <div id="qrcode"></div>
+        
+        <p class="sub-text">METHOD B: TRANSMIT THIS RAW TEXT DATA</p>
+        <textarea id="text-local-sdp" rows="4" readonly></textarea>
+        <button id="btn-copy-local" style="background: rgba(255,255,255,0.05); color: #fff; border-color: #555; text-shadow: none;">COPY NODE DATA</button>
+    </div>
+
+    <div class="panel" id="panel-remote-input" style="display: none;">
+        <h3><span>🔑</span> REMOTE NODE SYNC</h3>
+        <button id="btn-scan-remote" style="background: rgba(0, 176, 255, 0.1); color: var(--blue-accent); border-color: var(--blue-accent);">LAUNCH OPTICAL SCANNER</button>
+        <div id="reader"></div>
+        
+        <p class="sub-text" style="margin-top: 12px;">OR INJECT REMOTE TEXT PACKET BELOW:</p>
+        <textarea id="text-remote-sdp" rows="4" placeholder="PASTE REMOTE INBOUND DATA HERE..."></textarea>
+        <button id="btn-apply-remote" style="background: linear-gradient(135deg, rgba(255,145,0,0.2), rgba(255,145,0,0.05)); color: var(--orange-accent); border-color: var(--orange-accent); text-shadow: 0 0 4px var(--orange-accent); margin-top: 8px;">EXECUTE CONNECTION SYNC</button>
+    </div>
+
+    <div class="panel" id="panel-chat" style="display: none;">
+        <h3><span>🔐</span> SECURE DATA CHANNEL (PLAINTEXT)</h3>
+        <div class="chat-box" id="chat-box"></div>
+        <div style="display: flex; gap: 8px;">
+            <input type="text" id="input-msg" style="flex: 1; background: #050508; color: #fff; border: 1px solid rgba(112,112,144,0.4); border-radius: 6px; padding: 12px; font-family: inherit; outline: none;" placeholder="ENTER ENCRYPTED SIGNAL...">
+            <button id="btn-send" style="width: auto; margin: 0; padding: 0 25px;">SEND</button>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3><span>📝</span> MISSION LOG PANEL</h3>
+        <div id="log-area"></div>
+    </div>
+</div>
+
+<script src="WebRTCManager.js"></script>
+<script src="WebRTCUI.js"></script>
+</body>
+</html>
