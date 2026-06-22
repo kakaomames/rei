@@ -4,274 +4,296 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Gemini programming隊特製 - 運営排除型・超安全P2Pエンドツーエンド暗号化通信システム">
+    <meta name="description" content="Gemini programming隊特製 - 究極型・P2Pエンドツーエンド暗号化通信ターミナル">
     <meta name="author" content="Gemini programming隊">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="WE-P2P">
+    <meta name="apple-mobile-web-app-title" content="WE-NODE">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#0d0d12">
-    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#050508">
     
-    <meta property="og:title" content="WE P2P Explorer Terminal">
-    <meta property="og:description" content="Decentralized Cryptographic Node Connection">
-    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
-    <meta property="og:type" content="website">
-
-    <title>WE P2P Cryptographic Terminal</title>
+    <title>WE P2P CYBER TERMINAL</title>
     <link rel="icon" type="image/png" href="https://kakaomames.github.io/rei/logo.png">
     
     <style>
         :root {
-            --bg-color: #0a0a0f;
-            --panel-bg: rgba(20, 20, 35, 0.85);
-            --border-color: #00e676;
-            --accent-glow: rgba(0, 230, 118, 0.3);
-            --text-main: #e0e0ff;
-            --text-dim: #707090;
-            --blue-accent: #00b0ff;
-            --blue-glow: rgba(0, 176, 255, 0.3);
-            --orange-accent: #ff9100;
+            --bg-color: #040408;
+            --panel-bg: rgba(10, 10, 20, 0.85);
+            --neon-green: #00e676;
+            --neon-blue: #00b0ff;
+            --neon-purple: #d500f9;
+            --neon-orange: #ff9100;
+            --text-main: #d1d1f7;
+            --text-dim: #50507a;
         }
 
-        /* サイバーグリッド背景 */
+        /* 背景デジタルレイン用キャンバス */
+        #matrix-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+        }
+
         body {
             margin: 0;
             padding: 15px;
             background-color: var(--bg-color);
-            background-image: 
-                linear-gradient(rgba(0, 230, 118, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 230, 118, 0.03) 1px, transparent 1px);
-            background-size: 20px 20px;
             color: var(--text-main);
-            font-family: 'Courier New', Courier, monospace, -apple-system, sans-serif;
+            font-family: 'Consolas', 'Courier New', 'Hiragino Kaku Gothic ProN', sans-serif;
             overflow-x: hidden;
             box-sizing: border-box;
+            position: relative;
+        }
+
+        /* レトロサイバー走査線エフェクト */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 99999;
+            opacity: 0.6;
+            pointer-events: none;
+            background-size: 100% 4px, 6px 100%;
         }
 
         header {
             text-align: center;
-            margin-bottom: 20px;
-            position: relative;
+            margin-bottom: 25px;
         }
 
         header img {
-            width: 70px;
-            height: 70px;
+            width: 75px;
+            height: 75px;
             object-fit: contain;
-            filter: drop-shadow(0 0 10px var(--border-color));
-            animation: pulse 3s infinite alternate;
+            filter: drop-shadow(0 0 15px var(--neon-green));
+            animation: pulse 4s infinite alternate;
         }
 
         h1 {
             font-size: 1.4rem;
-            margin: 8px 0 2px 0;
-            color: var(--border-color);
-            text-shadow: 0 0 8px var(--accent-glow);
-            letter-spacing: 2px;
+            margin: 10px 0 2px 0;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+            letter-spacing: 3px;
         }
 
         .system-status {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
+            font-size: 0.7rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue);
+            letter-spacing: 1px;
             margin-bottom: 15px;
+            text-transform: uppercase;
         }
 
         .container {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
             max-width: 550px;
             margin: 0 auto;
         }
 
-        /* 豪華なネオンパネル基盤 */
+        /* 究極のSFネオン輝く変形パネル */
         .panel {
             background: var(--panel-bg);
-            border: 1px solid rgba(0, 230, 118, 0.2);
-            border-radius: 12px;
-            padding: 18px;
-            backdrop-filter: blur(8px);
-            box-shadow: inset 0 0 15px rgba(0, 230, 118, 0.05), 0 8px 32px rgba(0,0,0,0.5);
+            border: 1px solid rgba(0, 230, 118, 0.25);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: inset 0 0 20px rgba(0, 230, 118, 0.05), 0 10px 40px rgba(0,0,0,0.7);
             position: relative;
-            transition: all 0.3s ease;
+            transition: all 0.5s cubic-bezier(0.15, 0.85, 0.45, 1);
         }
 
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: 12px;
-            pointer-events: none;
-            box-shadow: 0 0 0 0 transparent;
-            transition: box-shadow 0.3s ease;
+        /* クラス追加で劇的に色が変わる演出 */
+        .panel.mode-blue {
+            border-color: var(--neon-blue);
+            box-shadow: inset 0 0 20px rgba(0, 176, 255, 0.05), 0 0 20px rgba(0, 176, 255, 0.2);
         }
-
-        .panel.active-neon-blue {
-            border-color: var(--blue-accent);
-            box-shadow: inset 0 0 15px rgba(0, 176, 255, 0.05), 0 0 15px var(--blue-glow);
+        .panel.mode-purple {
+            border-color: var(--neon-purple);
+            box-shadow: inset 0 0 25px rgba(213, 0, 249, 0.1), 0 0 25px rgba(213, 0, 249, 0.3);
         }
 
         .panel h3 {
-            margin: 0 0 12px 0;
-            font-size: 1rem;
+            margin: 0 0 15px 0;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid rgba(112, 112, 144, 0.3);
-            padding-bottom: 6px;
+            gap: 10px;
+            border-bottom: 1px solid rgba(80, 80, 122, 0.4);
+            padding-bottom: 8px;
             color: #fff;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
         }
 
-        /* 高級感のあるSFボタン */
+        /* ネオンサイバーボタン */
         button {
-            background: linear-gradient(135deg, rgba(0, 230, 118, 0.2), rgba(0, 230, 118, 0.05));
-            color: var(--border-color);
-            border: 1px solid var(--border-color);
-            padding: 12px 20px;
+            background: linear-gradient(135deg, rgba(0, 230, 118, 0.15), rgba(0, 230, 118, 0.02));
+            color: var(--neon-green);
+            border: 1px solid var(--neon-green);
+            padding: 14px 20px;
             font-weight: bold;
             font-family: inherit;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             width: 100%;
             margin-top: 5px;
-            text-transform: uppercase;
             letter-spacing: 1px;
-            text-shadow: 0 0 4px var(--border-color);
-            box-shadow: 0 0 10px rgba(0, 230, 118, 0.1);
+            text-shadow: 0 0 6px var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 230, 118, 0.1);
             transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: 0.5s;
+            opacity: 0;
+        }
+
+        button:hover:not(:disabled)::after {
+            opacity: 1;
+            transform: translate(50%, 50%) rotate(45deg);
         }
 
         button:hover:not(:disabled) {
-            background: rgba(0, 230, 118, 0.3);
-            box-shadow: 0 0 15px var(--accent-glow);
-            transform: translateY(-1px);
+            background: rgba(0, 230, 118, 0.25);
+            box-shadow: 0 0 20px var(--accent-glow);
         }
 
         button:active:not(:disabled) {
-            transform: translateY(1px);
+            transform: scale(0.98);
         }
 
         button:disabled {
-            border-color: #444;
-            background: #111;
-            color: #555;
+            border-color: #333;
+            background: #0b0b10;
+            color: #444;
             text-shadow: none;
             box-shadow: none;
             cursor: not-allowed;
         }
 
-        /* 暗号データ用インプット/テキストエリア */
+        /* テキストエリア・インプット */
         textarea {
             width: 100%;
             box-sizing: border-box;
-            background: rgba(10, 10, 15, 0.9);
+            background: rgba(5, 5, 10, 0.95);
             color: #00ff66;
-            border: 1px solid rgba(112, 112, 144, 0.5);
-            border-radius: 6px;
-            padding: 10px;
+            border: 1px solid rgba(80, 80, 122, 0.6);
+            border-radius: 8px;
+            padding: 12px;
             margin-top: 5px;
             resize: vertical;
-            font-family: monospace;
-            font-size: 0.75rem;
+            font-family: 'Consolas', monospace;
+            font-size: 0.8rem;
             outline: none;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.9);
         }
 
         textarea:focus {
-            border-color: var(--border-color);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,230,118,0.2);
+            border-color: var(--neon-green);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.9), 0 0 10px rgba(0,230,118,0.3);
         }
 
-        /* QRコード描画エリア */
+        /* QRコードエリア */
         #qrcode canvas {
             width: 100% !important;
             height: auto !important;
-            max-width: 220px;
-            margin: 12px auto;
+            max-width: 210px;
+            margin: 15px auto;
             display: block;
-            border: 4px solid #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            border: 6px solid #fff;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(255,255,255,0.15);
         }
 
         #reader {
             width: 100%;
             max-width: 280px;
-            margin: 10px auto;
-            border-radius: 8px;
+            margin: 15px auto;
+            border-radius: 12px;
             overflow: hidden;
-            border: 1px dashed var(--blue-accent);
+            border: 2px dashed var(--neon-blue);
+            background: #000;
         }
 
-        /* 特製マトリクス風ミッションログ */
+        /* 漆黒のマトリクスログエリア */
         #log-area {
-            background: #050508;
-            color: #00ff33;
-            font-family: 'Courier New', monospace;
+            background: #020204;
+            color: #00ff55;
+            font-family: 'Consolas', monospace;
             font-size: 0.75rem;
-            height: 140px;
+            height: 150px;
             overflow-y: auto;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #222;
-            box-shadow: inset 0 0 10px rgba(0,0,0,1);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #151525;
+            box-shadow: inset 0 0 15px rgba(0,0,0,1);
         }
 
-        /* 近未来チャットUI */
+        /* チャットUI */
         .chat-box {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            height: 180px;
+            gap: 10px;
+            height: 200px;
             overflow-y: auto;
-            background: rgba(5, 5, 8, 0.9);
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            border: 1px solid rgba(112, 112, 144, 0.2);
+            background: rgba(2, 2, 4, 0.95);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(80, 80, 122, 0.3);
         }
 
         .msg {
             margin: 2px 0;
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 10px 14px;
+            border-radius: 10px;
             font-size: 0.85rem;
-            max-width: 80%;
+            max-width: 75%;
             word-break: break-all;
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         .msg.me {
-            background: linear-gradient(135deg, #004d40, #00796b);
+            background: linear-gradient(135deg, #005b41, #008170);
             color: #fff;
             align-self: flex-end;
             border-bottom-right-radius: 1px;
-            box-shadow: 0 2px 8px rgba(0,77,64,0.4);
+            box-shadow: 0 4px 12px rgba(0,91,65,0.4);
         }
 
         .msg.peer {
-            background: linear-gradient(135deg, #1f2937, #111827);
-            color: #e2e8f0;
+            background: linear-gradient(135deg, #232931, #11141a);
+            color: #eeeeee;
             align-self: flex-start;
             border-bottom-left-radius: 1px;
             border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
         .sub-text {
             font-size: 0.75rem;
             color: var(--text-dim);
             margin: 6px 0 2px 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-weight: bold;
         }
 
         @keyframes pulse {
-            from { filter: drop-shadow(0 0 8px rgba(0, 230, 118, 0.2)); }
-            to { filter: drop-shadow(0 0 18px rgba(0, 230, 118, 0.6)); }
+            from { filter: drop-shadow(0 0 10px rgba(0, 230, 118, 0.3)); }
+            to { filter: drop-shadow(0 0 25px rgba(0, 230, 118, 0.7)); }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
@@ -279,53 +301,120 @@
 </head>
 <body>
 
+<canvas id="matrix-bg"></canvas>
+
 <header>
     <img src="https://kakaomames.github.io/rei/logo.png" alt="WE Logo">
-    <h1>WE P2P CRYPTO NODE</h1>
-    <div class="system-status">SECURE LAYER ACTIVE // ZERO-SERVER MODE</div>
+    <h1>WE P2P CYBER TERMINAL</h1>
+    <div class="system-status" id="sys-badge">STATUS: IDLE // 接続待機中</div>
 </header>
 
 <div class="container">
     <div class="panel" id="panel-setup">
-        <h3><span>⚡</span> NODE INITIALIZATION</h3>
-        <button id="btn-initiate">HOST START (GENERATE OFFER)</button>
-        <button id="btn-join" style="background: linear-gradient(135deg, rgba(0, 176, 255, 0.2), rgba(0, 176, 255, 0.05)); color: var(--blue-accent); border-color: var(--blue-accent); text-shadow: 0 0 4px var(--blue-accent); margin-top: 10px;">PEER START (JOIN NETWORK)</button>
+        <h3><span>⚡</span> 1. 通信を開始するモードを選択</h3>
+        <button id="btn-initiate" onclick="playBeep(600, 0.1)">ホストとして開始（新しく部屋を作る）</button>
+        <button id="btn-join" onclick="playBeep(500, 0.1)" style="background: linear-gradient(135deg, rgba(0, 176, 255, 0.2), rgba(0, 176, 255, 0.05)); color: var(--neon-blue); border-color: var(--neon-blue); text-shadow: 0 0 4px var(--neon-blue); margin-top: 12px;">参加者として開始（相手の通信に加わる）</button>
     </div>
 
     <div class="panel" id="panel-local-output" style="display: none;">
-        <h3 id="local-title"><span>📡</span> LOCAL NODE KEY</h3>
-        <p class="sub-text">METHOD A: TARGET DEVICE SCANS THIS QR</p>
+        <h3 id="local-title"><span>📡</span> あなた側の同期信号</h3>
+        <p class="sub-text">【方法A】 相手のスマホカメラでこのQRコードを読み取らせてください</p>
         <div id="qrcode"></div>
         
-        <p class="sub-text">METHOD B: TRANSMIT THIS RAW TEXT DATA</p>
+        <p class="sub-text">【方法B】 下のボタンでコードをコピーして、LINEや連絡ツールで相手に送る</p>
         <textarea id="text-local-sdp" rows="4" readonly></textarea>
-        <button id="btn-copy-local" style="background: rgba(255,255,255,0.05); color: #fff; border-color: #555; text-shadow: none;">COPY NODE DATA</button>
+        <button id="btn-copy-local" onclick="playBeep(700, 0.05)" style="background: rgba(255,255,255,0.05); color: #fff; border-color: #555; text-shadow: none;">同期コードをクリップボードにコピー</button>
     </div>
 
     <div class="panel" id="panel-remote-input" style="display: none;">
-        <h3><span>🔑</span> REMOTE NODE SYNC</h3>
-        <button id="btn-scan-remote" style="background: rgba(0, 176, 255, 0.1); color: var(--blue-accent); border-color: var(--blue-accent);">LAUNCH OPTICAL SCANNER</button>
+        <h3><span>🔑</span> 2. 相手側の同期信号を読み込ませる</h3>
+        <button id="btn-scan-remote" onclick="playBeep(550, 0.1)" style="background: rgba(0, 176, 255, 0.1); color: var(--neon-blue); border-color: var(--neon-blue);">光学カメラスキャナーを起動</button>
         <div id="reader"></div>
         
-        <p class="sub-text" style="margin-top: 12px;">OR INJECT REMOTE TEXT PACKET BELOW:</p>
-        <textarea id="text-remote-sdp" rows="4" placeholder="PASTE REMOTE INBOUND DATA HERE..."></textarea>
-        <button id="btn-apply-remote" style="background: linear-gradient(135deg, rgba(255,145,0,0.2), rgba(255,145,0,0.05)); color: var(--orange-accent); border-color: var(--orange-accent); text-shadow: 0 0 4px var(--orange-accent); margin-top: 8px;">EXECUTE CONNECTION SYNC</button>
+        <p class="sub-text" style="margin-top: 15px;">または、相手から送られてきたテキストをここに貼り付ける：</p>
+        <textarea id="text-remote-sdp" rows="4" placeholder="ここにペースト(貼り付け)してください..."></textarea>
+        <button id="btn-apply-remote" onclick="playBeep(650, 0.1)" style="background: linear-gradient(135deg, rgba(255,145,0,0.2), rgba(255,145,0,0.05)); color: var(--neon-orange); border-color: var(--neon-orange); text-shadow: 0 0 4px var(--neon-orange); margin-top: 10px;">同期信号を確定・インジェクションする</button>
     </div>
 
     <div class="panel" id="panel-chat" style="display: none;">
-        <h3><span>🔐</span> SECURE DATA CHANNEL (PLAINTEXT)</h3>
+        <h3 id="chat-title"><span>🔐</span> 暗号化データチャンネル（構築中...）</h3>
         <div class="chat-box" id="chat-box"></div>
         <div style="display: flex; gap: 8px;">
-            <input type="text" id="input-msg" style="flex: 1; background: #050508; color: #fff; border: 1px solid rgba(112,112,144,0.4); border-radius: 6px; padding: 12px; font-family: inherit; outline: none;" placeholder="ENTER ENCRYPTED SIGNAL...">
-            <button id="btn-send" style="width: auto; margin: 0; padding: 0 25px;">SEND</button>
+            <input type="text" id="input-msg" style="flex: 1; background: #020204; color: #fff; border: 1px solid rgba(80,80,122,0.5); border-radius: 8px; padding: 14px; font-family: inherit; outline: none;" placeholder="暗号化メッセージを入力...">
+            <button id="btn-send" onclick="playBeep(800, 0.05)" style="width: auto; margin: 0; padding: 0 30px;">送信</button>
         </div>
     </div>
 
     <div class="panel">
-        <h3><span>📝</span> MISSION LOG PANEL</h3>
+        <h3><span>📝</span> リアルタイム動作ログ</h3>
         <div id="log-area"></div>
     </div>
 </div>
+
+<script>
+    // --- 🔊 サイバーSF サウンド合成エンジン (Web Audio API) ---
+    let audioCtx = null;
+    function playBeep(frequency, duration) {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = frequency;
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            // 残響をきれいに消すフェードアウト
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+    
+    function playSuccessSound() {
+        playBeep(523.25, 0.1); // ド
+        setTimeout(() => playBeep(659.25, 0.1), 100); // ミ
+        setTimeout(() => playBeep(783.99, 0.1), 200); // ソ
+        setTimeout(() => playBeep(1046.50, 0.2), 300); // ド↑
+    }
+
+    // --- 🌧️ デジタルレイン背景システム (Matrix Effect) ---
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZアイウエオカキクケコサシスセソタチツテト".split("");
+    const fontSize = 14;
+    let columns = canvas.width / fontSize;
+    let drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+        ctx.fillStyle = 'rgba(4, 4, 8, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#00ff66';
+        ctx.font = fontSize + 'px monospace';
+        
+        for (let i = 0; i < drops.length; i++) {
+            const text = chars[Math.floor(Math.random() * chars.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            
+            if (drops[i] * fontSize > canvas.height && Math.random() * 0.975 > 0.95) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    setInterval(drawMatrix, 40);
+</script>
 
 <script src="WebRTCManager.js"></script>
 <script src="WebRTCUI.js"></script>
