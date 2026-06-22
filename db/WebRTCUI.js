@@ -1,10 +1,10 @@
-// WE WebRTC UI Control Layer
+// WE WebRTC UI Control Layer (Hyper-Cyberized Version)
 document.addEventListener("DOMContentLoaded", () => {
     const rtc = new WebRTCManager();
     let html5QrcodeScanner = null;
     let isHost = false;
 
-    // DOM要素一括マッピング
+    // DOM要素
     const btnInitiate = document.getElementById("btn-initiate");
     const btnJoin = document.getElementById("btn-join");
     const panelSetup = document.getElementById("panel-setup");
@@ -21,14 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputMsg = document.getElementById("input-msg");
     const btnSend = document.getElementById("btn-send");
     const logArea = document.getElementById("log-area");
+    const sysBadge = document.getElementById("sys-badge");
 
-    // 統一ミッションログ出力システム（値の変動はここに集約！）
     function missionLog(type, message) {
         const time = new Date().toLocaleTimeString();
         const logLine = document.createElement("div");
         logLine.textContent = `[${time}] [${type}] ${message}`;
         
-        // SF風カラーリングパッチ
         if (type === "ERROR") logLine.style.color = "#ff3333";
         if (type === "STATE_CHANGE") logLine.style.color = "#00e676";
         if (type === "RECEIVE") logLine.style.color = "#00b0ff";
@@ -38,12 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
         logArea.scrollTop = logArea.scrollHeight;
     }
 
-    // ロジック層からの出力を画面のログパネルへブリッジ
     rtc.onLogCallback = (type, msg) => {
         missionLog(type, msg);
     };
 
-    // ローカルSDP構築完了時にQRコードとコピペエリアをアクティベート
     rtc.onLocalDescriptionCreated = (sdpText) => {
         const sdpObj = {
             type: rtc.peerConnection.localDescription.type,
@@ -52,50 +49,65 @@ document.addEventListener("DOMContentLoaded", () => {
         const sdpString = JSON.stringify(sdpObj);
         textLocalSdp.value = sdpString;
 
-        // QRコード生成実行
         const qrContainer = document.getElementById("qrcode");
         qrContainer.innerHTML = "";
-        QRCode.toCanvas(sdpString, { width: 220, errorCorrectionLevel: 'L' }, (error, canvas) => {
+        QRCode.toCanvas(sdpString, { width: 210, errorCorrectionLevel: 'L' }, (error, canvas) => {
             if (error) {
-                missionLog("ERROR", `QRコード生成失敗: ${error}`);
+                missionLog("ERROR", `QR生成失敗: ${error}`);
                 return;
             }
             qrContainer.appendChild(canvas);
-            missionLog("STATE_CHANGE", "セッションコード(QR/TEXT)の暗号エクスポートが完了。");
+            missionLog("STATE_CHANGE", "同期コードのエクスポート完了。相手の入力待ち。");
+            if(typeof playBeep === "function") playBeep(880, 0.15);
         });
     };
 
-    // 暗号復号済みメッセージのチャット欄投影
     rtc.onMessageReceived = (text) => {
         appendMessage("peer", text);
+        if(typeof playBeep === "function") playBeep(587.33, 0.08); // メッセージ受信音(レ)
     };
 
-    // 接続成立によるUIの動的トランスフォーム
+    // 接続成立時のオーラ変更処理
     rtc.onConnectionStateChanged = (state) => {
         if (state === "connected") {
-            panelLocalOutput.style.opacity = "0.25";
+            if(typeof playSuccessSound === "function") playSuccessSound(); // 歓喜のファンファーレ
+            
+            sysBadge.textContent = "STATUS: CONNECTED // P2Pセッション確立";
+            sysBadge.style.color = "#00e676";
+            sysBadge.style.textShadow = "0 0 8px #00e676";
+
+            panelLocalOutput.style.opacity = "0.2";
             panelRemoteInput.style.display = "none";
-            panelChat.style.display = "block";
             panelSetup.style.display = "none";
+            panelChat.style.display = "block";
             
-            // パネルのネオンカラーをアクティブグリーンに変更
-            panelChat.style.borderColor = "#00e676";
-            panelChat.style.boxShadow = "inset 0 0 15px rgba(0,230,118,0.05), 0 0 15px rgba(0,230,118,0.3)";
-            
-            if(html5QrcodeScanner) {
-                html5QrcodeScanner.clear().catch(err => console.error(err));
-            }
+            panelChat.classList.add("mode-blue"); // まず青色オーラ
         }
     };
 
-    // X25519鍵共有完了フック ➔ チャットタイトルの表記を暗号化済みに変更
+    // 鍵交換完了で「究極の暗号化オーラ(紫)」にトランスフォーム
     rtc.onKeyExchangeComplete = (fingerprint) => {
-        missionLog("STATE_CHANGE", `【E2EE暗号化開通】秘密鍵共有完了。FINGERPRINT: ${fingerprint}`);
-        const chatTitle = document.querySelector("#panel-chat h3");
+        if(typeof playBeep === "function") {
+            setTimeout(() => playBeep(1174.66, 0.05), 0);
+            setTimeout(() => playBeep(1318.51, 0.05), 50);
+            setTimeout(() => playBeep(1567.98, 0.15), 100); // シャキーン音
+        }
+        
+        sysBadge.textContent = `STATUS: SECURE // E2EE暗号化開通`;
+        sysBadge.style.color = "#d500f9";
+        sysBadge.style.textShadow = "0 0 10px #d500f9";
+
+        missionLog("STATE_CHANGE", `【暗号化完了】X25519鍵共有に成功。検証ID: ${fingerprint}`);
+        
+        // オーラを紫にスイッチ
+        panelChat.classList.remove("mode-blue");
+        panelChat.classList.add("mode-purple");
+
+        const chatTitle = document.getElementById("chat-title");
         if (chatTitle) {
-            chatTitle.innerHTML = `<span>🔐</span> E2EE ENCRYPTED CHANNEL // KEY: ${fingerprint}`;
-            chatTitle.style.color = "#00e676";
-            chatTitle.style.textShadow = "0 0 8px rgba(0,230,118,0.5)";
+            chatTitle.innerHTML = `<span>🔐</span> 完全暗号化回線 // 検証コード: ${fingerprint}`;
+            chatTitle.style.color = "#d500f9";
+            chatTitle.style.textShadow = "0 0 10px rgba(213,0,249,0.6)";
         }
     };
 
@@ -107,38 +119,34 @@ document.addEventListener("DOMContentLoaded", () => {
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // クリップボードインジェクション
     btnCopyLocal.addEventListener("click", () => {
         navigator.clipboard.writeText(textLocalSdp.value)
-            .then(() => missionLog("ACTION", "ローカルノードデータをクリップボードへ複写しました。"))
-            .catch(() => missionLog("ERROR", "複写権限が拒否されました。"));
+            .then(() => missionLog("ACTION", "同期コードをクリップボードに記憶しました！"))
+            .catch(() => missionLog("ERROR", "コピーに失敗しました"));
     });
 
-    // --- シグナリングフローコントローラー ---
-
-    // ホストモード起動
     btnInitiate.addEventListener("click", () => {
         isHost = true;
         btnInitiate.disabled = true;
         btnJoin.disabled = true;
-        localTitle.innerHTML = "<span>📡</span> 1. LOCAL OFFER KEY (SEND TO PEER)";
+        sysBadge.textContent = "STATUS: HOSTING // 相手からの接続を待機中";
+        localTitle.innerHTML = "<span>📡</span> 1. あなたの同期コード (相手に読み取らせる)";
         panelLocalOutput.style.display = "block";
         panelRemoteInput.style.display = "block";
-        panelRemoteInput.classList.add("active-neon-blue"); // 待ち受け状態を青色ネオンで明示
+        panelRemoteInput.classList.add("mode-blue");
         rtc.createOffer();
     });
 
-    // ピアモード起動
     btnJoin.addEventListener("click", () => {
         isHost = false;
         btnInitiate.disabled = true;
         btnJoin.disabled = true;
+        sysBadge.textContent = "STATUS: JOINING // ホストノードに同期中";
         panelRemoteInput.style.display = "block";
-        panelRemoteInput.classList.add("active-neon-blue");
-        missionLog("ACTION", "ホストデータのインプット待機状態へ移行。");
+        panelRemoteInput.classList.add("mode-blue");
+        missionLog("ACTION", "ホストのQRをスキャンするか、テキストを貼り付けてください。");
     });
 
-    // 光学カメラスキャナーアクティベート
     btnScanRemote.addEventListener("click", () => {
         html5QrcodeScanner = new Html5Qrcode("reader");
         html5QrcodeScanner.start(
@@ -147,17 +155,17 @@ document.addEventListener("DOMContentLoaded", () => {
             async (decodedText) => {
                 textRemoteSdp.value = decodedText;
                 await html5QrcodeScanner.stop();
-                missionLog("STATE_CHANGE", "光学スキャン成功。データをパケットスロットへ充填しました。");
+                if(typeof playBeep === "function") playBeep(880, 0.1);
+                missionLog("STATE_CHANGE", "スキャン成功。確定ボタンを押してください。");
             },
             (err) => {}
-        ).catch(err => missionLog("ERROR", `カメラ初期化失敗: ${err}`));
+        ).catch(err => missionLog("ERROR", `カメラ起動失敗: ${err}`));
     });
 
-    // 同期データのバインド・インプット確定
     btnApplyRemote.addEventListener("click", async () => {
         const rawValue = textRemoteSdp.value.trim();
         if (!rawValue) {
-            missionLog("ERROR", "データパケットが空です。");
+            missionLog("ERROR", "入力エリアが空です。");
             return;
         }
 
@@ -166,31 +174,31 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (isHost) {
                 if (remoteSdp.type !== "answer") {
-                    missionLog("ERROR", "ホストノードは『answer』パケットを受け付ける必要があります。");
+                    missionLog("ERROR", "ホスト側は『answer』コードを読み込む必要があります。");
                     return;
                 }
                 await rtc.acceptAnswer(remoteSdp.sdp);
             } else {
                 if (remoteSdp.type !== "offer") {
-                    missionLog("ERROR", "ピアノードは『offer』パケットを受け付ける必要があります。");
+                    missionLog("ERROR", "参加者側は『offer』コードを読み込む必要があります。");
                     return;
                 }
-                localTitle.innerHTML = "<span>📡</span> 2. LOCAL ANSWER KEY (RETURN TO HOST)";
+                localTitle.innerHTML = "<span>📡</span> 2. あなたの同期コード (ホストに送り返す)";
                 panelLocalOutput.style.display = "block"; 
                 await rtc.createAnswer(remoteSdp.sdp);
             }
         } catch (e) {
-            missionLog("ERROR", `データパケットの解析・同期に失敗: ${e.message}`);
+            missionLog("ERROR", `パケットの同期失敗: ${e.message}`);
         }
     });
 
-    // シグナルパケット送信
     btnSend.addEventListener("click", () => {
         const text = inputMsg.value.trim();
         if (!text) return;
         if (rtc.sendMessage(text)) {
             appendMessage("me", text);
             inputMsg.value = "";
+            if(typeof playBeep === "function") playBeep(440, 0.05); // 送信音(ラ)
         }
     });
 
