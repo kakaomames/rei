@@ -1,5 +1,5 @@
 <head>
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pyodide@314.0.6/pyodide.min.js"></script>
 </head>
 
 <h2>Python: <span id="python-version"></span></h2>
@@ -13,7 +13,7 @@ async function setScriptValue(pyodide, dir, tag) {
 }
 async function main(){
     const pyodide = await loadPyodide();
-    setScriptValue(pyodide, "scripts/yt.py", "python-zen")
+    setScriptValue(pyodide, "yt.py", "python-zen")
 }
 main();
 </script>
