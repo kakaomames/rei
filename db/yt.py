@@ -59,6 +59,7 @@ try:
         
     print("🎉 JSONデータの抽出に成功しました！")
     print(f"📄 タイトル: {video_json_data.get('title')}\n")
+    text = f"📄 タイトル: {video_json_data.get('title')}\n"
     print("=================== 配信URL一覧 (formatsの全データ) ===================")
 
     # ★【ご要望の処理】めんどくさい指定をやめて、for文で全部ぶん回して列挙する
@@ -73,6 +74,9 @@ try:
         
         # 画面にスッキリ見やすく表示する
         print(f"🔹 ID: {fmt_id} | 拡張子: {ext} | 画質: {resolution}")
+        text += f"🔹 ID: {fmt_id} | 拡張子: {ext} | 画質: {resolution}"
+        text += f"🔗 URL: {direct_url}"
+        text += "-" * 70
         print(f"🔗 URL: {direct_url}")
         print("-" * 70) # 見やすくするための区切り線
 
