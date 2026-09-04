@@ -1,0 +1,19 @@
+<head>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js"></script>
+</head>
+
+<h2>Python: <span id="python-version"></span></h2>
+<hr />
+<div id="python-zen"></div>
+
+<script type="text/javascript">
+async function setScriptValue(pyodide, dir, tag) {
+  const script = await (await fetch(dir)).text()
+  document.getElementById(tag).innerText = pyodide.runPython(script)
+}
+async function main(){
+    const pyodide = await loadPyodide();
+    setScriptValue(pyodide, "scripts/yt.py", "python-zen")
+}
+main();
+</script>
