@@ -67,12 +67,21 @@ def start_process(request=None):
         
         print(f"🎬 解析対象のURL: {final_yt_url}")
         
+        # 💡 基本的なyt-dlpのオプション設定
         ydl_opts = {
             'skip_download': True, # 動画は保存しない
             'extract_flat': False,
             'quiet': True,
             'no_warnings': True,
         }
+
+        # 💡 【追加機能】クッキーファイル（cookies.txt）があれば自動で読み込む
+        cookie_file_path = os.path.join(current_dir, "cookies.txt")
+        if os.path.exists(cookie_file_path):
+            print(f"🍪 クッキーファイルを適用します: {cookie_file_path}")
+            ydl_opts['cookiefile'] = cookie_file_path
+        else:
+            print("💡 cookies.txt が見つからないため、クッキーなしで解析します。")
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             video_json_data = ydl.extract_info(final_yt_url, download=False)
@@ -108,7 +117,7 @@ if __name__ == '__main__':
     # コマンドライン引数（sys.argv）にURLが指定されているかチェック
     if len(sys.argv) > 1:
         # 1つ目の引数（動画URLの文字列）を関数に渡して実行
-        start_process(sys.argv[1])
+        start_process(sys.argv)
     else:
         # 引数がない場合は、デフォルトURLで実行
         start_process()
