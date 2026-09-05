@@ -25,4 +25,4 @@ if [ ! -f "main.py" ]; then
 fi
 
 # 💡ボット検知対策：curl -c で上書きせず、手動で置いた cookies.txt をそのままPythonに読ませる
-python main.py "$1" 
+python main.py "$1"  > yt.txt
