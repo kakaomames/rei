@@ -6,9 +6,11 @@ if [ "$1" = "u" ]; then
     curl -L "https://raw.githubusercontent.com/kakaomames/rei/refs/heads/main/ytst.sh" -o ytst.sh
     curl -L "https://raw.githubusercontent.com/kakaomames/rei/refs/heads/main/main.v4.py" -o main.py
     curl -L "https://github.com/kakaomames/rei/archive/refs/heads/main.zip" -o main.zip
-    unzip main.zip ytst.sh
-    unzip main.zip main.py
-    unzip main.zip mains.py
+    unzip main.zip rei-main/ytst.sh
+    unzip main.zip rei-main/main.py
+    unzip main.zip rei-main/mains.py
+    mv rei-main/* ./
+    rm -rfv rei-main
     rm -rfv main.zip
     echo "✨ アップデートが完了しました！"
     echo "動画のURLを指定してもう一度実行してください（例: ./ytst.sh URL）"
