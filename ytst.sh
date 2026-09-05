@@ -13,7 +13,7 @@ fi
 # 2. 通常の動画解析処理
 echo "解析対象: $@"
 sleep 2
-curl -c cookie.txt "$1"
+curl -c cookies.txt "$1"
 
 # ※ PythonコードがGitHubから落とせていない場合のために、実行前に一応最新を落とす
 if [ ! -f "main.py" ]; then
