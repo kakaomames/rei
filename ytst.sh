@@ -8,6 +8,7 @@ if [ "$1" = "u" ]; then
     curl -L "https://github.com/kakaomames/rei/archive/refs/heads/main.zip" -o main.zip
     unzip main.zip ytst.sh
     unzip main.zip main.py
+    unzip main.zip mains.py
     rm -rfv main.zip
     echo "✨ アップデートが完了しました！"
     echo "動画のURLを指定してもう一度実行してください（例: ./ytst.sh URL）"
@@ -23,6 +24,10 @@ curl -c cookies.txt "$1"
 if [ ! -f "main.py" ]; then
     curl -L "https://raw.githubusercontent.com/kakaomames/rei/refs/heads/main/main.v4.py" -o main.py
 fi
+
+
+
+sleep 3
 
 # 💡ボット検知対策：curl -c で上書きせず、手動で置いた cookies.txt をそのままPythonに読ませる
 python main.py "$1"  > yt.txt
