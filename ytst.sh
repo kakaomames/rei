@@ -8,6 +8,7 @@ if [ "$1" = "u" ]; then
     curl -L "https://github.com/kakaomames/rei/archive/refs/heads/main.zip" -o main.zip
     unzip main.zip ytst.sh
     unzip main.zip main.py
+    rm -rfv main.zip
     echo "✨ アップデートが完了しました！"
     echo "動画のURLを指定してもう一度実行してください（例: ./ytst.sh URL）"
     exit 0 # アップデート時はここで処理を終了する
