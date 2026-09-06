@@ -14,6 +14,9 @@ if [ "$1" = "u" ]; then
     mv main.v4.py main.py
     rm -rfv rei-main
     rm -rfv main.zip
+    cp ytst.sh ytst
+    chmod +x ytst.sh
+    chmod +x ytst
     echo "✨ アップデートが完了しました！"
     echo "動画のURLを指定してもう一度実行してください（例: ./ytst.sh URL）"
     exit 0 # アップデート時はここで処理を終了する
