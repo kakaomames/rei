@@ -21,9 +21,10 @@ fi
 
 # 2. 通常の動画解析処理
 echo "解析対象: $@"
-sleep 2
+
 curl -c cookies.txt "$1" > cooc.txt
 
+echo "2"
 # ※ PythonコードがGitHubから落とせていない場合のために、実行前に一応最新を落とす
 if [ ! -f "main.py" ]; then
     curl -L "https://raw.githubusercontent.com/kakaomames/rei/refs/heads/main/main.v4.py" -o main.py
@@ -31,7 +32,11 @@ fi
 
 
 
-sleep 3
+sleep 1
+
+echo "3"
 
 # 💡ボット検知対策：curl -c で上書きせず、手動で置いた cookies.txt をそのままPythonに読ませる
 python main.py "$1"  > yt.txt
+
+echo "finish"
