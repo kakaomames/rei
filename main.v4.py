@@ -72,7 +72,7 @@ def start_process(request=None):
         ydl_opts = {
             'skip_download': True, # 動画は保存しない
             'extract_flat': False,
-            'quiet': True,
+            'quiet': False,
             'no_warnings': True,
         }
 
