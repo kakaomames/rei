@@ -7,7 +7,7 @@ import zipfile
 
 def start_process(request=None):
     print("--- 【全フォーマット列挙モード】すべてのURLを自動抽出します ---")
-    # print("実際に受け取った引数の一覧:", sys.argv)
+    print("実際に受け取った引数の一覧:", request)
     
     # カレントディレクトリの設定
     current_dir = os.path.dirname(os.path.abspath(__file__))
