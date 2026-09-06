@@ -7,9 +7,11 @@ if [ "$1" = "u" ]; then
     curl -L "https://raw.githubusercontent.com/kakaomames/rei/refs/heads/main/main.v4.py" -o main.py
     curl -L "https://github.com/kakaomames/rei/archive/refs/heads/main.zip" -o main.zip
     unzip main.zip rei-main/ytst.sh
-    unzip main.zip rei-main/main.py
+    unzip main.zip rei-main/main.v4.py
     unzip main.zip rei-main/mains.py
     mv rei-main/* ./
+    rm -rfv main.py
+    mv main.v4.py main.py
     rm -rfv rei-main
     rm -rfv main.zip
     echo "✨ アップデートが完了しました！"
@@ -20,7 +22,7 @@ fi
 # 2. 通常の動画解析処理
 echo "解析対象: $@"
 sleep 2
-curl -c cookies.txt "$1"
+curl -c cookies.txt "$1" > cooc.txt
 
 # ※ PythonコードがGitHubから落とせていない場合のために、実行前に一応最新を落とす
 if [ ! -f "main.py" ]; then
