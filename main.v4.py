@@ -119,7 +119,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         # 1つ目の引数（動画URLの文字列）を関数に渡して実行
         print("実際に受け取った引数の一覧:", sys.argv)
-        start_process(sys.argv[2])
+        start_process(sys.argv[1])
     else:
         # 引数がない場合は、デフォルトURLで実行
         start_process()
