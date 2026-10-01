@@ -50,4 +50,238 @@
         </button>
         <button id="downloadBtn" class="secondary icon-btn" disabled="" aria-label="ダウンロード" title="ダウンロード">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg></button><button id="shareBtn" class="secondary icon-btn" disabled="" style="" aria-label="共有" title="共有"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg></button></div><div class="actions voice-row"><label class="speed-field" for="voiceSelect">声種<select id="voiceSelect"><optgroup label="AquesTalk1"><option value="at1-f1">at1-f1</option><option value="at1-f2">at1-f2</option><option value="at1-f3">at1-f3</option><option value="at1-m1">at1-m1</option><option value="at1-m2">at1-m2</option><option value="at1-r1">at1-r1</option><option value="at1-dvd">at1-dvd</option><option value="at1-imd">at1-imd</option><option value="at1-jgr">at1-jgr</option></optgroup><optgroup label="AquesTalk2"><option value="at2-f1c">at2-f1c</option><option value="at2-f3a">at2-f3a</option><option value="at2-huskey">at2-huskey</option><option value="at2-m4b">at2-m4b</option><option value="at2-mf1">at2-mf1</option><option value="at2-rb2">at2-rb2</option><option value="at2-rb3">at2-rb3</option><option value="at2-rm">at2-rm</option><option value="at2-robo">at2-robo</option><option value="at2-yukkuri">at2-yukkuri</option><option value="at2-f4">at2-f4</option><option value="at2-m5">at2-m5</option><option value="at2-mf2">at2-mf2</option><option value="at2-rm3">at2-rm3</option></optgroup><optgroup label="AquesTalk10"><option value="at10-f1">at10-f1</option><option value="at10-f2">at10-f2</option><option value="at10-f3">at10-f3</option><option value="at10-m1">at10-m1</option><option value="at10-m2">at10-m2</option><option value="at10-r1">at10-r1</option><option value="at10-r2">at10-r2</option></optgroup></select></label><label class="checkbox-field" for="monotoneCheckbox"><input type="checkbox" id="monotoneCheckbox">棒読み</label></div><div class="voice-params" id="aq12Panel" style=""><div class="voice-params-title">話速・音量・音程(AquesTalk1 / AquesTalk2)</div><div class="voice-params-grid"><label>話速 (50-300)<input type="number" id="aq12Spd" min="50" max="300" step="1" value="100"></label><label>音量 (0-300)<input type="number" id="aq12Vol" min="0" max="300" step="1" value="100"></label><label>音程2 (50-200)<input type="number" id="aq12Fsc" min="50" max="200" step="1" value="100"></label></div></div><div class="voice-params" id="voiceParamsPanel" style="display:none;"><div class="voice-params-title">声質パラメータ(AquesTalk10)</div><div class="voice-params-grid"><label>基本素片<select id="vpBas"><option value="0">F1E</option><option value="1">F2E</option><option value="2">M1E</option></select></label><label>話速 (50-300)<input type="number" id="vpSpd" min="50" max="300" step="1"></label><label>音量 (0-300)<input type="number" id="vpVol" min="0" max="300" step="1"></label><label>高さ (20-200)<input type="number" id="vpPit" min="20" max="200" step="1"></label><label>アクセント (0-200)<input type="number" id="vpAcc" min="0" max="200" step="1"></label><label>音程1 (0-200)<input type="number" id="vpLmd" min="0" max="200" step="1"></label><label>音程2 (50-200)<input type="number" id="vpFsc" min="50" max="200" step="1"></label></div></div><div class="patterns"><div class="patterns-title">パターン登録(最大8件・このブラウザに保存されます)</div><div class="pattern-head" aria-hidden="true"><span class="pattern-head-spacer"></span><span class="pattern-head-col">呼出</span><span class="pattern-head-col">保存</span><span class="pattern-head-col">消去</span></div><div class="patterns-grid" id="patternsGrid"><div class="pattern-slot"><span class="pattern-slot-num">1</span><span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン1を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン1に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン1を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div><div class="pattern-slot"><span class="pattern-slot-num">2</span><span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン2を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン2に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン2を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div><div class="pattern-slot"><span class="pattern-slot-num">3</span><span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン3を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン3に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン3を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div><div class="pattern-slot"><span class="pattern-slot-num">4</span><span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン4を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン4に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン4を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div><div class="pattern-slot"><span class="pattern-slot-num">5</span><span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン5を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン5に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン5を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div><div class="pattern-slot"><span class="pattern-slot-num">6</span><span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン6を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン6に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン6を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div><div class="pattern-slot"><span class="pattern-slot-num">7</span><span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン7を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン7に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン7を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div><div class="pattern-slot"><span class="pattern-slot-num">8</span><span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン8を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン8に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン8を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div></div></div><footer class="footer"><p class="footer-license">このWebサービスは<a href="https://www.a-quest.com/" target="_blank" rel="noopener noreferrer">(株)アクエスト</a>の音声合成ライブラリを使用しています。個人の趣味の範囲での利用(ゆっくりボイスを含む動画作成・配信など)は無償で使用いただけますが、生成した音声を営利目的(YouTube等での広告付きの動画配信を含む)で使用する場合は「<a href="https://store.a-quest.com/items/7413986" target="_blank" rel="noopener noreferrer">使用ライセンス(商用コンテンツ向け)</a>」を購入しライセンスキーを設定の上、使用する必要があります。</p><p class="footer-copy">© 2026 AQUEST Corp.</p></footer><audio id="audioPlayer" style="display:none"></audio></div><div class="modal-overlay" id="usrLicModalOverlay" style="display:none;"><div class="modal-box"><div class="modal-title">使用ライセンスキーの設定</div><p class="modal-desc">使用ライセンス(商用コンテンツ向け)のライセンスキーを指定します</p><input type="text" id="usrLicKeyInput" class="modal-input" placeholder="ライセンスキーを入力" autocomplete="off"><p class="modal-error" id="usrLicModalError"></p><div class="modal-actions"><button type="button" id="usrLicCancelBtn" class="modal-btn-secondary">キャンセル</button><button type="button" id="usrLicSaveBtn" class="modal-btn-primary">保存</button></div></div></div><div class="toast" id="toast" role="status" aria-live="polite"></div><script type="module" src="./script.js"></script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;740723c5a7e045918bf5e1d7578728ac&quot;,&quot;r&quot;:1,&quot;spa&quot;:2}" crossorigin="anonymous"></script></body></html>
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" x2="12" y1="15" y2="3"></line>
+          </svg>
+        </button>
+        <button id="shareBtn" class="secondary icon-btn" disabled="" style="" aria-label="共有" title="共有">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line>
+            <line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="actions voice-row">
+        <label class="speed-field" for="voiceSelect">声種
+          <select id="voiceSelect">
+            <optgroup label="AquesTalk1">
+              <option value="at1-f1">at1-f1</option>
+              <option value="at1-f2">at1-f2</option>
+              <option value="at1-f3">at1-f3</option>
+              <option value="at1-m1">at1-m1</option>
+              <option value="at1-m2">at1-m2</option>
+              <option value="at1-r1">at1-r1</option>
+              <option value="at1-dvd">at1-dvd</option>
+              <option value="at1-imd">at1-imd</option>
+              <option value="at1-jgr">at1-jgr</option>
+            </optgroup>
+            <optgroup label="AquesTalk2">
+              <option value="at2-f1c">at2-f1c</option>
+              <option value="at2-f3a">at2-f3a</option>
+              <option value="at2-huskey">at2-huskey</option>
+              <option value="at2-m4b">at2-m4b</option>
+              <option value="at2-mf1">at2-mf1</option>
+              <option value="at2-rb2">at2-rb2</option>
+              <option value="at2-rb3">at2-rb3</option>
+              <option value="at2-rm">at2-rm</option>
+              <option value="at2-robo">at2-robo</option>
+              <option value="at2-yukkuri">at2-yukkuri</option>
+              <option value="at2-f4">at2-f4</option>
+              <option value="at2-m5">at2-m5</option>
+              <option value="at2-mf2">at2-mf2</option>
+              <option value="at2-rm3">at2-rm3</option>
+            </optgroup>
+            <optgroup label="AquesTalk10">
+              <option value="at10-f1">at10-f1</option>
+              <option value="at10-f2">at10-f2</option>
+              <option value="at10-f3">at10-f3</option>
+              <option value="at10-m1">at10-m1</option>
+              <option value="at10-m2">at10-m2</option>
+              <option value="at10-r1">at10-r1</option>
+              <option value="at10-r2">at10-r2</option>
+            </optgroup>
+          </select>
+        </label>
+        <label class="checkbox-field" for="monotoneCheckbox">
+          <input type="checkbox" id="monotoneCheckbox">棒読み</label>
+      </div>
+      <div class="voice-params" id="aq12Panel" style="">
+        <div class="voice-params-title">話速・音量・音程(AquesTalk1 / AquesTalk2)</div>
+        <div class="voice-params-grid">
+          <label>話速 (50-300)
+            <input type="number" id="aq12Spd" min="50" max="300" step="1" value="100">
+          </label>
+          <label>音量 (0-300)
+            <input type="number" id="aq12Vol" min="0" max="300" step="1" value="100">
+          </label>
+          <label>音程2 (50-200)
+            <input type="number" id="aq12Fsc" min="50" max="200" step="1" value="100">
+          </label>
+        </div>
+      </div>
+      <div class="voice-params" id="voiceParamsPanel" style="display:none;">
+        <div class="voice-params-title">声質パラメータ(AquesTalk10)</div>
+        <div class="voice-params-grid">
+          <label>基本素片
+            <select id="vpBas">
+              <option value="0">F1E</option>
+              <option value="1">F2E</option>
+              <option value="2">M1E</option>
+            </select>
+          </label>
+          <label>話速 (50-300)
+            <input type="number" id="vpSpd" min="50" max="300" step="1">
+          </label>
+          <label>音量 (0-300)
+            <input type="number" id="vpVol" min="0" max="300" step="1">
+          </label>
+          <label>高さ (20-200)
+            <input type="number" id="vpPit" min="20" max="200" step="1">
+          </label>
+          <label>アクセント (0-200)
+            <input type="number" id="vpAcc" min="0" max="200" step="1">
+          </label>
+          <label>音程1 (0-200)
+            <input type="number" id="vpLmd" min="0" max="200" step="1">
+          </label>
+          <label>音程2 (50-200)
+            <input type="number" id="vpFsc" min="50" max="200" step="1">
+          </label>
+        </div>
+      </div>
+      <div class="patterns">
+        <div class="patterns-title">パターン登録(最大8件・このブラウザに保存されます)</div>
+        <div class="pattern-head" aria-hidden="true">
+          <span class="pattern-head-spacer"></span>
+          <span class="pattern-head-col">呼出</span>
+          <span class="pattern-head-col">保存</span>
+          <span class="pattern-head-col">消去</span>
+        </div>
+        <div class="patterns-grid" id="patternsGrid">
+          <div class="pattern-slot">
+            <span class="pattern-slot-num">1</span>
+            <span class="pattern-slot-label" title="(空き)">(空き)</span>
+            <button type="button" class="load-btn" title="呼出" aria-label="パターン1を呼出" disabled="">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+            <button type="button" class="save-btn" title="保存" aria-label="パターン1に保存">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="clear-btn" title="消去" aria-label="パターン1を消去" disabled="">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" x2="10" y1="11" y2="17"></line>
+                <line x1="14" x2="14" y1="11" y2="17"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="pattern-slot">
+            <span class="pattern-slot-num">2</span>
+            <span class="pattern-slot-label" title="(空き)">(空き)</span>
+            <button type="button" class="load-btn" title="呼出" aria-label="パターン2を呼出" disabled="">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+            <button type="button" class="save-btn" title="保存" aria-label="パターン2に保存">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="clear-btn" title="消去" aria-label="パターン2を消去" disabled="">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" x2="10" y1="11" y2="17"></line>
+                <line x1="14" x2="14" y1="11" y2="17"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="pattern-slot">
+            <span class="pattern-slot-num">3</span>
+            <span class="pattern-slot-label" title="(空き)">(空き)</span>
+            <button type="button" class="load-btn" title="呼出" aria-label="パターン3を呼出" disabled="">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+            <button type="button" class="save-btn" title="保存" aria-label="パターン3に保存">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="clear-btn" title="消去" aria-label="パターン3を消去" disabled="">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" x2="10" y1="11" y2="17"></line>
+                <line x1="14" x2="14" y1="11" y2="17"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="pattern-slot">
+            <span class="pattern-slot-num">4</span>
+            <span class="pattern-slot-label" title="(空き)">(空き)</span>
+            <button type="button" class="load-btn" title="呼出" aria-label="パターン4を呼出" disabled="">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+            <button type="button" class="save-btn" title="保存" aria-label="パターン4に保存">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="clear-btn" title="消去" aria-label="パターン4を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button>
+          </div>
+          <div class="pattern-slot">
+            <span class="pattern-slot-num">5</span>
+            <span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン5を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン5に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン5を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div>
+          <div class="pattern-slot"><span class="pattern-slot-num">6</span><span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン6を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン6に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン6を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div>
+          <div class="pattern-slot"><span class="pattern-slot-num">7</span><span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン7を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン7に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン7を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div>
+          <div class="pattern-slot"><span class="pattern-slot-num">8</span><span class="pattern-slot-label" title="(空き)">(空き)</span><button type="button" class="load-btn" title="呼出" aria-label="パターン8を呼出" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></button><button type="button" class="save-btn" title="保存" aria-label="パターン8に保存"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button><button type="button" class="clear-btn" title="消去" aria-label="パターン8を消去" disabled=""><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg></button></div>
+        </div>
+      </div>
+      <footer class="footer">
+        <p class="footer-license">このWebサービスは<a href="https://www.a-quest.com/" target="_blank" rel="noopener noreferrer">(株)アクエスト</a>の音声合成ライブラリを使用しています。個人の趣味の範囲での利用(ゆっくりボイスを含む動画作成・配信など)は無償で使用いただけますが、生成した音声を営利目的(YouTube等での広告付きの動画配信を含む)で使用する場合は「<a href="https://store.a-quest.com/items/7413986" target="_blank" rel="noopener noreferrer">使用ライセンス(商用コンテンツ向け)</a>」を購入しライセンスキーを設定の上、使用する必要があります。</p>
+        <p class="footer-copy">© 2026 AQUEST Corp.</p>
+      </footer>
+      <audio id="audioPlayer" style="display:none"></audio>
+    </div>
+    <div class="modal-overlay" id="usrLicModalOverlay" style="display:none;">
+      <div class="modal-box">
+        <div class="modal-title">使用ライセンスキーの設定</div>
+        <p class="modal-desc">使用ライセンス(商用コンテンツ向け)のライセンスキーを指定します</p>
+        <input type="text" id="usrLicKeyInput" class="modal-input" placeholder="ライセンスキーを入力" autocomplete="off">
+        <p class="modal-error" id="usrLicModalError"></p>
+        <div class="modal-actions">
+          <button type="button" id="usrLicCancelBtn" class="modal-btn-secondary">キャンセル</button>
+          <button type="button" id="usrLicSaveBtn" class="modal-btn-primary">保存</button>
+        </div>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./script.js"></script>
+    <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;740723c5a7e045918bf5e1d7578728ac&quot;,&quot;r&quot;:1,&quot;spa&quot;:2}" crossorigin="anonymous"></script>
+  </body>
+</html>
