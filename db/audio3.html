@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>静的波形表示＆カットエディタ</title>
+    <style>
+        body { font-family: sans-serif; background: #1e1e24; color: #fff; max-width: 900px; margin: 20px auto; padding: 0 20px; }
+        .wrapper { background: #2a2a35; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .controls { margin-bottom: 15px; display: flex; gap: 10px; align-items: center; }
+        button { background: #4f46e5; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:disabled { background: #4b5563; cursor: not-allowed; }
+        button#cutBtn { background: #ef4444; }
+        button#cutBtn:disabled { background: #4b5563; }
+        .canvas-container { position: relative; width: 100%; height: 200px; margin-top: 15px; background: #111116; border-radius: 4px; overflow: hidden; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #info { margin-top: 10px; font-size: 14px; color: #a1a1aa; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <h2>音声波形カットエディタ</h2>
+    <p style="font-size:13px; color:#ccc;">ファイルを読み込んだ後、波形の上をマウスでドラッグして選択し、「選択範囲をカット」を押してください。</p>
+    
+    <div class="controls">
+        <input type="file" id="audioFile" accept="audio/*">
+        <button id="playBtn" disabled>再生</button>
+        <button id="stopBtn" disabled>停止</button>
+        <button id="cutBtn" disabled>選択範囲をカット</button>
+    </div>
+
+    <div class="canvas-container">
+        <!-- 背景の波形描画用Canvas -->
+        <canvas id="waveformCanvas" width="1600" height="400"></canvas>
+        <!-- 前面の選択範囲・UI描画用Canvas -->
+        <canvas id="uiCanvas" width="1600" height="400"></canvas>
+    </div>
+
+    <div id="info">音声が読み込まれていません</div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('audioFile');
+    const playBtn = document.getElementById('playBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const cutBtn = document.getElementById('cutBtn');
+    const info = document.getElementById('info');
+    
+    const wfCanvas = document.getElementById('waveformCanvas');
+    const wfCtx = wfCanvas.getContext('2d');
+    const uiCanvas = document.getElementById('uiCanvas');
+    const uiCtx = uiCanvas.getContext('2d');
+
+    let audioCtx;
+    let audioBuffer = null;
+    let currentSource = null;
+
+    // マウスドラッグ（範囲選択）用の変数
+    let isDragging = false;
+    let startX = null;
+    let endX = null;
+
+    // 1. ファイル読み込みと全体波形の描画
+    fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        info.textContent = "デコード中...";
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            
+            // UI有効化と初期化
+            playBtn.disabled = false;
+            stopBtn.disabled = false;
+            startX = null;
+            endX = null;
+            updateInfo();
+            
+            // 全体の波形を描画
+            drawEntireWaveform();
+            clearUI();
+        } catch (err) {
+            info.textContent = "音声ファイルの読み込みに失敗しました。";
+            console.error(err);
+        }
+    });
+
+    // 2. 音声全体（静的）の波形を描画するコアロジック
+    function drawEntireWaveform() {
+        if (!audioBuffer) return;
+
+        const width = wfCanvas.width;
+        const height = wfCanvas.height;
+        const leftChannelData = audioBuffer.getChannelData(0); // 左チャンネルの生配列を取得
+        
+        // Canvasの1ピクセルあたり、配列の何要素（データ点）を割り当てるか計算
+        const step = Math.ceil(leftChannelData.length / width);
+
+        wfCtx.clearRect(0, 0, width, height);
+        wfCtx.fillStyle = '#111116';
+        wfCtx.fillRect(0, 0, width, height);
+        
+        wfCtx.strokeStyle = '#38bdf8'; // 鮮やかな水色の波形線
+        wfCtx.lineWidth = 2;
+        wfCtx.beginPath();
+        wfCtx.moveTo(0, height / 2);
+
+        // 各ピクセル位置での最大音量・最小音量をサンプリングして上下に線を引く
+        for (let i = 0; i < width; i++) {
+            let min = 1.0;
+            let max = -1.0;
+            
+            for (let j = 0; j < step; j++) {
+                const index = i * step + j;
+                if (index >= leftChannelData.length) break;
+                const sample = leftChannelData[index];
+                if (sample < min) min = sample;
+                if (sample > max) max = sample;
+            }
+            
+            // -1.0 〜 1.0 の値を Canvasの Y座標（0 〜 height）にマッピング
+            const yMin = (1 + min) * height / 2;
+            const yMax = (1 + max) * height / 2;
+            
+            wfCtx.moveTo(i, yMin);
+            wfCtx.lineTo(i, yMax);
+        }
+        wfCtx.stroke();
+    }
+
+    // 3. マウスによる範囲選択処理 (前面のuiCanvasで処理)
+    uiCanvas.addEventListener('mousedown', (e) => {
+        if (!audioBuffer) return;
+        isDragging = true;
+        
+        // Canvasの実サイズと描画解像度(width=1600)の比率を考慮してX座標を取得
+        const rect = uiCanvas.getBoundingClientRect();
+        startX = ((e.clientX - rect.left) / rect.width) * uiCanvas.width;
+        endX = startX;
+        clearUI();
+    });
+
+    uiCanvas.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const rect = uiCanvas.getBoundingClientRect();
+        endX = ((e.clientX - rect.left) / rect.width) * uiCanvas.width;
+        
+        drawSelection();
+    });
+
+    uiCanvas.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        // 選択範囲が狭すぎなければカットボタンを有効化
+        if (Math.abs(startX - endX) > 5) {
+            cutBtn.disabled = false;
+            updateInfo();
+        } else {
+            cutBtn.disabled = true;
+            clearUI();
+        }
+    });
+
+    // 選択された範囲を赤くハイライト
+    function drawSelection() {
+        uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
+        uiCtx.fillStyle = 'rgba(239, 68, 68, 0.3)'; // 半透明の赤
+        
+        const x = Math.min(startX, endX);
+        const w = Math.abs(startX - endX);
+        uiCtx.fillRect(x, 0, w, uiCanvas.height);
+    }
+
+    function clearUI() {
+        uiCtx.clearRect(0, 0, uiCanvas.width, uiCanvas.height);
+        cutBtn.disabled = true;
+    }
+
+    // 4. 【編集機能】選択された部分のデータを削除（カット）する
+    cutBtn.addEventListener('click', () => {
+        if (!audioBuffer || startX === null || endX === null) return;
+
+        const totalSamples = audioBuffer.length;
+        const sampleRate = audioBuffer.sampleRate;
+        const channels = audioBuffer.numberOfChannels;
+
+        // X座標(0〜1600)から、配列のインデックス（サンプル位置）を割り出す
+        const xMin = Math.min(startX, endX);
+        const xMax = Math.max(startX, endX);
+        
+        const cutStartSample = Math.floor((xMin / uiCanvas.width) * totalSamples);
+        const cutEndSample = Math.floor((xMax / uiCanvas.width) * totalSamples);
+        const cutLength = cutEndSample - cutStartSample;
+
+        // 新しい音声の長さ = 元の長さ - カットする長さ
+        const newLength = totalSamples - cutLength;
+        if (newLength <= 0) return;
+
+        // カット後のデータを入れる新しい空の AudioBuffer を作成
+        const newBuffer = audioCtx.createBuffer(channels, newLength, sampleRate);
+
+        // 全てのチャンネル（ステレオなら左右両方）でデータを移植
+        for (let ch = 0; ch < channels; ch++) {
+            const oldData = audioBuffer.getChannelData(ch);
+            const newData = newBuffer.getChannelData(ch);
+
+            // カット前半部分をコピー
+            newData.set(oldData.subarray(0, cutStartSample), 0);
+            // カット後半部分を詰めてコピー
+            newData.set(oldData.subarray(cutEndSample, totalSamples), cutStartSample);
+        }
+
+        // 保持するデータを更新して再描画
+        audioBuffer = newBuffer;
+        startX = null;
+        endX = null;
+        
+        if (currentSource) currentSource.stop();
+        
+        drawEntireWaveform();
+        clearUI();
+        updateInfo();
+    });
+
+    // 情報テキストの更新
+    function updateInfo() {
+        if (!audioBuffer) return;
+        let text = `総再生時間: ${audioBuffer.duration.toFixed(2)} 秒`;
+        
+        if (startX !== null && endX !== null && Math.abs(startX - endX) > 5) {
+            const totalSamples = audioBuffer.length;
+            const xMin = Math.min(startX, endX);
+            const xMax = Math.max(startX, endX);
+            const sTime = ((xMin / uiCanvas.width) * audioBuffer.duration).toFixed(2);
+            const eTime = ((xMax / uiCanvas.width) * audioBuffer.duration).toFixed(2);
+            text += ` ｜ 選択範囲: ${sTime}秒 〜 ${eTime}秒 (約${(eTime - sTime).toFixed(2)}秒間)`;
+        }
+        info.textContent = text;
+    }
+
+    // 再生・停止
+    playBtn.addEventListener('click', () => {
+        if (!audioBuffer) return;
+        if (currentSource) currentSource.stop();
+
+        currentSource = audioCtx.createBufferSource();
+        currentSource.buffer = audioBuffer;
+        currentSource.connect(audioCtx.destination);
+        currentSource.start(0);
+    });
+
+    stopBtn.addEventListener('click', () => {
+        if (currentSource) currentSource.stop();
+    });
+</script>
+
+</body>
+</html>
