@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画像カラーピッカー（外部リンク対応）</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        /* 入力エリアのスタイル */
+        .input-area {
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .input-area input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .input-area button {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .input-area button:hover {
+            background-color: #0056b3;
+        }
+        .image-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            border: 2px solid #ccc;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            user-select: none;
+        }
+        .log-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .color-preview {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 1px solid #000;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+        .error-message {
+            color: red;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>画像カラーピッカー（外部リンク・スワイプ対応）</h2>
+    
+    <!-- 外部リンク（URL）入力エリア -->
+    <div class="input-area">
+        <input type="text" id="urlInput" placeholder="画像のURLを入力（例: https://...）" 
+               value="https://picsum.photos">
+        <button id="loadBtn">画像を読み込む</button>
+    </div>
+
+    <!-- エラー表示用 -->
+    <div id="errorMsg" class="error-message"></div>
+
+    <div class="image-container" id="imgContainer">
+        <canvas id="myCanvas"></canvas>
+    </div>
+
+    <div class="log-box">
+        <span style="font-weight: bold; font-size: 1.2em;">
+            カラーコード: <span id="colorCode">#------</span>
+        </span>
+        <div id="colorPreview" class="color-preview"></div>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById('urlInput');
+        const loadBtn = document.getElementById('loadBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const colorCodeEl = document.getElementById('colorCode');
+        const colorPreviewEl = document.getElementById('colorPreview');
+
+        let isTracking = false;
+        let img = new Image();
+
+        // 画像を読み込んでCanvasに描画する共通関数
+        function loadImage(src) {
+            errorMsg.style.display = 'none'; // エラーを隠す
+            
+            // ⚠️ 外部サーバーの画像から色を抽出するために必須の設定
+            img.crossOrigin = "Anonymous"; 
+            img.src = src;
+        }
+
+        img.onload = () => {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+        };
+
+        // 画像の読み込みがセキュリティ制限（CORS）などで失敗した場合の処理
+        img.onerror = () => {
+            errorMsg.textContent = "画像の読み込みに失敗しました。サーバーのセキュリティ制限（CORS）により、この画像からは色を取得できない可能性があります。";
+            errorMsg.style.display = 'block';
+        };
+
+        // ボタンクリックでURLの画像を表示
+        loadBtn.addEventListener('click', () => {
+            if (urlInput.value.trim() !== "") {
+                loadImage(urlInput.value.trim());
+            }
+        });
+
+        // テキストボックスでEnterキーを押しても読み込めるようにする
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && urlInput.value.trim() !== "") {
+                loadImage(urlInput.value.trim());
+            }
+        });
+
+        // 初期画像の読み込み
+        loadImage(urlInput.value);
+
+        // --- 座標・色取得の処理（前回のロジックを継承） ---
+        function pickColor(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const x = Math.floor((e.clientX - rect.left) * scaleX);
+            const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+            if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) return;
+
+            try {
+                const pixel = ctx.getImageData(x, y, 1, 1).data;
+                const r = pixel[0];
+                const g = pixel[1];
+                const b = pixel[2];
+
+                const hexColor = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+
+                colorCodeEl.textContent = hexColor;
+                colorPreviewEl.style.backgroundColor = hexColor;
+                document.body.style.backgroundColor = hexColor + "22";
+            } catch (err) {
+                // crossOriginを設定しても防げないCORSエラーが起きた場合の安全弁
+                console.error(err);
+                errorMsg.textContent = "セキュリティエラー: この画像のピクセルデータを取得できません。";
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        // ポインターイベント
+        canvas.addEventListener('pointerdown', (e) => {
+            isTracking = true;
+            pickColor(e);
+            canvas.setPointerCapture(e.pointerId);
+        });
+
+        canvas.addEventListener('pointermove', (e) => {
+            if (!isTracking) return;
+            pickColor(e);
+        });
+
+        canvas.addEventListener('pointerup', (e) => {
+            isTracking = false;
+            canvas.releasePointerCapture(e.pointerId);
+        });
+
+        canvas.addEventListener('pointercancel', () => {
+            isTracking = false;
+        });
+    </script>
+</body>
+</html>
