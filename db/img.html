@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>画像カラーピッカー（外部リンク対応）</title>
+    <title>画像カラーピッカー（URL・ファイル両対応）</title>
     <style>
         body {
             font-family: sans-serif;
@@ -13,21 +13,30 @@
             align-items: center;
             transition: background-color 0.2s;
         }
-        /* 入力エリアのスタイル */
-        .input-area {
+        /* 入力エリア全体のスタイル */
+        .input-container {
             width: 100%;
             max-width: 500px;
             margin-bottom: 15px;
             display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .url-box {
+            display: flex;
             gap: 10px;
         }
-        .input-area input[type="text"] {
+        .url-box input[type="text"] {
             flex: 1;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        .input-area button {
+        .url-box button {
             padding: 8px 15px;
             background-color: #007bff;
             color: white;
@@ -35,9 +44,10 @@
             border-radius: 4px;
             cursor: pointer;
         }
-        .input-area button:hover {
+        .url-box button:hover {
             background-color: #0056b3;
         }
+        /* 画像表示エリア */
         .image-container {
             position: relative;
             display: inline-block;
@@ -52,6 +62,7 @@
             height: auto;
             user-select: none;
         }
+        /* ログ・結果表示 */
         .log-box {
             margin-top: 15px;
             padding: 15px;
@@ -80,13 +91,21 @@
 </head>
 <body>
 
-    <h2>画像カラーピッカー（外部リンク・スワイプ対応）</h2>
+    <h2>画像カラーピッカー（URL・ファイル両対応）</h2>
     
-    <!-- 外部リンク（URL）入力エリア -->
-    <div class="input-area">
-        <input type="text" id="urlInput" placeholder="画像のURLを入力（例: https://...）" 
-               value="https://picsum.photos">
-        <button id="loadBtn">画像を読み込む</button>
+    <!-- 入力エリア（URLとファイルのハイブリッド） -->
+    <div class="input-container">
+        <!-- ① 外部リンク（URL）入力欄 -->
+        <div class="url-box">
+            <input type="text" id="urlInput" placeholder="画像のURLを入力（例: https://...）" value="https://picsum.photos">
+            <button id="loadBtn">URL読込</button>
+        </div>
+        
+        <!-- ② ローカルファイル選択ボタン -->
+        <div>
+            <label style="font-size: 0.9em; color: #555; display: block; margin-bottom: 5px;">またはローカルファイルを選択：</label>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
     </div>
 
     <!-- エラー表示用 -->
@@ -106,6 +125,7 @@
     <script>
         const urlInput = document.getElementById('urlInput');
         const loadBtn = document.getElementById('loadBtn');
+        const fileInput = document.getElementById('fileInput'); // 復活
         const errorMsg = document.getElementById('errorMsg');
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -115,45 +135,50 @@
         let isTracking = false;
         let img = new Image();
 
-        // 画像を読み込んでCanvasに描画する共通関数
-        function loadImage(src) {
-            errorMsg.style.display = 'none'; // エラーを隠す
-            
-            // ⚠️ 外部サーバーの画像から色を抽出するために必須の設定
-            img.crossOrigin = "Anonymous"; 
-            img.src = src;
-        }
-
+        // 共通：画像をCanvasに描画する関数
         img.onload = () => {
+            errorMsg.style.display = 'none'; // エラーを消去
             canvas.width = img.width;
             canvas.height = img.height;
             ctx.drawImage(img, 0, 0);
         };
 
-        // 画像の読み込みがセキュリティ制限（CORS）などで失敗した場合の処理
         img.onerror = () => {
-            errorMsg.textContent = "画像の読み込みに失敗しました。サーバーのセキュリティ制限（CORS）により、この画像からは色を取得できない可能性があります。";
+            errorMsg.textContent = "画像の読み込みに失敗しました。URLが正しいか、またはCORS制限がないか確認してください。";
             errorMsg.style.display = 'block';
         };
 
-        // ボタンクリックでURLの画像を表示
+        // 1. URL（外部リンク）から読み込む処理
+        function loadUrlImage(src) {
+            img.crossOrigin = "Anonymous"; // CORS制限対策
+            img.src = src;
+        }
+
         loadBtn.addEventListener('click', () => {
-            if (urlInput.value.trim() !== "") {
-                loadImage(urlInput.value.trim());
-            }
+            if (urlInput.value.trim() !== "") loadUrlImage(urlInput.value.trim());
         });
 
-        // テキストボックスでEnterキーを押しても読み込めるようにする
         urlInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && urlInput.value.trim() !== "") {
-                loadImage(urlInput.value.trim());
+            if (e.key === 'Enter' && urlInput.value.trim() !== "") loadUrlImage(urlInput.value.trim());
+        });
+
+        // 2. ローカルファイルから読み込む処理（復活・連動）
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    img.crossOrigin = ""; // ローカルファイルはCORS対策不要なのでクリア
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
             }
         });
 
         // 初期画像の読み込み
-        loadImage(urlInput.value);
+        loadUrlImage(urlInput.value);
 
-        // --- 座標・色取得の処理（前回のロジックを継承） ---
+        // 3. 座標・色取得のロジック
         function pickColor(e) {
             const rect = canvas.getBoundingClientRect();
             const scaleX = canvas.width / rect.width;
@@ -176,9 +201,8 @@
                 colorPreviewEl.style.backgroundColor = hexColor;
                 document.body.style.backgroundColor = hexColor + "22";
             } catch (err) {
-                // crossOriginを設定しても防げないCORSエラーが起きた場合の安全弁
                 console.error(err);
-                errorMsg.textContent = "セキュリティエラー: この画像のピクセルデータを取得できません。";
+                errorMsg.textContent = "セキュリティエラー: この画像のピクセルデータを取得できませんでした（CORS制限）。";
                 errorMsg.style.display = 'block';
             }
         }
