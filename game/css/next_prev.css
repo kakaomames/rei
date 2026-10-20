@@ -1,0 +1,86 @@
+
+
+/********************** PREV NEXT **********************/
+#SM_prevBG	{
+	width:110px;
+	height:147px;
+	padding-top:46px;
+	margin-left:10px;
+	background:url('../html_images/next_prev/prev_bg_new.png') no-repeat;
+}
+#SM_prevBG a	{
+	list-style:none;
+	text-indent:100%;
+	white-space:nowrap;
+	overflow: hidden;
+	display:block;
+	width:100%;
+	height:100px;
+}
+#SM_prev01 a			{background:url(../html_images/next_prev/prev01.png) no-repeat; background-position:0 0;}
+#SM_prev01 a:hover		{background-position:0 -100px;}
+#SM_prev02 a			{background:url(../html_images/next_prev/prev02.png) no-repeat; background-position:0 0;}
+#SM_prev02 a:hover		{background-position:0 -100px;}
+#SM_prev03 a			{background:url(../html_images/next_prev/prev03.png) no-repeat; background-position:0 0;}
+#SM_prev03 a:hover		{background-position:0 -100px;}
+#SM_prev04 a			{background:url(../html_images/next_prev/prev04.png) no-repeat; background-position:0 0;}
+#SM_prev04 a:hover		{background-position:0 -100px;}
+#SM_prev05 a			{background:url(../html_images/next_prev/prev05.png) no-repeat; background-position:0 0;}
+#SM_prev05 a:hover		{background-position:0 -100px;}
+#SM_prev06 a			{background:url(../html_images/next_prev/prev06.png) no-repeat; background-position:0 0;}
+#SM_prev06 a:hover		{background-position:0 -100px;}
+#SM_prev07 a			{background:url(../html_images/next_prev/prev07.png) no-repeat; background-position:0 0;}
+#SM_prev07 a:hover		{background-position:0 -100px;}
+#SM_prev08 a			{background:url(../html_images/next_prev/prev08.png) no-repeat; background-position:0 0;}
+#SM_prev08 a:hover		{background-position:0 -100px;}
+#SM_prev09 a			{background:url(../html_images/next_prev/prev09.png) no-repeat; background-position:0 0;}
+#SM_prev09 a:hover		{background-position:0 -100px;}
+#SM_prev10 a			{background:url(../html_images/next_prev/prev10.png) no-repeat; background-position:0 0;}
+#SM_prev10 a:hover		{background-position:0 -100px;}
+#SM_prev11 a			{background:url(../html_images/next_prev/prev11.png) no-repeat; background-position:0 0;}
+#SM_prev11 a:hover		{background-position:0 -100px;}
+/* ���b�X�}�Œ� */
+#SM_prev12 a			{background:url(../html_images/next_prev/prev12new.png) no-repeat; background-position:0 0;}
+#SM_prev12 a:hover		{background-position:0 -100px;}
+
+
+#SM_nextBG	{
+	width:110px;
+	height:147px;
+	padding-top:46px;
+	background:url('../html_images/next_prev/next_bg.png') no-repeat;
+}
+#SM_nextBG a	{
+	list-style:none;
+	text-indent:100%;
+	white-space:nowrap;
+	overflow: hidden;
+	display:block;
+	width:100%;
+	height:100px;
+}
+#SM_next01 a			{background:url(../html_images/next_prev/next01.png) no-repeat; background-position:0 0;}
+#SM_next01 a:hover		{background-position:0 -100px;}
+#SM_next02 a			{background:url(../html_images/next_prev/next02.png) no-repeat; background-position:0 0;}
+#SM_next02 a:hover		{background-position:0 -100px;}
+#SM_next03 a			{background:url(../html_images/next_prev/next03.png) no-repeat; background-position:0 0;}
+#SM_next03 a:hover		{background-position:0 -100px;}
+#SM_next04 a			{background:url(../html_images/next_prev/next04.png) no-repeat; background-position:0 0;}
+#SM_next04 a:hover		{background-position:0 -100px;}
+#SM_next05 a			{background:url(../html_images/next_prev/next05.png) no-repeat; background-position:0 0;}
+#SM_next05 a:hover		{background-position:0 -100px;}
+#SM_next06 a			{background:url(../html_images/next_prev/next06.png) no-repeat; background-position:0 0;}
+#SM_next06 a:hover		{background-position:0 -100px;}
+#SM_next07 a			{background:url(../html_images/next_prev/next07.png) no-repeat; background-position:0 0;}
+#SM_next07 a:hover		{background-position:0 -100px;}
+#SM_next08 a			{background:url(../html_images/next_prev/next08.png) no-repeat; background-position:0 0;}
+#SM_next08 a:hover		{background-position:0 -100px;}
+#SM_next09 a			{background:url(../html_images/next_prev/next09.png) no-repeat; background-position:0 0;}
+#SM_next09 a:hover		{background-position:0 -100px;}
+#SM_next10 a			{background:url(../html_images/next_prev/next10.png) no-repeat; background-position:0 0;}
+#SM_next10 a:hover		{background-position:0 -100px;}
+#SM_next11 a			{background:url(../html_images/next_prev/next11.png) no-repeat; background-position:0 0;}
+#SM_next11 a:hover		{background-position:0 -100px;}
+
+
+/********************** PREV NEXT **********************/

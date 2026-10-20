@@ -1,0 +1,211 @@
+@charset "UTF-8";
+
+html	{
+
+}
+
+body {
+	margin:0px;
+	padding:0px;
+	font-family:Arial, Helvetica, sans-serif;
+	background:url(../html_images/mainbg.jpg) no-repeat #dcdcdc;
+	background-position:top center;
+	height:100%;
+}
+
+#containerBGleft {
+	background:url(../html_images/leftbg.png) repeat-y;
+	width:100%;
+	height:100%;
+}
+
+#center {
+    width:100%;
+    float:left;
+}
+
+#centerContent {
+	margin-right:280px;
+	margin-left:280px;
+	padding-bottom:30px;
+}
+
+
+#left {
+	float:left;
+	margin-left:-100%;
+	width:277px;
+	position:relative;
+}
+
+#right {
+	float:left;
+	margin-left:-280px;/*ゲームの右に出る黒の不具合が治った。元は-276px;*/
+	width:280px;
+	height:100%;
+}
+
+#logo	{
+	margin-left:2px;
+}
+
+/********************** 更新リスト **********************/
+/* ヘッダー */
+#header	{
+	width:93.75%;/* paddingを含めた横幅で計算する */
+	margin:2% auto;
+}
+
+/* リストボックス */
+a	{
+	text-decoration:none;
+}
+a .listBox	{
+	width:93.75%;/* paddingを含めた横幅で計算する */
+	margin:1.5% auto 3.33%;
+	padding:0;
+	background:url(../html_images/update/list_bg.gif);
+	display:block;
+	border-top:solid 2px #72a294;
+	border-bottom:solid 2px #113329;
+}
+a:hover .listBox	{
+	background:url(../html_images/update/list_bg_hover.gif) #467467;
+}
+.listImage	{
+	width:100%;
+	float:left;
+}
+
+.listDate	{
+	width:59.17%;
+	margin-left:35.83%;
+	margin-top:3%;
+	background:#fff;
+	padding:1%;
+	font-weight:bold;
+	font-size:14px;
+	color:#707070;
+}
+.listTitle {
+	width:55%;
+	margin-top:2.34%;
+	margin-left:35.83%;
+	padding-left:6%;
+	background:url(../html_images/update/target.png) no-repeat;
+	background-size:25px 25px;
+	font-weight:bold;
+	font-size:16px;
+	color:#fff100;
+	text-decoration:underline;
+}
+a:hover .listTitle {
+	color:#b7ff1f;
+	text-decoration:none;
+}
+.listText {
+	width:62%;
+	margin-top:1.5%;
+	margin-left:35.83%;
+	margin-bottom:3%;
+	font-size:14px;
+	line-height:22px;
+	color:#fff;
+}
+/********************** 更新リスト **********************/
+
+
+#smartphone	{
+	clear:both;
+	margin:19px 0 200px 60px;
+	padding-bottom:200px;
+	width:212px;
+}
+
+/********************** NEXT/PREV **********************/
+#center_leftColumn	{
+	float:left;
+	width:116px;
+}
+
+#center_rightColumn	{
+	float:left;
+	width:116px;
+}
+/********************** NEXT/PREV **********************/
+
+/********************** GAME LIST **********************/
+#sideMenu ul	{
+	list-style:none;
+	margin:0;
+	padding:0;
+}
+#sideMenu li	{
+	text-indent:-9999px;
+	white-space:nowrap;
+	overflow: hidden;
+	width:160px;
+	margin-bottom:7px;
+}
+#sideMenu a	{
+	display:block;
+	width:100%;
+	height:110px;
+}
+
+#sideMenu_bb a				{background:url(../html_images/sidemenu/sidemenu_bb.png) no-repeat; background-position:0 0;}
+#sideMenu_sc a				{background:url(../html_images/sidemenu/sidemenu_sc.png) no-repeat; background-position:0 0;}
+#sideMenu_bt a				{background:url(../html_images/sidemenu/sidemenu_battle_tanks.png) no-repeat; background-position:0 0;}
+#sideMenu_rs a				{background:url(../html_images/sidemenu/sidemenu_rs.png) no-repeat; background-position:0 0;}
+
+#sideMenu_bb a:hover		{background-position:-160px 0;}
+#sideMenu_sc a:hover		{background-position:-160px 0;}
+#sideMenu_bt a:hover		{background-position:-160px 0;}
+#sideMenu_rs a:hover		{background-position:-160px 0;}
+
+/********************** GAME LIST **********************/
+
+
+
+/********************** PICKUP **********************/
+#pickupLeft	{
+	float:left;
+	margin-bottom:20px;
+	width:160px;
+	height:600px;
+}
+#pickupRight	{
+	float:left;
+	margin-left:4px;
+	margin-bottom:20px;
+	width:160px;
+	height:600px;
+}
+/********************** PICKUP **********************/
+
+
+/* Clear */
+.clearfix	{
+	/*\*//*/
+	overflow:hidden;
+	/**/
+	}
+
+.clearfix:after	{
+	height:0;
+	visibility:hidden;
+	content:".";
+	display:block;
+	clear:both;
+	}
+
+
+/********************** ゲーム横幅の設定 **********************/
+
+#container {
+	width:1200px;
+	margin:0 auto;
+	background:url(../html_images/rightbg.png) repeat-y;
+	background-position:right top;
+	height:100%;
+}
