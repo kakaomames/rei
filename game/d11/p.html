@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html;" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1" />
+
+<META name="description" content="3D対戦野球ゲーム「ダイナマイト野球」">
+<META name="keywords" content="iPhone,Android,game,html5 game,html5,野球,ベースボール,対戦,オンライン,対戦野球,オンライン野球,オンラインベースボール,baseball,ダイナマイト野球">
+
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<META http-equiv="Pragma" content="no-cache">
+<META http-equiv="Cache-Control" content="no-cache">
+<META equiv="Expires" content="0">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "ダイナマイト野球",
+  "genre": ["Sports", "Baseball", "Multiplayer", "Online"],
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "HTML5",
+  "description": "無料オンライン対戦野球ゲーム！直感的な操作でフル3D選手を操作しよう！HTML5野球ゲームの決定版！"
+}
+</script>
+
+<title>ダイナマイト野球</title>
+
+<style type="text/css">
+<!--
+body {
+-webkit-user-select: none;
+margin:0px;
+background:#000;
+overflow-y: hidden;
+position:fixed;
+}
+-->
+</style>
+
+<script src="images/three.min.js"></script>
+<script src="images/GLTFLoader.js"></script>
+<script src="images/SkeletonUtils.js"></script>
+
+<script async
+      data-ad-channel="2720787245"
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0090431552685363"
+      crossorigin="anonymous">
+</script>
+<script>
+   window.adsbygoogle = window.adsbygoogle || [];
+   var adBreak = adConfig = function(o) {adsbygoogle.push(o);}
+</script>
+
+<script src="socket.js"></script>
+
+<script type="text/javascript">
+var r=document.referrer.substr(0,15)
+if(r!="https://dya.jp/"){
+	top.location.href="https://dya.jp/";
+}
+
+</script>
+<script type="text/javascript" src="dya.js?v=520" crossorigin="anonymous"></script>
+</head>
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+<noscript>
+HTML5ゲーム「ダイナマイト野球」<br>
+オンライン対戦野球ゲームサイトです。直感的な操作でフル3Dの選手達を操作できます。手軽なオンライン通信対戦で、野球ファンのユーザー達と駆け引きを楽しみましょう。
+※こちらはjavascriptで動作する無料HTML5ゲームサイトです。javascriptを有効にして、まるでアプリのような高品質HTML5を遊びましょう。
+</noscript>
+<canvas id="myCanvas"></canvas>
+<div id="chf2" style="position:absolute;left:0px;top:0px;"></div>
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0XQBNY1BEF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0XQBNY1BEF');
+</script>
+
+
+</body>
+</html>
