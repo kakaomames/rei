@@ -51,6 +51,7 @@
                 logEl.textContent += "\n🎉 準備完了！ボタンを押して実行してください。";
                 btnVersion.disabled = false;
                 btnHelp.disabled = false;
+                btnText.disabled = false;
             } catch (err) {
                 logEl.textContent += "\n❌ 初期化エラー: " + err;
             }
@@ -59,6 +60,7 @@
         async function runYtDlp(args) {
             btnVersion.disabled = true;
             btnHelp.disabled = true;
+            btnTest.disabled = true;
             appendLog(`\n--- 実行中: yt-dlp ${args.join(' ')} ---`);
 
             try {
@@ -90,6 +92,7 @@
             } finally {
                 btnVersion.disabled = false;
                 btnHelp.disabled = false;
+                btnTest.disabled = false;
             }
         }
 
