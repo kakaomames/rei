@@ -152,10 +152,14 @@ sections_dict
         log("✔ JSZip圧縮完了");
 
         // --- STEP 6: 圧縮したZIPをOPFSに保存 ---
+        // --- STEP 6: 圧縮ZIPをArrayBufferに変換してOPFSに確実に保存 ---
         log("Step 6: 圧縮ZIPをOPFSに保存中...");
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        const zipArrayBuffer = await zipBlob.arrayBuffer(); // 👈 ここで安全にArrayBuffer化！
+
         const zipHandle = await rootDir.getFileHandle("result_sections.zip", { create: true });
         const writableZip = await zipHandle.createWritable();
-        await writableZip.write(zipBlob);
+        await writableZip.write(zipArrayBuffer); // 👈 生バイナリで書き込み
         await writableZip.close();
         log("✔ OPFSへのZIP保存完了");
 
@@ -186,7 +190,6 @@ sections_dict
         document.getElementById("resultSection").style.display = "block";
 
         const downloadBtn = document.getElementById("downloadZipBtn");
-        // イベント重複防止のためクローンで置き換え
         const newBtn = downloadBtn.cloneNode(true);
         downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
 
@@ -196,14 +199,21 @@ sections_dict
           const dlZipHandle = await dlRoot.getFileHandle("result_sections.zip");
           const dlFile = await dlZipHandle.getFile();
           
-          const blobUrl = URL.createObjectURL(dlFile);
+          // 念のため明確に MIMEタイプ "application/zip" を指定したBlobを再生成してDL
+          const dlArrayBuffer = await dlFile.arrayBuffer();
+          const finalZipBlob = new Blob([dlArrayBuffer], { type: "application/zip" });
+          
+          const blobUrl = URL.createObjectURL(finalZipBlob);
           const a = document.createElement("a");
           a.href = blobUrl;
           a.download = `${file.name}_sections.zip`;
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-          log("✨ ダウンロードが開始されました！");
+          
+          // メモリ解放
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+          log("✨ ダウンロードが完了しました！");
         };
 
       } catch (err) {
