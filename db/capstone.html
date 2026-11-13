@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Capstone WASM Disassembler</title>
+  <title>Capstone WASM Disassembler (Fix)</title>
   <style>
     body { font-family: sans-serif; max-width: 800px; margin: 30px auto; padding: 0 20px; line-height: 1.6; background: #fafafa; color: #333; }
     .card { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -19,21 +19,16 @@
 </head>
 <body>
 
-  <h2>🔬 Capstone WASM 逆アセンブル単体ビューア</h2>
-  <p>ブラウザ内のWebAssemblyでCapstoneを動かし、バイナリや抽出セクションを即座に逆アセンブルするぞ！⚙️</p>
+  <h2>🔬 Capstone WASM 逆アセンブル単体ビューア (修正版)</h2>
+  <p>モジュールの初期化エラーをデバッグ・修正した版です。⚙️</p>
 
   <div class="card">
     <h3>1. ファイル読込設定</h3>
     <div class="form-group">
       <input type="file" id="fileInput">
-      <button class="btn" id="loadFromOpfs">OPFS (調整中…期待しないでね) から読込</button>
+      <button class="btn" id="loadFromOpfs">OPFS (extracted_out) から読込</button>
     </div>
     <div class="form-group">
-      <label><b>モード / アーキテクチャ:</b></label>
-      <select id="archSelect">
-        <option value="x86_64" selected>x86_64 (64-bit)</option>
-        <option value="x86_32">x86 (32-bit)</option>
-      </select>
       <label><b>ベースアドレス (Hex):</b></label>
       <input type="text" id="baseAddress" value="0x401000" style="width: 100px;">
       <button class="btn btn-success" id="btnDisasm">🚀 逆アセンブル実行</button>
@@ -64,10 +59,20 @@
     async function init() {
       try {
         outputEl.textContent = "Capstone-WASM エンジンをロード中...";
-        csModule = await capstone();
+        console.log("capstone export:", capstone);
+        
+        // esm.sh のモジュール構造に合わせてインスタンス化を試みる
+        if (typeof capstone === "function") {
+          csModule = await capstone();
+        } else {
+          csModule = capstone;
+        }
+        
+        console.log("csModule loaded:", csModule);
         outputEl.textContent = "✨ 準備完了！ファイルを読み込んで「逆アセンブル実行」を押してください。";
       } catch (err) {
-        outputEl.textContent = `❌ 初期化エラー: ${err.message}`;
+        outputEl.textContent = `❌ 初期化エラー: ${err.message}\n${err.stack}`;
+        console.error(err);
       }
     }
     init();
@@ -83,12 +88,11 @@
       outputEl.textContent = `ファイルをロードしました: ${currentFileName} (${binaryData.length} bytes)`;
     };
 
-    // OPFSから自動読込
+    // OPFS読込
     document.getElementById("loadFromOpfs").onclick = async () => {
       try {
         const rootDir = await navigator.storage.getDirectory();
         const outDir = await rootDir.getDirectoryHandle("extracted_out");
-        
         let foundNames = [];
         for await (const [name] of outDir.entries()) foundNames.push(name);
 
@@ -122,26 +126,16 @@
 
       try {
         const baseAddr = parseInt(document.getElementById("baseAddress").value, 16) || 0x401000;
-        const archChoice = document.getElementById("archSelect").value;
+        console.log("Running disasm with csModule:", csModule);
 
-        // capstone-wasm のインスタンス・メソッド構造に合わせた呼び出し
-        // （一般的な csModule.disasm や csModule.Cs などの仕様に対応）
+        // 利用可能なメソッドを検証
         let instructions = [];
-        
-        if (typeof csModule.disasm === "function") {
+        if (csModule.disasm) {
           instructions = csModule.disasm(binaryData, baseAddr);
-        } else if (csModule.Cs) {
-          // クラスベースの場合のフォールバック
-          const cs = new csModule.Cs(
-            archChoice === "x86_32" ? csModule.CS_ARCH_X86 : csModule.CS_ARCH_X86,
-            archChoice === "x86_32" ? csModule.CS_MODE_32 : csModule.CS_MODE_64
-          );
-          instructions = cs.disasm(binaryData, baseAddr);
-          cs.delete();
+        } else if (csModule.default && csModule.default.disasm) {
+          instructions = csModule.default.disasm(binaryData, baseAddr);
         } else {
-          // 万が一メソッド名が不明な場合のデバッグ表示
-          console.log("csModule keys:", Object.keys(csModule));
-          throw new Error("Capstoneモジュールの逆アセンブルメソッドが見つかりません。コンソールを確認してください。");
+          throw new Error("disasm関数が見つかりません。コンソールで csModule の構造を確認してください。");
         }
 
         let lines = [];
@@ -158,10 +152,9 @@
       }
     };
 
-    // コピー
     document.getElementById("btnCopyText").onclick = () => {
       navigator.clipboard.writeText(outputEl.textContent);
-      alert("逆アセンブル結果をコピーしました！");
+      alert("結果をコピーしました！");
     };
   </script>
 </body>
