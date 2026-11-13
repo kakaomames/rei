@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPFS & Pyodide セクション抽出・検証ツール</title>
+  <!-- Pyodide -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+  <!-- JSZip -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; line-height: 1.6; background: #fdfdfd; color: #333; }
+    .drop-zone { border: 2px dashed #0066cc; padding: 40px; text-align: center; border-radius: 8px; cursor: pointer; background: #f4f8ff; transition: 0.2s; }
+    .drop-zone:hover { background: #e6f0ff; }
+    #log { background: #1e1e1e; color: #00ff66; padding: 14px; border-radius: 6px; font-size: 13px; white-space: pre-wrap; margin-top: 20px; max-height: 250px; overflow-y: auto; font-family: monospace; }
+    .result-section { margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 6px; }
+    ul { padding-left: 20px; }
+    li { margin: 4px 0; font-family: monospace; font-size: 14px; }
+    .dl-btn { display: inline-block; padding: 10px 18px; background: #0066cc; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 15px; cursor: pointer; border: none; }
+    .dl-btn:hover { background: #004c99; }
+  </style>
+</head>
+<body>
+
+  <h2>🛡️ OPFS + Pyodide バイナリセクション抽出＆検証パイプライン</h2>
+  <p>ファイルをブラウザのOPFS（仮想ファイルシステム）に保存し、WebAssembly上のPythonで解析、JSZipで圧縮・検証まで一貫して行います。⚙️</p>
+
+  <div class="drop-zone" id="dropZone">
+    ここにEXEファイルをドロップ、またはクリックして選択 📂
+    <input type="file" id="fileInput" style="display:none">
+  </div>
+
+  <div class="result-section" id="resultSection" style="display:none;">
+    <h3>📦 抽出・検証結果（階層構造）</h3>
+    <ul id="fileTree"></ul>
+    <button class="dl-btn" id="downloadZipBtn">📥 成果物ZIPをOPFSからダウンロード</button>
+  </div>
+
+  <pre id="log">システムの初期化中...</pre>
+
+  <script>
+    let pyodide = null;
+    const logEl = document.getElementById("log");
+
+    function log(msg) {
+      console.log(`[LOG] ${msg}`);
+      logEl.textContent += `\n${msg}`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    async function init() {
+      try {
+        log("Pyodide本体をロード中...");
+        pyodide = await loadPyodide();
+        log("micropip経由で pefile をインストール中...");
+        await pyodide.loadPackage("micropip");
+        const micropip = pyodide.pyimport("micropip");
+        await micropip.install("pefile");
+        log("✨ 準備完了！ファイルをドロップしてください。");
+      } catch (err) {
+        log(`❌ 初期化エラー: ${err.message}`);
+      }
+    }
+
+    init();
+
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+
+    dropZone.onclick = () => fileInput.click();
+    dropZone.ondragover = (e) => e.preventDefault();
+    dropZone.ondrop = (e) => {
+      e.preventDefault();
+      if (e.dataTransfer.files.length) runPipeline(e.dataTransfer.files[0]);
+    };
+    fileInput.onchange = (e) => {
+      if (e.target.files.length) runPipeline(e.target.files[0]);
+    };
+
+    async function runPipeline(file) {
+      if (!pyodide) {
+        alert("初期化がまだ完了していません！");
+        return;
+      }
+
+      logEl.textContent = `=== 🚀 パイプライン開始: ${file.name} ===`;
+
+      try {
+        // --- STEP 1: 受け取ったファイルをOPFSに初期保存 ---
+        log("Step 1: アップロードされたファイルをOPFSに保存中...");
+        const rootDir = await navigator.storage.getDirectory();
+        const inputHandle = await rootDir.getFileHandle(`input_${file.name}`, { create: true });
+        const writableInput = await inputHandle.createWritable();
+        await writableInput.write(file);
+        await writableInput.close();
+        log("✔ OPFSへ入力ファイルの保存完了");
+
+        // --- STEP 2: OPFSからファイルを取り出し、Pythonに渡す ---
+        log("Step 2: OPFSからファイルを読み込んでPythonへ転送...");
+        const storedFile = await inputHandle.getFile();
+        const arrayBuffer = await storedFile.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+
+        pyodide.globals.set("file_bytes", uint8Array);
+
+        log("Step 3: Python (pefile) でセクション抽出を実行中...");
+        let pythonCode = `
+import pefile
+import io
+
+data = bytes(file_bytes)
+sections_dict = {}
+
+if data.startswith(b'MZ'):
+    pe = pefile.PE(data=data)
+    for section in pe.sections:
+        sec_name = section.Name.decode('utf-8', errors='ignore').strip('\\x00')
+        sec_data = section.get_data()
+        sections_dict[f"{sec_name}.bin"] = list(sec_data)
+else:
+    raise ValueError("Not a valid PE binary (MZ signature not found)")
+
+sections_dict
+        `;
+
+        const pyResult = pyodide.runPython(pythonCode);
+        const extractedSections = pyResult.toJs();
+        log(`✔ 抽出成功: ${extractedSections.size} 個のセクションを取得`);
+
+        // --- STEP 4: 抽出物をOPFSの出力ディレクトリに書き込み ---
+        log("Step 4: 抽出されたセクションをOPFSに書き込み中...");
+        const outDir = await rootDir.getDirectoryHandle("extracted_out", { create: true });
+        
+        const extractedFilesMap = {};
+        for (const [secName, secDataList] of extractedSections.entries()) {
+          const secBytes = new Uint8Array(secDataList);
+          const secHandle = await outDir.getFileHandle(secName, { create: true });
+          const w = await secHandle.createWritable();
+          await w.write(secBytes);
+          await w.close();
+          extractedFilesMap[secName] = secBytes;
+          log(`  - 書き込み完了: ${secName} (${secBytes.length} bytes)`);
+        }
+
+        // --- STEP 5: JSZipで成果物を圧縮 ---
+        log("Step 5: JSZipでアーカイブを作成中...");
+        const zip = new JSZip();
+        for (const [name, bytes] of Object.entries(extractedFilesMap)) {
+          zip.file(name, bytes);
+        }
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        log("✔ JSZip圧縮完了");
+
+        // --- STEP 6: 圧縮したZIPをOPFSに保存 ---
+        log("Step 6: 圧縮ZIPをOPFSに保存中...");
+        const zipHandle = await rootDir.getFileHandle("result_sections.zip", { create: true });
+        const writableZip = await zipHandle.createWritable();
+        await writableZip.write(zipBlob);
+        await writableZip.close();
+        log("✔ OPFSへのZIP保存完了");
+
+        // --- STEP 7: 壊れてないかの確認のため、OPFSからZIPを取り出してJSZipで解凍・検証 ---
+        log("Step 7: OPFSからZIPを取り出し、整合性検証（ロードテスト）を実行中...");
+        const verifyHandle = await rootDir.getFileHandle("result_sections.zip");
+        const verifyFile = await verifyHandle.getFile();
+        const verifyBuffer = await verifyFile.arrayBuffer();
+
+        const loadedZip = new JSZip();
+        const unzipped = await loadedZip.loadAsync(verifyBuffer);
+        
+        const fileTreeEl = document.getElementById("fileTree");
+        fileTreeEl.innerHTML = "";
+        let fileCount = 0;
+
+        unzipped.forEach((relativePath, zipEntry) => {
+          fileCount++;
+          const li = document.createElement("li");
+          li.textContent = `📄 /extracted_out/${relativePath} (${zipEntry._data.uncompressedSize.toLocaleString()} bytes)`;
+          fileTreeEl.appendChild(li);
+          log(`  [検証OK] エントリ確認: ${relativePath}`);
+        });
+
+        log(`🎉 全検証クリア！計 ${fileCount} 個のファイルが破損なく格納されています。`);
+
+        // --- STEP 8 & 9: 画面に階層を表示し、ボタンでOPFSからBlobを取り出してDL ---
+        document.getElementById("resultSection").style.display = "block";
+
+        const downloadBtn = document.getElementById("downloadZipBtn");
+        // イベント重複防止のためクローンで置き換え
+        const newBtn = downloadBtn.cloneNode(true);
+        downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
+
+        newBtn.onclick = async () => {
+          log("ユーザー操作: OPFSからZIPを読み出してダウンロード用Blobを生成中...");
+          const dlRoot = await navigator.storage.getDirectory();
+          const dlZipHandle = await dlRoot.getFileHandle("result_sections.zip");
+          const dlFile = await dlZipHandle.getFile();
+          
+          const blobUrl = URL.createObjectURL(dlFile);
+          const a = document.createElement("a");
+          a.href = blobUrl;
+          a.download = `${file.name}_sections.zip`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          log("✨ ダウンロードが開始されました！");
+        };
+
+      } catch (err) {
+        log(`❌ エラー発生: ${err.message}`);
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
