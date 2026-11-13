@@ -114,9 +114,14 @@ sections_dict = {}
 if data.startswith(b'MZ'):
     pe = pefile.PE(data=data)
     for section in pe.sections:
-        sec_name = section.Name.decode('utf-8', errors='ignore').strip('\\x00')
+        raw_name = section.Name.decode('utf-8', errors='ignore').strip('\\x00')
+        # 先頭のドットを取り除く、またはわかりやすい名前に変換する
+        # 例: ".text" -> "sec_text.bin" にする
+        clean_name = raw_name.lstrip('.')
+        sec_name = f"sec_{clean_name}.bin"
+        
         sec_data = section.get_data()
-        sections_dict[f"{sec_name}.bin"] = list(sec_data)
+        sections_dict[sec_name] = list(sec_data)
 else:
     raise ValueError("Not a valid PE binary (MZ signature not found)")
 
