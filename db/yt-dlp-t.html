@@ -17,6 +17,7 @@
     <div>
         <button id="btnVersion" disabled>--version を実行</button>
         <button id="btnHelp" disabled>--help を実行</button>
+        <button id="btnTest" disabled>test を実行</button>
     </div>
     <h3>出力ログ:</h3>
     <pre id="log">Pyodideの初期化とパッケージのロードを待っています...</pre>
@@ -94,6 +95,7 @@
 
         btnVersion.addEventListener('click', () => runYtDlp(['--version']));
         btnHelp.addEventListener('click', () => runYtDlp(['--help']));
+        btnTest.addEventListener('click', () => runYtDlp(['-F https://www.youtube.com/watch?v=b0tbxShxFws']));
 
         init();
     </script>
