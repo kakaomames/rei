@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pyodide yt-dlp with SSL</title>
+    <title>Pyodide yt-dlp Full Support</title>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #111; color: #eee; }
@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <h1>📱 Pyodide + yt-dlp (SSL対応版)</h1>
+    <h1>📱 Pyodide + yt-dlp (SSL / SQLite対応)</h1>
     <div>
         <button id="btnVersion" disabled>--version を実行</button>
         <button id="btnHelp" disabled>--help を実行</button>
@@ -37,11 +37,8 @@
                 logEl.textContent = "Pyodideをロード中...";
                 pyodide = await loadPyodide();
                 
-                logEl.textContent += "\nsslパッケージをロード中...";
-                await pyodide.loadPackage("ssl");
-                await pyodide.loadPackage("sqlite3");
-                await pyodide.loadPackage("json");
-                await pyodide.loadPackage("urllib");
+                logEl.textContent += "\n標準パッケージ（ssl, sqlite3）をロード中...";
+                await pyodide.loadPackage(["ssl", "sqlite3"]);
 
                 logEl.textContent += "\nmicropipをロード中...";
                 await pyodide.loadPackage("micropip");
