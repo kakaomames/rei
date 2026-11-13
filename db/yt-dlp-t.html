@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pyodide yt-dlp Full Support</title>
+    <title>Pyodide yt-dlp Debug</title>
     <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #111; color: #eee; }
-        button { padding: 10px 18px; font-size: 16px; background: #00f; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px; }
+        button { padding: 10px 18px; font-size: 16px; background: #00f; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px; margin-bottom: 10px; }
         button:disabled { background: #555; cursor: not-allowed; }
         pre { background: #222; padding: 15px; border-radius: 6px; overflow-x: auto; max-height: 500px; font-family: monospace; white-space: pre-wrap; }
     </style>
 </head>
 <body>
-    <h1>📱 Pyodide + yt-dlp (SSL / SQLite対応)</h1>
+    <h1>📱 Pyodide + yt-dlp (stderr表示対応)</h1>
     <div>
-        <button id="btnVersion" disabled>--version を実行</button>
-        <button id="btnHelp" disabled>--help を実行</button>
-        <button id="btnTest" disabled>test を実行</button>
+        <button id="btnVersion" disabled>--version</button>
+        <button id="btnHelp" disabled>--help</button>
+        <button id="btnTest" disabled>-F テスト実行</button>
     </div>
     <h3>出力ログ:</h3>
     <pre id="log">Pyodideの初期化とパッケージのロードを待っています...</pre>
@@ -27,6 +27,7 @@
         const logEl = document.getElementById('log');
         const btnVersion = document.getElementById('btnVersion');
         const btnHelp = document.getElementById('btnHelp');
+        const btnTest = document.getElementById('btnTest');
 
         function appendLog(msg) {
             logEl.textContent += '\n' + msg;
@@ -45,13 +46,13 @@
                 await pyodide.loadPackage("micropip");
                 const micropip = pyodide.pyimport("micropip");
 
-                logEl.textContent += "\nyt-dlpをインストール中（少し時間がかかります）...";
+                logEl.textContent += "\nyt-dlpをインストール中...";
                 await micropip.install("yt-dlp");
 
                 logEl.textContent += "\n🎉 準備完了！ボタンを押して実行してください。";
                 btnVersion.disabled = false;
                 btnHelp.disabled = false;
-                btnText.disabled = false;
+                btnTest.disabled = false;
             } catch (err) {
                 logEl.textContent += "\n❌ 初期化エラー: " + err;
             }
@@ -67,26 +68,29 @@
                 let result = await pyodide.runPythonAsync(`
                     import sys
                     import io
+                    import traceback
                     import yt_dlp
 
                     old_stdout = sys.stdout
-                    new_stdout = io.StringIO()
-                    sys.stdout = new_stdout
+                    old_stderr = sys.stderr
+                    capture_io = io.StringIO()
+                    sys.stdout = capture_io
+                    sys.stderr = capture_io
 
-                    exit_code = 0
                     try:
                         yt_dlp.main(${JSON.stringify(args)})
                     except SystemExit as e:
-                        exit_code = e.code if isinstance(e.code, int) else 0
-                    except Exception as e:
-                        print(f"Error: {e}")
-                    
-                    output = new_stdout.getvalue()
-                    sys.stdout = old_stdout
-                    output
+                        print(f"\\n[終了コード: {e.code}]")
+                    except Exception:
+                        traceback.print_exc()
+                    finally:
+                        sys.stdout = old_stdout
+                        sys.stderr = old_stderr
+
+                    capture_io.getvalue()
                 `);
 
-                appendLog(result);
+                appendLog(result || "(出力なし)");
             } catch (err) {
                 appendLog("❌ 実行エラー: " + err);
             } finally {
@@ -98,7 +102,8 @@
 
         btnVersion.addEventListener('click', () => runYtDlp(['--version']));
         btnHelp.addEventListener('click', () => runYtDlp(['--help']));
-        btnTest.addEventListener('click', () => runYtDlp(['-F https://www.youtube.com/watch?v=b0tbxShxFws']));
+        // 引数は要素ごとに配列へ分ける！
+        btnTest.addEventListener('click', () => runYtDlp(['-F', 'https://www.youtube.com/watch?v=b0tbxShxFws']));
 
         init();
     </script>
