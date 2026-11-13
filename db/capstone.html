@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capstone WASM Disassembler</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 30px auto; padding: 0 20px; line-height: 1.6; background: #fafafa; color: #333; }
+    .card { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    h2, h3 { margin-top: 0; color: #0066cc; }
+    .btn { display: inline-block; padding: 8px 16px; background: #0066cc; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; margin: 4px 2px; }
+    .btn:hover { background: #004c99; }
+    .btn-success { background: #28a745; }
+    .btn-success:hover { background: #218838; }
+    .form-group { margin: 10px 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    #disasmOutput { background: #1e1e1e; color: #00ff66; padding: 14px; border-radius: 6px; font-size: 13px; white-space: pre-wrap; height: 350px; overflow-y: auto; font-family: monospace; }
+    select, input[type="text"] { padding: 6px; border-radius: 4px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+
+  <h2>🔬 Capstone WASM 逆アセンブル単体ビューア</h2>
+  <p>ブラウザ内のWebAssemblyでCapstoneを動かし、バイナリや抽出セクションを即座に逆アセンブルするぞ！⚙️</p>
+
+  <div class="card">
+    <h3>1. ファイル読込設定</h3>
+    <div class="form-group">
+      <input type="file" id="fileInput">
+      <button class="btn" id="loadFromOpfs">OPFS (調整中…期待しないでね) から読込</button>
+    </div>
+    <div class="form-group">
+      <label><b>モード / アーキテクチャ:</b></label>
+      <select id="archSelect">
+        <option value="x86_64" selected>x86_64 (64-bit)</option>
+        <option value="x86_32">x86 (32-bit)</option>
+      </select>
+      <label><b>ベースアドレス (Hex):</b></label>
+      <input type="text" id="baseAddress" value="0x401000" style="width: 100px;">
+      <button class="btn btn-success" id="btnDisasm">🚀 逆アセンブル実行</button>
+    </div>
+    <div id="fileInfo" style="font-weight:bold; color:#555; margin-top:8px;">ファイル未選択</div>
+  </div>
+
+  <div class="card">
+    <h3>2. 逆アセンブル結果</h3>
+    <pre id="disasmOutput">エンジンの初期化を待っています...</pre>
+    <button class="btn" id="btnCopyText">📋 結果をテキストコピー</button>
+  </div>
+
+  <script type="module">
+    import capstone from "https://esm.sh/capstone-wasm@1.0.3";
+
+    let binaryData = null;
+    let currentFileName = "";
+    let csModule = null;
+    const outputEl = document.getElementById("disasmOutput");
+
+    function log(msg) {
+      console.log(`[CS] ${msg}`);
+      outputEl.textContent += `\n${msg}`;
+      outputEl.scrollTop = outputEl.scrollHeight;
+    }
+
+    async function init() {
+      try {
+        outputEl.textContent = "Capstone-WASM エンジンをロード中...";
+        csModule = await capstone();
+        outputEl.textContent = "✨ 準備完了！ファイルを読み込んで「逆アセンブル実行」を押してください。";
+      } catch (err) {
+        outputEl.textContent = `❌ 初期化エラー: ${err.message}`;
+      }
+    }
+    init();
+
+    // ローカルファイル選択
+    document.getElementById("fileInput").onchange = async (e) => {
+      if (!e.target.files.length) return;
+      const file = e.target.files[0];
+      currentFileName = file.name;
+      const buf = await file.arrayBuffer();
+      binaryData = new Uint8Array(buf);
+      document.getElementById("fileInfo").textContent = `選択中: ${currentFileName} (${binaryData.length.toLocaleString()} bytes)`;
+      outputEl.textContent = `ファイルをロードしました: ${currentFileName} (${binaryData.length} bytes)`;
+    };
+
+    // OPFSから自動読込
+    document.getElementById("loadFromOpfs").onclick = async () => {
+      try {
+        const rootDir = await navigator.storage.getDirectory();
+        const outDir = await rootDir.getDirectoryHandle("extracted_out");
+        
+        let foundNames = [];
+        for await (const [name] of outDir.entries()) foundNames.push(name);
+
+        if (foundNames.length === 0) {
+          alert("OPFS内に抽出ファイルが見つかりません。");
+          return;
+        }
+
+        const targetName = foundNames.includes(".text.bin") ? ".text.bin" : foundNames[0];
+        const fileHandle = await outDir.getFileHandle(targetName);
+        const file = await fileHandle.getFile();
+        const buf = await file.arrayBuffer();
+        
+        binaryData = new Uint8Array(buf);
+        currentFileName = targetName;
+        document.getElementById("fileInfo").textContent = `OPFS読込: /extracted_out/${targetName} (${binaryData.length.toLocaleString()} bytes)`;
+        outputEl.textContent = `OPFSからロード成功: ${targetName} (${binaryData.length} bytes)`;
+      } catch (err) {
+        outputEl.textContent = `❌ OPFS読み込みエラー: ${err.message}`;
+      }
+    };
+
+    // 逆アセンブル実行
+    document.getElementById("btnDisasm").onclick = () => {
+      if (!binaryData || !csModule) {
+        alert("ファイルが未選択か、初期化が完了していません！");
+        return;
+      }
+
+      outputEl.textContent = "逆アセンブル処理中...\n";
+
+      try {
+        const baseAddr = parseInt(document.getElementById("baseAddress").value, 16) || 0x401000;
+        const archChoice = document.getElementById("archSelect").value;
+
+        // capstone-wasm のインスタンス・メソッド構造に合わせた呼び出し
+        // （一般的な csModule.disasm や csModule.Cs などの仕様に対応）
+        let instructions = [];
+        
+        if (typeof csModule.disasm === "function") {
+          instructions = csModule.disasm(binaryData, baseAddr);
+        } else if (csModule.Cs) {
+          // クラスベースの場合のフォールバック
+          const cs = new csModule.Cs(
+            archChoice === "x86_32" ? csModule.CS_ARCH_X86 : csModule.CS_ARCH_X86,
+            archChoice === "x86_32" ? csModule.CS_MODE_32 : csModule.CS_MODE_64
+          );
+          instructions = cs.disasm(binaryData, baseAddr);
+          cs.delete();
+        } else {
+          // 万が一メソッド名が不明な場合のデバッグ表示
+          console.log("csModule keys:", Object.keys(csModule));
+          throw new Error("Capstoneモジュールの逆アセンブルメソッドが見つかりません。コンソールを確認してください。");
+        }
+
+        let lines = [];
+        for (const insn of instructions) {
+          const addr = (insn.address >>> 0).toString(16).padStart(8, '0');
+          const bytes = Array.from(insn.bytes || []).map(b => b.toString(16).padStart(2, '0')).join(' ');
+          lines.push(`0x${addr}:  ${bytes.padEnd(16, ' ')}  ${insn.mnemonic} ${insn.op_str}`);
+        }
+
+        outputEl.textContent = `--- 逆アセンブル結果 (${currentFileName}) ---\n` + (lines.length ? lines.join('\n') : "命令が検出されませんでした。");
+      } catch (err) {
+        outputEl.textContent += `\n❌ エラー: ${err.message}`;
+        console.error(err);
+      }
+    };
+
+    // コピー
+    document.getElementById("btnCopyText").onclick = () => {
+      navigator.clipboard.writeText(outputEl.textContent);
+      alert("逆アセンブル結果をコピーしました！");
+    };
+  </script>
+</body>
+</html>
