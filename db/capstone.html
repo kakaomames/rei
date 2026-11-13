@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Capstone-WASM 正式仕様ビュワー</title>
+  <title>Capstone-WASM 逆アセンブルビュワー</title>
   <style>
     body { font-family: sans-serif; max-width: 800px; margin: 30px auto; padding: 0 20px; line-height: 1.6; background: #fafafa; color: #333; }
     .card { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -19,8 +19,8 @@
 </head>
 <body>
 
-  <h2>🔬 Capstone-WASM 正式仕様逆アセンブルツール</h2>
-  <p>公式の <code>loadCapstone</code> と <code>Capstone</code> クラスを用いた確実な動作検証版！⚙️</p>
+  <h2>🔬 Capstone-WASM 逆アセンブルツール</h2>
+  <p>ベースアドレス不明のバイナリでも安心！オフセット（0x0）から安全に逆アセンブルを実行するぞ。⚙️</p>
 
   <div class="card">
     <h3>1. バイナリ入力 & 設定</h3>
@@ -33,11 +33,9 @@
       <select id="archSelect">
         <option value="x64" selected>x86_64 (64-bit)</option>
         <option value="x86">x86 (32-bit)</option>
-        <option value="arm64">arm64 (64-bit)</option>
-        <option value="arm32">arm32 (32-bit)</option>
       </select>
       <label><b>ベースアドレス (Hex):</b></label>
-      <input type="text" id="baseAddress" value="0x401000" style="width: 100px;">
+      <input type="text" id="baseAddress" value="0x0" style="width: 100px;" title="不明な場合は0x0から開始できます">
       <button class="btn btn-success" id="btnDisasm">🚀 逆アセンブル実行</button>
     </div>
     <div id="fileInfo" style="font-weight:bold; color:#555; margin-top:8px;">ファイル未選択</div>
@@ -66,7 +64,7 @@
     // ── 公式仕様に基づく非同期初期化 ──
     async function initEngine() {
       try {
-        outputEl.textContent = "Capstone-WASM エンジンをロード中 (初回は少し時間がかかります)...";
+        outputEl.textContent = "Capstone-WASM エンジンをロード中...";
         await loadCapstone();
         isInitialized = true;
         outputEl.textContent = "✨ 初期化完了！ファイルを読み込んで「逆アセンブル実行」を押してください。";
@@ -129,23 +127,24 @@
       outputEl.textContent = "逆アセンブル処理を実行中...\n";
 
       try {
-        const baseAddr = parseInt(document.getElementById("baseAddress").value, 16) || 0x401000;
+        const baseAddr = parseInt(document.getElementById("baseAddress").value, 16) || 0x0;
         const archType = document.getElementById("archSelect").value;
 
-        // アーキテクチャとモードの選択
         let arch = Const.CS_ARCH_X86;
-        let mode = archType === "x64" ? Const.CS_MODE_64 : Const.CS_MODE_32;
+        let mode = (archType === "x64") ? Const.CS_MODE_64 : Const.CS_MODE_32;
 
-        // インスタンス作成して逆アセンブル
         const csInstance = new Capstone(arch, mode);
-        const instructions = csInstance.disasm(binaryData, {
+
+        // Memory out-of-bounds 回避のため、通常のJS数値配列に変換して渡す
+        const codeArray = Array.from(binaryData);
+
+        const instructions = csInstance.disasm(codeArray, {
           address: baseAddr,
         });
 
         let lines = [];
         for (const insn of instructions) {
           const addr = (insn.address >>> 0).toString(16).padStart(8, '0');
-          // バイナリ配列のパース
           const bytesArr = insn.bytes ? Array.from(insn.bytes) : [];
           const bytes = bytesArr.map(b => b.toString(16).padStart(2, '0')).join(' ');
           const mnemonic = insn.mnemonic || "";
