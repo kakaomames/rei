@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pyodide yt-dlp Arguments Test</title>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #111; color: #eee; }
+        button { padding: 10px 18px; font-size: 16px; background: #00f; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px; }
+        button:disabled { background: #555; cursor: not-allowed; }
+        pre { background: #222; padding: 15px; border-radius: 6px; overflow-x: auto; max-height: 500px; font-family: monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>📱 Pyodide + yt-dlp 引数テスト</h1>
+    <div>
+        <button id="btnVersion" disabled>--version を実行</button>
+        <button id="btnHelp" disabled>--help を実行</button>
+    </div>
+    <h3>出力ログ:</h3>
+    <pre id="log">Pyodideの初期化とyt-dlpのインストールを待っています...</pre>
+
+    <script>
+        let pyodide = null;
+        const logEl = document.getElementById('log');
+        const btnVersion = document.getElementById('btnVersion');
+        const btnHelp = document.getElementById('btnHelp');
+
+        function appendLog(msg) {
+            logEl.textContent += '\n' + msg;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        async function init() {
+            try {
+                logEl.textContent = "Pyodideをロード中...";
+                pyodide = await loadPyodide();
+                
+                logEl.textContent += "\nmicropipをロード中...";
+                await pyodide.loadPackage("micropip");
+                const micropip = pyodide.pyimport("micropip");
+
+                logEl.textContent += "\nyt-dlpをインストール中（少し時間がかかります）...";
+                await micropip.install("yt-dlp");
+
+                logEl.textContent += "\n🎉 準備完了！ボタンを押して実行してください。";
+                btnVersion.disabled = false;
+                btnHelp.disabled = false;
+            } catch (err) {
+                logEl.textContent += "\n❌ 初期化エラー: " + err;
+            }
+        }
+
+        async function runYtDlp(args) {
+            btnVersion.disabled = true;
+            btnHelp.disabled = true;
+            appendLog(`\n--- 実行中: yt-dlp ${args.join(' ')} ---`);
+
+            try {
+                // Python側で標準出力をフックしてyt-dlp.mainを叩く
+                let result = await pyodide.runPythonAsync(`
+                    import sys
+                    import io
+                    import yt_dlp
+
+                    old_stdout = sys.stdout
+                    new_stdout = io.StringIO()
+                    sys.stdout = new_stdout
+
+                    exit_code = 0
+                    try:
+                        yt_dlp.main(${JSON.stringify(args)})
+                    except SystemExit as e:
+                        exit_code = e.code if isinstance(e.code, int) else 0
+                    except Exception as e:
+                        print(f"Error: {e}")
+                    
+                    output = new_stdout.getvalue()
+                    sys.stdout = old_stdout
+                    output
+                `);
+
+                appendLog(result);
+            } catch (err) {
+                appendLog("❌ 実行エラー: " + err);
+            } finally {
+                btnVersion.disabled = false;
+                btnHelp.disabled = false;
+            }
+        }
+
+        btnVersion.addEventListener('click', () => runYtDlp(['--version']));
+        btnHelp.addEventListener('click', () => runYtDlp(['--help']));
+
+        init();
+    </script>
+</body>
+</html>
