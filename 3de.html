@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="theme-color" content="#2c2c2c">
-    <meta name="description" content="Gemini Programming隊 Unity風 3Dエディタ (Floating Windows + Three.js + Blockly)">
+    <meta name="description" content="Gemini Programming隊 Unity風 3Dエディタ (Draggable & Resizable Windows + Three.js + Blockly)">
     <meta name="author" content="カカオマメ">
     <meta name="application-name" content="Gemini Unity Style Editor">
     <meta property="og:title" content="Gemini Unity Style Editor">
-    <meta property="og:description" content="ブラウザで動くUnityそっくりな3Dエディタ（フローティングウィンドウ対応）">
+    <meta property="og:description" content="ブラウザで動くUnityそっくりな3Dエディタ（ウィンドウ移動・リサイズ完全対応）">
     <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
     <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
-    <title>Gemini Unity Style Editor (Floating Window対応版)</title>
+    <title>Gemini Unity Style Editor (ウィンドウ拡張版)</title>
 
     <!-- Blockly CSS & JS -->
     <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
@@ -31,36 +31,35 @@
         body { margin: 0; padding: 0; background: #222; color: #ccc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; font-size: 11px; user-select: none; }
 
         /* Unity風 トップメニューバー */
-        #topMenu { height: 24px; background: #383838; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; padding: 0 8px; gap: 12px; color: #bbb; }
+        #topMenu { height: 24px; background: #383838; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; padding: 0 8px; gap: 12px; color: #bbb; flex-shrink: 0; }
         .menu-item { cursor: pointer; padding: 2px 6px; border-radius: 2px; }
         .menu-item:hover { background: #444; color: #fff; }
 
-        /* Unity風 ツールバー (再生ボタンなど) */
-        #toolbar { height: 36px; background: #2c2c2c; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; padding: 0 10px; gap: 8px; }
+        /* Unity風 ツールバー */
+        #toolbar { height: 36px; background: #2c2c2c; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; padding: 0 10px; gap: 8px; flex-shrink: 0; }
         .tool-btn { background: #3c3c3c; color: #ddd; border: 1px solid #222; padding: 4px 10px; cursor: pointer; border-radius: 3px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
         .tool-btn:hover { background: #4c4c4c; color: #fff; }
         .play-btn { background: #2e7d32; color: #fff; font-weight: bold; }
         .play-btn:hover { background: #388e3c; }
 
-        /* メインレイアウト (左右分割) */
+        /* メインレイアウト */
         #mainContent { flex: 1; display: flex; position: relative; overflow: hidden; }
 
-        /* 左側: Scene & Gameビュー ＋ 下部 Console */
+        /* 左側: 3Dビュー ＋ Console */
         #leftArea { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; }
         #sceneContainer { flex: 1; position: relative; background: #1e1e1e; overflow: hidden; }
         
-        /* 浮動シーンタブ風ヘッダー */
-        .scene-tabs { height: 24px; background: #333; display: flex; align-items: center; padding: 0 8px; gap: 10px; border-bottom: 1px solid #222; font-size: 10px; color: #aaa; }
-        .scene-tab.active { color: #fff; border-bottom: 2px solid #4a90e2; padding-bottom: 2px; }
+        .scene-tabs { height: 24px; background: #333; display: flex; align-items: center; padding: 0 8px; gap: 10px; border-bottom: 1px solid #222; font-size: 10px; color: #aaa; flex-shrink: 0; }
+        .scene-tab { cursor: pointer; padding: 2px 6px; }
+        .scene-tab.active { color: #fff; border-bottom: 2px solid #4a90e2; background: #1e1e1e; }
 
-        #consoleArea { height: 120px; background: #181818; border-top: 1px solid #1a1a1a; display: flex; flex-direction: column; }
+        #consoleArea { height: 120px; background: #181818; border-top: 1px solid #1a1a1a; display: flex; flex-direction: column; flex-shrink: 0; }
         .console-header { height: 22px; background: #2a2a2a; display: flex; align-items: center; padding: 0 8px; font-weight: bold; border-bottom: 1px solid #1a1a1a; gap: 8px; }
         #logPanel { flex: 1; overflow-y: auto; padding: 6px; font-family: monospace; font-size: 10px; color: #4ec9b0; }
 
-        /* 右側エリア: Hierarchy ＆ Inspector */
+        /* 右側: Hierarchy ＆ Inspector */
         #rightArea { width: 280px; background: #333; border-left: 1px solid #1a1a1a; display: flex; flex-direction: column; flex-shrink: 0; }
         
-        /* Hierarchy */
         #hierarchySection { height: 45%; border-bottom: 1px solid #222; display: flex; flex-direction: column; }
         .section-header { background: #2d2d2d; padding: 6px 8px; font-weight: bold; color: #ddd; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
         #hierarchyList { flex: 1; background: #252526; overflow-y: auto; padding: 4px; }
@@ -68,7 +67,6 @@
         .hierarchy-item:hover { background: #2a2d2e; }
         .hierarchy-item.selected { background: #37373d; color: #fff; border-left: 3px solid #007acc; }
 
-        /* Inspector */
         #inspectorSection { flex: 1; background: #333; display: flex; flex-direction: column; overflow-y: auto; }
         .inspector-content { padding: 8px; }
         .prop-row { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; font-size: 10px; }
@@ -82,9 +80,9 @@
         .unity-input:focus { outline: none; border-color: #007acc; }
         .color-input { width: 100%; height: 24px; background: #1e1e1e; border: 1px solid #444; border-radius: 2px; cursor: pointer; padding: 0; }
 
-        /* 🧩 擬似ウィンドウ (Floating Window) スタイル */
-        .floating-window { position: absolute; top: 60px; left: 80px; width: 520px; height: 400px; background: #3c3c3c; border: 1px solid #555; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); display: flex; flex-direction: column; z-index: 1000; overflow: hidden; display: none; }
-        .window-header { height: 28px; background: #2d2d2d; color: #ddd; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; cursor: move; border-bottom: 1px solid #222; font-weight: bold; }
+        /* 🧩 擬似ウィンドウ (Floating & Resizable Window) */
+        .floating-window { position: absolute; top: 70px; left: 100px; width: 540px; height: 420px; min-width: 300px; min-height: 200px; background: #3c3c3c; border: 1px solid #555; border-radius: 4px; box-shadow: 0 12px 30px rgba(0,0,0,0.7); display: flex; flex-direction: column; z-index: 1000; overflow: hidden; resize: both; display: none; }
+        .window-header { height: 28px; background: #2d2d2d; color: #ddd; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; cursor: move; border-bottom: 1px solid #222; font-weight: bold; flex-shrink: 0; }
         .window-close { background: transparent; border: none; color: #aaa; font-size: 14px; cursor: pointer; padding: 0 6px; }
         .window-close:hover { background: #c0392b; color: #fff; }
         .window-body { flex: 1; background: #1e1e1e; display: flex; flex-direction: column; position: relative; overflow: hidden; }
@@ -96,10 +94,11 @@
 
     <!-- Unity風 トップメニュー -->
     <div id="topMenu">
-        <span class="menu-item" id="menuOpenBlockly">🧩 Blocklyウィンドウを開く</span>
-        <span class="menu-item" id="menuOpenCode">💻 コード入力ウィンドウを開く</span>
-        <label class="menu-item" style="display:inline-block;">📦 OBJモデル読込<input type="file" id="objInput" accept=".obj"></label>
-        <label class="menu-item" style="display:inline-block;">🖼️ テクスチャ読込<input type="file" id="texInput" accept="image/*"></label>
+        <span class="menu-item" id="menuOpenBlockly">🧩 Blocklyウィンドウ</span>
+        <span class="menu-item" id="menuOpenCode">💻 コード入力ウィンドウ</span>
+        <span class="menu-item" id="menuOpenProject">📁 プロジェクトウィンドウ</span>
+        <label class="menu-item" style="display:inline-block;">📦 OBJ読込<input type="file" id="objInput" accept=".obj"></label>
+        <label class="menu-item" style="display:inline-block;">🖼️ テクスチャ<input type="file" id="texInput" accept="image/*"></label>
         <span class="menu-item" id="saveSceneBtn">💾 シーン保存</span>
         <label class="menu-item" style="display:inline-block;">📂 シーン読込<input type="file" id="loadSceneInput" accept=".json"></label>
     </div>
@@ -118,8 +117,8 @@
         <!-- 左: 3Dビュー ＆ コンソール -->
         <div id="leftArea">
             <div class="scene-tabs">
-                <span class="scene-tab active">Scene</span>
-                <span class="scene-tab">Game</span>
+                <span class="scene-tab active" id="tabScene">Scene</span>
+                <span class="scene-tab" id="tabGame">Game (Preview)</span>
             </div>
             <div id="sceneContainer"></div>
 
@@ -129,7 +128,7 @@
                     <button class="tool-btn" style="padding: 1px 6px; font-size: 9px;" onclick="document.getElementById('logPanel').innerHTML=''">クリア</button>
                 </div>
                 <div id="logPanel">
-                    <div>[SYSTEM] Gemini Unityエディタ 起動完了！</div>
+                    <div>[SYSTEM] Gemini Unityエディタ (ウィンドウ拡張版) 起動完了！</div>
                 </div>
             </div>
         </div>
@@ -181,7 +180,7 @@
         </div>
     </div>
 
-    <!-- 🧩 擬似ウィンドウ 1: Blockly エディタウィンドウ -->
+    <!-- 🧩 擬似ウィンドウ 1: Blockly エディタ -->
     <div id="blocklyWindow" class="floating-window">
         <div class="window-header" id="blocklyWindowHeader">
             <span>🧩 Blockly Editor Window</span>
@@ -192,20 +191,36 @@
         </div>
     </div>
 
-    <!-- 💻 擬似ウィンドウ 2: コード入力ウィンドウ -->
+    <!-- 💻 擬似ウィンドウ 2: コード入力 -->
     <div id="codeWindow" class="floating-window">
         <div class="window-header" id="codeWindowHeader">
             <span>💻 C# / JS Script Window</span>
             <button class="window-close" id="closeCodeWin">×</button>
         </div>
         <div class="window-body" style="padding: 8px;">
-            <div style="font-size: 10px; color: #888; margin-bottom: 4px;">// 選択中のオブジェクトを操作するスクリプトを記述</div>
+            <div style="font-size: 10px; color: #888; margin-bottom: 4px;">// 選択中のオブジェクトを操作するカスタムスクリプト</div>
             <textarea id="codeTextArea" style="flex: 1; background: #141414; color: #dcdcdc; border: 1px solid #444; font-family: monospace; font-size: 11px; padding: 6px; resize: none; border-radius: 2px;" spellcheck="false">if (selectedObject) {
-    selectedObject.position.y += 0.5;
-    missionLog("SCRIPT", selectedObject.name + " を上に動かしたよ！");
+    selectedObject.rotation.y += Math.PI / 2;
+    missionLog("SCRIPT", selectedObject.name + " を90度回転させたよ！");
 }</textarea>
             <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
-                <button class="tool-btn play-btn" id="runCodeBtn">▶ このスクリプトを実行</button>
+                <button class="tool-btn play-btn" id="runCodeBtn">▶ スクリプトを実行</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📁 擬似ウィンドウ 3: プロジェクトアセットマネージャー -->
+    <div id="projectWindow" class="floating-window" style="width: 400px; height: 300px;">
+        <div class="window-header" id="projectWindowHeader">
+            <span>📁 Project Assets Window</span>
+            <button class="window-close" id="closeProjectWin">×</button>
+        </div>
+        <div class="window-body" style="padding: 8px; font-family: monospace; font-size: 10px; color: #ddd;">
+            <div style="font-weight: bold; margin-bottom: 6px; color: #aaa;">Assets / Scenes / Prefabs</div>
+            <div id="projectAssetList" style="flex: 1; background: #141414; border: 1px solid #444; padding: 6px; overflow-y: auto;">
+                <div>📦 Default_Cube (Mesh)</div>
+                <div>📄 gemini_scene.json (Scene Data)</div>
+                <div>🖼️ loaded_texture.png (Texture)</div>
             </div>
         </div>
     </div>
@@ -215,7 +230,7 @@
         <category name="アクション" colour="#5b80a5">
             <block type="mission_log">
                 <value name="TEXT">
-                    <shadow type="text"><field name="TEXT">隊長、こんにちは！</field></shadow>
+                    <shadow type="text"><field name="TEXT">隊長、ウィンドウ操作バッチリです！</field></shadow>
                 </value>
             </block>
             <block type="move_selected"></block>
@@ -229,7 +244,7 @@
     </xml>
 
     <script>
-        // --- 1. ログ出力 (Console) ---
+        // --- 1. ログ出力 ---
         function missionLog(type, message) {
             const panel = document.getElementById('logPanel');
             const div = document.createElement('div');
@@ -239,7 +254,7 @@
             console.log(`[${type}] ${message}`);
         }
 
-        // --- 2. 窓のドラッグ移動 (Floating Window Drag) ---
+        // --- 2. 窓のドラッグ移動 (Draggable Windows) ---
         function makeDraggable(winId, headerId) {
             const win = document.getElementById(winId);
             const header = document.getElementById(headerId);
@@ -251,7 +266,7 @@
                 startY = e.clientY;
                 initialLeft = win.offsetLeft;
                 initialTop = win.offsetTop;
-                win.style.zIndex = 9999; // 最前面へ
+                win.style.zIndex = 9999;
             });
 
             document.addEventListener('mousemove', (e) => {
@@ -264,6 +279,7 @@
         }
         makeDraggable('blocklyWindow', 'blocklyWindowHeader');
         makeDraggable('codeWindow', 'codeWindowHeader');
+        makeDraggable('projectWindow', 'projectWindowHeader');
 
         // ウィンドウ開閉トグル
         document.getElementById('menuOpenBlockly').addEventListener('click', () => {
@@ -278,6 +294,12 @@
             win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
         });
         document.getElementById('closeCodeWin').addEventListener('click', () => { document.getElementById('codeWindow').style.display = 'none'; });
+
+        document.getElementById('menuOpenProject').addEventListener('click', () => {
+            const win = document.getElementById('projectWindow');
+            win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
+        });
+        document.getElementById('closeProjectWin').addEventListener('click', () => { document.getElementById('projectWindow').style.display = 'none'; });
 
 
         // --- 3. Three.js シーン管理 ---
@@ -348,7 +370,6 @@
             scaleZ.value = selectedObject.scale.z.toFixed(2);
         }
 
-        // Inspector入力の反映
         inspName.addEventListener('change', () => {
             if (!selectedObject) return;
             selectedObject.name = inspName.value || "GameObject";
@@ -456,7 +477,25 @@
             e.target.value = "";
         });
 
-        // --- 6. シーン保存・読込 (JSON) ---
+        // --- 6. Scene / Game タブ切り替え ---
+        let isGamePreview = false;
+        document.getElementById('tabScene').addEventListener('click', (e) => {
+            document.getElementById('tabScene').className = 'scene-tab active';
+            document.getElementById('tabGame').className = 'scene-tab';
+            isGamePreview = false;
+            camera.position.set(3, 3, 5);
+            missionLog("VIEW", "Scene ビューに切り替え");
+        });
+        document.getElementById('tabGame').addEventListener('click', (e) => {
+            document.getElementById('tabGame').className = 'scene-tab active';
+            document.getElementById('tabScene').className = 'scene-tab';
+            isGamePreview = true;
+            camera.position.set(0, 2, 6); // ゲーム用カメラ位置
+            camera.lookAt(0, 0, 0);
+            missionLog("VIEW", "Game プレビュービューに切り替え");
+        });
+
+        // --- 7. シーン保存・読込 (JSON) ---
         document.getElementById('saveSceneBtn').addEventListener('click', () => {
             const xmlText = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(demoWorkspace));
             const data = {
@@ -531,7 +570,7 @@
         }
         animate();
 
-        // --- 7. Blockly セットアップ ---
+        // --- 8. Blockly セットアップ ---
         const demoWorkspace = Blockly.inject('blocklyArea', {
             toolbox: document.getElementById('toolbox'),
             grid: { spacing: 20, length: 3, snap: true },
@@ -569,7 +608,7 @@
             return `if (selectedObject) { selectedObject.rotation.y += Math.PI / 4; updateInspectorUI(); missionLog("BLOCK", selectedObject.name + " 回転"); }\n`;
         };
 
-        // 実行ボタン (Blockly ＆ コード)
+        // 実行ボタン
         document.getElementById('runBtn').addEventListener('click', () => {
             try {
                 missionLog("SYSTEM", "スクリプト実行開始！");
