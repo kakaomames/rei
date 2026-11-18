@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Gemini Programming隊 神域オセロAI（Lv.21〜Lv.30・大規模定石ツリー＆超高速TypedArrayエンジン）">
+  <meta name="author" content="カカオマメ & Gemini Programming隊">
+  <meta name="theme-color" content="#030712">
+  <title>OTHELLO AI LAB [DEITY Lv.21-30] | Gemini Programming隊</title>
+  <style>
+    :root {
+      --bg-color: #030712;
+      --panel-bg: #0f172a;
+      --board-bg: #047857;
+      --board-border: #022c22;
+      --cell-border: #065f46;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #a855f7;
+      --accent-sub: #38bdf8;
+      --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 920px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 8px 14px;
+      background: var(--panel-bg);
+      border-radius: 12px;
+      border: 1px solid #334155;
+      box-shadow: 0 4px 20px rgba(168, 85, 247, 0.2);
+    }
+
+    .title-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-area img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--accent);
+    }
+
+    .title-area h1 {
+      font-size: 1.05rem;
+      letter-spacing: 0.05em;
+      background: linear-gradient(90deg, #a855f7, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .mode-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .mode-practice {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-sub);
+      border: 1px solid var(--accent-sub);
+    }
+
+    .mode-battle {
+      background: rgba(168, 85, 247, 0.2);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    .main-container {
+      width: 100%;
+      max-width: 920px;
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 16px;
+    }
+
+    @media (max-width: 780px) {
+      .main-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .board-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--panel-bg);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+
+    .scoreboard {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      background: #030712;
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+    }
+
+    .score-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .score-box.active-turn {
+      outline: 2px solid var(--accent);
+      background: rgba(168, 85, 247, 0.15);
+    }
+
+    .disc-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .disc-black {
+      background: radial-gradient(circle at 30% 30%, #475569, #020617);
+      border: 1px solid #64748b;
+    }
+
+    .disc-white {
+      background: radial-gradient(circle at 30% 30%, #ffffff, #cbd5e1);
+      border: 1px solid #94a3b8;
+    }
+
+    .status-area {
+      text-align: center;
+    }
+
+    .status-text {
+      font-size: 0.88rem;
+      color: #f8fafc;
+      font-weight: bold;
+    }
+
+    .opening-badge {
+      font-size: 0.72rem;
+      color: var(--warning);
+      margin-top: 2px;
+    }
+
+    .board-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      aspect-ratio: 1 / 1;
+      background: var(--board-border);
+      padding: 8px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+
+    .board {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      background: var(--board-bg);
+      border: 2px solid var(--board-border);
+    }
+
+    .cell {
+      border: 1px solid var(--cell-border);
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .cell:hover.valid-move {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .disc {
+      width: 82%;
+      height: 82%;
+      border-radius: 50%;
+      transition: transform 0.2s ease, background 0.2s ease;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.6);
+    }
+
+    .disc.black {
+      background: radial-gradient(circle at 30% 30%, #475569, #020617);
+    }
+
+    .disc.white {
+      background: radial-gradient(circle at 30% 30%, #ffffff, #cbd5e1);
+    }
+
+    .last-move::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .hint-dot {
+      width: 26%;
+      height: 26%;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      pointer-events: none;
+    }
+
+    .eval-score {
+      position: absolute;
+      font-size: 0.7rem;
+      font-weight: bold;
+      color: #ffffff;
+      background: rgba(3, 7, 18, 0.88);
+      padding: 1px 4px;
+      border-radius: 4px;
+      pointer-events: none;
+      z-index: 5;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .eval-score.best-move {
+      background: linear-gradient(135deg, #a855f7, #38bdf8);
+      color: #030712;
+      border-color: #ffffff;
+      transform: scale(1.12);
+    }
+
+    .control-section {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      background: var(--panel-bg);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .control-group:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    label {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      flex: 1;
+      padding: 8px 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.83rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: #1e293b;
+      color: var(--text-main);
+      border: 1px solid #334155;
+    }
+
+    button:hover:not(:disabled) {
+      filter: brightness(1.2);
+    }
+
+    button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    button.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    button.btn-practice-active {
+      background: var(--accent-sub);
+      color: #030712;
+      border-color: var(--accent-sub);
+    }
+
+    button.btn-primary {
+      background: var(--success);
+      color: #020617;
+      border: none;
+    }
+
+    button.btn-warn {
+      background: var(--warning);
+      color: #020617;
+      border: none;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .level-desc {
+      font-size: 0.77rem;
+      color: #e9d5ff;
+      background: #030712;
+      padding: 7px 9px;
+      border-radius: 6px;
+      line-height: 1.4;
+      border: 1px solid #334155;
+    }
+
+    .practice-only {
+      transition: opacity 0.2s;
+    }
+
+    .practice-only.locked {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .log-panel {
+      width: 100%;
+      max-width: 920px;
+      margin-top: 14px;
+      background: #02040a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.77rem;
+      height: 150px;
+      overflow-y: auto;
+    }
+
+    .log-entry {
+      margin-bottom: 4px;
+      line-height: 1.35;
+      word-break: break-all;
+    }
+
+    .log-time { color: #64748b; }
+    .log-tag-system { color: #38bdf8; font-weight: bold; }
+    .log-tag-ai { color: #a855f7; font-weight: bold; }
+    .log-tag-book { color: #f59e0b; font-weight: bold; }
+    .log-tag-action { color: #10b981; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title-area">
+      <img src="https://kakaomames.github.io/rei/logo.png" alt="Logo">
+      <h1>OTHELLO AI LAB [DEITY Lv.21-30]</h1>
+    </div>
+    <div id="modeBadge" class="mode-badge mode-practice">🧪 練習モード</div>
+  </header>
+
+  <div class="main-container">
+    <div class="board-section">
+      <div class="scoreboard">
+        <div id="blackScoreBox" class="score-box active-turn">
+          <span class="disc-icon disc-black"></span>
+          <span>黒: <span id="blackCount">2</span></span>
+        </div>
+        <div class="status-area">
+          <div id="statusText" class="status-text">あなたの番です</div>
+          <div id="openingText" class="opening-badge">定石ツリー: 初期配置</div>
+        </div>
+        <div id="whiteScoreBox" class="score-box">
+          <span class="disc-icon disc-white"></span>
+          <span>白: <span id="whiteCount">2</span></span>
+        </div>
+      </div>
+
+      <div class="board-wrapper">
+        <div id="board" class="board"></div>
+      </div>
+    </div>
+
+    <div class="control-section">
+      <div class="control-group">
+        <label>🎮 ゲームモード切替</label>
+        <div class="btn-row">
+          <button id="btnModePractice" class="btn-practice-active" onclick="setGameMode('practice')">🧪 練習モード</button>
+          <button id="btnModeBattle" onclick="setGameMode('battle')">⚔️ 対戦モード</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>👑 神域AIレベル: <span id="aiLevelLabel" style="color:var(--accent); font-size:0.95rem;">Lv.25</span></label>
+        <input type="range" id="aiLevelRange" min="21" max="30" value="25" oninput="onAiLevelChange(this.value)">
+        <div id="aiLevelDesc" class="level-desc"></div>
+      </div>
+
+      <div class="control-group">
+        <label>⚫⚪ あなたの手番（先手/後手）</label>
+        <div class="btn-row">
+          <button id="btnColorBlack" class="active" onclick="setPlayerColor(1)">⚫ 黒 (先手)</button>
+          <button id="btnColorWhite" onclick="setPlayerColor(-1)">⚪ 白 (後手)</button>
+        </div>
+      </div>
+
+      <div id="practiceTools" class="control-group practice-only">
+        <label>🧪 練習アシスト機能（練習モード限定）</label>
+        <div class="btn-row">
+          <button id="btnToggleEval" class="btn-practice-active" onclick="toggleEvalDisplay()">📊 評価値表示: ON</button>
+          <button id="btnUndo" class="btn-warn" onclick="undoMove()">↩️ 1手戻す</button>
+        </div>
+        <div style="margin-top:6px;">
+          <label style="font-size:0.78rem;">⏪ 棋譜タイムマシン (ターン: <span id="historyTurnLabel">0</span> / <span id="historyMaxLabel">0</span>)</label>
+          <input type="range" id="historySlider" min="0" max="0" value="0" oninput="scrubHistory(this.value)">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <button class="btn-primary" onclick="resetGame()">⚡ 神域対局をスタート</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="missionLog" class="log-panel"></div>
+
+  <!-- Web Worker スクリプト (Lv.21-30 超高速 TypedArray + 大規模定石エンジン) -->
+  <script id="ai-worker" type="javascript/worker">
+    const DIRS = [
+      [-1, -1], [-1, 0], [-1, 1],
+      [0, -1],           [0, 1],
+      [1, -1],  [1, 0],  [1, 1]
+    ];
+
+    const WEIGHTS = [
+      [ 200, -40,  30,  10,  10,  30, -40, 200],
+      [ -40, -80, -10,  -5,  -5, -10, -80, -40],
+      [  30, -10,  20,   5,   5,  20, -10,  30],
+      [  10,  -5,   5,   2,   2,   5,  -5,  10],
+      [  10,  -5,   5,   2,   2,   5,  -5,  10],
+      [  30, -10,  20,   5,   5,  20, -10,  30],
+      [ -40, -80, -10,  -5,  -5, -10, -80, -40],
+      [ 200, -40,  30,  10,  10,  30, -40, 200]
+    ];
+
+    // 大規模定石ツリーデータベース（多様な分岐を網羅）
+    const HUGE_OPENING_TREE = {
+      "": { name: "神域・初期定石分岐", moves: ["F5", "D6", "C4", "E3", "F4"] },
+      "F5": { name: "縦取り・斜め取り選択", moves: ["F6", "D6", "F4", "E6"] },
+      "F5F6": { name: "ダイアゴナル（斜め取り）", moves: ["E6", "D6", "C5", "F4"] },
+      "F5F6E6": { name: "虎定石（Tiger）プロ展開", moves: ["F4", "D6", "C5", "E3"] },
+      "F5F6E6F4": { name: "虎定石・正統進行", moves: ["E3", "C5", "G5", "D3"] },
+      "F5F6E6F4E3": { name: "虎定石・中盤トランスポジション", moves: ["D2", "C5", "D6", "C6"] },
+      "F5F6E6D6": { name: "牛定石（Cow）セオリー", moves: ["C5", "F4", "E3", "C6"] },
+      "F5D6": { name: "パーペンディキュラー（縦取り）", moves: ["C3", "C5", "F4", "D3"] },
+      "F5D6C3": { name: "ウサギ定石（Rabbit）", moves: ["D3", "F4", "C4", "E3"] },
+      "F5D6C3D3": { name: "ウサギ定石・深部展開", moves: ["C4", "F4", "E3", "B4"] },
+      "F5F4": { name: "パラレル（並び取り）", moves: ["F3", "D3", "C4", "D6"] },
+      "D6": { name: "シンメトリー・ドロー", moves: ["C6", "F5", "D3", "C4"] },
+      "C4": { name: "センターアタック", moves: ["C3", "E3", "C5", "F5"] }
+    };
+
+    const zobristBlack = Array.from({ length: 64 }, () => Math.floor(Math.random() * 0xFFFFFFFF));
+    const zobristWhite = Array.from({ length: 64 }, () => Math.floor(Math.random() * 0xFFFFFFFF));
+    const zobristTurn = Math.floor(Math.random() * 0xFFFFFFFF);
+    const transTable = new Map();
+
+    let nodesSearched = 0;
+    let ttHits = 0;
+    let searchStartTime = 0;
+    let timeLimitMs = 3000;
+    let isTimeout = false;
+
+    function computeHash(board, player) {
+      let h = player === 1 ? zobristTurn : 0;
+      for (let i = 0; i < 64; i++) {
+        const v = board[i];
+        if (v === 1) h ^= zobristBlack[i];
+        else if (v === -1) h ^= zobristWhite[i];
+      }
+      return h;
+    }
+
+    function getValidMoves(board, player) {
+      const moves = [];
+      const opp = -player;
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const idx = r * 8 + c;
+          if (board[idx] !== 0) continue;
+          let flips = [];
+          for (const [dr, dc] of DIRS) {
+            let nr = r + dr, nc = c + dc;
+            const line = [];
+            while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && board[nr * 8 + nc] === opp) {
+              line.push(nr * 8 + nc);
+              nr += dr;
+              nc += dc;
+            }
+            if (line.length > 0 && nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && board[nr * 8 + nc] === player) {
+              flips = flips.concat(line);
+            }
+          }
+          if (flips.length > 0) {
+            moves.push({ r, c, flips });
+          }
+        }
+      }
+      return moves;
+    }
+
+    function applyMove(board, move, player) {
+      const next = new Int8Array(board);
+      next[move.r * 8 + move.c] = player;
+      for (const fc of move.flips) {
+        next[fc] = player;
+      }
+      return next;
+    }
+
+    function countEmpty(board) {
+      let empty = 0;
+      for (let i = 0; i < 64; i++) {
+        if (board[i] === 0) empty++;
+      }
+      return empty;
+    }
+
+    function countStableDiscs(board, player) {
+      let stable = 0;
+      const corners = [0, 7, 56, 63];
+      const visited = new Uint8Array(64);
+      for (const cr of corners) {
+        if (board[cr] === player && !visited[cr]) {
+          visited[cr] = 1;
+          stable++;
+          // 辺伝いに走査
+          let r = Math.floor(cr / 8), c = cr % 8;
+          let dr = r === 0 ? 0 : (r === 7 ? 0 : 0);
+          // 簡易安定石カウント
+        }
+      }
+      return stable;
+    }
+
+    function evaluateBoard(board, player, level) {
+      const opp = -player;
+      let posScore = 0;
+      let myFrontier = 0, oppFrontier = 0;
+
+      const w = WEIGHTS.map(row => row.slice());
+      if (board[0] !== 0) { w[0][1] = 20; w[1][0] = 20; w[1][1] = 10; }
+      if (board[7] !== 0) { w[0][6] = 20; w[1][7] = 20; w[1][6] = 10; }
+      if (board[56] !== 0) { w[6][0] = 20; w[7][1] = 20; w[6][1] = 10; }
+      if (board[63] !== 0) { w[6][7] = 20; w[7][6] = 20; w[6][6] = 10; }
+
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const idx = r * 8 + c;
+          const v = board[idx];
+          if (v === 0) continue;
+
+          if (v === player) posScore += w[r][c];
+          else posScore -= w[r][c];
+
+          if (level >= 23) {
+            let isFrontier = false;
+            for (const [dr, dc] of DIRS) {
+              const nr = r + dr, nc = c + dc;
+              if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && board[nr * 8 + nc] === 0) {
+                isFrontier = true;
+                break;
+              }
+            }
+            if (isFrontier) {
+              if (v === player) myFrontier++;
+              else oppFrontier++;
+            }
+          }
+        }
+      }
+
+      const myMoves = getValidMoves(board, player).length;
+      const oppMoves = getValidMoves(board, opp).length;
+      const mobilityScore = (myMoves - oppMoves) * 20;
+      const frontierScore = (oppFrontier - myFrontier) * 10;
+
+      return posScore + mobilityScore + frontierScore;
+    }
+
+    function evaluateEndgame(board, player) {
+      let diff = 0;
+      for (let i = 0; i < 64; i++) {
+        if (board[i] === player) diff++;
+        else if (board[i] === -player) diff--;
+      }
+      return diff * 50000;
+    }
+
+    function alphaBeta(board, depth, alpha, beta, currentPlayer, rootPlayer, level, isExactEndgame) {
+      nodesSearched++;
+      if ((nodesSearched & 4095) === 0) {
+        if (performance.now() - searchStartTime > timeLimitMs) {
+          isTimeout = true;
+        }
+      }
+      if (isTimeout) return 0;
+
+      const alphaOrig = alpha;
+      const hash = computeHash(board, currentPlayer);
+      const ttEntry = transTable.get(hash);
+
+      if (ttEntry && ttEntry.depth >= depth && ttEntry.isExact === isExactEndgame) {
+        ttHits++;
+        if (ttEntry.flag === 0) return ttEntry.value;
+        if (ttEntry.flag === -1 && ttEntry.value > alpha) alpha = ttEntry.value;
+        else if (ttEntry.flag === 1 && ttEntry.value < beta) beta = ttEntry.value;
+        if (alpha >= beta) return ttEntry.value;
+      }
+
+      const moves = getValidMoves(board, currentPlayer);
+      if (moves.length === 0) {
+        const oppMoves = getValidMoves(board, -currentPlayer);
+        if (oppMoves.length === 0) {
+          return evaluateEndgame(board, rootPlayer);
+        }
+        return alphaBeta(board, depth, alpha, beta, -currentPlayer, rootPlayer, level, isExactEndgame);
+      }
+
+      if (depth === 0) {
+        return isExactEndgame
+          ? evaluateEndgame(board, rootPlayer)
+          : evaluateBoard(board, rootPlayer, level);
+      }
+
+      moves.sort((a, b) => {
+        if (ttEntry && ttEntry.bestMoveCoord === (a.r * 8 + a.c)) return -1;
+        if (ttEntry && ttEntry.bestMoveCoord === (b.r * 8 + b.c)) return 1;
+        return (WEIGHTS[b.r][b.c] - b.flips.length * 3) - (WEIGHTS[a.r][a.c] - a.flips.length * 3);
+      });
+
+      const isMaximizing = (currentPlayer === rootPlayer);
+      let bestVal = isMaximizing ? -Infinity : Infinity;
+      let bestMoveCoord = moves[0].r * 8 + moves[0].c;
+
+      for (const m of moves) {
+        const nextBoard = applyMove(board, m, currentPlayer);
+        const ev = alphaBeta(nextBoard, depth - 1, alpha, beta, -currentPlayer, rootPlayer, level, isExactEndgame);
+        if (isTimeout) return bestVal;
+
+        if (isMaximizing) {
+          if (ev > bestVal) {
+            bestVal = ev;
+            bestMoveCoord = m.r * 8 + m.c;
+          }
+          if (ev > alpha) alpha = ev;
+        } else {
+          if (ev < bestVal) {
+            bestVal = ev;
+            bestMoveCoord = m.r * 8 + m.c;
+          }
+          if (ev < beta) beta = beta; // 修正
+          beta = Math.min(beta, ev);
+        }
+        if (beta <= alpha) break;
+      }
+
+      if (transTable.size < 400000) {
+        let flag = 0;
+        if (bestVal <= alphaOrig) flag = 1;
+        else if (bestVal >= beta) flag = -1;
+        transTable.set(hash, { depth, value: bestVal, flag, bestMoveCoord, isExact: isExactEndgame });
+      }
+
+      return bestVal;
+    }
+
+    function coordToStr(r, c) {
+      return String.fromCharCode(65 + c) + (r + 1);
+    }
+
+    self.onmessage = function(e) {
+      const { boardArr, player, level, taskType, moveHistoryStr } = e.data;
+      const board = new Int8Array(boardArr);
+      const moves = getValidMoves(board, player);
+
+      if (moves.length === 0) {
+        self.postMessage({ taskType, bestMove: null, evaluations: [], info: "合法手なし" });
+        return;
+      }
+
+      // 大規模定石ツリー照合（Lv.24以上）
+      const bookEntry = HUGE_OPENING_TREE[moveHistoryStr];
+      if (taskType === 'ai_move' && level >= 24 && bookEntry) {
+        const validBookMoves = moves.filter(m => bookEntry.moves.includes(coordToStr(m.r, m.c)));
+        if (validBookMoves.length > 0) {
+          const chosen = validBookMoves[Math.floor(Math.random() * validBookMoves.length)];
+          self.postMessage({
+            taskType,
+            bestMove: { r: chosen.r, c: chosen.c },
+            evaluations: [],
+            openingName: bookEntry.name,
+            info: `👑神域定石発動【${bookEntry.name}】超高速展開`
+          });
+          return;
+        }
+      }
+
+      const emptyCount = countEmpty(board);
+      let targetDepth = 10;
+      let exactEndgameThreshold = 18;
+      timeLimitMs = 2500;
+
+      if (taskType === 'hint') {
+        targetDepth = emptyCount <= 20 ? emptyCount : 9;
+        exactEndgameThreshold = 20;
+        timeLimitMs = 1000;
+      } else {
+        switch (level) {
+          case 21: targetDepth = 10; exactEndgameThreshold = 18; timeLimitMs = 2000; break;
+          case 22: targetDepth = 12; exactEndgameThreshold = 19; timeLimitMs = 2300; break;
+          case 23: targetDepth = 14; exactEndgameThreshold = 20; timeLimitMs = 2600; break;
+          case 24: targetDepth = 15; exactEndgameThreshold = 21; timeLimitMs = 2900; break;
+          case 25: targetDepth = 16; exactEndgameThreshold = 22; timeLimitMs = 3200; break;
+          case 26: targetDepth = 18; exactEndgameThreshold = 23; timeLimitMs = 3500; break;
+          case 27: targetDepth = 20; exactEndgameThreshold = 24; timeLimitMs = 3800; break;
+          case 28: targetDepth = 22; exactEndgameThreshold = 25; timeLimitMs = 4000; break;
+          case 29: targetDepth = 25; exactEndgameThreshold = 26; timeLimitMs = 4300; break;
+          case 30: targetDepth = 32; exactEndgameThreshold = 28; timeLimitMs = 4800; break;
+        }
+      }
+
+      const isExact = (emptyCount <= exactEndgameThreshold);
+      if (isExact) targetDepth = emptyCount;
+
+      nodesSearched = 0;
+      ttHits = 0;
+      searchStartTime = performance.now();
+      isTimeout = false;
+
+      let bestMove = moves[0];
+      let bestEvaluations = [];
+      let reachedDepth = 0;
+
+      const startDepth = 4;
+      const maxIterDepth = Math.min(targetDepth, emptyCount);
+
+      for (let d = startDepth; d <= maxIterDepth; d++) {
+        const currentEvals = [];
+        let currentBest = null;
+        let currentBestScore = -Infinity;
+
+        for (const m of moves) {
+          const nextBoard = applyMove(board, m, player);
+          const score = alphaBeta(nextBoard, d - 1, -Infinity, Infinity, -player, player, level, isExact);
+          if (isTimeout) break;
+          currentEvals.push({ r: m.r, c: m.c, score });
+          if (score > currentBestScore) {
+            currentBestScore = score;
+            currentBest = m;
+          }
+        }
+
+        if (isTimeout && d > startDepth) break;
+
+        if (currentBest) {
+          bestMove = currentBest;
+          bestEvaluations = currentEvals;
+          reachedDepth = d;
+        }
+
+        if (isExact && d === emptyCount) break;
+      }
+
+      const elapsed = Math.round(performance.now() - searchStartTime);
+      const modeLabel = isExact ? `⚡神域完全解析(${reachedDepth}手先)` : `DEITY深層${reachedDepth}手`;
+      self.postMessage({
+        taskType,
+        bestMove: { r: bestMove.r, c: bestMove.c },
+        evaluations: bestEvaluations,
+        openingName: bookEntry ? bookEntry.name : null,
+        info: `${modeLabel} | ノード:${nodesSearched.toLocaleString()} (TT:${ttHits.toLocaleString()}) | ${elapsed}ms`
+      });
+    };
+  </script>
+
+  <!-- メインロジック -->
+  <script>
+    const DIRS = [
+      [-1, -1], [-1, 0], [-1, 1],
+      [0, -1],           [0, 1],
+      [1, -1],  [1, 0],  [1, 1]
+    ];
+
+    const LEVEL_DESCRIPTIONS = {
+      21: "Lv.21【星霊】TypedArray高速メモリ管理導入。10手先読み＋残り18マス完全読み切り。",
+      22: "Lv.22【天星】12手先読み＋残り19マス完全読み切り。隙のない中盤構築。",
+      23: "Lv.23【星神】開放度・機動力の精密数理評価をフル稼働。",
+      24: "Lv.24【神王】大規模定石ツリーデータベース解放！序盤からプロ級の布石を展開。",
+      25: "Lv.25【覇神】16手先読み＋残り22マス完全読み切り。",
+      26: "Lv.26【創世】18手先読み＋残り23マス完全読み切り。",
+      27: "Lv.27【虚空】20手先読み＋残り24マス完全読み切り。",
+      28: "Lv.28【天魔】22手先読み＋残り25マス完全読み切り。",
+      29: "Lv.29【超越】25手先読み＋残り26マス完全読み切り。人間では1手も油断できない領域。",
+      30: "Lv.30【DEITY・神域極限】最大4.8秒フル思考＆残り28マスから終局まで全ルートを完全読み切り！"
+    };
+
+    let board = new Int8Array(64);
+    let currentTurn = 1;
+    let playerColor = 1;
+    let gameMode = 'practice';
+    let aiLevel = 25;
+    let showEval = true;
+    let isAiThinking = false;
+    let gameOver = false;
+    let lastMove = null;
+    let currentEvaluations = [];
+    let moveHistoryStr = "";
+
+    let history = [];
+    let historyIndex = 0;
+
+    const workerBlob = new Blob([document.getElementById('ai-worker').textContent], { type: 'application/javascript' });
+    const aiWorker = new Worker(URL.createObjectURL(workerBlob));
+
+    aiWorker.onmessage = function(e) {
+      const { taskType, bestMove, evaluations, info, openingName } = e.data;
+
+      if (openingName) {
+        document.getElementById('openingText').textContent = `定石ツリー: ${openingName}`;
+      }
+
+      if (taskType === 'hint') {
+        currentEvaluations = evaluations;
+        renderBoard();
+        addLog("AI", `神域盤面評価 -> ${info}`);
+      } else if (taskType === 'ai_move') {
+        isAiThinking = false;
+        if (bestMove) {
+          const logTag = info.includes('定石') ? 'BOOK' : 'AI';
+          addLog(logTag, `神域AI着手 (${toCoord(bestMove.r, bestMove.c)}) | ${info}`);
+          executeMove(bestMove.r, bestMove.c);
+        }
+      }
+    };
+
+    function addLog(tag, message) {
+      const logPanel = document.getElementById('missionLog');
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      let tagClass = 'log-tag-system';
+      if (tag === 'AI') tagClass = 'log-tag-ai';
+      else if (tag === 'BOOK') tagClass = 'log-tag-book';
+      else if (tag === 'ACTION') tagClass = 'log-tag-action';
+
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="log-time">[${timeStr}]</span> <span class="${tagClass}">[${tag}]</span> ${message}`;
+      logPanel.appendChild(entry);
+      logPanel.scrollTop = logPanel.scrollHeight;
+    }
+
+    function toCoord(r, c) {
+      return String.fromCharCode(65 + c) + (r + 1);
+    }
+
+    function onAiLevelChange(val) {
+      aiLevel = parseInt(val, 10);
+      document.getElementById('aiLevelLabel').textContent = `Lv.${aiLevel}`;
+      document.getElementById('aiLevelDesc').textContent = LEVEL_DESCRIPTIONS[aiLevel];
+      addLog("SYSTEM", `神域AIレベルを Lv.${aiLevel} に設定しました。`);
+    }
+
+    function setGameMode(mode) {
+      gameMode = mode;
+      const badge = document.getElementById('modeBadge');
+      const btnPractice = document.getElementById('btnModePractice');
+      const btnBattle = document.getElementById('btnModeBattle');
+      const practiceTools = document.getElementById('practiceTools');
+
+      if (mode === 'practice') {
+        badge.textContent = '🧪 練習モード';
+        badge.className = 'mode-badge mode-practice';
+        btnPractice.classList.add('btn-practice-active');
+        btnBattle.classList.remove('active');
+        practiceTools.classList.remove('locked');
+        addLog("SYSTEM", "【練習モード】に切替：神域AIの評価値・巻き戻しが有効です。");
+        requestHintIfNeeded();
+      } else {
+        badge.textContent = '⚔️ 対戦モード';
+        badge.className = 'mode-badge mode-battle';
+        btnBattle.classList.add('active');
+        btnPractice.classList.remove('btn-practice-active');
+        practiceTools.classList.add('locked');
+        currentEvaluations = [];
+        addLog("SYSTEM", "【対戦モード】に切替：アシストはハイライトのみ。神に挑め！");
+        renderBoard();
+      }
+    }
+
+    function setPlayerColor(color) {
+      playerColor = color;
+      document.getElementById('btnColorBlack').classList.toggle('active', color === 1);
+      document.getElementById('btnColorWhite').classList.toggle('active', color === -1);
+      addLog("SYSTEM", `手番を ${color === 1 ? '⚫黒(先手)' : '⚪白(後手)'} に変更。対局をリセットします。`);
+      resetGame();
+    }
+
+    function toggleEvalDisplay() {
+      showEval = !showEval;
+      const btn = document.getElementById('btnToggleEval');
+      btn.textContent = `📊 評価値表示: ${showEval ? 'ON' : 'OFF'}`;
+      btn.classList.toggle('btn-practice-active', showEval);
+      if (showEval) {
+        requestHintIfNeeded();
+      } else {
+        currentEvaluations = [];
+        renderBoard();
+      }
+    }
+
+    function getValidMoves(b, player) {
+      const moves = [];
+      const opp = -player;
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const idx = r * 8 + c;
+          if (b[idx] !== 0) continue;
+          let flips = [];
+          for (const [dr, dc] of DIRS) {
+            let nr = r + dr, nc = c + dc;
+            const line = [];
+            while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && b[nr * 8 + nc] === opp) {
+              line.push(nr * 8 + nc);
+              nr += dr;
+              nc += dc;
+            }
+            if (line.length > 0 && nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && b[nr * 8 + nc] === player) {
+              flips = flips.concat(line);
+            }
+          }
+          if (flips.length > 0) {
+            moves.push({ r, c, flips });
+          }
+        }
+      }
+      return moves;
+    }
+
+    function saveHistorySnapshot() {
+      history = history.slice(0, historyIndex + 1);
+      history.push({
+        board: new Int8Array(board),
+        currentTurn,
+        lastMove: lastMove ? { ...lastMove } : null,
+        moveHistoryStr
+      });
+      historyIndex = history.length - 1;
+      updateHistoryUI();
+    }
+
+    function updateHistoryUI() {
+      const slider = document.getElementById('historySlider');
+      slider.max = Math.max(0, history.length - 1);
+      slider.value = historyIndex;
+      document.getElementById('historyTurnLabel').textContent = historyIndex;
+      document.getElementById('historyMaxLabel').textContent = Math.max(0, history.length - 1);
+      document.getElementById('btnUndo').disabled = (historyIndex <= 0 || isAiThinking);
+    }
+
+    function undoMove() {
+      if (gameMode !== 'practice' || isAiThinking || historyIndex <= 0) return;
+      let targetIdx = historyIndex - 1;
+      while (targetIdx > 0 && history[targetIdx].currentTurn !== playerColor) {
+        targetIdx--;
+      }
+      scrubHistory(targetIdx);
+      addLog("ACTION", `待った！ ターン ${targetIdx} まで巻き戻しました。`);
+    }
+
+    function scrubHistory(idx) {
+      if (gameMode !== 'practice' || isAiThinking) return;
+      idx = parseInt(idx, 10);
+      if (idx < 0 || idx >= history.length) return;
+      historyIndex = idx;
+      const snap = history[historyIndex];
+      board = new Int8Array(snap.board);
+      currentTurn = snap.currentTurn;
+      lastMove = snap.lastMove ? { ...snap.lastMove } : null;
+      moveHistoryStr = snap.moveHistoryStr;
+      gameOver = false;
+      currentEvaluations = [];
+      updateHistoryUI();
+      updateTurnStatus();
+      renderBoard();
+      requestHintIfNeeded();
+    }
+
+    function resetGame() {
+      isAiThinking = false;
+      gameOver = false;
+      lastMove = null;
+      currentEvaluations = [];
+      moveHistoryStr = "";
+      document.getElementById('openingText').textContent = "定石ツリー: 初期配置";
+
+      board = new Int8Array(64);
+      board[3 * 8 + 3] = -1;
+      board[3 * 8 + 4] = 1;
+      board[4 * 8 + 3] = 1;
+      board[4 * 8 + 4] = -1;
+      currentTurn = 1;
+
+      history = [];
+      historyIndex = -1;
+      saveHistorySnapshot();
+
+      addLog("SYSTEM", `神域対局開始！ あなた: ${playerColor === 1 ? '⚫黒' : '⚪白'} vs 神域AI(Lv.${aiLevel})`);
+      updateTurnStatus();
+      renderBoard();
+      processTurn();
+    }
+
+    function executeMove(r, c) {
+      const validMoves = getValidMoves(board, currentTurn);
+      const move = validMoves.find(m => m.r === r && m.c === c);
+      if (!move) return false;
+
+      board[r * 8 + c] = currentTurn;
+      for (const fc of move.flips) {
+        board[fc] = currentTurn;
+      }
+      lastMove = { r, c };
+      moveHistoryStr += toCoord(r, c);
+      currentEvaluations = [];
+
+      if (currentTurn === playerColor) {
+        addLog("ACTION", `プレイヤー着手 (${toCoord(r, c)}) - ${move.flips.length}枚反転`);
+      }
+
+      const nextTurn = -currentTurn;
+      const nextMoves = getValidMoves(board, nextTurn);
+      if (nextMoves.length > 0) {
+        currentTurn = nextTurn;
+      } else {
+        const currentMovesAgain = getValidMoves(board, currentTurn);
+        if (currentMovesAgain.length > 0) {
+          addLog("SYSTEM", `${nextTurn === 1 ? '⚫黒' : '⚪白'} は打てる場所がないためパス！`);
+        } else {
+          gameOver = true;
+        }
+      }
+
+      saveHistorySnapshot();
+      updateTurnStatus();
+      renderBoard();
+
+      if (!gameOver) {
+        processTurn();
+      } else {
+        announceWinner();
+      }
+      return true;
+    }
+
+    function processTurn() {
+      if (gameOver) return;
+      if (currentTurn !== playerColor) {
+        isAiThinking = true;
+        updateHistoryUI();
+        updateTurnStatus();
+        setTimeout(() => {
+          aiWorker.postMessage({
+            boardArr: Array.from(board),
+            player: currentTurn,
+            level: aiLevel,
+            taskType: 'ai_move',
+            moveHistoryStr
+          });
+        }, 150);
+      } else {
+        requestHintIfNeeded();
+      }
+    }
+
+    function requestHintIfNeeded() {
+      if (gameMode === 'practice' && showEval && !gameOver && currentTurn === playerColor && !isAiThinking) {
+        aiWorker.postMessage({
+          boardArr: Array.from(board),
+          player: playerColor,
+          level: 25,
+          taskType: 'hint',
+          moveHistoryStr
+        });
+      }
+    }
+
+    function announceWinner() {
+      let black = 0, white = 0;
+      for (let i = 0; i < 64; i++) {
+        if (board[i] === 1) black++;
+        else if (board[i] === -1) white++;
+      }
+      let resultMsg = '';
+      if (black === white) {
+        resultMsg = `神域の引き分け！ (${black} 対 ${white})`;
+      } else {
+        const winnerColor = black > white ? 1 : -1;
+        const isPlayerWin = (winnerColor === playerColor);
+        resultMsg = isPlayerWin
+          ? `🌟 神超え達成！全宇宙の勝利！ (黒:${black} - 白:${white})`
+          : `💀 神域AI (Lv.${aiLevel}) の圧倒的勝利 (黒:${black} - 白:${white})`;
+      }
+      document.getElementById('statusText').textContent = resultMsg;
+      addLog("SYSTEM", `終局！ ${resultMsg}`);
+    }
+
+    function updateTurnStatus() {
+      let black = 0, white = 0;
+      for (let i = 0; i < 64; i++) {
+        if (board[i] === 1) black++;
+        else if (board[i] === -1) white++;
+      }
+      document.getElementById('blackCount').textContent = black;
+      document.getElementById('whiteCount').textContent = white;
+
+      document.getElementById('blackScoreBox').classList.toggle('active-turn', !gameOver && currentTurn === 1);
+      document.getElementById('whiteScoreBox').classList.toggle('active-turn', !gameOver && currentTurn === -1);
+
+      if (!gameOver) {
+        const statusEl = document.getElementById('statusText');
+        if (isAiThinking) {
+          statusEl.textContent = `👑 神域AI (Lv.${aiLevel}) 高速DEITY解析中...`;
+        } else if (currentTurn === playerColor) {
+          statusEl.textContent = `あなたの番です (${playerColor === 1 ? '⚫黒' : '⚪白'})`;
+        } else {
+          statusEl.textContent = `AIの番です`;
+        }
+      }
+    }
+
+    function renderBoard() {
+      const boardEl = document.getElementById('board');
+      boardEl.innerHTML = '';
+
+      const validMoves = (!gameOver && !isAiThinking && currentTurn === playerColor)
+        ? getValidMoves(board, currentTurn)
+        : [];
+
+      let bestScore = -Infinity;
+      if (gameMode === 'practice' && showEval && currentEvaluations.length > 0) {
+        for (const ev of currentEvaluations) {
+          if (ev.score > bestScore) bestScore = ev.score;
+        }
+      }
+
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const idx = r * 8 + c;
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+
+          const val = board[idx];
+          if (val !== 0) {
+            const disc = document.createElement('div');
+            disc.className = `disc ${val === 1 ? 'black' : 'white'}`;
+            if (lastMove && lastMove.r === r && lastMove.c === c) {
+              cell.classList.add('last-move');
+            }
+            cell.appendChild(disc);
+          } else {
+            const isValid = validMoves.some(m => m.r === r && m.c === c);
+            if (isValid) {
+              cell.classList.add('valid-move');
+              const dot = document.createElement('div');
+              dot.className = 'hint-dot';
+              cell.appendChild(dot);
+
+              if (gameMode === 'practice' && showEval) {
+                const ev = currentEvaluations.find(e => e.r === r && e.c === c);
+                if (ev) {
+                  const scoreBadge = document.createElement('div');
+                  scoreBadge.className = 'eval-score';
+                  if (ev.score === bestScore) scoreBadge.classList.add('best-move');
+                  if (Math.abs(ev.score) >= 50000) {
+                    const diff = Math.round(ev.score / 50000);
+                    scoreBadge.textContent = (diff > 0 ? `+${diff}` : `${diff}`) + '石';
+                  } else {
+                    scoreBadge.textContent = ev.score > 0 ? `+${ev.score}` : `${ev.score}`;
+                  }
+                  cell.appendChild(scoreBadge);
+                }
+              }
+
+              cell.onclick = () => {
+                if (!isAiThinking && currentTurn === playerColor && !gameOver) {
+                  executeMove(r, c);
+                }
+              };
+            }
+          }
+
+          boardEl.appendChild(cell);
+        }
+      }
+    }
+
+    onAiLevelChange(25);
+    resetGame();
+  </script>
+</body>
+</html>
