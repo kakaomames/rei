@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#1e1e1e">
+    <meta name="description" content="Gemini Programming隊 3Dエディタ (Three.js + Blockly + Inspector + Color Picker + JSON)">
+    <meta name="author" content="カカオマメ">
+    <meta name="application-name" content="Gemini 3D Editor">
+    <meta property="og:title" content="Gemini Programming 3D Editor">
+    <meta property="og:description" content="ブラウザで動くThree.js + Blockly製ミニUnityエディタ（カラーピッカー搭載版）">
+    <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+    <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
+    <title>Gemini Programming 3D Editor (カラーピッカー搭載版)</title>
+
+    <!-- Blockly CSS & JS -->
+    <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/msg/ja.js"></script>
+
+    <!-- Three.js & Controls & OBJLoader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; background: #1e1e1e; color: #fff; font-family: sans-serif; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* 左パネル: Blockly */
+        #sidebar { width: 320px; background: #252526; display: flex; flex-direction: column; border-right: 1px solid #333; flex-shrink: 0; }
+        #blocklyArea { flex: 1; height: 100%; }
+        
+        /* 中央パネル: 3D Scene & Log */
+        #mainPanel { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; }
+        #canvasContainer { flex: 1; width: 100%; height: 100%; overflow: hidden; }
+        #toolbar { min-height: 44px; background: #333; display: flex; align-items: center; padding: 4px 10px; gap: 6px; border-bottom: 1px solid #444; flex-wrap: wrap; }
+        #toolbar button, .file-btn { background: #0e639c; color: white; border: none; padding: 6px 10px; cursor: pointer; border-radius: 3px; font-weight: bold; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+        #toolbar button:hover, .file-btn:hover { background: #1177bb; }
+        .btn-green { background: #2e7d32 !important; }
+        .btn-green:hover { background: #388e3c !important; }
+        .btn-purple { background: #6a1b9a !important; }
+        .btn-purple:hover { background: #7b1fa2 !important; }
+        .btn-orange { background: #d84315 !important; }
+        .btn-orange:hover { background: #e64a19 !important; }
+        .btn-teal { background: #00838f !important; }
+        .btn-teal:hover { background: #0097a7 !important; }
+        
+        #hierarchyBar { height: 34px; background: #222; border-bottom: 1px solid #333; display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 12px; }
+        #objectSelect { background: #333; color: #fff; border: 1px solid #555; padding: 3px 8px; border-radius: 3px; flex: 1; max-width: 240px; }
+        
+        #logPanel { height: 125px; background: #111; border-top: 1px solid #333; padding: 8px 10px; overflow-y: auto; font-family: monospace; font-size: 12px; color: #4ec9b0; flex-shrink: 0; }
+
+        /* 右パネル: Unity風 Inspector */
+        #inspectorPanel { width: 270px; background: #252526; border-left: 1px solid #333; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+        .panel-header { padding: 10px; background: #2d2d2d; font-weight: bold; font-size: 13px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .inspector-section { padding: 10px; border-bottom: 1px solid #333; }
+        .inspector-title { font-size: 12px; font-weight: bold; color: #ccc; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .prop-row { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; font-size: 11px; }
+        .prop-label { width: 55px; color: #aaa; flex-shrink: 0; }
+        .axis-group { display: flex; align-items: center; flex: 1; gap: 2px; }
+        .axis-tag { font-weight: bold; font-size: 10px; padding: 2px 4px; border-radius: 2px; color: #fff; }
+        .axis-x { background: #c62828; }
+        .axis-y { background: #2e7d32; }
+        .axis-z { background: #1565c0; }
+        .inspector-input { width: 100%; background: #1e1e1e; color: #fff; border: 1px solid #444; border-radius: 3px; padding: 4px; font-size: 11px; font-family: monospace; }
+        .inspector-input:focus { outline: none; border-color: #0e639c; }
+        .color-input { width: 100%; height: 28px; background: #1e1e1e; border: 1px solid #444; border-radius: 3px; cursor: pointer; padding: 0; }
+        .reset-btn { background: #3a3a3a; color: #ddd; border: 1px solid #555; border-radius: 3px; padding: 2px 6px; font-size: 10px; cursor: pointer; }
+        .reset-btn:hover { background: #505050; }
+        input[type="file"] { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- 左: Blockly -->
+    <div id="sidebar">
+        <div class="panel-header">🧩 ロジックエディタ (Blockly)</div>
+        <div id="blocklyArea"></div>
+    </div>
+
+    <!-- 中央: 3D Scene & Console -->
+    <div id="mainPanel">
+        <div id="toolbar">
+            <button id="runBtn" class="btn-green">🚀 実行</button>
+            <label class="file-btn btn-purple">
+                📦 OBJ読込
+                <input type="file" id="objInput" accept=".obj">
+            </label>
+            <label class="file-btn btn-orange">
+                🖼️ テクスチャ
+                <input type="file" id="texInput" accept="image/*">
+            </label>
+            <button id="modeTranslateBtn">↔️ 移動</button>
+            <button id="modeRotateBtn">🔄 回転</button>
+            <button id="modeScaleBtn">📐 拡縮</button>
+            <button id="saveSceneBtn" class="btn-teal">💾 シーン保存</button>
+            <label class="file-btn btn-teal">
+                📂 シーン読込
+                <input type="file" id="loadSceneInput" accept=".json">
+            </label>
+        </div>
+
+        <div id="hierarchyBar">
+            <span>🌲 Hierarchy:</span>
+            <select id="objectSelect"></select>
+        </div>
+
+        <div id="canvasContainer"></div>
+
+        <div id="logPanel">
+            <div>[SYSTEM] Gemini Programming隊 3Dエディタ (カラーピッカー搭載版) 起動完了！</div>
+        </div>
+    </div>
+
+    <!-- 右: Unity風 Inspector -->
+    <div id="inspectorPanel">
+        <div class="panel-header">🔍 Inspector</div>
+
+        <!-- オブジェクト基本情報 -->
+        <div class="inspector-section">
+            <div class="inspector-title">🏷️ GameObject</div>
+            <div class="prop-row">
+                <span class="prop-label">Name</span>
+                <input type="text" id="inspName" class="inspector-input" placeholder="Object Name">
+            </div>
+        </div>
+
+        <!-- Material (色変更) セクション -->
+        <div class="inspector-section">
+            <div class="inspector-title">🎨 Material (Albedo)</div>
+            <div class="prop-row">
+                <span class="prop-label">Color</span>
+                <div style="flex: 1;">
+                    <input type="color" id="inspColor" class="color-input" value="#4caf50">
+                </div>
+            </div>
+        </div>
+
+        <!-- Transform セクション -->
+        <div class="inspector-section">
+            <div class="inspector-title">
+                <span>📐 Transform</span>
+                <button id="resetTransformBtn" class="reset-btn">↺ Reset</button>
+            </div>
+
+            <!-- Position -->
+            <div class="prop-row">
+                <span class="prop-label">Position</span>
+                <div class="axis-group">
+                    <span class="axis-tag axis-x">X</span>
+                    <input type="number" id="posX" class="inspector-input" step="0.1">
+                </div>
+                <div class="axis-group">
+                    <span class="axis-tag axis-y">Y</span>
+                    <input type="number" id="posY" class="inspector-input" step="0.1">
+                </div>
+                <div class="axis-group">
+                    <span class="axis-tag axis-z">Z</span>
+                    <input type="number" id="posZ" class="inspector-input" step="0.1">
+                </div>
+            </div>
+
+            <!-- Rotation (Degree) -->
+            <div class="prop-row">
+                <span class="prop-label">Rotation</span>
+                <div class="axis-group">
+                    <span class="axis-tag axis-x">X</span>
+                    <input type="number" id="rotX" class="inspector-input" step="5">
+                </div>
+                <div class="axis-group">
+                    <span class="axis-tag axis-y">Y</span>
+                    <input type="number" id="rotY" class="inspector-input" step="5">
+                </div>
+                <div class="axis-group">
+                    <span class="axis-tag axis-z">Z</span>
+                    <input type="number" id="rotZ" class="inspector-input" step="5">
+                </div>
+            </div>
+
+            <!-- Scale -->
+            <div class="prop-row">
+                <span class="prop-label">Scale</span>
+                <div class="axis-group">
+                    <span class="axis-tag axis-x">X</span>
+                    <input type="number" id="scaleX" class="inspector-input" step="0.1">
+                </div>
+                <div class="axis-group">
+                    <span class="axis-tag axis-y">Y</span>
+                    <input type="number" id="scaleY" class="inspector-input" step="0.1">
+                </div>
+                <div class="axis-group">
+                    <span class="axis-tag axis-z">Z</span>
+                    <input type="number" id="scaleZ" class="inspector-input" step="0.1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blockly ツールボックス定義 -->
+    <xml id="toolbox" style="display: none">
+        <category name="アクション" colour="#5b80a5">
+            <block type="mission_log">
+                <value name="TEXT">
+                    <shadow type="text">
+                        <field name="TEXT">カラー変更完了！</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="move_selected"></block>
+            <block type="rotate_selected"></block>
+        </category>
+        <category name="制御" colour="#a55b5b">
+            <block type="controls_repeat_ext">
+                <value name="TIMES">
+                    <shadow type="math_number">
+                        <field name="NUM">10</field>
+                    </shadow>
+                </value>
+            </block>
+        </category>
+    </xml>
+
+    <script>
+        // --- 1. ログ出力関数 (missionLog) ---
+        function missionLog(type, message) {
+            const panel = document.getElementById('logPanel');
+            const div = document.createElement('div');
+            div.textContent = `[${type}] ${message}`;
+            panel.appendChild(div);
+            panel.scrollTop = panel.scrollHeight;
+            console.log(`[${type}] ${message}`);
+        }
+
+        // --- 2. Three.js セットアップ ---
+        const container = document.getElementById('canvasContainer');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a1a);
+
+        const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(3, 3, 5);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        // ライティング & グリッド
+        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        dirLight.position.set(5, 10, 7);
+        scene.add(dirLight);
+        scene.add(new THREE.GridHelper(10, 10, 0x444444, 0x222222));
+
+        // コントロール
+        const orbit = new THREE.OrbitControls(camera, renderer.domElement);
+        const transformControl = new THREE.TransformControls(camera, renderer.domElement);
+        scene.add(transformControl);
+
+        // シーン内オブジェクト管理リスト
+        let sceneObjects = [];
+        let selectedObject = null;
+        const objectSelect = document.getElementById('objectSelect');
+
+        // Inspector UI 要素参照
+        const inspName = document.getElementById('inspName');
+        const inspColor = document.getElementById('inspColor');
+        const posX = document.getElementById('posX');
+        const posY = document.getElementById('posY');
+        const posZ = document.getElementById('posZ');
+        const rotX = document.getElementById('rotX');
+        const rotY = document.getElementById('rotY');
+        const rotZ = document.getElementById('rotZ');
+        const scaleX = document.getElementById('scaleX');
+        const scaleY = document.getElementById('scaleY');
+        const scaleZ = document.getElementById('scaleZ');
+
+        function updateInspectorUI() {
+            if (!selectedObject) return;
+            inspName.value = selectedObject.name;
+
+            // マテリアルの色をカラーピッカーに反映
+            if (selectedObject.material && selectedObject.material.color) {
+                inspColor.value = '#' + selectedObject.material.color.getHexString();
+            } else if (selectedObject.isGroup || selectedObject.children.length > 0) {
+                // グループ（OBJなど）の場合、最初のメッシュの色を取得
+                let firstMesh = null;
+                selectedObject.traverse(child => { if (!firstMesh && child.isMesh) firstMesh = child; });
+                if (firstMesh && firstMesh.material && firstMesh.material.color) {
+                    inspColor.value = '#' + firstMesh.material.color.getHexString();
+                }
+            }
+
+            posX.value = selectedObject.position.x.toFixed(2);
+            posY.value = selectedObject.position.y.toFixed(2);
+            posZ.value = selectedObject.position.z.toFixed(2);
+
+            rotX.value = THREE.MathUtils.radToDeg(selectedObject.rotation.x).toFixed(1);
+            rotY.value = THREE.MathUtils.radToDeg(selectedObject.rotation.y).toFixed(1);
+            rotZ.value = THREE.MathUtils.radToDeg(selectedObject.rotation.z).toFixed(1);
+
+            scaleX.value = selectedObject.scale.x.toFixed(2);
+            scaleY.value = selectedObject.scale.y.toFixed(2);
+            scaleZ.value = selectedObject.scale.z.toFixed(2);
+        }
+
+        function bindInspectorInputs() {
+            inspName.addEventListener('change', () => {
+                if (!selectedObject) return;
+                const oldName = selectedObject.name;
+                selectedObject.name = inspName.value || "Unnamed_Object";
+                refreshHierarchyUI();
+                missionLog("INSPECTOR", `名前変更: ${oldName} -> ${selectedObject.name}`);
+            });
+
+            // カラーピッカー変更時の処理
+            inspColor.addEventListener('input', () => {
+                if (!selectedObject) return;
+                const newHex = inspColor.value;
+                const threeColor = new THREE.Color(newHex);
+
+                selectedObject.traverse(child => {
+                    if (child.isMesh) {
+                        if (child.material) {
+                            child.material.color = threeColor;
+                            child.material.needsUpdate = true;
+                        }
+                    }
+                });
+                selectedObject.userData.customColor = newHex;
+                missionLog("COLOR", `${selectedObject.name} の色を ${newHex} に変更！`);
+            });
+
+            const applyTransformFromUI = () => {
+                if (!selectedObject) return;
+                selectedObject.position.set(
+                    parseFloat(posX.value) || 0,
+                    parseFloat(posY.value) || 0,
+                    parseFloat(posZ.value) || 0
+                );
+                selectedObject.rotation.set(
+                    THREE.MathUtils.degToRad(parseFloat(rotX.value) || 0),
+                    THREE.MathUtils.degToRad(parseFloat(rotY.value) || 0),
+                    THREE.MathUtils.degToRad(parseFloat(rotZ.value) || 0)
+                );
+                selectedObject.scale.set(
+                    parseFloat(scaleX.value) || 0.01,
+                    parseFloat(scaleY.value) || 0.01,
+                    parseFloat(scaleZ.value) || 0.01
+                );
+            };
+
+            [posX, posY, posZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ].forEach(input => {
+                input.addEventListener('input', applyTransformFromUI);
+            });
+
+            document.getElementById('resetTransformBtn').addEventListener('click', () => {
+                if (!selectedObject) return;
+                selectedObject.position.set(0, 0, 0);
+                selectedObject.rotation.set(0, 0, 0);
+                selectedObject.scale.set(1, 1, 1);
+                updateInspectorUI();
+                missionLog("INSPECTOR", `${selectedObject.name} のTransformをリセットしました！`);
+            });
+        }
+        bindInspectorInputs();
+
+        transformControl.addEventListener('dragging-changed', function (event) {
+            orbit.enabled = !event.value;
+        });
+
+        transformControl.addEventListener('objectChange', function () {
+            updateInspectorUI();
+        });
+
+        function refreshHierarchyUI() {
+            objectSelect.innerHTML = '';
+            sceneObjects.forEach((obj, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = obj.name;
+                objectSelect.appendChild(option);
+            });
+            if (selectedObject) {
+                const idx = sceneObjects.indexOf(selectedObject);
+                if (idx !== -1) objectSelect.value = idx;
+            }
+        }
+
+        function registerObject(obj, name, isGeometryData = null, customColor = "#4caf50") {
+            obj.name = name;
+            obj.userData = { isGeometryData: isGeometryData, customColor: customColor };
+            scene.add(obj);
+            sceneObjects.push(obj);
+            refreshHierarchyUI();
+            selectObjectByIndex(sceneObjects.length - 1);
+            missionLog("HIERARCHY", `オブジェクト登録: ${name}`);
+        }
+
+        function selectObjectByIndex(index) {
+            const target = sceneObjects[index];
+            if (!target) return;
+            selectedObject = target;
+            objectSelect.value = index;
+            transformControl.attach(selectedObject);
+            updateInspectorUI();
+        }
+
+        objectSelect.addEventListener('change', (e) => {
+            selectObjectByIndex(parseInt(e.target.value, 10));
+        });
+
+        // 初期テスト用キューブ
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshStandardMaterial({ color: 0x4caf50 });
+        const initialCube = new THREE.Mesh(geometry, material);
+        initialCube.position.set(0, 0.5, 0);
+        registerObject(initialCube, "Default_Cube", "box", "#4caf50");
+
+        // --- 3. ギズモモード切替 ---
+        document.getElementById('modeTranslateBtn').addEventListener('click', () => { transformControl.setMode('translate'); missionLog("MODE", "移動ギズモ"); });
+        document.getElementById('modeRotateBtn').addEventListener('click', () => { transformControl.setMode('rotate'); missionLog("MODE", "回転ギズモ"); });
+        document.getElementById('modeScaleBtn').addEventListener('click', () => { transformControl.setMode('scale'); missionLog("MODE", "拡縮ギズモ"); });
+
+        // --- 4. OBJ読込 ---
+        const objLoader = new THREE.OBJLoader();
+        document.getElementById('objInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const contents = e.target.result;
+                    const object = objLoader.parse(contents);
+                    object.traverse(child => {
+                        if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+                    });
+                    registerObject(object, file.name, { type: 'obj', content: contents }, "#cccccc");
+                    missionLog("SUCCESS", `OBJ読込完了: ${file.name}`);
+                } catch (err) {
+                    missionLog("ERROR", `OBJエラー: ${err.message}`);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = "";
+        });
+
+        // --- 5. テクスチャ読込 ---
+        const textureLoader = new THREE.TextureLoader();
+        document.getElementById('texInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (!file || !selectedObject) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const dataUrl = e.target.result;
+                textureLoader.load(dataUrl, texture => {
+                    selectedObject.traverse(child => {
+                        if (child.isMesh) {
+                            child.material = new THREE.MeshStandardMaterial({ map: texture, color: 0xffffff });
+                            child.material.needsUpdate = true;
+                        }
+                    });
+                    selectedObject.userData.textureDataUrl = dataUrl;
+                    missionLog("SUCCESS", `${selectedObject.name} にテクスチャ適用！`);
+                });
+            };
+            reader.readAsDataURL(file);
+            event.target.value = "";
+        });
+
+        // --- 6. JSON シーン保存・読込 ---
+        document.getElementById('saveSceneBtn').addEventListener('click', () => {
+            try {
+                const xmlDom = Blockly.Xml.workspaceToDom(demoWorkspace);
+                const xmlText = Blockly.Xml.domToText(xmlDom);
+
+                const objectsData = sceneObjects.map(obj => {
+                    return {
+                        name: obj.name,
+                        position: { x: obj.position.x, y: obj.position.y, z: obj.position.z },
+                        rotation: { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z },
+                        scale: { x: obj.scale.x, y: obj.scale.y, z: obj.scale.z },
+                        userData: obj.userData
+                    };
+                });
+
+                const sceneData = { version: "1.1", objects: objectsData, blocklyXml: xmlText };
+                const blob = new Blob([JSON.stringify(sceneData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'gemini_scene.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                missionLog("SAVE", "シーンとブロック構成を JSON で保存しました！");
+            } catch (e) {
+                missionLog("ERROR", `保存失敗: ${e.message}`);
+            }
+        });
+
+        document.getElementById('loadSceneInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const sceneData = JSON.parse(e.target.result);
+
+                    sceneObjects.forEach(obj => scene.remove(obj));
+                    sceneObjects = [];
+                    transformControl.detach();
+                    selectedObject = null;
+
+                    sceneData.objects.forEach(data => {
+                        let newObj;
+                        const col = (data.userData && data.userData.customColor) ? data.userData.customColor : "#cccccc";
+
+                        if (data.userData && data.userData.isGeometryData === 'box') {
+                            const geom = new THREE.BoxGeometry(1, 1, 1);
+                            const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(col) });
+                            newObj = new THREE.Mesh(geom, mat);
+                            newObj.userData = data.userData;
+                        } else if (data.userData && data.userData.isGeometryData && data.userData.isGeometryData.type === 'obj') {
+                            newObj = objLoader.parse(data.userData.isGeometryData.content);
+                            newObj.traverse(child => {
+                                if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ color: new THREE.Color(col) });
+                            });
+                            newObj.userData = data.userData;
+                            if (data.userData.textureDataUrl) {
+                                textureLoader.load(data.userData.textureDataUrl, tex => {
+                                    newObj.traverse(child => {
+                                        if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ map: tex, color: 0xffffff });
+                                    });
+                                });
+                            }
+                        } else {
+                            const geom = new THREE.BoxGeometry(1, 1, 1);
+                            const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(col) });
+                            newObj = new THREE.Mesh(geom, mat);
+                            newObj.userData = data.userData || {};
+                        }
+
+                        newObj.name = data.name;
+                        newObj.position.set(data.position.x, data.position.y, data.position.z);
+                        newObj.rotation.set(data.rotation.x, data.rotation.y, data.rotation.z);
+                        newObj.scale.set(data.scale.x, data.scale.y, data.scale.z);
+
+                        scene.add(newObj);
+                        sceneObjects.push(newObj);
+                    });
+
+                    refreshHierarchyUI();
+                    if (sceneObjects.length > 0) selectObjectByIndex(0);
+
+                    if (sceneData.blocklyXml) {
+                        demoWorkspace.clear();
+                        const xmlDom = Blockly.utils.xml.textToDom(sceneData.blocklyXml);
+                        Blockly.Xml.domToWorkspace(xmlDom, demoWorkspace);
+                    }
+
+                    missionLog("LOAD", `シーン読込成功: ${file.name} (${sceneObjects.length} 個のオブジェクト)`);
+                } catch (err) {
+                    missionLog("ERROR", `読込エラー: ${err.message}`);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = "";
+        });
+
+        // ウィンドウリサイズ
+        window.addEventListener('resize', () => {
+            if (!container.clientWidth || !container.clientHeight) return;
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- 7. Blockly セットアップ ---
+        const demoWorkspace = Blockly.inject('blocklyArea', {
+            toolbox: document.getElementById('toolbox'),
+            grid: { spacing: 20, length: 3, snap: true },
+            zoom: { controls: true, wheel: true }
+        });
+
+        Blockly.Blocks['mission_log'] = {
+            init: function () {
+                this.appendValueInput("TEXT").setCheck("String").appendField("ログ出力する");
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(160);
+            }
+        };
+        javascript.javascriptGenerator.forBlock['mission_log'] = function (block) {
+            const text = javascript.javascriptGenerator.valueToCode(block, 'TEXT', javascript.javascriptGenerator.ORDER_ATOMIC) || "''";
+            return `missionLog("ACTION", ${text});\n`;
+        };
+
+        Blockly.Blocks['move_selected'] = {
+            init: function () {
+                this.appendDummyInput().appendField("選択中オブジェクトを Y +1.0 移動");
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(230);
+            }
+        };
+        javascript.javascriptGenerator.forBlock['move_selected'] = function () {
+            return `if (selectedObject) { selectedObject.position.y += 1.0; updateInspectorUI(); missionLog("BLOCK", selectedObject.name + " を上へ移動 -> Y:" + selectedObject.position.y.toFixed(2)); }\n`;
+        };
+
+        Blockly.Blocks['rotate_selected'] = {
+            init: function () {
+                this.appendDummyInput().appendField("選択中オブジェクトを Y軸 45度回転");
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(230);
+            }
+        };
+        javascript.javascriptGenerator.forBlock['rotate_selected'] = function () {
+            return `if (selectedObject) { selectedObject.rotation.y += Math.PI / 4; updateInspectorUI(); missionLog("BLOCK", selectedObject.name + " 回転 -> rotY:" + THREE.MathUtils.radToDeg(selectedObject.rotation.y).toFixed(1) + "度"); }\n`;
+        };
+
+        // 実行ボタン
+        document.getElementById('runBtn').addEventListener('click', () => {
+            try {
+                missionLog("SYSTEM", "スクリプト実行！");
+                const code = javascript.javascriptGenerator.workspaceToCode(demoWorkspace);
+                new Function('selectedObject', 'missionLog', 'updateInspectorUI', code)(selectedObject, missionLog, updateInspectorUI);
+            } catch (e) {
+                missionLog("ERROR", e.toString());
+            }
+        });
+    </script>
+</body>
+</html>
