@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="theme-color" content="#1e1e1e">
-    <meta name="description" content="Gemini Programming隊 3Dエディタ (Three.js + Blockly + Inspector + Color Picker + JSON)">
+    <meta name="theme-color" content="#2c2c2c">
+    <meta name="description" content="Gemini Programming隊 Unity風 3Dエディタ (Floating Windows + Three.js + Blockly)">
     <meta name="author" content="カカオマメ">
-    <meta name="application-name" content="Gemini 3D Editor">
-    <meta property="og:title" content="Gemini Programming 3D Editor">
-    <meta property="og:description" content="ブラウザで動くThree.js + Blockly製ミニUnityエディタ（カラーピッカー搭載版）">
+    <meta name="application-name" content="Gemini Unity Style Editor">
+    <meta property="og:title" content="Gemini Unity Style Editor">
+    <meta property="og:description" content="ブラウザで動くUnityそっくりな3Dエディタ（フローティングウィンドウ対応）">
     <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
     <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
-    <title>Gemini Programming 3D Editor (カラーピッカー搭載版)</title>
+    <title>Gemini Unity Style Editor (Floating Window対応版)</title>
 
     <!-- Blockly CSS & JS -->
     <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
@@ -28,186 +28,194 @@
 
     <style>
         * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; background: #1e1e1e; color: #fff; font-family: sans-serif; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* 左パネル: Blockly */
-        #sidebar { width: 320px; background: #252526; display: flex; flex-direction: column; border-right: 1px solid #333; flex-shrink: 0; }
-        #blocklyArea { flex: 1; height: 100%; }
-        
-        /* 中央パネル: 3D Scene & Log */
-        #mainPanel { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; }
-        #canvasContainer { flex: 1; width: 100%; height: 100%; overflow: hidden; }
-        #toolbar { min-height: 44px; background: #333; display: flex; align-items: center; padding: 4px 10px; gap: 6px; border-bottom: 1px solid #444; flex-wrap: wrap; }
-        #toolbar button, .file-btn { background: #0e639c; color: white; border: none; padding: 6px 10px; cursor: pointer; border-radius: 3px; font-weight: bold; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
-        #toolbar button:hover, .file-btn:hover { background: #1177bb; }
-        .btn-green { background: #2e7d32 !important; }
-        .btn-green:hover { background: #388e3c !important; }
-        .btn-purple { background: #6a1b9a !important; }
-        .btn-purple:hover { background: #7b1fa2 !important; }
-        .btn-orange { background: #d84315 !important; }
-        .btn-orange:hover { background: #e64a19 !important; }
-        .btn-teal { background: #00838f !important; }
-        .btn-teal:hover { background: #0097a7 !important; }
-        
-        #hierarchyBar { height: 34px; background: #222; border-bottom: 1px solid #333; display: flex; align-items: center; padding: 0 10px; gap: 8px; font-size: 12px; }
-        #objectSelect { background: #333; color: #fff; border: 1px solid #555; padding: 3px 8px; border-radius: 3px; flex: 1; max-width: 240px; }
-        
-        #logPanel { height: 125px; background: #111; border-top: 1px solid #333; padding: 8px 10px; overflow-y: auto; font-family: monospace; font-size: 12px; color: #4ec9b0; flex-shrink: 0; }
+        body { margin: 0; padding: 0; background: #222; color: #ccc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; font-size: 11px; user-select: none; }
 
-        /* 右パネル: Unity風 Inspector */
-        #inspectorPanel { width: 270px; background: #252526; border-left: 1px solid #333; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
-        .panel-header { padding: 10px; background: #2d2d2d; font-weight: bold; font-size: 13px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
-        .inspector-section { padding: 10px; border-bottom: 1px solid #333; }
-        .inspector-title { font-size: 12px; font-weight: bold; color: #ccc; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .prop-row { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; font-size: 11px; }
-        .prop-label { width: 55px; color: #aaa; flex-shrink: 0; }
+        /* Unity風 トップメニューバー */
+        #topMenu { height: 24px; background: #383838; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; padding: 0 8px; gap: 12px; color: #bbb; }
+        .menu-item { cursor: pointer; padding: 2px 6px; border-radius: 2px; }
+        .menu-item:hover { background: #444; color: #fff; }
+
+        /* Unity風 ツールバー (再生ボタンなど) */
+        #toolbar { height: 36px; background: #2c2c2c; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; padding: 0 10px; gap: 8px; }
+        .tool-btn { background: #3c3c3c; color: #ddd; border: 1px solid #222; padding: 4px 10px; cursor: pointer; border-radius: 3px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
+        .tool-btn:hover { background: #4c4c4c; color: #fff; }
+        .play-btn { background: #2e7d32; color: #fff; font-weight: bold; }
+        .play-btn:hover { background: #388e3c; }
+
+        /* メインレイアウト (左右分割) */
+        #mainContent { flex: 1; display: flex; position: relative; overflow: hidden; }
+
+        /* 左側: Scene & Gameビュー ＋ 下部 Console */
+        #leftArea { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; }
+        #sceneContainer { flex: 1; position: relative; background: #1e1e1e; overflow: hidden; }
+        
+        /* 浮動シーンタブ風ヘッダー */
+        .scene-tabs { height: 24px; background: #333; display: flex; align-items: center; padding: 0 8px; gap: 10px; border-bottom: 1px solid #222; font-size: 10px; color: #aaa; }
+        .scene-tab.active { color: #fff; border-bottom: 2px solid #4a90e2; padding-bottom: 2px; }
+
+        #consoleArea { height: 120px; background: #181818; border-top: 1px solid #1a1a1a; display: flex; flex-direction: column; }
+        .console-header { height: 22px; background: #2a2a2a; display: flex; align-items: center; padding: 0 8px; font-weight: bold; border-bottom: 1px solid #1a1a1a; gap: 8px; }
+        #logPanel { flex: 1; overflow-y: auto; padding: 6px; font-family: monospace; font-size: 10px; color: #4ec9b0; }
+
+        /* 右側エリア: Hierarchy ＆ Inspector */
+        #rightArea { width: 280px; background: #333; border-left: 1px solid #1a1a1a; display: flex; flex-direction: column; flex-shrink: 0; }
+        
+        /* Hierarchy */
+        #hierarchySection { height: 45%; border-bottom: 1px solid #222; display: flex; flex-direction: column; }
+        .section-header { background: #2d2d2d; padding: 6px 8px; font-weight: bold; color: #ddd; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+        #hierarchyList { flex: 1; background: #252526; overflow-y: auto; padding: 4px; }
+        .hierarchy-item { padding: 4px 8px; cursor: pointer; border-radius: 2px; color: #ccc; margin-bottom: 1px; }
+        .hierarchy-item:hover { background: #2a2d2e; }
+        .hierarchy-item.selected { background: #37373d; color: #fff; border-left: 3px solid #007acc; }
+
+        /* Inspector */
+        #inspectorSection { flex: 1; background: #333; display: flex; flex-direction: column; overflow-y: auto; }
+        .inspector-content { padding: 8px; }
+        .prop-row { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; font-size: 10px; }
+        .prop-label { width: 55px; color: #999; flex-shrink: 0; }
         .axis-group { display: flex; align-items: center; flex: 1; gap: 2px; }
-        .axis-tag { font-weight: bold; font-size: 10px; padding: 2px 4px; border-radius: 2px; color: #fff; }
-        .axis-x { background: #c62828; }
-        .axis-y { background: #2e7d32; }
-        .axis-z { background: #1565c0; }
-        .inspector-input { width: 100%; background: #1e1e1e; color: #fff; border: 1px solid #444; border-radius: 3px; padding: 4px; font-size: 11px; font-family: monospace; }
-        .inspector-input:focus { outline: none; border-color: #0e639c; }
-        .color-input { width: 100%; height: 28px; background: #1e1e1e; border: 1px solid #444; border-radius: 3px; cursor: pointer; padding: 0; }
-        .reset-btn { background: #3a3a3a; color: #ddd; border: 1px solid #555; border-radius: 3px; padding: 2px 6px; font-size: 10px; cursor: pointer; }
-        .reset-btn:hover { background: #505050; }
+        .axis-tag { font-weight: bold; font-size: 9px; padding: 1px 3px; border-radius: 2px; color: #fff; }
+        .axis-x { background: #a93226; }
+        .axis-y { background: #27ae60; }
+        .axis-z { background: #2980b9; }
+        .unity-input { width: 100%; background: #1e1e1e; color: #fff; border: 1px solid #444; border-radius: 2px; padding: 3px; font-size: 10px; font-family: monospace; }
+        .unity-input:focus { outline: none; border-color: #007acc; }
+        .color-input { width: 100%; height: 24px; background: #1e1e1e; border: 1px solid #444; border-radius: 2px; cursor: pointer; padding: 0; }
+
+        /* 🧩 擬似ウィンドウ (Floating Window) スタイル */
+        .floating-window { position: absolute; top: 60px; left: 80px; width: 520px; height: 400px; background: #3c3c3c; border: 1px solid #555; border-radius: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.6); display: flex; flex-direction: column; z-index: 1000; overflow: hidden; display: none; }
+        .window-header { height: 28px; background: #2d2d2d; color: #ddd; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; cursor: move; border-bottom: 1px solid #222; font-weight: bold; }
+        .window-close { background: transparent; border: none; color: #aaa; font-size: 14px; cursor: pointer; padding: 0 6px; }
+        .window-close:hover { background: #c0392b; color: #fff; }
+        .window-body { flex: 1; background: #1e1e1e; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+
         input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- 左: Blockly -->
-    <div id="sidebar">
-        <div class="panel-header">🧩 ロジックエディタ (Blockly)</div>
-        <div id="blocklyArea"></div>
+    <!-- Unity風 トップメニュー -->
+    <div id="topMenu">
+        <span class="menu-item" id="menuOpenBlockly">🧩 Blocklyウィンドウを開く</span>
+        <span class="menu-item" id="menuOpenCode">💻 コード入力ウィンドウを開く</span>
+        <label class="menu-item" style="display:inline-block;">📦 OBJモデル読込<input type="file" id="objInput" accept=".obj"></label>
+        <label class="menu-item" style="display:inline-block;">🖼️ テクスチャ読込<input type="file" id="texInput" accept="image/*"></label>
+        <span class="menu-item" id="saveSceneBtn">💾 シーン保存</span>
+        <label class="menu-item" style="display:inline-block;">📂 シーン読込<input type="file" id="loadSceneInput" accept=".json"></label>
     </div>
 
-    <!-- 中央: 3D Scene & Console -->
-    <div id="mainPanel">
-        <div id="toolbar">
-            <button id="runBtn" class="btn-green">🚀 実行</button>
-            <label class="file-btn btn-purple">
-                📦 OBJ読込
-                <input type="file" id="objInput" accept=".obj">
-            </label>
-            <label class="file-btn btn-orange">
-                🖼️ テクスチャ
-                <input type="file" id="texInput" accept="image/*">
-            </label>
-            <button id="modeTranslateBtn">↔️ 移動</button>
-            <button id="modeRotateBtn">🔄 回転</button>
-            <button id="modeScaleBtn">📐 拡縮</button>
-            <button id="saveSceneBtn" class="btn-teal">💾 シーン保存</button>
-            <label class="file-btn btn-teal">
-                📂 シーン読込
-                <input type="file" id="loadSceneInput" accept=".json">
-            </label>
-        </div>
-
-        <div id="hierarchyBar">
-            <span>🌲 Hierarchy:</span>
-            <select id="objectSelect"></select>
-        </div>
-
-        <div id="canvasContainer"></div>
-
-        <div id="logPanel">
-            <div>[SYSTEM] Gemini Programming隊 3Dエディタ (カラーピッカー搭載版) 起動完了！</div>
-        </div>
+    <!-- Unity風 ツールバー -->
+    <div id="toolbar">
+        <button class="tool-btn play-btn" id="runBtn">▶ 再生 (Run)</button>
+        <div style="width: 1px; height: 20px; background: #444; margin: 0 4px;"></div>
+        <button class="tool-btn" id="modeTranslateBtn">↔️ 移動</button>
+        <button class="tool-btn" id="modeRotateBtn">🔄 回転</button>
+        <button class="tool-btn" id="modeScaleBtn">📐 拡縮</button>
     </div>
 
-    <!-- 右: Unity風 Inspector -->
-    <div id="inspectorPanel">
-        <div class="panel-header">🔍 Inspector</div>
+    <!-- メインコンテンツ -->
+    <div id="mainContent">
+        <!-- 左: 3Dビュー ＆ コンソール -->
+        <div id="leftArea">
+            <div class="scene-tabs">
+                <span class="scene-tab active">Scene</span>
+                <span class="scene-tab">Game</span>
+            </div>
+            <div id="sceneContainer"></div>
 
-        <!-- オブジェクト基本情報 -->
-        <div class="inspector-section">
-            <div class="inspector-title">🏷️ GameObject</div>
-            <div class="prop-row">
-                <span class="prop-label">Name</span>
-                <input type="text" id="inspName" class="inspector-input" placeholder="Object Name">
+            <div id="consoleArea">
+                <div class="console-header">
+                    <span>Console</span>
+                    <button class="tool-btn" style="padding: 1px 6px; font-size: 9px;" onclick="document.getElementById('logPanel').innerHTML=''">クリア</button>
+                </div>
+                <div id="logPanel">
+                    <div>[SYSTEM] Gemini Unityエディタ 起動完了！</div>
+                </div>
             </div>
         </div>
 
-        <!-- Material (色変更) セクション -->
-        <div class="inspector-section">
-            <div class="inspector-title">🎨 Material (Albedo)</div>
-            <div class="prop-row">
-                <span class="prop-label">Color</span>
-                <div style="flex: 1;">
-                    <input type="color" id="inspColor" class="color-input" value="#4caf50">
-                </div>
-            </div>
-        </div>
-
-        <!-- Transform セクション -->
-        <div class="inspector-section">
-            <div class="inspector-title">
-                <span>📐 Transform</span>
-                <button id="resetTransformBtn" class="reset-btn">↺ Reset</button>
+        <!-- 右: Hierarchy ＆ Inspector -->
+        <div id="rightArea">
+            <div id="hierarchySection">
+                <div class="section-header"><span>Hierarchy (SampleScene)</span></div>
+                <div id="hierarchyList"></div>
             </div>
 
-            <!-- Position -->
-            <div class="prop-row">
-                <span class="prop-label">Position</span>
-                <div class="axis-group">
-                    <span class="axis-tag axis-x">X</span>
-                    <input type="number" id="posX" class="inspector-input" step="0.1">
+            <div id="inspectorSection">
+                <div class="section-header"><span>Inspector</span></div>
+                <div class="inspector-content" id="inspectorContent" style="display: none;">
+                    <div class="prop-row">
+                        <span class="prop-label">Name</span>
+                        <input type="text" id="inspName" class="unity-input">
+                    </div>
+                    <div class="prop-row">
+                        <span class="prop-label">Color</span>
+                        <input type="color" id="inspColor" class="color-input">
+                    </div>
+                    <hr style="border:0; border-top:1px solid #444; margin: 6px 0;">
+                    <div style="font-weight: bold; color: #aaa; margin-bottom: 4px; display:flex; justify-content:space-between;">
+                        <span>Transform</span>
+                        <button class="tool-btn" id="resetTransformBtn" style="padding: 1px 4px; font-size: 9px;">↺ Reset</button>
+                    </div>
+                    <div class="prop-row">
+                        <span class="prop-label">Position</span>
+                        <div class="axis-group"><span class="axis-tag axis-x">X</span><input type="number" id="posX" class="unity-input" step="0.1"></div>
+                        <div class="axis-group"><span class="axis-tag axis-y">Y</span><input type="number" id="posY" class="unity-input" step="0.1"></div>
+                        <div class="axis-group"><span class="axis-tag axis-z">Z</span><input type="number" id="posZ" class="unity-input" step="0.1"></div>
+                    </div>
+                    <div class="prop-row">
+                        <span class="prop-label">Rotation</span>
+                        <div class="axis-group"><span class="axis-tag axis-x">X</span><input type="number" id="rotX" class="unity-input" step="5"></div>
+                        <div class="axis-group"><span class="axis-tag axis-y">Y</span><input type="number" id="rotY" class="unity-input" step="5"></div>
+                        <div class="axis-group"><span class="axis-tag axis-z">Z</span><input type="number" id="rotZ" class="unity-input" step="5"></div>
+                    </div>
+                    <div class="prop-row">
+                        <span class="prop-label">Scale</span>
+                        <div class="axis-group"><span class="axis-tag axis-x">X</span><input type="number" id="scaleX" class="unity-input" step="0.1"></div>
+                        <div class="axis-group"><span class="axis-tag axis-y">Y</span><input type="number" id="scaleY" class="unity-input" step="0.1"></div>
+                        <div class="axis-group"><span class="axis-tag axis-z">Z</span><input type="number" id="scaleZ" class="unity-input" step="0.1"></div>
+                    </div>
                 </div>
-                <div class="axis-group">
-                    <span class="axis-tag axis-y">Y</span>
-                    <input type="number" id="posY" class="inspector-input" step="0.1">
-                </div>
-                <div class="axis-group">
-                    <span class="axis-tag axis-z">Z</span>
-                    <input type="number" id="posZ" class="inspector-input" step="0.1">
-                </div>
-            </div>
-
-            <!-- Rotation (Degree) -->
-            <div class="prop-row">
-                <span class="prop-label">Rotation</span>
-                <div class="axis-group">
-                    <span class="axis-tag axis-x">X</span>
-                    <input type="number" id="rotX" class="inspector-input" step="5">
-                </div>
-                <div class="axis-group">
-                    <span class="axis-tag axis-y">Y</span>
-                    <input type="number" id="rotY" class="inspector-input" step="5">
-                </div>
-                <div class="axis-group">
-                    <span class="axis-tag axis-z">Z</span>
-                    <input type="number" id="rotZ" class="inspector-input" step="5">
-                </div>
-            </div>
-
-            <!-- Scale -->
-            <div class="prop-row">
-                <span class="prop-label">Scale</span>
-                <div class="axis-group">
-                    <span class="axis-tag axis-x">X</span>
-                    <input type="number" id="scaleX" class="inspector-input" step="0.1">
-                </div>
-                <div class="axis-group">
-                    <span class="axis-tag axis-y">Y</span>
-                    <input type="number" id="scaleY" class="inspector-input" step="0.1">
-                </div>
-                <div class="axis-group">
-                    <span class="axis-tag axis-z">Z</span>
-                    <input type="number" id="scaleZ" class="inspector-input" step="0.1">
-                </div>
+                <div id="inspectorEmpty" style="padding: 20px; text-align: center; color: #777;">オブジェクトが選択されていません</div>
             </div>
         </div>
     </div>
 
-    <!-- Blockly ツールボックス定義 -->
+    <!-- 🧩 擬似ウィンドウ 1: Blockly エディタウィンドウ -->
+    <div id="blocklyWindow" class="floating-window">
+        <div class="window-header" id="blocklyWindowHeader">
+            <span>🧩 Blockly Editor Window</span>
+            <button class="window-close" id="closeBlocklyWin">×</button>
+        </div>
+        <div class="window-body">
+            <div id="blocklyArea" style="width: 100%; height: 100%;"></div>
+        </div>
+    </div>
+
+    <!-- 💻 擬似ウィンドウ 2: コード入力ウィンドウ -->
+    <div id="codeWindow" class="floating-window">
+        <div class="window-header" id="codeWindowHeader">
+            <span>💻 C# / JS Script Window</span>
+            <button class="window-close" id="closeCodeWin">×</button>
+        </div>
+        <div class="window-body" style="padding: 8px;">
+            <div style="font-size: 10px; color: #888; margin-bottom: 4px;">// 選択中のオブジェクトを操作するスクリプトを記述</div>
+            <textarea id="codeTextArea" style="flex: 1; background: #141414; color: #dcdcdc; border: 1px solid #444; font-family: monospace; font-size: 11px; padding: 6px; resize: none; border-radius: 2px;" spellcheck="false">if (selectedObject) {
+    selectedObject.position.y += 0.5;
+    missionLog("SCRIPT", selectedObject.name + " を上に動かしたよ！");
+}</textarea>
+            <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
+                <button class="tool-btn play-btn" id="runCodeBtn">▶ このスクリプトを実行</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blockly ツールボックス -->
     <xml id="toolbox" style="display: none">
         <category name="アクション" colour="#5b80a5">
             <block type="mission_log">
                 <value name="TEXT">
-                    <shadow type="text">
-                        <field name="TEXT">カラー変更完了！</field>
-                    </shadow>
+                    <shadow type="text"><field name="TEXT">隊長、こんにちは！</field></shadow>
                 </value>
             </block>
             <block type="move_selected"></block>
@@ -215,17 +223,13 @@
         </category>
         <category name="制御" colour="#a55b5b">
             <block type="controls_repeat_ext">
-                <value name="TIMES">
-                    <shadow type="math_number">
-                        <field name="NUM">10</field>
-                    </shadow>
-                </value>
+                <value name="TIMES"><shadow type="math_number"><field name="NUM">10</field></shadow></value>
             </block>
         </category>
     </xml>
 
     <script>
-        // --- 1. ログ出力関数 (missionLog) ---
+        // --- 1. ログ出力 (Console) ---
         function missionLog(type, message) {
             const panel = document.getElementById('logPanel');
             const div = document.createElement('div');
@@ -235,10 +239,51 @@
             console.log(`[${type}] ${message}`);
         }
 
-        // --- 2. Three.js セットアップ ---
-        const container = document.getElementById('canvasContainer');
+        // --- 2. 窓のドラッグ移動 (Floating Window Drag) ---
+        function makeDraggable(winId, headerId) {
+            const win = document.getElementById(winId);
+            const header = document.getElementById(headerId);
+            let isDragging = false, startX, startY, initialLeft, initialTop;
+
+            header.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialLeft = win.offsetLeft;
+                initialTop = win.offsetTop;
+                win.style.zIndex = 9999; // 最前面へ
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                win.style.left = (initialLeft + (e.clientX - startX)) + 'px';
+                win.style.top = (initialTop + (e.clientY - startY)) + 'px';
+            });
+
+            document.addEventListener('mouseup', () => { isDragging = false; });
+        }
+        makeDraggable('blocklyWindow', 'blocklyWindowHeader');
+        makeDraggable('codeWindow', 'codeWindowHeader');
+
+        // ウィンドウ開閉トグル
+        document.getElementById('menuOpenBlockly').addEventListener('click', () => {
+            const win = document.getElementById('blocklyWindow');
+            win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
+            if(win.style.display === 'flex') Blockly.svgResize(demoWorkspace);
+        });
+        document.getElementById('closeBlocklyWin').addEventListener('click', () => { document.getElementById('blocklyWindow').style.display = 'none'; });
+
+        document.getElementById('menuOpenCode').addEventListener('click', () => {
+            const win = document.getElementById('codeWindow');
+            win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
+        });
+        document.getElementById('closeCodeWin').addEventListener('click', () => { document.getElementById('codeWindow').style.display = 'none'; });
+
+
+        // --- 3. Three.js シーン管理 ---
+        const container = document.getElementById('sceneContainer');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a1a);
+        scene.background = new THREE.Color(0x1e1e1e);
 
         const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
         camera.position.set(3, 3, 5);
@@ -247,24 +292,23 @@
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
-        // ライティング & グリッド
         scene.add(new THREE.AmbientLight(0xffffff, 0.8));
         const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
         dirLight.position.set(5, 10, 7);
         scene.add(dirLight);
         scene.add(new THREE.GridHelper(10, 10, 0x444444, 0x222222));
 
-        // コントロール
         const orbit = new THREE.OrbitControls(camera, renderer.domElement);
         const transformControl = new THREE.TransformControls(camera, renderer.domElement);
         scene.add(transformControl);
 
-        // シーン内オブジェクト管理リスト
         let sceneObjects = [];
         let selectedObject = null;
-        const objectSelect = document.getElementById('objectSelect');
+        const hierarchyList = document.getElementById('hierarchyList');
+        const inspectorContent = document.getElementById('inspectorContent');
+        const inspectorEmpty = document.getElementById('inspectorEmpty');
 
-        // Inspector UI 要素参照
+        // Inspector UI要素
         const inspName = document.getElementById('inspName');
         const inspColor = document.getElementById('inspColor');
         const posX = document.getElementById('posX');
@@ -278,19 +322,17 @@
         const scaleZ = document.getElementById('scaleZ');
 
         function updateInspectorUI() {
-            if (!selectedObject) return;
-            inspName.value = selectedObject.name;
+            if (!selectedObject) {
+                inspectorContent.style.display = 'none';
+                inspectorEmpty.style.display = 'block';
+                return;
+            }
+            inspectorContent.style.display = 'block';
+            inspectorEmpty.style.display = 'none';
 
-            // マテリアルの色をカラーピッカーに反映
+            inspName.value = selectedObject.name;
             if (selectedObject.material && selectedObject.material.color) {
                 inspColor.value = '#' + selectedObject.material.color.getHexString();
-            } else if (selectedObject.isGroup || selectedObject.children.length > 0) {
-                // グループ（OBJなど）の場合、最初のメッシュの色を取得
-                let firstMesh = null;
-                selectedObject.traverse(child => { if (!firstMesh && child.isMesh) firstMesh = child; });
-                if (firstMesh && firstMesh.material && firstMesh.material.color) {
-                    inspColor.value = '#' + firstMesh.material.color.getHexString();
-                }
             }
 
             posX.value = selectedObject.position.x.toFixed(2);
@@ -306,275 +348,178 @@
             scaleZ.value = selectedObject.scale.z.toFixed(2);
         }
 
-        function bindInspectorInputs() {
-            inspName.addEventListener('change', () => {
-                if (!selectedObject) return;
-                const oldName = selectedObject.name;
-                selectedObject.name = inspName.value || "Unnamed_Object";
-                refreshHierarchyUI();
-                missionLog("INSPECTOR", `名前変更: ${oldName} -> ${selectedObject.name}`);
-            });
-
-            // カラーピッカー変更時の処理
-            inspColor.addEventListener('input', () => {
-                if (!selectedObject) return;
-                const newHex = inspColor.value;
-                const threeColor = new THREE.Color(newHex);
-
-                selectedObject.traverse(child => {
-                    if (child.isMesh) {
-                        if (child.material) {
-                            child.material.color = threeColor;
-                            child.material.needsUpdate = true;
-                        }
-                    }
-                });
-                selectedObject.userData.customColor = newHex;
-                missionLog("COLOR", `${selectedObject.name} の色を ${newHex} に変更！`);
-            });
-
-            const applyTransformFromUI = () => {
-                if (!selectedObject) return;
-                selectedObject.position.set(
-                    parseFloat(posX.value) || 0,
-                    parseFloat(posY.value) || 0,
-                    parseFloat(posZ.value) || 0
-                );
-                selectedObject.rotation.set(
-                    THREE.MathUtils.degToRad(parseFloat(rotX.value) || 0),
-                    THREE.MathUtils.degToRad(parseFloat(rotY.value) || 0),
-                    THREE.MathUtils.degToRad(parseFloat(rotZ.value) || 0)
-                );
-                selectedObject.scale.set(
-                    parseFloat(scaleX.value) || 0.01,
-                    parseFloat(scaleY.value) || 0.01,
-                    parseFloat(scaleZ.value) || 0.01
-                );
-            };
-
-            [posX, posY, posZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ].forEach(input => {
-                input.addEventListener('input', applyTransformFromUI);
-            });
-
-            document.getElementById('resetTransformBtn').addEventListener('click', () => {
-                if (!selectedObject) return;
-                selectedObject.position.set(0, 0, 0);
-                selectedObject.rotation.set(0, 0, 0);
-                selectedObject.scale.set(1, 1, 1);
-                updateInspectorUI();
-                missionLog("INSPECTOR", `${selectedObject.name} のTransformをリセットしました！`);
-            });
-        }
-        bindInspectorInputs();
-
-        transformControl.addEventListener('dragging-changed', function (event) {
-            orbit.enabled = !event.value;
+        // Inspector入力の反映
+        inspName.addEventListener('change', () => {
+            if (!selectedObject) return;
+            selectedObject.name = inspName.value || "GameObject";
+            refreshHierarchyUI();
         });
 
-        transformControl.addEventListener('objectChange', function () {
+        inspColor.addEventListener('input', () => {
+            if (!selectedObject) return;
+            const col = new THREE.Color(inspColor.value);
+            selectedObject.traverse(child => {
+                if (child.isMesh && child.material) child.material.color = col;
+            });
+            selectedObject.userData.customColor = inspColor.value;
+        });
+
+        const applyTransform = () => {
+            if (!selectedObject) return;
+            selectedObject.position.set(parseFloat(posX.value)||0, parseFloat(posY.value)||0, parseFloat(posZ.value)||0);
+            selectedObject.rotation.set(THREE.MathUtils.degToRad(parseFloat(rotX.value)||0), THREE.MathUtils.degToRad(parseFloat(rotY.value)||0), THREE.MathUtils.degToRad(parseFloat(rotZ.value)||0));
+            selectedObject.scale.set(parseFloat(scaleX.value)||1, parseFloat(scaleY.value)||1, parseFloat(scaleZ.value)||1);
+        };
+        [posX, posY, posZ, rotX, rotY, rotZ, scaleX, scaleY, scaleZ].forEach(el => el.addEventListener('input', applyTransform));
+
+        document.getElementById('resetTransformBtn').addEventListener('click', () => {
+            if (!selectedObject) return;
+            selectedObject.position.set(0,0,0);
+            selectedObject.rotation.set(0,0,0);
+            selectedObject.scale.set(1,1,1);
             updateInspectorUI();
         });
 
+        transformControl.addEventListener('dragging-changed', (e) => { orbit.enabled = !e.value; });
+        transformControl.addEventListener('objectChange', updateInspectorUI);
+
         function refreshHierarchyUI() {
-            objectSelect.innerHTML = '';
-            sceneObjects.forEach((obj, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = obj.name;
-                objectSelect.appendChild(option);
+            hierarchyList.innerHTML = '';
+            sceneObjects.forEach((obj, idx) => {
+                const div = document.createElement('div');
+                div.className = 'hierarchy-item' + (obj === selectedObject ? ' selected' : '');
+                div.textContent = `📦 ${obj.name}`;
+                div.onclick = () => selectObjectByIndex(idx);
+                hierarchyList.appendChild(div);
             });
-            if (selectedObject) {
-                const idx = sceneObjects.indexOf(selectedObject);
-                if (idx !== -1) objectSelect.value = idx;
-            }
         }
 
-        function registerObject(obj, name, isGeometryData = null, customColor = "#4caf50") {
+        function registerObject(obj, name, userData = {}, color = "#4caf50") {
             obj.name = name;
-            obj.userData = { isGeometryData: isGeometryData, customColor: customColor };
+            obj.userData = userData;
+            obj.userData.customColor = color;
             scene.add(obj);
             sceneObjects.push(obj);
             refreshHierarchyUI();
             selectObjectByIndex(sceneObjects.length - 1);
-            missionLog("HIERARCHY", `オブジェクト登録: ${name}`);
+            missionLog("SCENE", `オブジェクト追加: ${name}`);
         }
 
-        function selectObjectByIndex(index) {
-            const target = sceneObjects[index];
-            if (!target) return;
-            selectedObject = target;
-            objectSelect.value = index;
-            transformControl.attach(selectedObject);
+        function selectObjectByIndex(idx) {
+            selectedObject = sceneObjects[idx];
+            if (selectedObject) transformControl.attach(selectedObject);
+            else transformControl.detach();
+            refreshHierarchyUI();
             updateInspectorUI();
         }
 
-        objectSelect.addEventListener('change', (e) => {
-            selectObjectByIndex(parseInt(e.target.value, 10));
-        });
-
         // 初期テスト用キューブ
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshStandardMaterial({ color: 0x4caf50 });
-        const initialCube = new THREE.Mesh(geometry, material);
-        initialCube.position.set(0, 0.5, 0);
-        registerObject(initialCube, "Default_Cube", "box", "#4caf50");
+        const cube = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshStandardMaterial({color: 0x4caf50}));
+        cube.position.set(0, 0.5, 0);
+        registerObject(cube, "AI_TestCube", { isBox: true }, "#4caf50");
 
-        // --- 3. ギズモモード切替 ---
-        document.getElementById('modeTranslateBtn').addEventListener('click', () => { transformControl.setMode('translate'); missionLog("MODE", "移動ギズモ"); });
-        document.getElementById('modeRotateBtn').addEventListener('click', () => { transformControl.setMode('rotate'); missionLog("MODE", "回転ギズモ"); });
-        document.getElementById('modeScaleBtn').addEventListener('click', () => { transformControl.setMode('scale'); missionLog("MODE", "拡縮ギズモ"); });
+        // --- 4. ギズモモード ---
+        document.getElementById('modeTranslateBtn').onclick = () => transformControl.setMode('translate');
+        document.getElementById('modeRotateBtn').onclick = () => transformControl.setMode('rotate');
+        document.getElementById('modeScaleBtn').onclick = () => transformControl.setMode('scale');
 
-        // --- 4. OBJ読込 ---
+        // --- 5. OBJ読込 & テクスチャ ---
         const objLoader = new THREE.OBJLoader();
-        document.getElementById('objInput').addEventListener('change', function (event) {
-            const file = event.target.files[0];
+        document.getElementById('objInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = function (e) {
-                try {
-                    const contents = e.target.result;
-                    const object = objLoader.parse(contents);
-                    object.traverse(child => {
-                        if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ color: 0xcccccc });
-                    });
-                    registerObject(object, file.name, { type: 'obj', content: contents }, "#cccccc");
-                    missionLog("SUCCESS", `OBJ読込完了: ${file.name}`);
-                } catch (err) {
-                    missionLog("ERROR", `OBJエラー: ${err.message}`);
-                }
+            reader.onload = (ev) => {
+                const obj = objLoader.parse(ev.target.result);
+                obj.traverse(child => { if (child.isMesh) child.material = new THREE.MeshStandardMaterial({color: 0xcccccc}); });
+                registerObject(obj, file.name, { type: 'obj', content: ev.target.result }, "#cccccc");
             };
             reader.readAsText(file);
-            event.target.value = "";
+            e.target.value = "";
         });
 
-        // --- 5. テクスチャ読込 ---
         const textureLoader = new THREE.TextureLoader();
-        document.getElementById('texInput').addEventListener('change', function (event) {
-            const file = event.target.files[0];
+        document.getElementById('texInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
             if (!file || !selectedObject) return;
-
             const reader = new FileReader();
-            reader.onload = function (e) {
-                const dataUrl = e.target.result;
-                textureLoader.load(dataUrl, texture => {
+            reader.onload = (ev) => {
+                textureLoader.load(ev.target.result, tex => {
                     selectedObject.traverse(child => {
-                        if (child.isMesh) {
-                            child.material = new THREE.MeshStandardMaterial({ map: texture, color: 0xffffff });
-                            child.material.needsUpdate = true;
-                        }
+                        if (child.isMesh) { child.material = new THREE.MeshStandardMaterial({map: tex}); child.material.needsUpdate = true; }
                     });
-                    selectedObject.userData.textureDataUrl = dataUrl;
-                    missionLog("SUCCESS", `${selectedObject.name} にテクスチャ適用！`);
+                    selectedObject.userData.texUrl = ev.target.result;
+                    missionLog("TEXTURE", `${selectedObject.name} にテクスチャ適用！`);
                 });
             };
             reader.readAsDataURL(file);
-            event.target.value = "";
+            e.target.value = "";
         });
 
-        // --- 6. JSON シーン保存・読込 ---
+        // --- 6. シーン保存・読込 (JSON) ---
         document.getElementById('saveSceneBtn').addEventListener('click', () => {
-            try {
-                const xmlDom = Blockly.Xml.workspaceToDom(demoWorkspace);
-                const xmlText = Blockly.Xml.domToText(xmlDom);
-
-                const objectsData = sceneObjects.map(obj => {
-                    return {
-                        name: obj.name,
-                        position: { x: obj.position.x, y: obj.position.y, z: obj.position.z },
-                        rotation: { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z },
-                        scale: { x: obj.scale.x, y: obj.scale.y, z: obj.scale.z },
-                        userData: obj.userData
-                    };
-                });
-
-                const sceneData = { version: "1.1", objects: objectsData, blocklyXml: xmlText };
-                const blob = new Blob([JSON.stringify(sceneData, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'gemini_scene.json';
-                a.click();
-                URL.revokeObjectURL(url);
-                missionLog("SAVE", "シーンとブロック構成を JSON で保存しました！");
-            } catch (e) {
-                missionLog("ERROR", `保存失敗: ${e.message}`);
-            }
+            const xmlText = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(demoWorkspace));
+            const data = {
+                objects: sceneObjects.map(o => ({
+                    name: o.name,
+                    pos: [o.position.x, o.position.y, o.position.z],
+                    rot: [o.rotation.x, o.rotation.y, o.rotation.z],
+                    scale: [o.scale.x, o.scale.y, o.scale.z],
+                    userData: o.userData
+                })),
+                blocklyXml: xmlText
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'unity_scene.json'; a.click();
+            URL.revokeObjectURL(url);
+            missionLog("SAVE", "シーンを保存しました！");
         });
 
-        document.getElementById('loadSceneInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
+        document.getElementById('loadSceneInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const sceneData = JSON.parse(e.target.result);
+            reader.onload = (ev) => {
+                const data = JSON.parse(ev.target.result);
+                sceneObjects.forEach(o => scene.remove(o));
+                sceneObjects = [];
+                transformControl.detach();
+                selectedObject = null;
 
-                    sceneObjects.forEach(obj => scene.remove(obj));
-                    sceneObjects = [];
-                    transformControl.detach();
-                    selectedObject = null;
-
-                    sceneData.objects.forEach(data => {
-                        let newObj;
-                        const col = (data.userData && data.userData.customColor) ? data.userData.customColor : "#cccccc";
-
-                        if (data.userData && data.userData.isGeometryData === 'box') {
-                            const geom = new THREE.BoxGeometry(1, 1, 1);
-                            const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(col) });
-                            newObj = new THREE.Mesh(geom, mat);
-                            newObj.userData = data.userData;
-                        } else if (data.userData && data.userData.isGeometryData && data.userData.isGeometryData.type === 'obj') {
-                            newObj = objLoader.parse(data.userData.isGeometryData.content);
-                            newObj.traverse(child => {
-                                if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ color: new THREE.Color(col) });
-                            });
-                            newObj.userData = data.userData;
-                            if (data.userData.textureDataUrl) {
-                                textureLoader.load(data.userData.textureDataUrl, tex => {
-                                    newObj.traverse(child => {
-                                        if (child.isMesh) child.material = new THREE.MeshStandardMaterial({ map: tex, color: 0xffffff });
-                                    });
-                                });
-                            }
-                        } else {
-                            const geom = new THREE.BoxGeometry(1, 1, 1);
-                            const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(col) });
-                            newObj = new THREE.Mesh(geom, mat);
-                            newObj.userData = data.userData || {};
-                        }
-
-                        newObj.name = data.name;
-                        newObj.position.set(data.position.x, data.position.y, data.position.z);
-                        newObj.rotation.set(data.rotation.x, data.rotation.y, data.rotation.z);
-                        newObj.scale.set(data.scale.x, data.scale.y, data.scale.z);
-
-                        scene.add(newObj);
-                        sceneObjects.push(newObj);
-                    });
-
-                    refreshHierarchyUI();
-                    if (sceneObjects.length > 0) selectObjectByIndex(0);
-
-                    if (sceneData.blocklyXml) {
-                        demoWorkspace.clear();
-                        const xmlDom = Blockly.utils.xml.textToDom(sceneData.blocklyXml);
-                        Blockly.Xml.domToWorkspace(xmlDom, demoWorkspace);
+                data.objects.forEach(d => {
+                    let obj;
+                    const col = d.userData.customColor || "#4caf50";
+                    if (d.userData.isBox) {
+                        obj = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshStandardMaterial({color: new THREE.Color(col)}));
+                    } else if (d.userData.type === 'obj') {
+                        obj = objLoader.parse(d.userData.content);
+                        obj.traverse(c => { if(c.isMesh) c.material = new THREE.MeshStandardMaterial({color: new THREE.Color(col)}); });
+                    } else {
+                        obj = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshStandardMaterial({color: new THREE.Color(col)}));
                     }
-
-                    missionLog("LOAD", `シーン読込成功: ${file.name} (${sceneObjects.length} 個のオブジェクト)`);
-                } catch (err) {
-                    missionLog("ERROR", `読込エラー: ${err.message}`);
+                    obj.name = d.name;
+                    obj.position.set(...d.pos);
+                    obj.rotation.set(...d.rot);
+                    obj.scale.set(...d.scale);
+                    obj.userData = d.userData;
+                    scene.add(obj);
+                    sceneObjects.push(obj);
+                });
+                refreshHierarchyUI();
+                if (sceneObjects.length) selectObjectByIndex(0);
+                if (data.blocklyXml) {
+                    demoWorkspace.clear();
+                    Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(data.blocklyXml), demoWorkspace);
                 }
+                missionLog("LOAD", "シーン読込成功！");
             };
             reader.readAsText(file);
-            event.target.value = "";
+            e.target.value = "";
         });
 
         // ウィンドウリサイズ
         window.addEventListener('resize', () => {
-            if (!container.clientWidth || !container.clientHeight) return;
             camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(container.clientWidth, container.clientHeight);
@@ -594,51 +539,52 @@
         });
 
         Blockly.Blocks['mission_log'] = {
-            init: function () {
+            init: function() {
                 this.appendValueInput("TEXT").setCheck("String").appendField("ログ出力する");
-                this.setPreviousStatement(true, null);
-                this.setNextStatement(true, null);
-                this.setColour(160);
+                this.setPreviousStatement(true, null); this.setNextStatement(true, null); this.setColour(160);
             }
         };
-        javascript.javascriptGenerator.forBlock['mission_log'] = function (block) {
+        javascript.javascriptGenerator.forBlock['mission_log'] = function(block) {
             const text = javascript.javascriptGenerator.valueToCode(block, 'TEXT', javascript.javascriptGenerator.ORDER_ATOMIC) || "''";
             return `missionLog("ACTION", ${text});\n`;
         };
 
         Blockly.Blocks['move_selected'] = {
-            init: function () {
+            init: function() {
                 this.appendDummyInput().appendField("選択中オブジェクトを Y +1.0 移動");
-                this.setPreviousStatement(true, null);
-                this.setNextStatement(true, null);
-                this.setColour(230);
+                this.setPreviousStatement(true, null); this.setNextStatement(true, null); this.setColour(230);
             }
         };
-        javascript.javascriptGenerator.forBlock['move_selected'] = function () {
-            return `if (selectedObject) { selectedObject.position.y += 1.0; updateInspectorUI(); missionLog("BLOCK", selectedObject.name + " を上へ移動 -> Y:" + selectedObject.position.y.toFixed(2)); }\n`;
+        javascript.javascriptGenerator.forBlock['move_selected'] = function() {
+            return `if (selectedObject) { selectedObject.position.y += 1.0; updateInspectorUI(); missionLog("BLOCK", selectedObject.name + " 移動"); }\n`;
         };
 
         Blockly.Blocks['rotate_selected'] = {
-            init: function () {
+            init: function() {
                 this.appendDummyInput().appendField("選択中オブジェクトを Y軸 45度回転");
-                this.setPreviousStatement(true, null);
-                this.setNextStatement(true, null);
-                this.setColour(230);
+                this.setPreviousStatement(true, null); this.setNextStatement(true, null); this.setColour(230);
             }
         };
-        javascript.javascriptGenerator.forBlock['rotate_selected'] = function () {
-            return `if (selectedObject) { selectedObject.rotation.y += Math.PI / 4; updateInspectorUI(); missionLog("BLOCK", selectedObject.name + " 回転 -> rotY:" + THREE.MathUtils.radToDeg(selectedObject.rotation.y).toFixed(1) + "度"); }\n`;
+        javascript.javascriptGenerator.forBlock['rotate_selected'] = function() {
+            return `if (selectedObject) { selectedObject.rotation.y += Math.PI / 4; updateInspectorUI(); missionLog("BLOCK", selectedObject.name + " 回転"); }\n`;
         };
 
-        // 実行ボタン
+        // 実行ボタン (Blockly ＆ コード)
         document.getElementById('runBtn').addEventListener('click', () => {
             try {
-                missionLog("SYSTEM", "スクリプト実行！");
+                missionLog("SYSTEM", "スクリプト実行開始！");
                 const code = javascript.javascriptGenerator.workspaceToCode(demoWorkspace);
                 new Function('selectedObject', 'missionLog', 'updateInspectorUI', code)(selectedObject, missionLog, updateInspectorUI);
-            } catch (e) {
-                missionLog("ERROR", e.toString());
-            }
+            } catch(e) { missionLog("ERROR", e.toString()); }
+        });
+
+        document.getElementById('runCodeBtn').addEventListener('click', () => {
+            try {
+                missionLog("SYSTEM", "コードウィンドウから実行！");
+                const userCode = document.getElementById('codeTextArea').value;
+                new Function('selectedObject', 'missionLog', 'updateInspectorUI', userCode)(selectedObject, missionLog, updateInspectorUI);
+                updateInspectorUI();
+            } catch(e) { missionLog("ERROR", e.toString()); }
         });
     </script>
 </body>
