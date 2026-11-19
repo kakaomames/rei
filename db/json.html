@@ -1,0 +1,3138 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+<head>
+  <!-- 基本メタ情報＆カカオマメ隊探検コンソール設定 -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Gemini programming隊・カカオマメ隊員向けのJSON専用＆ビジュアル変数エディタ。JSONの構文を知らなくても直感的に変数（キーと値）を作成・編集・同期できます！">
+  <meta name="keywords" content="JSONエディタ, ビジュアル変数エディタ, カカオマメ隊, Gemini programming隊, ノーコード, JSON整形, テキスト編集">
+  <meta name="author" content="Gemini programming隊 隊長 & カカオマメ隊員">
+  <meta name="application-name" content="カカオマメ隊 JSON変数コンソール">
+  <meta name="generator" content="Gemini programming隊 Streaming JSON Engine">
+  <meta property="og:title" content="カカオマメ隊 JSON＆変数ビジュアルエディタ（ストリーミング対応）">
+  <meta property="og:description" content="Jがわからなくても変数ができる！巨大JSONもストリーミングでサクッと探検できるコンソール。">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://kakaomames.github.io/rei/logo.png">
+  <meta property="og:image:alt" content="カカオマメ隊ロゴ">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="カカオマメ隊 JSON＆変数ビジュアルエディタ">
+  <meta name="twitter:description" content="巨大JSONストリーミング読込＆ビジュアル変数ツリー対応エディタ">
+  <meta name="twitter:image" content="https://kakaomames.github.io/rei/logo.png">
+
+  <!-- ファビコン（フォールバックSVG付き） -->
+  <link id="favicon-link" rel="icon" type="image/png" href="https://kakaomames.github.io/rei/logo.png">
+
+  <meta name="robots" content="index, follow">
+  <meta property="og:site_name" content="Gemini programming隊 コンソール">
+  <meta property="og:locale" content="ja_JP">
+  <title>カカオマメ隊 JSON＆変数ビジュアルエディタ | Gemini programming隊</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', '"Noto Sans JP"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', '"Fira Code"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+          },
+          colors: {
+            cacao: {
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c'
+            },
+            expedition: {
+              850: '#131c31',
+              900: '#0f172a',
+              950: '#070b14'
+            }
+          },
+          boxShadow: {
+            neon: '0 0 20px rgba(56, 189, 248, 0.18)',
+            cacao: '0 0 20px rgba(249, 115, 22, 0.22)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* スクロールバーのカスタム */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.55);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(56, 189, 248, 0.75);
+    }
+
+    /* 探検隊コンソールらしい subtle grid 背景 */
+    .console-grid-dark {
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(56, 189, 248, 0.08), transparent 35%),
+        radial-gradient(circle at 85% 15%, rgba(249, 115, 22, 0.08), transparent 35%),
+        linear-gradient(to right, rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+    }
+
+    .console-grid-light {
+      background-image:
+        radial-gradient(circle at 15% 10%, rgba(14, 165, 233, 0.09), transparent 35%),
+        radial-gradient(circle at 85% 15%, rgba(249, 115, 22, 0.09), transparent 35%),
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+    }
+
+    /* ドラッグ中のカード強調 */
+    .drag-over-target {
+      outline: 2px dashed #38bdf8;
+      outline-offset: 2px;
+      background-color: rgba(56, 189, 248, 0.1) !important;
+    }
+
+    /* トースト通知アニメーション */
+    @keyframes popIn {
+      0% { opacity: 0; transform: translateY(10px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-pop-in {
+      animation: popIn 0.2s ease-out forwards;
+    }
+
+    /* ドラッグ＆ドロップ時の枠線パルス演出 */
+    @keyframes dropDashPulse {
+      0%, 100% { border-color: rgba(56, 189, 248, 0.85); }
+      50% { border-color: rgba(249, 115, 22, 0.95); }
+    }
+    .drop-zone-border {
+      animation: dropDashPulse 1.4s ease-in-out infinite;
+    }
+  </style>
+</head>
+
+<body id="app-body" class="min-h-screen console-grid-dark bg-slate-950 text-slate-100 font-sans antialiased selection:bg-sky-500/30 selection:text-sky-200 transition-colors duration-200">
+
+  <!-- 画面全体ドラッグ＆ドロップ用オーバーレイ -->
+  <div
+    id="global-drop-overlay"
+    class="hidden fixed inset-0 z-40 bg-slate-950/85 backdrop-blur-md items-center justify-center p-4 sm:p-8 pointer-events-none transition-opacity duration-150"
+  >
+    <div class="w-full max-w-xl rounded-3xl border-4 border-dashed drop-zone-border bg-slate-900/95 p-7 sm:p-10 text-center shadow-2xl flex flex-col items-center gap-4">
+      <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-500/20 to-orange-500/20 border border-sky-400/40 p-2 flex items-center justify-center shadow-neon">
+        <img
+          src="https://kakaomames.github.io/rei/logo.png"
+          alt="カカオマメ隊ドロップロゴ"
+          class="w-full h-full object-contain rounded-xl"
+          onerror="handleLogoError(this)"
+        >
+      </div>
+      <div class="space-y-1.5">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/40">
+          <span>📥</span> カカオマメ隊 ドロップ受信待機中
+        </div>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-white">
+          ここに .json / .txt ファイルをドロップ！
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-300">
+          放すとすぐに変数ツリー＆テキストへ読み込み、ファイル名もDL用に引き継ぐぞ！
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- アプリ全体コンテナ -->
+  <div class="max-w-[1600px] mx-auto px-3 sm:px-5 lg:px-7 py-4 sm:py-6 flex flex-col gap-4 sm:gap-5">
+
+    <!-- ==================== ヘッダー（カカオマメ隊コンソール上部） ==================== -->
+    <header class="rounded-2xl border border-slate-800/90 dark:border-slate-800 bg-slate-900/85 backdrop-blur-md p-3.5 sm:p-5 shadow-neon flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="flex items-center gap-3.5 sm:gap-4 min-w-0">
+        <!-- カカオマメ隊ロゴ（読み込み失敗時はSVGバッジに自動フォールバック） -->
+        <div class="relative shrink-0 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 via-orange-500/15 to-sky-500/20 border border-amber-400/40 p-1.5 flex items-center justify-center shadow-cacao overflow-hidden">
+          <img
+            id="crew-logo"
+            src="https://kakaomames.github.io/rei/logo.png"
+            alt="カカオマメ隊ロゴ"
+            class="w-full h-full object-contain rounded-xl"
+            onerror="handleLogoError(this)"
+          >
+          <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-slate-900 animate-pulse" title="探検コンソール稼働中"></span>
+        </div>
+
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-500/15 text-orange-300 border border-orange-500/30">
+              <span>⚡</span> Gemini programming隊
+            </span>
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/30">
+              <span>🫘</span> カカオマメ隊専用機
+            </span>
+            <span id="parse-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> JSON同期OK
+            </span>
+            <span id="active-filename-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-200 border border-amber-500/30" title="現在のターゲットファイル名（DL時に使用）">
+              <span>🏷️</span> <span id="active-filename-text">kakaomame-vars.json</span>
+            </span>
+          </div>
+          <h1 class="text-lg sm:text-2xl font-extrabold tracking-tight mt-1 truncate">
+            変数＆JSON 探検ビジュアルエディタ
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400 truncate">
+            「J（JSON）がわからなくてもOK！」変数（名前と中身）を選ぶだけで安全にデータが作れるぞ！
+          </p>
+        </div>
+      </div>
+
+      <!-- 右側コントロール群：Undo/Redo, 保存状態, テーマ切替 -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
+        <button
+          id="btn-undo"
+          type="button"
+          onclick="undoAction()"
+          disabled
+          class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 disabled:opacity-35 disabled:cursor-not-allowed transition flex items-center gap-1.5"
+          title="ひとつ前の操作に戻す (Ctrl+Z)"
+        >
+          <span>↩️</span> 戻す
+        </button>
+        <button
+          id="btn-redo"
+          type="button"
+          onclick="redoAction()"
+          disabled
+          class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 disabled:opacity-35 disabled:cursor-not-allowed transition flex items-center gap-1.5"
+          title="やり直す (Ctrl+Y)"
+        >
+          <span>↪️</span> やり直す
+        </button>
+
+        <div class="h-6 w-px bg-slate-700/70 mx-0.5 hidden sm:block"></div>
+
+        <button
+          id="btn-save-local"
+          type="button"
+          onclick="manualSaveToStorage()"
+          class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 transition flex items-center gap-1.5"
+          title="ブラウザの自動保存領域に今すぐセーブ"
+        >
+          <span>💾</span> セーブ
+        </button>
+
+        <button
+          id="btn-theme-toggle"
+          type="button"
+          onclick="toggleTheme()"
+          class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 transition flex items-center gap-1.5"
+          title="ダークモード / ライトモード切替"
+        >
+          <span id="theme-icon">☀️</span>
+          <span id="theme-label" class="hidden sm:inline">ライト</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==================== プリセット＆ビュー切替＆便利ツールバー ==================== -->
+    <section class="rounded-2xl border border-slate-800/90 bg-slate-900/80 backdrop-blur-md p-3.5 sm:p-4 flex flex-col gap-3.5">
+      <!-- 1行目: プリセットテンプレート & モード切替 -->
+      <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+        <!-- プリセット群 -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1 mr-1">
+            <span>🎒</span> プリセット読込:
+          </span>
+          <button type="button" onclick="loadPreset('character')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-500/35 transition">
+            ⚔️ ゲームキャラ設定
+          </button>
+          <button type="button" onclick="loadPreset('minecraft')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border border-emerald-500/35 transition">
+            🧱 マイクラ/アドオン設定
+          </button>
+          <button type="button" onclick="loadPreset('quest')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 border border-purple-500/35 transition">
+            🪙 お小遣い・クエスト管理
+          </button>
+          <button type="button" onclick="loadPreset('empty')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-700/60 hover:bg-slate-700 text-slate-200 border border-slate-600/60 transition">
+            📄 空っぽから始める
+          </button>
+        </div>
+
+        <!-- 表示モード切替（ビジュアル / スプリット / テキスト） -->
+        <div class="inline-flex rounded-xl p-1 bg-slate-950/90 border border-slate-800 self-start xl:self-auto">
+          <button
+            id="mode-btn-visual"
+            type="button"
+            onclick="setViewMode('visual')"
+            class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-sky-500 text-slate-950 shadow"
+          >
+            <span>🧩</span> ビジュアル変数
+          </button>
+          <button
+            id="mode-btn-split"
+            type="button"
+            onclick="setViewMode('split')"
+            class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white"
+          >
+            <span>🪟</span> スプリット同時表示
+          </button>
+          <button
+            id="mode-btn-text"
+            type="button"
+            onclick="setViewMode('text')"
+            class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white"
+          >
+            <span>📝</span> テキスト/JSON直接
+          </button>
+        </div>
+      </div>
+
+      <!-- 2行目: 検索フィルタ & 整形・圧縮・コピー・ダウンロード・ファイル読込 -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-2 border-t border-slate-800/80">
+        <!-- 検索ボックス -->
+        <div class="relative flex-1 max-w-md">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
+          <input
+            id="search-input"
+            type="text"
+            oninput="handleSearchChange(this.value)"
+            placeholder="変数名や中身（値）でサクッと検索..."
+            class="w-full pl-9 pr-8 py-2 rounded-xl text-xs sm:text-sm bg-slate-950/80 border border-slate-700/80 focus:border-sky-400 focus:outline-none text-slate-100 placeholder-slate-500 transition"
+          >
+          <button
+            id="clear-search-btn"
+            type="button"
+            onclick="clearSearch()"
+            class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white px-1"
+            title="検索をクリア"
+          >
+            ✕
+          </button>
+        </div>
+
+        <!-- 便利アクションボタン群 -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="formatJsonAction()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500/15 hover:bg-sky-500/25 text-sky-200 border border-sky-500/35 transition flex items-center gap-1">
+            <span>✨</span> きれいに整形
+          </button>
+          <button type="button" onclick="minifyJsonAction()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-200 border border-indigo-500/35 transition flex items-center gap-1">
+            <span>🗜️</span> 1行に圧縮
+          </button>
+          <button
+            id="btn-copy-json"
+            type="button"
+            onclick="copyJsonToClipboard()"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-200 border border-cyan-500/35 transition flex items-center gap-1"
+            title="現在のJSONをクリップボードにコピー (CP)"
+          >
+            <span id="copy-btn-icon">📋</span>
+            <span id="copy-btn-label">JSONをコピー (CP)</span>
+          </button>
+          <button
+            id="btn-download-json"
+            type="button"
+            onclick="downloadFile('json')"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-500/20 hover:bg-orange-500/30 text-orange-200 border border-orange-500/45 transition flex items-center gap-1 shadow-sm"
+            title="現在のJSONをファイルとしてダウンロード (DL)"
+          >
+            <span>⬇️</span> JSONをダウンロード (DL)
+          </button>
+          <button type="button" onclick="downloadFile('txt')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-700/70 hover:bg-slate-700 text-slate-200 border border-slate-600/70 transition flex items-center gap-1">
+            <span>📄</span> .txt保存
+          </button>
+          <button
+            type="button"
+            onclick="triggerFileInput()"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 border border-teal-500/40 transition flex items-center gap-1 cursor-pointer"
+            title="ローカルの .json / .txt ファイルを選択して開く"
+          >
+            <span>📂</span> ファイルを開く (input)
+          </button>
+          <input
+            id="file-upload-input"
+            type="file"
+            accept=".json,.jsonl,.ndjson,.txt,application/json,application/x-ndjson,text/plain"
+            onchange="handleFileUpload(event)"
+            class="hidden"
+          >
+        </div>
+      </div>
+
+      <!-- 3行目: 巨大JSONストリーミング進捗＆安全表示コンソールパネル -->
+      <div id="streaming-monitor-panel" class="rounded-2xl border border-sky-500/35 bg-gradient-to-r from-slate-950/90 via-slate-900/90 to-slate-950/90 p-3.5 sm:p-4 flex flex-col gap-3">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-extrabold bg-sky-500/20 text-sky-200 border border-sky-400/40">
+              <span>🌊</span> ストリーミング受信機
+            </span>
+            <span id="stream-state-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              待機中（いつでもD&amp;D・読込OK）
+            </span>
+            <span id="stream-format-tag" class="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-800 text-amber-200 border border-slate-700">
+              モード: 自動判別(JSON/NDJSON)
+            </span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              id="btn-cancel-stream"
+              type="button"
+              onclick="cancelActiveStream()"
+              disabled
+              class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-rose-500/20 hover:bg-rose-500/35 disabled:opacity-35 disabled:cursor-not-allowed text-rose-200 border border-rose-500/45 transition flex items-center gap-1.5"
+              title="進行中のストリーミング読み込みを安全にキャンセル"
+            >
+              <span>🛑</span> 読み込みキャンセル
+            </button>
+          </div>
+        </div>
+
+        <!-- リアルタイム進捗バー -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span id="stream-status-text" class="text-slate-300 font-sans font-semibold">
+              巨大 .json / .jsonl / .ndjson / .txt もチャンク分割で安全にストリーム読込するぞ！
+            </span>
+            <span id="stream-percent-label" class="font-extrabold text-sky-300">0.0%</span>
+          </div>
+          <div class="w-full h-3 rounded-full bg-slate-950 border border-slate-800 overflow-hidden p-0.5">
+            <div
+              id="stream-progress-bar"
+              class="h-full w-0 rounded-full bg-gradient-to-r from-sky-400 via-cyan-300 to-orange-400 transition-all duration-150"
+            ></div>
+          </div>
+        </div>
+
+        <!-- メトリクス（バイト数・チャンク数・経過時間・速度・取り込み件数） -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs font-mono">
+          <div class="rounded-xl bg-slate-950/80 border border-slate-800/90 px-2.5 py-1.5">
+            <div class="text-[10px] text-slate-400 font-sans">読込 / 総サイズ</div>
+            <div id="stream-bytes-metric" class="font-bold text-sky-200 truncate">0 B / 0 B</div>
+          </div>
+          <div class="rounded-xl bg-slate-950/80 border border-slate-800/90 px-2.5 py-1.5">
+            <div class="text-[10px] text-slate-400 font-sans">受信チャンク数</div>
+            <div id="stream-chunks-metric" class="font-bold text-cyan-200">0 チャンク</div>
+          </div>
+          <div class="rounded-xl bg-slate-950/80 border border-slate-800/90 px-2.5 py-1.5">
+            <div class="text-[10px] text-slate-400 font-sans">経過時間</div>
+            <div id="stream-elapsed-metric" class="font-bold text-emerald-200">0.0s</div>
+          </div>
+          <div class="rounded-xl bg-slate-950/80 border border-slate-800/90 px-2.5 py-1.5">
+            <div class="text-[10px] text-slate-400 font-sans">転送スピード</div>
+            <div id="stream-speed-metric" class="font-bold text-amber-200">0.00 MB/s</div>
+          </div>
+          <div class="rounded-xl bg-slate-950/80 border border-slate-800/90 px-2.5 py-1.5">
+            <div class="text-[10px] text-slate-400 font-sans">パース済レコード/行</div>
+            <div id="stream-records-metric" class="font-bold text-purple-200">0 件</div>
+          </div>
+          <div class="rounded-xl bg-slate-950/80 border border-slate-800/90 px-2.5 py-1.5">
+            <div class="text-[10px] text-slate-400 font-sans">UI安全ガード</div>
+            <div id="stream-guard-metric" class="font-bold text-teal-200 truncate">通常表示</div>
+          </div>
+        </div>
+
+        <!-- 巨大データ時の表示制御バー（ページング / ライト表示 / テキスト安全展開） -->
+        <div id="huge-data-controls" class="hidden flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-slate-800/80 text-xs">
+          <div class="flex flex-wrap items-center gap-2 text-amber-200">
+            <span>🛡️</span>
+            <span id="huge-data-notice" class="font-bold">
+              巨大データが検出されたため、フリーズ防止の安全表示が有効になっているぞ！
+            </span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <label class="inline-flex items-center gap-1.5 text-slate-300">
+              <span>表示件数/ページ:</span>
+              <select
+                id="page-size-select"
+                onchange="handlePageSizeChange(this.value)"
+                class="px-2 py-1 rounded-lg bg-slate-900 border border-slate-700 text-sky-200 font-mono font-bold focus:outline-none"
+              >
+                <option value="25">25件</option>
+                <option value="50" selected>50件</option>
+                <option value="100">100件</option>
+                <option value="250">250件</option>
+              </select>
+            </label>
+
+            <button
+              type="button"
+              onclick="changePage(-1)"
+              class="px-2.5 py-1 rounded-lg font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition"
+            >
+              ◀ 前へ
+            </button>
+            <span id="pagination-info-label" class="font-mono font-bold text-sky-300 px-1">1 / 1 ページ</span>
+            <button
+              type="button"
+              onclick="changePage(1)"
+              class="px-2.5 py-1 rounded-lg font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition"
+            >
+              次へ ▶
+            </button>
+
+            <button
+              id="btn-force-full-visual"
+              type="button"
+              onclick="toggleFullVisualRender()"
+              class="px-3 py-1 rounded-lg font-bold bg-orange-500/20 hover:bg-orange-500/30 text-orange-200 border border-orange-500/40 transition"
+            >
+              ⚡ 全件ビジュアル展開を試す
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== メイン作業エリア（ビジュアル / スプリット / テキスト） ==================== -->
+    <main id="workspace-grid" class="grid grid-cols-1 gap-4 sm:gap-5">
+
+      <!-- 【左/メイン】ビジュアル＆ツリー変数エディタ -->
+      <section id="visual-pane" class="rounded-2xl border border-slate-800/90 bg-slate-900/80 backdrop-blur-md p-4 sm:p-5 flex flex-col gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-800/80">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base sm:text-lg font-extrabold flex items-center gap-2">
+                <span>🧩</span> 変数（キー＆値）ビジュアルツリー
+              </h2>
+              <span id="var-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                0 個の変数
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">
+              「名前」と「型（もじ・すうじ・ON/OFF・リスト・グループ・空っぽ）」を選ぶだけで、JSONの記号は自動で付いてくるぞ！
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onclick="expandOrCollapseAll(true)"
+              class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition"
+            >
+              すべて開く
+            </button>
+            <button
+              type="button"
+              onclick="expandOrCollapseAll(false)"
+              class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition"
+            >
+              すべてたたむ
+            </button>
+            <button
+              type="button"
+              onclick="addVariableToRoot()"
+              class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-slate-950 shadow-cacao transition flex items-center gap-1.5 active:scale-[0.99]"
+            >
+              <span>＋</span> 新しい変数を追加
+            </button>
+          </div>
+        </div>
+
+        <!-- 「Jがわからなくても大丈夫！」超かんたん型ガイド -->
+        <div class="rounded-xl bg-slate-950/70 border border-slate-800/90 p-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-300">
+          <span class="font-bold text-sky-300">💡 型の超かんたん説明:</span>
+          <span><strong class="text-emerald-300">もじ</strong> = 名前やセリフ</span>
+          <span><strong class="text-amber-300">すうじ</strong> = HP・レベル・個数</span>
+          <span><strong class="text-purple-300">ON/OFF</strong> = フラグ・有効/無効</span>
+          <span><strong class="text-pink-300">リスト</strong> = アイテム一覧や順番</span>
+          <span><strong class="text-cyan-300">グループ</strong> = 関連変数のひとまとめ箱</span>
+          <span><strong class="text-slate-400">空っぽ</strong> = まだ中身がない状態</span>
+        </div>
+
+        <!-- ルート変数ツリー描画領域 -->
+        <div id="variable-tree-container" class="flex flex-col gap-3 min-h-[320px]">
+          <!-- JavaScriptで動的に変数カード＆入れ子ツリーを描画 -->
+        </div>
+      </section>
+
+      <!-- 【右/テキストモード】リアルタイムJSON / テキストエディタ -->
+      <section id="text-pane" class="hidden rounded-2xl border border-slate-800/90 bg-slate-900/80 backdrop-blur-md p-4 sm:p-5 flex-col gap-3.5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-slate-800/80">
+          <div>
+            <h2 class="text-base sm:text-lg font-extrabold flex items-center gap-2">
+              <span>📝</span> テキスト＆JSON 生データエディタ
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">
+              直接テキストやJSONを書き換え可能！JSONとして成立するとビジュアル変数とリアルタイム同期するぞ。
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              id="btn-auto-repair"
+              type="button"
+              onclick="attemptAutoRepairText()"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 transition flex items-center gap-1"
+              title="カンマ抜け・シングルクォーテーション・閉じ括弧などをやさしく自動修復を試みる"
+            >
+              <span>🛠️</span> 自動修復を試す
+            </button>
+            <button
+              type="button"
+              onclick="syncTextToVisualNow()"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 transition flex items-center gap-1"
+            >
+              <span>🔄</span> 変数ツリーへ反映
+            </button>
+          </div>
+        </div>
+
+        <!-- 構文エラー／ガイドバナー -->
+        <div id="text-diagnostic-box" class="rounded-xl border border-emerald-500/35 bg-emerald-500/10 px-3.5 py-2.5 text-xs sm:text-sm text-emerald-200 flex items-start gap-2.5">
+          <span class="text-base mt-0.5">✅</span>
+          <div id="text-diagnostic-message" class="leading-relaxed">
+            完璧なJSON構文だぜ！左側の変数ツリーとリアルタイムでつながっているぞ。
+          </div>
+        </div>
+
+        <!-- テキスト編集エリア -->
+        <div class="relative flex-1 flex flex-col">
+          <textarea
+            id="raw-json-textarea"
+            spellcheck="false"
+            oninput="handleRawTextInput(this.value)"
+            class="w-full flex-1 min-h-[380px] rounded-xl bg-slate-950 border border-slate-800 focus:border-sky-400 focus:outline-none p-3.5 sm:p-4 font-mono text-xs sm:text-sm leading-relaxed text-sky-100 resize-y transition"
+            placeholder='{&#10;  "隊員名": "カカオマメ"&#10;}'
+          ></textarea>
+        </div>
+
+        <!-- 巨大テキスト安全プレビュー通知（超巨大テキスト時にtextarea描画負荷を軽減） -->
+        <div id="huge-text-safe-banner" class="hidden rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-100 flex flex-wrap items-center justify-between gap-2">
+          <span id="huge-text-safe-msg">
+            超巨大テキスト（2MB超）のため、まずは先頭プレビューとストリーミング取り込み結果を表示中だぞ！
+          </span>
+          <button
+            type="button"
+            onclick="loadFullTextIntoEditor()"
+            class="px-3 py-1 rounded-lg font-bold bg-amber-500/25 hover:bg-amber-500/40 text-amber-100 border border-amber-400/50 transition"
+          >
+            全文をテキスト欄に展開する
+          </button>
+        </div>
+
+        <!-- テキスト下部のステータスバー -->
+        <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400 pt-1">
+          <span id="text-metrics">文字数: 0 | 行数: 0</span>
+          <span>💡 ヒント: 普通のメモやテキストでも消えずに保持されるよ！</span>
+        </div>
+      </section>
+    </main>
+
+    <!-- ==================== 探検ログ（ミッションログ）パネル ==================== -->
+    <section class="rounded-2xl border border-slate-800/90 bg-slate-900/85 backdrop-blur-md p-4 sm:p-5 flex flex-col gap-3">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg">📡</span>
+          <div>
+            <h2 class="text-sm sm:text-base font-extrabold tracking-wide flex items-center gap-2">
+              探検ログ（ミッションログ）
+              <span id="log-count-badge" class="px-2 py-0.5 rounded-full text-[11px] font-mono bg-slate-800 text-sky-300 border border-slate-700">
+                0件
+              </span>
+            </h2>
+            <p class="text-xs text-slate-400">
+              変数の追加・変更・削除やモード切替、エラー検知の記録をリアルタイム表示中！
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            onclick="copyMissionLogs()"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition flex items-center gap-1"
+          >
+            <span>📋</span> ログをコピー
+          </button>
+          <button
+            type="button"
+            onclick="clearMissionLogs()"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/35 text-rose-200 transition flex items-center gap-1"
+          >
+            <span>🧹</span> ログ消去
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="mission-log-container"
+        class="h-44 sm:h-52 overflow-y-auto rounded-xl bg-slate-950/90 border border-slate-800/90 p-3 font-mono text-xs space-y-1.5"
+      >
+        <!-- ログエントリがここに追加される -->
+      </div>
+    </section>
+
+    <!-- ==================== フッター ==================== -->
+    <footer class="text-center text-xs text-slate-500 py-2">
+      Gemini programming隊 × カカオマメ隊 — 構文エラーに負けない探検コンソール（オフライン＆ローカル保存対応）
+    </footer>
+  </div>
+
+  <!-- トースト通知エリア（alertの代わり） -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- 削除確認モーダル（confirmの代わり） -->
+  <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-5 shadow-2xl animate-pop-in">
+      <div class="flex items-center gap-2.5 text-amber-300 font-extrabold text-base mb-2">
+        <span>⚠️</span>
+        <h3 id="confirm-modal-title">確認ミッション</h3>
+      </div>
+      <p id="confirm-modal-message" class="text-sm text-slate-300 leading-relaxed mb-5"></p>
+      <div class="flex justify-end gap-2.5">
+        <button
+          type="button"
+          onclick="closeConfirmModal(false)"
+          class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+        >
+          やめる
+        </button>
+        <button
+          id="confirm-modal-ok-btn"
+          type="button"
+          onclick="closeConfirmModal(true)"
+          class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-rose-500 hover:bg-rose-400 text-white transition"
+        >
+          実行する
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * =========================================================================
+     * カカオマメ隊専用 JSON＆変数ビジュアルエディタ コアロジック
+     * 担当: Gemini programming隊 隊長
+     * =========================================================================
+     */
+
+    const STORAGE_KEY_DATA = 'kakaomame_json_editor_data_v1';
+    const STORAGE_KEY_TEXT = 'kakaomame_json_editor_text_v1';
+    const STORAGE_KEY_THEME = 'kakaomame_json_editor_theme_v1';
+    const STORAGE_KEY_MODE = 'kakaomame_json_editor_mode_v1';
+    const STORAGE_KEY_FILENAME = 'kakaomame_json_editor_filename_v1';
+    const DEFAULT_JSON_FILENAME = 'kakaomame-vars.json';
+
+    // 巨大JSONストリーミング＆UI安全ガードのしきい値設定
+    const HUGE_FILE_BYTES_THRESHOLD = 1.5 * 1024 * 1024; // 1.5MB以上で巨大ファイル判定
+    const HUGE_NODE_COUNT_THRESHOLD = 180; // 要素/変数数が180件以上でページング自動有効
+    const HUGE_TEXT_RENDER_CHARS_LIMIT = 1.5 * 1024 * 1024; // textareaに一括流し込む上限目安
+    const STREAM_PROGRESS_LOG_STEP = 20; // 進捗ログを何%刻みで出力するか
+
+    // プリセットテンプレート定義（初心者がすぐ触れるサンプル）
+    const PRESETS = {
+      character: {
+        label: '⚔️ ゲームキャラ設定',
+        data: {
+          キャラ名: 'カカオマメ剣士',
+          レベル: 12,
+          HP: 240,
+          MP: 85,
+          無敵モード: false,
+          所持アイテム: ['カカオの剣', 'ほしのかけら', 'あったかココア'],
+          ステータス詳細: {
+            こうげき力: 48,
+            ぼうぎょ力: 32,
+            すばやさ: 64,
+            称号: '探検隊の星'
+          },
+          隠しコマンド: null
+        }
+      },
+      minecraft: {
+        label: '🧱 マイクラ/アドオン設定',
+        data: {
+          アドオン名: 'カカオマメ・ワールド拡張',
+          フォーマット版: '1.21.0',
+          実験的機能を有効: true,
+          スポーン率: 1.5,
+          出現バイオーム: ['plains', 'forest', 'cherry_grove'],
+          ドロップ設定: {
+            最小個数: 1,
+            最大個数: 4,
+            シルクタッチ対応: true
+          }
+        }
+      },
+      quest: {
+        label: '🪙 お小遣い・クエスト管理',
+        data: {
+          隊員ニックネーム: 'まめちゃん',
+          現在のポイント: 1250,
+          目標ポイント: 3000,
+          今日のクエスト完了: true,
+          やることリスト: [
+            'プログラムのテストを1回動かす',
+            '机の上をピカピカにする',
+            '水分補給をする'
+          ],
+          ごほうび設定: {
+            好きなアイス: 'チョコミント',
+            ゲーム追加時間分: 30
+          }
+        }
+      },
+      empty: {
+        label: '📄 空っぽから始める',
+        data: {}
+      }
+    };
+
+    // アプリケーション状態管理
+    const state = {
+      // ルート変数の配列: { id, key, type, value, collapsed }
+      // type: 'string' | 'number' | 'boolean' | 'array' | 'object' | 'null'
+      // 'array' の場合 value はアイテム配列 [{ id, type, value, collapsed }]
+      // 'object' の場合 value は子変数配列 [{ id, key, type, value, collapsed }]
+      variables: [],
+      rawText: '{\n  "隊員名": "カカオマメ",\n  "元気度": 100,\n  "探検準備OK": true\n}',
+      currentFileName: DEFAULT_JSON_FILENAME,
+      isJsonValid: true,
+      parseErrorInfo: null,
+      viewMode: 'visual', // 'visual' | 'split' | 'text'
+      theme: 'dark', // 'dark' | 'light'
+      searchQuery: '',
+      history: [], // Undo用スナップショット配列
+      redoStack: [], // Redo用スナップショット配列
+      logs: [], // 探検ログ配列
+      draggedItem: null, // ドラッグ中の情報 { parentId, index, isArray }
+      dragCounter: 0, // 画面全体のD&D入れ子判定カウンタ
+      copyFeedbackTimer: null,
+      pendingConfirmCallback: null,
+      // ページング・巨大データ安全表示状態
+      pagination: {
+        enabled: false,
+        pageSize: 50,
+        currentPage: 1,
+        forceFullRender: false
+      },
+      largeTextGuardActive: false,
+      // ストリーミング読み込み状態管理
+      stream: {
+        isStreaming: false,
+        cancelled: false,
+        reader: null,
+        fileName: '',
+        totalBytes: 0,
+        loadedBytes: 0,
+        chunkCount: 0,
+        recordsCount: 0,
+        startTimeMs: 0,
+        lastLoggedPercent: -1,
+        detectedFormat: 'JSON',
+        lastError: null
+      }
+    };
+
+    let idCounter = 1;
+    function generateId(prefix = 'var') {
+      idCounter += 1;
+      return `${prefix}_${Date.now().toString(36)}_${idCounter}`;
+    }
+
+    /**
+     * 探検ログ（ミッションログ）＆ console.log に記録する中心関数
+     * @param {'SYSTEM'|'ACTION'|'VALUE'|'ERROR'} category
+     * @param {string} message
+     */
+    function logMission(category, message) {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      const entry = {
+        id: generateId('log'),
+        time: timeStr,
+        category,
+        message
+      };
+      state.logs.push(entry);
+      if (state.logs.length > 300) {
+        state.logs.shift();
+      }
+
+      // コンソール出力
+      const consoleMsg = `[${category}] ${timeStr} - ${message}`;
+      if (category === 'ERROR') {
+        console.error(consoleMsg);
+      } else if (category === 'VALUE') {
+        console.info(consoleMsg);
+      } else {
+        console.log(consoleMsg);
+      }
+
+      renderMissionLogs();
+    }
+
+    /**
+     * ロゴ画像読み込みエラー時のSVGフォールバック
+     */
+    function handleLogoError(imgEl) {
+      if (imgEl.dataset.fallbackApplied) return;
+      imgEl.dataset.fallbackApplied = 'true';
+      const svg = encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+          <rect width="80" height="80" rx="20" fill="#1e293b"/>
+          <ellipse cx="40" cy="40" rx="20" ry="26" transform="rotate(-18 40 40)" fill="#f97316"/>
+          <path d="M27 20 Q42 40 53 60" stroke="#451a03" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <circle cx="62" cy="18" r="6" fill="#38bdf8"/>
+        </svg>
+      `);
+      imgEl.src = `data:image/svg+xml,${svg}`;
+      logMission('SYSTEM', 'ロゴ画像のフォールバックSVGバッジを有効化したぞ！');
+    }
+
+    /**
+     * トースト通知表示（alertの代替）
+     */
+    function showToast(message, tone = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toneStyles = {
+        info: 'border-sky-400/50 bg-slate-900/95 text-sky-100',
+        success: 'border-emerald-400/50 bg-slate-900/95 text-emerald-100',
+        warn: 'border-amber-400/50 bg-slate-900/95 text-amber-100',
+        error: 'border-rose-400/50 bg-slate-900/95 text-rose-100'
+      };
+
+      const toast = document.createElement('div');
+      toast.className = `animate-pop-in rounded-xl border px-4 py-3 text-xs sm:text-sm font-semibold shadow-xl ${toneStyles[tone] || toneStyles.info}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(6px)';
+        toast.style.transition = 'all 0.2s ease';
+        setTimeout(() => toast.remove(), 220);
+      }, 2600);
+    }
+
+    /**
+     * カスタム確認ダイアログ（confirmの代替）
+     */
+    function openConfirmModal(title, message, onOk) {
+      state.pendingConfirmCallback = onOk;
+      document.getElementById('confirm-modal-title').textContent = title;
+      document.getElementById('confirm-modal-message').textContent = message;
+      const modal = document.getElementById('confirm-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeConfirmModal(confirmed) {
+      const modal = document.getElementById('confirm-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      const cb = state.pendingConfirmCallback;
+      state.pendingConfirmCallback = null;
+      if (confirmed && typeof cb === 'function') {
+        cb();
+      }
+    }
+
+    /**
+     * =========================================================================
+     * JSON <-> 内部変数ツリー 変換エンジン
+     * =========================================================================
+     */
+
+    function detectJsonType(val) {
+      if (val === null) return 'null';
+      if (Array.isArray(val)) return 'array';
+      if (typeof val === 'object') return 'object';
+      if (typeof val === 'boolean') return 'boolean';
+      if (typeof val === 'number') return 'number';
+      return 'string';
+    }
+
+    function defaultValueForType(type) {
+      switch (type) {
+        case 'string': return '';
+        case 'number': return 0;
+        case 'boolean': return false;
+        case 'array': return [];
+        case 'object': return [];
+        case 'null':
+        default: return null;
+      }
+    }
+
+    function typeLabelJapanese(type) {
+      switch (type) {
+        case 'string': return 'もじ (文字列)';
+        case 'number': return 'すうじ (数値)';
+        case 'boolean': return 'ON/OFF (論理値)';
+        case 'array': return 'リスト (配列)';
+        case 'object': return 'グループ (入れ子)';
+        case 'null': return '空っぽ (null)';
+        default: return type;
+      }
+    }
+
+    /**
+     * 任意のJS値（パース済みJSONオブジェクト）を配列アイテムノードへ変換
+     */
+    function valueToArrayItemNode(val) {
+      const type = detectJsonType(val);
+      if (type === 'array') {
+        return {
+          id: generateId('item'),
+          type: 'array',
+          collapsed: false,
+          value: val.map((item) => valueToArrayItemNode(item))
+        };
+      }
+      if (type === 'object') {
+        return {
+          id: generateId('item'),
+          type: 'object',
+          collapsed: false,
+          value: objectToVariableNodes(val)
+        };
+      }
+      return {
+        id: generateId('item'),
+        type,
+        collapsed: false,
+        value: val
+      };
+    }
+
+    /**
+     * プレーンオブジェクトを内部変数ノード配列へ変換
+     */
+    function objectToVariableNodes(obj) {
+      if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+        return [];
+      }
+      return Object.entries(obj).map(([key, val]) => {
+        const type = detectJsonType(val);
+        if (type === 'array') {
+          return {
+            id: generateId('var'),
+            key,
+            type: 'array',
+            collapsed: false,
+            value: val.map((item) => valueToArrayItemNode(item))
+          };
+        }
+        if (type === 'object') {
+          return {
+            id: generateId('var'),
+            key,
+            type: 'object',
+            collapsed: false,
+            value: objectToVariableNodes(val)
+          };
+        }
+        return {
+          id: generateId('var'),
+          key,
+          type,
+          collapsed: false,
+          value: val
+        };
+      });
+    }
+
+    /**
+     * 配列アイテムノードをJSONシリアライズ可能な値へ変換
+     */
+    function arrayItemNodeToJsonValue(node) {
+      switch (node.type) {
+        case 'array':
+          return Array.isArray(node.value) ? node.value.map(arrayItemNodeToJsonValue) : [];
+        case 'object':
+          return variableNodesToObject(node.value);
+        case 'number': {
+          const num = Number(node.value);
+          return Number.isFinite(num) ? num : 0;
+        }
+        case 'boolean':
+          return Boolean(node.value);
+        case 'null':
+          return null;
+        case 'string':
+        default:
+          return String(node.value ?? '');
+      }
+    }
+
+    function variableNodesToObject(nodes) {
+      const obj = {};
+      if (!Array.isArray(nodes)) return obj;
+      nodes.forEach((node, idx) => {
+        const rawKey = (node.key ?? '').trim();
+        const key = rawKey || `変数_${idx + 1}`;
+        if (node.type === 'object') {
+          obj[key] = variableNodesToObject(node.value);
+        } else if (node.type === 'array') {
+          obj[key] = Array.isArray(node.value) ? node.value.map(arrayItemNodeToJsonValue) : [];
+        } else {
+          obj[key] = arrayItemNodeToJsonValue(node);
+        }
+      });
+      return obj;
+    }
+
+    function serializeVariablesToJson(space = 2) {
+      const rootObj = variableNodesToObject(state.variables);
+      return JSON.stringify(rootObj, null, space);
+    }
+
+    function syncVisualToText(space = 2) {
+      try {
+        state.rawText = serializeVariablesToJson(space);
+        state.isJsonValid = true;
+        state.parseErrorInfo = null;
+        state.largeTextGuardActive = false;
+        syncTextAreaFromState();
+        updateParseStatusUI();
+      } catch (err) {
+        logMission('ERROR', `JSONシリアライズエラー: ${err.message}`);
+      }
+    }
+
+    function pushHistorySnapshot(reason = '操作') {
+      try {
+        const snapshot = JSON.stringify({
+          variables: state.variables,
+          rawText: state.rawText,
+          isJsonValid: state.isJsonValid
+        });
+        const top = state.history[state.history.length - 1];
+        if (top === snapshot) return;
+        state.history.push(snapshot);
+        if (state.history.length > 60) {
+          state.history.shift();
+        }
+        state.redoStack = [];
+        updateUndoRedoButtons();
+        persistToStorage(false);
+        logMission('ACTION', `スナップショット記録（${reason}）`);
+      } catch (err) {
+        logMission('ERROR', `履歴保存エラー: ${err.message}`);
+      }
+    }
+
+    function applySnapshot(snapshotStr, directionLabel) {
+      const snap = JSON.parse(snapshotStr);
+      state.variables = Array.isArray(snap.variables) ? snap.variables : [];
+      state.rawText = typeof snap.rawText === 'string' ? snap.rawText : serializeVariablesToJson(2);
+      state.isJsonValid = Boolean(snap.isJsonValid);
+      state.parseErrorInfo = null;
+      syncTextAreaFromState();
+      updateParseStatusUI();
+      updateUndoRedoButtons();
+      persistToStorage(false);
+      renderAll();
+      showToast(`${directionLabel}を実行したぞ！`, 'info');
+    }
+
+    function undoAction() {
+      if (state.history.length <= 1) return;
+      const current = state.history.pop();
+      state.redoStack.push(current);
+      const prev = state.history[state.history.length - 1];
+      applySnapshot(prev, '元に戻す (Undo)');
+      logMission('ACTION', '↩️ 操作を1つ元に戻したぞ！');
+    }
+
+    function redoAction() {
+      if (state.redoStack.length === 0) return;
+      const next = state.redoStack.pop();
+      state.history.push(next);
+      applySnapshot(next, 'やり直し (Redo)');
+      logMission('ACTION', '↪️ 操作を1つやり直したぞ！');
+    }
+
+    function updateUndoRedoButtons() {
+      const undoBtn = document.getElementById('btn-undo');
+      const redoBtn = document.getElementById('btn-redo');
+      if (undoBtn) undoBtn.disabled = state.history.length <= 1;
+      if (redoBtn) redoBtn.disabled = state.redoStack.length === 0;
+    }
+
+    function persistToStorage(notifyUser = false) {
+      try {
+        if ((state.rawText || '').length > HUGE_FILE_BYTES_THRESHOLD) {
+          if (notifyUser) showToast('巨大データのためローカル保存はスキップしたぞ！🛡️', 'warn');
+          return;
+        }
+        localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(state.variables));
+        localStorage.setItem(STORAGE_KEY_TEXT, state.rawText || '');
+        localStorage.setItem(STORAGE_KEY_FILENAME, state.currentFileName || DEFAULT_JSON_FILENAME);
+        if (notifyUser) {
+          logMission('SYSTEM', '💾 ブラウザのローカル保存領域にセーブ完了！');
+          showToast('セーブ完了だぜ！💾✨', 'success');
+        }
+      } catch (err) {
+        logMission('ERROR', `ローカル保存エラー: ${err.message}`);
+        if (notifyUser) showToast('セーブに失敗したぞ…！', 'error');
+      }
+    }
+
+    function manualSaveToStorage() {
+      persistToStorage(true);
+    }
+
+    function findNodeLocation(nodes, targetId, parentArr = null) {
+      if (!Array.isArray(nodes)) return null;
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i];
+        if (n.id === targetId) {
+          return { node: n, index: i, siblings: nodes, parentArr };
+        }
+        if ((n.type === 'object' || n.type === 'array') && Array.isArray(n.value)) {
+          const found = findNodeLocation(n.value, targetId, n.value);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
+    function addVariableToRoot() {
+      const idx = state.variables.length + 1;
+      const newVar = {
+        id: generateId('var'),
+        key: `へんすう_${idx}`,
+        type: 'string',
+        value: 'あたらしい値',
+        collapsed: false
+      };
+      state.variables.push(newVar);
+      syncVisualToText();
+      pushHistorySnapshot(`変数「${newVar.key}」を追加`);
+      renderAll();
+      logMission('VALUE', `＋ 新しい変数「${newVar.key}」(もじ) を追加したぞ！`);
+      showToast(`変数「${newVar.key}」を追加したぞ！✨`, 'success');
+    }
+
+    function addChildVariableToObject(objectNodeId) {
+      const loc = findNodeLocation(state.variables, objectNodeId);
+      if (!loc || loc.node.type !== 'object') return;
+      if (!Array.isArray(loc.node.value)) loc.node.value = [];
+      loc.node.collapsed = false;
+      const childIdx = loc.node.value.length + 1;
+      const childNode = {
+        id: generateId('var'),
+        key: `こうもく_${childIdx}`,
+        type: 'string',
+        value: '',
+        collapsed: false
+      };
+      loc.node.value.push(childNode);
+      syncVisualToText();
+      pushHistorySnapshot(`グループ「${loc.node.key || 'グループ'}」に変数追加`);
+      renderAll();
+      logMission('VALUE', `📦 グループ「${loc.node.key || 'グループ'}」内に変数「${childNode.key}」を追加！`);
+    }
+
+    function addItemToArray(arrayNodeId) {
+      const loc = findNodeLocation(state.variables, arrayNodeId);
+      if (!loc || loc.node.type !== 'array') return;
+      if (!Array.isArray(loc.node.value)) loc.node.value = [];
+      loc.node.collapsed = false;
+      const itemNode = {
+        id: generateId('item'),
+        type: 'string',
+        value: `要素_${loc.node.value.length + 1}`,
+        collapsed: false
+      };
+      loc.node.value.push(itemNode);
+      syncVisualToText();
+      pushHistorySnapshot(`リスト「${loc.node.key || 'リスト'}」に要素追加`);
+      renderAll();
+      logMission('VALUE', `📋 リスト「${loc.node.key || 'リスト'}」に #${loc.node.value.length} 要素を追加！`);
+    }
+
+    function handleVariableKeyChange(nodeId, newKey) {
+      const loc = findNodeLocation(state.variables, nodeId);
+      if (!loc) return;
+      const oldKey = loc.node.key;
+      loc.node.key = newKey;
+      syncVisualToText();
+      pushHistorySnapshot(`変数名変更: ${oldKey} -> ${newKey}`);
+      logMission('VALUE', `🔑 変数名を「${oldKey}」から「${newKey}」に変更！`);
+    }
+
+    function handleNodeTypeChange(nodeId, newType) {
+      const loc = findNodeLocation(state.variables, nodeId);
+      if (!loc) return;
+      const prevType = loc.node.type;
+      if (prevType === newType) return;
+
+      loc.node.type = newType;
+      loc.node.collapsed = false;
+      loc.node.value = defaultValueForType(newType);
+
+      syncVisualToText();
+      pushHistorySnapshot(`型変更: ${typeLabelJapanese(prevType)} -> ${typeLabelJapanese(newType)}`);
+      renderAll();
+      logMission('VALUE', `🔄 「${loc.node.key || '要素'}」の型を ${typeLabelJapanese(prevType)} から ${typeLabelJapanese(newType)} へ変更！`);
+    }
+
+    function handleLeafValueChange(nodeId, rawVal, valueType) {
+      const loc = findNodeLocation(state.variables, nodeId);
+      if (!loc) return;
+
+      if (valueType === 'number') {
+        const parsedNum = Number(rawVal);
+        loc.node.value = Number.isFinite(parsedNum) ? parsedNum : 0;
+      } else if (valueType === 'boolean') {
+        loc.node.value = Boolean(rawVal);
+      } else {
+        loc.node.value = String(rawVal ?? '');
+      }
+
+      syncVisualToText();
+      pushHistorySnapshot(`値更新: ${loc.node.key || '要素'}`);
+      logMission('VALUE', `✏️ 「${loc.node.key || '要素'}」の中身を「${String(loc.node.value)}」に更新！`);
+    }
+
+    function stepNumberValue(nodeId, delta) {
+      const loc = findNodeLocation(state.variables, nodeId);
+      if (!loc || loc.node.type !== 'number') return;
+      const current = Number(loc.node.value) || 0;
+      const next = Math.round((current + delta) * 1e9) / 1e9;
+      loc.node.value = next;
+      syncVisualToText();
+      pushHistorySnapshot(`数値ステップ(${delta > 0 ? '+1' : '-1'})`);
+      renderVariableTree();
+      logMission('VALUE', `🔢 「${loc.node.key || '要素'}」の数値を ${next} に変更（${delta > 0 ? '+1' : '-1'}）！`);
+    }
+
+    function toggleNodeCollapse(nodeId) {
+      const loc = findNodeLocation(state.variables, nodeId);
+      if (!loc) return;
+      loc.node.collapsed = !loc.node.collapsed;
+      renderVariableTree();
+    }
+
+    function expandOrCollapseAll(expand) {
+      const walk = (nodes) => {
+        if (!Array.isArray(nodes)) return;
+        nodes.forEach((n) => {
+          if (n.type === 'object' || n.type === 'array') {
+            n.collapsed = !expand;
+            walk(n.value);
+          }
+        });
+      };
+      walk(state.variables);
+      renderVariableTree();
+      logMission('ACTION', expand ? 'すべてのグループ・リストを展開したぞ！' : 'すべてのグループ・リストを折りたたんだぞ！');
+    }
+
+    function moveNode(nodeId, delta) {
+      const loc = findNodeLocation(state.variables, nodeId);
+      if (!loc) return;
+      const targetIndex = loc.index + delta;
+      if (targetIndex < 0 || targetIndex >= loc.siblings.length) return;
+
+      const [moved] = loc.siblings.splice(loc.index, 1);
+      loc.siblings.splice(targetIndex, 0, moved);
+
+      syncVisualToText();
+      pushHistorySnapshot(`順序移動: ${moved.key || '要素'}`);
+      renderAll();
+      logMission('ACTION', `↕️ 「${moved.key || '要素'}」を ${targetIndex + 1} 番目へ移動！`);
+    }
+
+    function cloneNodeDeep(node) {
+      if (node.type === 'array') {
+        return {
+          id: generateId('item'),
+          type: 'array',
+          collapsed: Boolean(node.collapsed),
+          value: Array.isArray(node.value) ? node.value.map(cloneNodeDeep) : []
+        };
+      }
+      if (node.type === 'object') {
+        return {
+          id: generateId('var'),
+          key: node.key ? `${node.key}_コピー` : undefined,
+          type: 'object',
+          collapsed: Boolean(node.collapsed),
+          value: Array.isArray(node.value) ? node.value.map(cloneNodeDeep) : []
+        };
+      }
+      return {
+        id: generateId(node.key !== undefined ? 'var' : 'item'),
+        ...(node.key !== undefined ? { key: `${node.key}_コピー` } : {}),
+        type: node.type,
+        collapsed: Boolean(node.collapsed),
+        value: node.value
+      };
+    }
+
+    function duplicateNode(nodeId) {
+      const loc = findNodeLocation(state.variables, nodeId);
+      if (!loc) return;
+      const cloned = cloneNodeDeep(loc.node);
+      loc.siblings.splice(loc.index + 1, 0, cloned);
+      syncVisualToText();
+      pushHistorySnapshot(`複製: ${loc.node.key || '要素'}`);
+      renderAll();
+      logMission('ACTION', `📄 「${loc.node.key || '要素'}」を複製したぞ！`);
+      showToast('複製したぞ！📄', 'success');
+    }
+
+    function deleteNode(nodeId) {
+      const loc = findNodeLocation(state.variables, nodeId);
+      if (!loc) return;
+      const label = loc.node.key || `#${loc.index + 1} 要素`;
+
+      openConfirmModal(
+        '変数の削除',
+        `「${label}」を削除するぞ！よろしいか？（あとで「戻す」でも復活できるよ）`,
+        () => {
+          loc.siblings.splice(loc.index, 1);
+          syncVisualToText();
+          pushHistorySnapshot(`削除: ${label}`);
+          renderAll();
+          logMission('ACTION', `🗑️ 「${label}」を削除したぞ！`);
+          showToast(`「${label}」を削除したぞ！🗑️`, 'warn');
+        }
+      );
+    }
+
+    function handleDragStart(event, nodeId) {
+      state.draggedItem = nodeId;
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', nodeId);
+      }
+    }
+
+    function handleDragOver(event, targetNodeId) {
+      if (!state.draggedItem || state.draggedItem === targetNodeId) return;
+      const srcLoc = findNodeLocation(state.variables, state.draggedItem);
+      const dstLoc = findNodeLocation(state.variables, targetNodeId);
+      if (!srcLoc || !dstLoc || srcLoc.siblings !== dstLoc.siblings) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      const el = document.querySelector(`[data-node-id="${targetNodeId}"]`);
+      if (el) el.classList.add('drag-over-target');
+    }
+
+    function handleDragLeave(targetNodeId) {
+      const el = document.querySelector(`[data-node-id="${targetNodeId}"]`);
+      if (el) el.classList.remove('drag-over-target');
+    }
+
+    function handleDrop(event, targetNodeId) {
+      event.preventDefault();
+      event.stopPropagation();
+      handleDragLeave(targetNodeId);
+
+      const sourceId = state.draggedItem;
+      state.draggedItem = null;
+      if (!sourceId || sourceId === targetNodeId) return;
+
+      const srcLoc = findNodeLocation(state.variables, sourceId);
+      const dstLoc = findNodeLocation(state.variables, targetNodeId);
+      if (!srcLoc || !dstLoc || srcLoc.siblings !== dstLoc.siblings) return;
+
+      const [moved] = srcLoc.siblings.splice(srcLoc.index, 1);
+      const newDstIdx = srcLoc.index < dstLoc.index ? dstLoc.index - 1 : dstLoc.index;
+      srcLoc.siblings.splice(newDstIdx, 0, moved);
+
+      syncVisualToText();
+      pushHistorySnapshot(`ドラッグ並び替え: ${moved.key || '要素'}`);
+      renderAll();
+      logMission('ACTION', `⠿ ドラッグ＆ドロップで「${moved.key || '要素'}」を ${newDstIdx + 1} 番目へ移動！`);
+    }
+
+    function formatByteSize(bytes) {
+      const b = Number(bytes) || 0;
+      if (b < 1024) return `${b} B`;
+      if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)} KB`;
+      if (b < 1024 * 1024 * 1024) return `${(b / (1024 * 1024)).toFixed(2)} MB`;
+      return `${(b / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+    }
+
+    function updateStreamingMonitorUI(statusText = null, stateTone = 'idle') {
+      const badge = document.getElementById('stream-state-badge');
+      const formatTag = document.getElementById('stream-format-tag');
+      const statusEl = document.getElementById('stream-status-text');
+      const pctLabel = document.getElementById('stream-percent-label');
+      const bar = document.getElementById('stream-progress-bar');
+      const cancelBtn = document.getElementById('btn-cancel-stream');
+
+      const bytesMetric = document.getElementById('stream-bytes-metric');
+      const chunksMetric = document.getElementById('stream-chunks-metric');
+      const elapsedMetric = document.getElementById('stream-elapsed-metric');
+      const speedMetric = document.getElementById('stream-speed-metric');
+      const recordsMetric = document.getElementById('stream-records-metric');
+      const guardMetric = document.getElementById('stream-guard-metric');
+
+      const s = state.stream;
+      const total = Math.max(0, s.totalBytes || 0);
+      const loaded = Math.max(0, s.loadedBytes || 0);
+      const pct = total > 0 ? Math.min(100, (loaded / total) * 100) : (s.isStreaming ? 50 : 0);
+
+      const now = performance.now();
+      const elapsedSec = s.startTimeMs > 0 ? Math.max(0.05, (now - s.startTimeMs) / 1000) : 0;
+      const speedMBps = s.startTimeMs > 0 ? (loaded / (1024 * 1024)) / elapsedSec : 0;
+
+      if (badge) {
+        const map = {
+          idle: ['bg-emerald-500/15 text-emerald-300 border-emerald-500/30', '待機中（いつでもD&D・読込OK）'],
+          streaming: ['bg-sky-500/20 text-sky-200 border-sky-400/50 animate-pulse', '🌊 ストリーミング受信中...'],
+          done: ['bg-emerald-500/20 text-emerald-200 border-emerald-400/50', '✅ ストリーミング完了！'],
+          cancelled: ['bg-amber-500/20 text-amber-200 border-amber-400/50', '🛑 キャンセル済み（部分データ保持中）'],
+          error: ['bg-rose-500/20 text-rose-200 border-rose-400/50', '⚠️ ストリームエラー発生']
+        };
+        const [cls, txt] = map[stateTone] || map.idle;
+        badge.className = `inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${cls}`;
+        badge.textContent = txt;
+      }
+
+      if (formatTag) {
+        formatTag.textContent = `形式: ${s.detectedFormat || 'JSON'}`;
+      }
+      if (statusEl && statusText) {
+        statusEl.textContent = statusText;
+      }
+      if (pctLabel) {
+        pctLabel.textContent = `${pct.toFixed(1)}%`;
+      }
+      if (bar) {
+        bar.style.width = `${pct.toFixed(1)}%`;
+      }
+      if (cancelBtn) {
+        cancelBtn.disabled = !s.isStreaming;
+      }
+
+      if (bytesMetric) bytesMetric.textContent = `${formatByteSize(loaded)} / ${formatByteSize(total)}`;
+      if (chunksMetric) chunksMetric.textContent = `${s.chunkCount} チャンク`;
+      if (elapsedMetric) elapsedMetric.textContent = `${s.startTimeMs > 0 ? elapsedSec.toFixed(1) : '0.0'}s`;
+      if (speedMetric) speedMetric.textContent = `${s.startTimeMs > 0 ? speedMBps.toFixed(2) : '0.00'} MB/s`;
+      if (recordsMetric) recordsMetric.textContent = `${s.recordsCount} 件`;
+      if (guardMetric) {
+        if (state.pagination.enabled && !state.pagination.forceFullRender) {
+          guardMetric.textContent = `ページング(${state.pagination.pageSize}件/頁)`;
+        } else if (state.pagination.forceFullRender) {
+          guardMetric.textContent = '全件表示(手動)';
+        } else {
+          guardMetric.textContent = '通常表示';
+        }
+      }
+    }
+
+    /**
+     * 読み込みキャンセル処理（ReadableStream reader.cancel() を呼び出し）
+     */
+    async function cancelActiveStream() {
+      if (!state.stream.isStreaming) {
+        showToast('いま進行中のストリーミングはないぞ！', 'info');
+        return;
+      }
+      state.stream.cancelled = true;
+      logMission('ACTION', `🛑 ストリーミング読み込みのキャンセルを要求したぞ！（${formatByteSize(state.stream.loadedBytes)} まで受信済）`);
+      showToast('読み込みをキャンセル中だぞ…🛑', 'warn');
+
+      try {
+        if (state.stream.reader) {
+          await state.stream.reader.cancel('ユーザーによるキャンセル');
+        }
+      } catch (err) {
+        logMission('ERROR', `ストリームキャンセル時の通知エラー: ${err.message}`);
+      }
+    }
+
+    /**
+     * テキストが NDJSON / JSONL（改行区切り複数JSON）か判定し、要素配列へ変換する
+     */
+    function tryParseNdjsonLines(fullText) {
+      const lines = fullText
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+
+      if (lines.length < 2) return null;
+
+      const parsedItems = [];
+      for (let i = 0; i < lines.length; i++) {
+        try {
+          parsedItems.push(JSON.parse(lines[i]));
+        } catch (_) {
+          // 1行でもJSONとして壊れていたら通常JSONモードへフォールバック
+          return null;
+        }
+      }
+      return parsedItems;
+    }
+
+    /**
+     * ストリーミング中にチャンク単位・行単位で逐次取り込みを行うコア関数
+     * File.stream().getReader() + TextDecoder({ stream: true }) を使用
+     */
+    async function streamAndIngestFile(file, sourceLabel = 'ストリーミング読込') {
+      if (!file) return;
+
+      // 既に実行中のストリームがあれば先にキャンセル
+      if (state.stream.isStreaming) {
+        await cancelActiveStream();
+      }
+
+      const fileName = file.name || DEFAULT_JSON_FILENAME;
+      const totalBytes = Number(file.size) || 0;
+      const isNdjsonByExt = /\.(jsonl|ndjson)$/i.test(fileName);
+
+      state.currentFileName = fileName;
+      updateFileNameBadge();
+
+      state.stream = {
+        isStreaming: true,
+        cancelled: false,
+        reader: null,
+        fileName,
+        totalBytes,
+        loadedBytes: 0,
+        chunkCount: 0,
+        recordsCount: 0,
+        startTimeMs: performance.now(),
+        lastLoggedPercent: -1,
+        detectedFormat: isNdjsonByExt ? 'NDJSON / JSONL' : 'JSON (Stream)',
+        lastError: null
+      };
+      state.pagination.forceFullRender = false;
+      state.pagination.currentPage = 1;
+
+      updateStreamingMonitorUI(
+        `「${fileName}」のストリーミング受信を開始したぞ！`,
+        'streaming'
+      );
+      logMission(
+        'SYSTEM',
+        `🌊 ${sourceLabel} 開始: 「${fileName}」（サイズ: ${formatByteSize(totalBytes)} / 形式推定: ${state.stream.detectedFormat}）`
+      );
+
+      // ストリーミング中の段階的NDJSON要素バッファ
+      const streamedNdjsonNodes = [];
+      let lineBuffer = '';
+      let accumulatedText = '';
+      let looksLikeNdjson = isNdjsonByExt;
+      let ndjsonLineIndex = 0;
+
+      // 巨大ファイルの場合は蓄積テキストを段階的に保持しつつ、完了時に構造化パース
+      const decoder = new TextDecoder('utf-8', { fatal: false });
+
+      try {
+        if (typeof file.stream !== 'function') {
+          throw new Error('このブラウザは File.stream() に未対応だぞ！');
+        }
+
+        const readableStream = file.stream();
+        const reader = readableStream.getReader();
+        state.stream.reader = reader;
+
+        while (true) {
+          if (state.stream.cancelled) {
+            break;
+          }
+
+          const { value, done } = await reader.read();
+          if (done) {
+            break;
+          }
+
+          if (state.stream.cancelled) {
+            break;
+          }
+
+          const chunkByteLen = value ? value.byteLength || value.length || 0 : 0;
+          state.stream.loadedBytes += chunkByteLen;
+          state.stream.chunkCount += 1;
+
+          const decodedChunk = decoder.decode(value, { stream: true });
+          accumulatedText += decodedChunk;
+
+          // NDJSON / JSONL 逐次行パース処理
+          lineBuffer += decodedChunk;
+          const parts = lineBuffer.split(/\r?\n/);
+          lineBuffer = parts.pop() ?? '';
+
+          if (parts.length > 0) {
+            for (const rawLine of parts) {
+              const trimmedLine = rawLine.trim();
+              if (!trimmedLine) continue;
+              try {
+                const obj = JSON.parse(trimmedLine);
+                ndjsonLineIndex += 1;
+                state.stream.recordsCount = ndjsonLineIndex;
+                looksLikeNdjson = true;
+                state.stream.detectedFormat = 'NDJSON / JSONL';
+
+                // 要素数が膨大になりすぎないよう段階的にノード生成
+                if (streamedNdjsonNodes.length < 2000) {
+                  const keyLabel =
+                    obj && typeof obj === 'object' && !Array.isArray(obj) && (obj.id !== undefined || obj.name !== undefined || obj.title !== undefined)
+                      ? `行#${ndjsonLineIndex} (${String(obj.name ?? obj.title ?? obj.id).slice(0, 24)})`
+                      : `行#${ndjsonLineIndex}`;
+
+                  streamedNdjsonNodes.push({
+                    id: generateId('var'),
+                    key: keyLabel,
+                    type: detectJsonType(obj),
+                    value: Array.isArray(obj)
+                      ? obj.map(valueToArrayItemNode)
+                      : typeof obj === 'object' && obj !== null
+                        ? objectToVariableNodes(obj)
+                        : obj,
+                    collapsed: true
+                  });
+                }
+              } catch (_) {
+                // 通常の複数行JSON整形中の1行である可能性が高いため、完了時に全体パースする
+              }
+            }
+          }
+
+          // 進捗率計算と一定ステップごとのログ出力
+          const pct = totalBytes > 0
+            ? Math.min(100, Math.floor((state.stream.loadedBytes / totalBytes) * 100))
+            : 0;
+          const stepBucket = Math.floor(pct / STREAM_PROGRESS_LOG_STEP) * STREAM_PROGRESS_LOG_STEP;
+
+          updateStreamingMonitorUI(
+            `受信中: ${fileName}（${state.stream.chunkCount}チャンク処理済 / レコード検知: ${state.stream.recordsCount}件）`,
+            'streaming'
+          );
+
+          if (totalBytes > 0 && stepBucket > state.stream.lastLoggedPercent && stepBucket > 0) {
+            state.stream.lastLoggedPercent = stepBucket;
+            logMission(
+              'VALUE',
+              `🌊 ストリーミング進捗 ${pct}%（${formatByteSize(state.stream.loadedBytes)} / ${formatByteSize(totalBytes)}、${state.stream.chunkCount}チャンク）`
+            );
+          }
+
+          // UI描画スレッドを解放してキャンセルボタンや進捗表示を滑らかに保つ
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+
+        // 残りのデコーダバッファをフラッシュ
+        const tailText = decoder.decode(new Uint8Array(), { stream: false });
+        if (tailText) {
+          accumulatedText += tailText;
+          lineBuffer += tailText;
+        }
+
+        // 最終行バッファのNDJSONチェック
+        if (lineBuffer.trim()) {
+          try {
+            const lastObj = JSON.parse(lineBuffer.trim());
+            ndjsonLineIndex += 1;
+            state.stream.recordsCount = ndjsonLineIndex;
+            looksLikeNdjson = true;
+            state.stream.detectedFormat = 'NDJSON / JSONL';
+            if (streamedNdjsonNodes.length < 2000) {
+              streamedNdjsonNodes.push({
+                id: generateId('var'),
+                key: `行#${ndjsonLineIndex}`,
+                type: detectJsonType(lastObj),
+                value: Array.isArray(lastObj)
+                  ? lastObj.map(valueToArrayItemNode)
+                  : typeof lastObj === 'object' && lastObj !== null
+                    ? objectToVariableNodes(lastObj)
+                    : lastObj,
+                collapsed: true
+              });
+            }
+          } catch (_) {}
+        }
+
+        state.stream.isStreaming = false;
+        state.stream.reader = null;
+
+        // キャンセルされた場合のハンドリング
+        if (state.stream.cancelled) {
+          state.rawText = accumulatedText;
+          if (looksLikeNdjson && streamedNdjsonNodes.length > 0) {
+            state.variables = streamedNdjsonNodes;
+            state.isJsonValid = true;
+            state.parseErrorInfo = null;
+          } else {
+            tryParseAndSyncToVisual(accumulatedText, false);
+          }
+
+          configurePaginationGuard(countTotalVariables(state.variables), totalBytes);
+          applyLargeTextGuard(accumulatedText);
+          updateStreamingMonitorUI(
+            `キャンセル完了: ${formatByteSize(state.stream.loadedBytes)} までのデータを保持したぞ！`,
+            'cancelled'
+          );
+          renderAll();
+          pushHistorySnapshot(`ストリーミングキャンセル（${fileName}）`);
+          logMission('ACTION', `🛑 「${fileName}」のストリーミング読み込みをキャンセルしたぞ！受信済 ${formatByteSize(state.stream.loadedBytes)} を保持。`);
+          showToast('読み込みをキャンセルしたぞ！（受信分は保持中）', 'warn');
+          return;
+        }
+
+        // 完了時の最終パース＆データ反映
+        state.rawText = accumulatedText;
+        let finalParsedOk = false;
+
+        if (looksLikeNdjson && streamedNdjsonNodes.length > 0) {
+          state.variables = streamedNdjsonNodes;
+          state.isJsonValid = true;
+          state.parseErrorInfo = null;
+          finalParsedOk = true;
+          state.stream.detectedFormat = `NDJSON / JSONL (${ndjsonLineIndex}行)`;
+        } else {
+          const ndjsonBatch = tryParseNdjsonLines(accumulatedText);
+          if (ndjsonBatch) {
+            state.stream.detectedFormat = `NDJSON / JSONL (${ndjsonBatch.length}行)`;
+            state.stream.recordsCount = ndjsonBatch.length;
+            state.variables = ndjsonBatch.map((item, idx) => ({
+              id: generateId('var'),
+              key: `レコード_${idx + 1}`,
+              type: detectJsonType(item),
+              value: Array.isArray(item)
+                ? item.map(valueToArrayItemNode)
+                : typeof item === 'object' && item !== null
+                  ? objectToVariableNodes(item)
+                  : item,
+              collapsed: true
+            }));
+            state.isJsonValid = true;
+            state.parseErrorInfo = null;
+            finalParsedOk = true;
+          } else {
+            finalParsedOk = tryParseAndSyncToVisual(accumulatedText, false);
+            if (finalParsedOk) {
+              state.stream.detectedFormat = 'JSON (構造化完了)';
+              state.stream.recordsCount = countTotalVariables(state.variables);
+            }
+          }
+        }
+
+        const totalNodes = countTotalVariables(state.variables);
+        configurePaginationGuard(totalNodes, totalBytes);
+        applyLargeTextGuard(accumulatedText);
+
+        updateStreamingMonitorUI(
+          `ストリーミング完了: 「${fileName}」（${state.stream.chunkCount}チャンク / ${totalNodes}ノード）`,
+          'done'
+        );
+        renderAll();
+        pushHistorySnapshot(`ストリーミング読込完了「${fileName}」`);
+
+        // 巨大ファイルの場合はlocalStorage容量超過を防ぐためセーブをスキップしてログ通知
+        if (totalBytes <= HUGE_FILE_BYTES_THRESHOLD) {
+          persistToStorage(false);
+        } else {
+          logMission('SYSTEM', `🛡️ 巨大ファイル（${formatByteSize(totalBytes)}）のため、ブラウザ保存領域の容量保護のため自動ローカル保存はスキップしたぞ！`);
+        }
+
+        logMission(
+          'ACTION',
+          `✅ ストリーミング完了: 「${fileName}」(${formatByteSize(state.stream.loadedBytes)} / ${state.stream.chunkCount}チャンク / 形式: ${state.stream.detectedFormat} / JSON判定: ${finalParsedOk ? 'OK' : 'テキスト保持'})`
+        );
+        showToast(`「${fileName}」をストリーミング読込完了！🌊✨`, finalParsedOk ? 'success' : 'info');
+      } catch (err) {
+        state.stream.isStreaming = false;
+        state.stream.reader = null;
+        state.stream.lastError = err.message;
+        state.rawText = accumulatedText || state.rawText;
+
+        tryParseAndSyncToVisual(state.rawText, false);
+        applyLargeTextGuard(state.rawText);
+        updateStreamingMonitorUI(
+          `ストリーム処理エラー: ${err.message}`,
+          'error'
+        );
+        renderAll();
+        logMission('ERROR', `❌ ストリーミング読込中にエラー発生（「${fileName}」): ${err.message}`);
+        showToast(`ストリーミング読込エラー: ${err.message}`, 'error');
+      }
+    }
+
+    /**
+     * 巨大要素数や巨大バイト数に応じてページング安全表示を有効化・更新する
+     */
+    function configurePaginationGuard(nodeCount, fileBytes = 0) {
+      const shouldPaginate =
+        nodeCount >= HUGE_NODE_COUNT_THRESHOLD ||
+        state.variables.length >= 120 ||
+        fileBytes >= HUGE_FILE_BYTES_THRESHOLD;
+
+      state.pagination.enabled = shouldPaginate;
+      state.pagination.currentPage = 1;
+
+      const controlsEl = document.getElementById('huge-data-controls');
+      const noticeEl = document.getElementById('huge-data-notice');
+
+      if (controlsEl) {
+        controlsEl.classList.toggle('hidden', !shouldPaginate);
+        controlsEl.classList.toggle('flex', shouldPaginate);
+      }
+
+      if (shouldPaginate && noticeEl) {
+        noticeEl.textContent = `🛡️ 巨大データ検出（ルート${state.variables.length}件 / 総要素${nodeCount}件 / ${formatByteSize(fileBytes)}）：フリーズ防止のためページング表示を有効化中だぞ！`;
+        logMission(
+          'SYSTEM',
+          `🛡️ 巨大データ安全ガード発動: ルート${state.variables.length}件・総要素${nodeCount}件のためページング表示（${state.pagination.pageSize}件/ページ）を適用！`
+        );
+      }
+    }
+
+    function handlePageSizeChange(val) {
+      const size = Math.max(10, Number(val) || 50);
+      state.pagination.pageSize = size;
+      state.pagination.currentPage = 1;
+      renderVariableTree();
+      updateStreamingMonitorUI(null, state.stream.isStreaming ? 'streaming' : 'done');
+      logMission('ACTION', `ページング表示件数を 1ページあたり ${size}件 に変更したぞ！`);
+    }
+
+    function changePage(delta) {
+      const filteredRoots = state.variables.filter((n) => nodeMatchesSearch(n, state.searchQuery));
+      const totalPages = Math.max(1, Math.ceil(filteredRoots.length / state.pagination.pageSize));
+      const nextPage = Math.min(totalPages, Math.max(1, state.pagination.currentPage + delta));
+      if (nextPage === state.pagination.currentPage) return;
+
+      state.pagination.currentPage = nextPage;
+      renderVariableTree();
+      logMission('ACTION', `ページを ${nextPage} / ${totalPages} ページ目に移動したぞ！`);
+    }
+
+    function toggleFullVisualRender() {
+      state.pagination.forceFullRender = !state.pagination.forceFullRender;
+      const btn = document.getElementById('btn-force-full-visual');
+      if (btn) {
+        btn.textContent = state.pagination.forceFullRender
+          ? '🛡️ ページング安全表示に戻す'
+          : '⚡ 全件ビジュアル展開を試す';
+      }
+      renderVariableTree();
+      updateStreamingMonitorUI(null, state.stream.isStreaming ? 'streaming' : 'done');
+      logMission(
+        'ACTION',
+        state.pagination.forceFullRender
+          ? '⚡ 警告: 全件ビジュアル一括描画モードに切り替えたぞ！（要素数が多いときは注意）'
+          : '🛡️ ページング安全表示モードに復帰したぞ！'
+      );
+      showToast(
+        state.pagination.forceFullRender ? '全件ビジュアル表示に切替！⚡' : 'ページング安全表示に戻したぞ！🛡️',
+        'info'
+      );
+    }
+
+    /**
+     * 超巨大テキスト時にDOM描画負荷を抑える安全ガード
+     */
+    function applyLargeTextGuard(fullText) {
+      const banner = document.getElementById('huge-text-safe-banner');
+      const msg = document.getElementById('huge-text-safe-msg');
+      const textarea = document.getElementById('raw-json-textarea');
+
+      if (!fullText || fullText.length <= HUGE_TEXT_RENDER_CHARS_LIMIT) {
+        state.largeTextGuardActive = false;
+        if (banner) banner.classList.add('hidden');
+        if (textarea && textarea.value !== fullText) {
+          textarea.value = fullText;
+        }
+        updateTextMetrics();
+        return;
+      }
+
+      state.largeTextGuardActive = true;
+      if (banner) banner.classList.remove('hidden');
+      if (msg) {
+        msg.textContent = `超巨大テキスト（${formatByteSize(new Blob([fullText]).size)} / ${fullText.length.toLocaleString()}文字）のため、初期表示は先頭100,000文字の安全プレビューに制限中だぞ！`;
+      }
+      if (textarea) {
+        textarea.value = fullText.slice(0, 100000) + '\n\n... [超巨大テキスト安全プレビュー：続きは「全文をテキスト欄に展開する」またはDLで確認可能] ...';
+      }
+      updateTextMetrics();
+      logMission('SYSTEM', `🛡️ 超巨大テキスト（${fullText.length.toLocaleString()}文字）のためテキスト欄の初期描画を安全プレビューに制限！`);
+    }
+
+    function loadFullTextIntoEditor() {
+      const textarea = document.getElementById('raw-json-textarea');
+      if (!textarea) return;
+      state.largeTextGuardActive = false;
+      textarea.value = state.rawText || '';
+      const banner = document.getElementById('huge-text-safe-banner');
+      if (banner) banner.classList.add('hidden');
+      updateTextMetrics();
+      logMission('ACTION', `超巨大テキストの全文（${(state.rawText || '').length.toLocaleString()}文字）をテキスト欄に展開したぞ！`);
+      showToast('全文をテキスト欄に展開したぞ！📝', 'info');
+    }
+
+    function syncTextAreaFromState() {
+      if (state.largeTextGuardActive && (state.rawText || '').length > HUGE_TEXT_RENDER_CHARS_LIMIT) {
+        applyLargeTextGuard(state.rawText);
+        return;
+      }
+      const textarea = document.getElementById('raw-json-textarea');
+      if (textarea && textarea.value !== state.rawText) {
+        textarea.value = state.rawText;
+      }
+      updateTextMetrics();
+    }
+
+    function handleRawTextInput(text) {
+      state.rawText = text;
+      updateTextMetrics();
+      const parsedOk = tryParseAndSyncToVisual(text, true);
+      if (parsedOk) {
+        pushHistorySnapshot('テキスト編集からJSONツリー同期');
+      }
+    }
+
+    function syncTextToVisualNow() {
+      const ok = tryParseAndSyncToVisual(state.rawText, false);
+      if (ok) {
+        pushHistorySnapshot('手動でテキストを変数ツリーへ反映');
+        renderVariableTree();
+        showToast('テキストの内容を変数ツリーに反映したぞ！🔄', 'success');
+        logMission('ACTION', 'テキストエディタの内容を変数ツリーへ手動同期！');
+      } else {
+        showToast('まだJSONとして読み込めない部分があるぞ！上のガイドをチェックだ！', 'warn');
+      }
+    }
+
+    /**
+     * テキストをJSONとしてパースし、成功したらビジュアル変数ツリーも更新
+     */
+    function tryParseAndSyncToVisual(text, rerenderTree = true) {
+      const trimmed = (text || '').trim();
+      if (!trimmed) {
+        state.isJsonValid = false;
+        state.parseErrorInfo = {
+          message: 'テキストが空っぽだぞ！{ } を書くか、「自動修復を試す」を押してみよう！',
+          hint: '空のオブジェクト {} なら変数0個のJSONになるぞ。'
+        };
+        updateParseStatusUI();
+        return false;
+      }
+
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+          // 配列やプリミティブJSONの場合は、ルート変数「データ」としてラップしてビジュアル表示可能にする
+          state.isJsonValid = true;
+          state.parseErrorInfo = null;
+          state.variables = [
+            {
+              id: generateId('var'),
+              key: 'データ',
+              type: detectJsonType(parsed),
+              value: Array.isArray(parsed)
+                ? parsed.map(valueToArrayItemNode)
+                : typeof parsed === 'object' && parsed !== null
+                  ? objectToVariableNodes(parsed)
+                  : parsed,
+              collapsed: false
+            }
+          ];
+          updateParseStatusUI();
+          if (rerenderTree) renderVariableTree();
+          logMission('VALUE', 'JSONテキストをパースし、変数ツリーを更新したぞ！');
+          return true;
+        }
+
+        state.isJsonValid = true;
+        state.parseErrorInfo = null;
+        state.variables = objectToVariableNodes(parsed);
+        updateParseStatusUI();
+        if (rerenderTree) renderVariableTree();
+        return true;
+      } catch (err) {
+        state.isJsonValid = false;
+        state.parseErrorInfo = buildFriendlyJsonErrorGuide(trimmed, err.message);
+        updateParseStatusUI();
+        logMission('ERROR', `JSON構文エラー検知: ${err.message}`);
+        return false;
+      }
+    }
+
+    /**
+     * 初心者にもわかりやすいJSONエラーガイドを生成
+     */
+    function buildFriendlyJsonErrorGuide(text, rawErrMsg) {
+      const hints = [];
+      const singleQuoteCount = (text.match(/'/g) || []).length;
+      if (singleQuoteCount > 0) {
+        hints.push('JSONではシングルクォーテーション（\'）じゃなく、ダブルクォーテーション（"）を使うのがルールだぞ！');
+      }
+      if (/,\s*[}\]]/.test(text)) {
+        hints.push('一番うしろの要素のあとに余分なカンマ（,）がついているかも？（例: [1, 2,] の最後のカンマ）');
+      }
+      if (/"[^"\n]*"\s+"[^"\n]*"/.test(text) || /"\s*\n\s*"/.test(text)) {
+        hints.push('行と行のあいだ、またはキーと値のあとにカンマ（,）が抜けている可能性があるぞ！');
+      }
+      const openBraces = (text.match(/\{/g) || []).length;
+      const closeBraces = (text.match(/\}/g) || []).length;
+      if (openBraces !== closeBraces) {
+        hints.push(`波括弧 { と } の数が合っていないぞ！（ { が ${openBraces}個、 } が ${closeBraces}個 ）`);
+      }
+      const openBrackets = (text.match(/\[/g) || []).length;
+      const closeBrackets = (text.match(/\]/g) || []).length;
+      if (openBrackets !== closeBrackets) {
+        hints.push(`角括弧 [ と ] の数が合っていないぞ！（ [ が ${openBrackets}個、 ] が ${closeBrackets}個 ）`);
+      }
+      if (hints.length === 0) {
+        hints.push('文字（文字列）をダブルクォーテーション " " で囲み忘れているか、コロン（:）やカンマ（,）の位置がズレているかも！');
+      }
+
+      return {
+        raw: rawErrMsg,
+        hints
+      };
+    }
+
+    /**
+     * テキストのよくある構文ミスをやさしく自動修復する試み
+     */
+    function attemptAutoRepairText() {
+      let candidate = (state.rawText || '').trim();
+      if (!candidate) {
+        candidate = '{}';
+      }
+
+      // 1. 全角記号を半角に寄せる
+      candidate = candidate
+        .replace(/[“”]/g, '"')
+        .replace(/[‘’]/g, "'")
+        .replace(/：/g, ':')
+        .replace(/，/g, ',')
+        .replace(/｛/g, '{')
+        .replace(/｝/g, '}')
+        .replace(/［/g, '[')
+        .replace(/］/g, ']');
+
+      // 2. 末尾カンマ（trailing comma）を除去
+      candidate = candidate.replace(/,\s*([}\]])/g, '$1');
+
+      // 3. シングルクォーテーション文字列をダブルクォーテーションへ変換（簡易安全処理）
+      candidate = candidate.replace(/'([^'\\]*(\\.[^'\\]*)*)'/g, (_, inner) => {
+        const escaped = inner.replace(/"/g, '\\"');
+        return `"${escaped}"`;
+      });
+
+      // 4. クォーテーションされていないキー名や単純な文字列値を補完
+      // 例: { 名前: 太郎 } -> { "名前": "太郎" }
+      candidate = candidate.replace(/([{,]\s*)([A-Za-z0-9_\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF-]+)\s*:/g, '$1"$2":');
+      candidate = candidate.replace(/:\s*([A-Za-z_\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF][A-Za-z0-9_\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\s!-]*)\s*([,}\n])/g, (match, val, tail) => {
+        const vTrim = val.trim();
+        if (vTrim === 'true' || vTrim === 'false' || vTrim === 'null') {
+          return `: ${vTrim}${tail}`;
+        }
+        return `: "${vTrim}"${tail}`;
+      });
+
+      // 5. 連続する要素や行間のカンマ抜けを補完
+      candidate = candidate.replace(/("\s*)\n(\s*")/g, '$1,\n$2');
+      candidate = candidate.replace(/(\d|true|false|null)\s*\n(\s*")/g, '$1,\n$2');
+      candidate = candidate.replace(/([}\]])\s*\n(\s*["{\[])/g, '$1,\n$2');
+
+      // 6. 閉じ括弧の不足を補完
+      const openBraces = (candidate.match(/\{/g) || []).length;
+      const closeBraces = (candidate.match(/\}/g) || []).length;
+      if (openBraces > closeBraces) {
+        candidate += '\n' + '}'.repeat(openBraces - closeBraces);
+      }
+      const openBrackets = (candidate.match(/\[/g) || []).length;
+      const closeBrackets = (candidate.match(/\]/g) || []).length;
+      if (openBrackets > closeBrackets) {
+        candidate += '\n' + ']'.repeat(openBrackets - closeBrackets);
+      }
+
+      try {
+        const reparsed = JSON.parse(candidate);
+        state.rawText = JSON.stringify(reparsed, null, 2);
+        state.variables = objectToVariableNodes(
+          typeof reparsed === 'object' && reparsed !== null && !Array.isArray(reparsed)
+            ? reparsed
+            : { データ: reparsed }
+        );
+        state.isJsonValid = true;
+        state.parseErrorInfo = null;
+        syncTextAreaFromState();
+        updateParseStatusUI();
+        renderVariableTree();
+        pushHistorySnapshot('自動修復でJSONを復元');
+        logMission('ACTION', '🛠️ 自動修復エンジンがJSON構文をレスキュー成功！');
+        showToast('構文を自動修復して変数ツリーに復元したぞ！🛠️✨', 'success');
+      } catch (err) {
+        state.rawText = candidate;
+        syncTextAreaFromState();
+        tryParseAndSyncToVisual(candidate, true);
+        logMission('ERROR', `自動修復の途中でまだ直せない箇所があるぞ: ${err.message}`);
+        showToast('一部は直ったけど、まだ手動で直したい箇所があるぞ！', 'warn');
+      }
+    }
+
+    function updateParseStatusUI() {
+      const badge = document.getElementById('parse-status-badge');
+      const diagBox = document.getElementById('text-diagnostic-box');
+      const diagMsg = document.getElementById('text-diagnostic-message');
+
+      if (state.isJsonValid) {
+        if (badge) {
+          badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+          badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span> JSON同期OK';
+        }
+        if (diagBox && diagMsg) {
+          diagBox.className = 'rounded-xl border border-emerald-500/35 bg-emerald-500/10 px-3.5 py-2.5 text-xs sm:text-sm text-emerald-200 flex items-start gap-2.5';
+          diagMsg.innerHTML = '<div><strong>JSON構文バッチリ！</strong> 左側の変数ツリーとリアルタイムで同期中だぞ。</div>';
+        }
+      } else {
+        if (badge) {
+          badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-500/40';
+          badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> テキスト/要チェック';
+        }
+        if (diagBox && diagMsg && state.parseErrorInfo) {
+          diagBox.className = 'rounded-xl border border-amber-500/45 bg-amber-500/10 px-3.5 py-2.5 text-xs sm:text-sm text-amber-100 flex items-start gap-2.5';
+          const hintsHtml = (state.parseErrorInfo.hints || [])
+            .map((h) => `<li class="mt-1">• ${escapeHtml(h)}</li>`)
+            .join('');
+          diagMsg.innerHTML = `
+            <div class="space-y-1">
+              <div class="font-extrabold text-amber-200">⚠️ 今のテキストはまだJSONとして読み込めない状態だぞ（テキスト自体は安全に保持中！）</div>
+              ${state.parseErrorInfo.raw ? `<div class="font-mono text-xs text-amber-300/80">詳細: ${escapeHtml(state.parseErrorInfo.raw)}</div>` : ''}
+              <ul class="text-xs text-amber-100/95 list-none pl-0">${hintsHtml}</ul>
+            </div>
+          `;
+        }
+      }
+    }
+
+    function updateTextMetrics() {
+      const metricsEl = document.getElementById('text-metrics');
+      if (!metricsEl) return;
+      const txt = state.rawText || '';
+      const lines = txt ? txt.split('\n').length : 0;
+      metricsEl.textContent = `文字数: ${txt.length} | 行数: ${lines}`;
+    }
+
+    /**
+     * =========================================================================
+     * 便利ツール（整形・圧縮・コピー・ダウンロード・ファイル読込・プリセット）
+     * =========================================================================
+     */
+
+    function formatJsonAction() {
+      try {
+        const parsed = JSON.parse(state.rawText);
+        state.rawText = JSON.stringify(parsed, null, 2);
+        state.variables = objectToVariableNodes(
+          typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)
+            ? parsed
+            : { データ: parsed }
+        );
+        state.isJsonValid = true;
+        state.parseErrorInfo = null;
+        syncTextAreaFromState();
+        updateParseStatusUI();
+        renderAll();
+        pushHistorySnapshot('JSONをきれいに整形');
+        logMission('ACTION', '✨ JSONを見やすくきれいに整形したぞ！');
+        showToast('きれいに整形したぞ！✨', 'success');
+      } catch (_) {
+        attemptAutoRepairText();
+      }
+    }
+
+    function minifyJsonAction() {
+      try {
+        const parsed = JSON.parse(state.rawText);
+        state.rawText = JSON.stringify(parsed);
+        syncTextAreaFromState();
+        pushHistorySnapshot('JSONを1行に圧縮');
+        logMission('ACTION', '🗜️ JSONを1行にギュッと圧縮したぞ！');
+        showToast('1行に圧縮したぞ！🗜️', 'success');
+      } catch (_) {
+        showToast('まずはJSON構文を整えてから圧縮しよう！', 'warn');
+      }
+    }
+
+    function copyJsonToClipboard() {
+      const textToCopy = getPreparedJsonStringForExport();
+      copyTextWithFallback(
+        textToCopy,
+        `現在のJSON（${textToCopy.length}文字）をクリップボードにコピーしたぞ！`,
+        'コピーしたぜ！📋'
+      );
+    }
+
+    function getPreparedJsonStringForExport() {
+      if (state.isJsonValid) {
+        try {
+          return JSON.stringify(JSON.parse(state.rawText), null, 2);
+        } catch (_) {}
+      }
+      return state.rawText || '';
+    }
+
+    function setCopyButtonFeedback(copiedText = 'コピーしたぜ！') {
+      const btn = document.getElementById('btn-copy-json');
+      const icon = document.getElementById('copy-btn-icon');
+      const label = document.getElementById('copy-btn-label');
+      if (!btn || !icon || !label) return;
+
+      if (state.copyFeedbackTimer) {
+        clearTimeout(state.copyFeedbackTimer);
+      }
+
+      icon.textContent = '✅';
+      label.textContent = copiedText;
+      btn.classList.remove('bg-cyan-500/15', 'hover:bg-cyan-500/25', 'text-cyan-200', 'border-cyan-500/35');
+      btn.classList.add('bg-emerald-500/25', 'text-emerald-200', 'border-emerald-400/60');
+
+      state.copyFeedbackTimer = setTimeout(() => {
+        icon.textContent = '📋';
+        label.textContent = 'JSONをコピー (CP)';
+        btn.classList.remove('bg-emerald-500/25', 'text-emerald-200', 'border-emerald-400/60');
+        btn.classList.add('bg-cyan-500/15', 'hover:bg-cyan-500/25', 'text-cyan-200', 'border-cyan-500/35');
+      }, 2000);
+    }
+
+    async function copyTextWithFallback(text, logMessage, toastMessage) {
+      let copied = false;
+
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        try {
+          await navigator.clipboard.writeText(text);
+          copied = true;
+        } catch (_) {
+          copied = false;
+        }
+      }
+
+      if (!copied) {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          copied = document.execCommand('copy');
+          document.body.removeChild(ta);
+        } catch (err) {
+          logMission('ERROR', `クリップボードコピー失敗: ${err.message}`);
+          showToast('コピーに失敗したぞ…手動で選択してコピーしてくれ！', 'error');
+          return;
+        }
+      }
+
+      if (copied) {
+        setCopyButtonFeedback('コピーしたぜ！');
+        logMission('ACTION', logMessage);
+        showToast(toastMessage, 'success');
+      } else {
+        showToast('コピーに失敗したぞ…手動で選択してコピーしてくれ！', 'warn');
+      }
+    }
+
+    function buildDownloadFileName(ext) {
+      const rawName = (state.currentFileName || DEFAULT_JSON_FILENAME).trim();
+      const baseName = rawName.replace(/\.(json|txt)$/i, '') || 'kakaomame-vars';
+      return ext === 'json' ? `${baseName}.json` : `${baseName}.txt`;
+    }
+
+    function updateFileNameBadge() {
+      const badgeText = document.getElementById('active-filename-text');
+      if (badgeText) {
+        badgeText.textContent = state.currentFileName || DEFAULT_JSON_FILENAME;
+      }
+    }
+
+    function downloadFile(ext) {
+      const isJson = ext === 'json';
+      const content = isJson ? getPreparedJsonStringForExport() : (state.rawText || '');
+      const mime = isJson ? 'application/json;charset=utf-8' : 'text/plain;charset=utf-8';
+      const filename = buildDownloadFileName(ext);
+
+      try {
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        logMission('ACTION', `⬇️ ファイル「${filename}」（${content.length}文字）をダウンロードしたぞ！`);
+        showToast(`${filename} をダウンロードしたぞ！⬇️`, 'success');
+      } catch (err) {
+        logMission('ERROR', `ファイルダウンロード失敗: ${err.message}`);
+        showToast('ダウンロードに失敗したぞ！', 'error');
+      }
+    }
+
+    function triggerFileInput() {
+      const input = document.getElementById('file-upload-input');
+      if (input) {
+        input.click();
+      }
+    }
+
+    function ingestUploadedFile(file, sourceLabel = 'ファイル選択') {
+      if (!file) return;
+      streamAndIngestFile(file, sourceLabel);
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      ingestUploadedFile(file, 'inputファイル選択');
+      event.target.value = '';
+    }
+
+    function setupGlobalDragAndDrop() {
+      const overlay = document.getElementById('global-drop-overlay');
+
+      const hasFiles = (e) => {
+        const dt = e.dataTransfer;
+        if (!dt) return false;
+        if (dt.types && Array.from(dt.types).includes('Files')) return true;
+        return Boolean(dt.files && dt.files.length > 0);
+      };
+
+      const setOverlayVisible = (visible) => {
+        if (!overlay) return;
+        if (visible) {
+          overlay.classList.remove('hidden');
+          overlay.classList.add('flex');
+        } else {
+          overlay.classList.add('hidden');
+          overlay.classList.remove('flex');
+        }
+      };
+
+      window.addEventListener('dragenter', (e) => {
+        if (!hasFiles(e)) return;
+        e.preventDefault();
+        state.dragCounter += 1;
+        setOverlayVisible(true);
+      });
+
+      window.addEventListener('dragover', (e) => {
+        if (!hasFiles(e)) return;
+        e.preventDefault();
+        if (e.dataTransfer) {
+          e.dataTransfer.dropEffect = 'copy';
+        }
+        setOverlayVisible(true);
+      });
+
+      window.addEventListener('dragleave', (e) => {
+        if (!hasFiles(e)) return;
+        e.preventDefault();
+        state.dragCounter = Math.max(0, state.dragCounter - 1);
+        if (state.dragCounter === 0) {
+          setOverlayVisible(false);
+        }
+      });
+
+      window.addEventListener('drop', (e) => {
+        if (!hasFiles(e)) return;
+        e.preventDefault();
+        state.dragCounter = 0;
+        setOverlayVisible(false);
+
+        const files = e.dataTransfer?.files;
+        if (files && files.length > 0) {
+          const targetFile = files[0];
+          ingestUploadedFile(targetFile, 'ドラッグ＆ドロップ');
+        }
+      });
+    }
+
+    function loadPreset(presetKey) {
+      const preset = PRESETS[presetKey];
+      if (!preset) return;
+
+      const applyPreset = () => {
+        state.variables = objectToVariableNodes(preset.data);
+        syncVisualToText();
+        pushHistorySnapshot(`プリセット「${preset.label}」を読込`);
+        renderAll();
+        logMission('ACTION', `プリセット「${preset.label}」を読み込んだぞ！`);
+        showToast(`${preset.label} を読み込んだぞ！🎒`, 'success');
+      };
+
+      if (state.variables.length > 0) {
+        openConfirmModal(
+          'プリセットの読み込み',
+          `現在の変数を「${preset.label}」に切り替えるぞ！（「戻す」ボタンで元に戻せるよ）`,
+          applyPreset
+        );
+      } else {
+        applyPreset();
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 表示モード切替・テーマ切替・検索フィルタ
+     * =========================================================================
+     */
+
+    function setViewMode(mode) {
+      state.viewMode = mode;
+      try {
+        localStorage.setItem(STORAGE_KEY_MODE, mode);
+      } catch (_) {}
+
+      const grid = document.getElementById('workspace-grid');
+      const visualPane = document.getElementById('visual-pane');
+      const textPane = document.getElementById('text-pane');
+
+      const btnVisual = document.getElementById('mode-btn-visual');
+      const btnSplit = document.getElementById('mode-btn-split');
+      const btnText = document.getElementById('mode-btn-text');
+
+      const activeClass = 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-1.5 bg-sky-500 text-slate-950 shadow';
+      const inactiveClass = 'px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-1.5 text-slate-300 hover:text-white';
+
+      if (btnVisual) btnVisual.className = mode === 'visual' ? activeClass : inactiveClass;
+      if (btnSplit) btnSplit.className = mode === 'split' ? activeClass : inactiveClass;
+      if (btnText) btnText.className = mode === 'text' ? activeClass : inactiveClass;
+
+      if (!grid || !visualPane || !textPane) return;
+
+      if (mode === 'visual') {
+        grid.className = 'grid grid-cols-1 gap-4 sm:gap-5';
+        visualPane.classList.remove('hidden');
+        visualPane.classList.add('flex');
+        textPane.classList.add('hidden');
+        textPane.classList.remove('flex');
+      } else if (mode === 'split') {
+        grid.className = 'grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-5 items-start';
+        visualPane.classList.remove('hidden');
+        visualPane.classList.add('flex');
+        textPane.classList.remove('hidden');
+        textPane.classList.add('flex');
+      } else if (mode === 'text') {
+        grid.className = 'grid grid-cols-1 gap-4 sm:gap-5';
+        visualPane.classList.add('hidden');
+        visualPane.classList.remove('flex');
+        textPane.classList.remove('hidden');
+        textPane.classList.add('flex');
+        syncTextAreaFromState();
+      }
+
+      logMission('ACTION', `表示モードを「${mode === 'visual' ? 'ビジュアル変数' : mode === 'split' ? 'スプリット同時表示' : 'テキスト/JSON直接'}」に変更！`);
+    }
+
+    function toggleTheme() {
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      applyTheme();
+      try {
+        localStorage.setItem(STORAGE_KEY_THEME, state.theme);
+      } catch (_) {}
+      logMission('ACTION', `テーマを「${state.theme === 'dark' ? 'ダーク探検コンソール' : 'ライト探検コンソール'}」に切替！`);
+    }
+
+    function applyTheme() {
+      const htmlEl = document.documentElement;
+      const bodyEl = document.getElementById('app-body');
+      const iconEl = document.getElementById('theme-icon');
+      const labelEl = document.getElementById('theme-label');
+
+      if (state.theme === 'dark') {
+        htmlEl.classList.add('dark');
+        if (bodyEl) {
+          bodyEl.className = 'min-h-screen console-grid-dark bg-slate-950 text-slate-100 font-sans antialiased selection:bg-sky-500/30 selection:text-sky-200 transition-colors duration-200';
+        }
+        if (iconEl) iconEl.textContent = '☀️';
+        if (labelEl) labelEl.textContent = 'ライト';
+      } else {
+        htmlEl.classList.remove('dark');
+        if (bodyEl) {
+          bodyEl.className = 'min-h-screen console-grid-light bg-slate-100 text-slate-900 font-sans antialiased selection:bg-sky-500/20 selection:text-slate-900 transition-colors duration-200';
+        }
+        if (iconEl) iconEl.textContent = '🌙';
+        if (labelEl) labelEl.textContent = 'ダーク';
+      }
+    }
+
+    function handleSearchChange(val) {
+      state.searchQuery = (val || '').trim().toLowerCase();
+      const clearBtn = document.getElementById('clear-search-btn');
+      if (clearBtn) {
+        clearBtn.classList.toggle('hidden', !state.searchQuery);
+      }
+      renderVariableTree();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('search-input');
+      if (input) input.value = '';
+      handleSearchChange('');
+    }
+
+    /**
+     * 検索クエリにマッチするかどうか判定（子孫にマッチがある場合も true）
+     */
+    function nodeMatchesSearch(node, query) {
+      if (!query) return true;
+      const keyMatch = (node.key || '').toLowerCase().includes(query);
+      const typeMatch = typeLabelJapanese(node.type).toLowerCase().includes(query);
+
+      if (node.type === 'array' || node.type === 'object') {
+        const childMatch = Array.isArray(node.value) && node.value.some((child) => nodeMatchesSearch(child, query));
+        return keyMatch || typeMatch || childMatch;
+      }
+
+      const valStr = node.value === null || node.value === undefined ? 'null' : String(node.value).toLowerCase();
+      return keyMatch || typeMatch || valStr.includes(query);
+    }
+
+    /**
+     * =========================================================================
+     * ビジュアル変数ツリー レンダリングエンジン
+     * =========================================================================
+     */
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function countTotalVariables(nodes) {
+      if (!Array.isArray(nodes)) return 0;
+      let total = 0;
+      for (const n of nodes) {
+        total += 1;
+        if (n.type === 'object' || n.type === 'array') {
+          total += countTotalVariables(n.value);
+        }
+      }
+      return total;
+    }
+
+    function renderAll() {
+      renderVariableTree();
+      updateTextMetrics();
+      updateUndoRedoButtons();
+    }
+
+    function renderVariableTree() {
+      const container = document.getElementById('variable-tree-container');
+      const countBadge = document.getElementById('var-count-badge');
+      if (!container) return;
+
+      const totalCount = countTotalVariables(state.variables);
+      if (countBadge) {
+        countBadge.textContent = `${totalCount} 個の変数・要素`;
+      }
+
+      const filteredRoots = state.variables.filter((n) => nodeMatchesSearch(n, state.searchQuery));
+
+      if (filteredRoots.length === 0) {
+        if (state.searchQuery) {
+          container.innerHTML = `
+            <div class="rounded-2xl border border-dashed border-slate-700 bg-slate-950/50 p-8 text-center">
+              <div class="text-3xl mb-2">🔭</div>
+              <p class="text-sm font-bold text-slate-300">「${escapeHtml(state.searchQuery)}」に一致する変数は見つからなかったぞ！</p>
+              <button type="button" onclick="clearSearch()" class="mt-3 px-4 py-1.5 rounded-xl text-xs font-bold bg-sky-500/20 text-sky-200 border border-sky-500/40 hover:bg-sky-500/30 transition">
+                検索をリセット
+              </button>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <div class="rounded-2xl border border-dashed border-slate-700 bg-slate-950/50 p-8 text-center flex flex-col items-center gap-3">
+              <div class="text-4xl">🫘✨</div>
+              <div class="text-base font-extrabold text-slate-200">まだ変数が1つもないぞ！さあ最初の変数を作ろう！</div>
+              <p class="text-xs text-slate-400 max-w-md">
+                「＋ 新しい変数を追加」を押すか、上の「プリセット読込」からサンプルを選んでもOKだぜ！
+              </p>
+              <button
+                type="button"
+                onclick="addVariableToRoot()"
+                class="px-5 py-2.5 rounded-xl text-sm font-extrabold bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-slate-950 shadow-cacao transition"
+              >
+                ＋ 最初の変数を作る
+              </button>
+            </div>
+          `;
+        }
+        return;
+      }
+
+      // ページング安全表示が有効な場合のスライス処理
+      let displayedRoots = filteredRoots;
+      const paginationInfoEl = document.getElementById('pagination-info-label');
+      if (state.pagination.enabled && !state.pagination.forceFullRender) {
+        const pageSize = state.pagination.pageSize;
+        const totalPages = Math.max(1, Math.ceil(filteredRoots.length / pageSize));
+        if (state.pagination.currentPage > totalPages) {
+          state.pagination.currentPage = totalPages;
+        }
+        const startIdx = (state.pagination.currentPage - 1) * pageSize;
+        displayedRoots = filteredRoots.slice(startIdx, startIdx + pageSize);
+        if (paginationInfoEl) {
+          paginationInfoEl.textContent = `${state.pagination.currentPage} / ${totalPages} ページ（全${filteredRoots.length}件中 ${startIdx + 1}〜${startIdx + displayedRoots.length}件）`;
+        }
+      } else if (paginationInfoEl) {
+        paginationInfoEl.textContent = `全件表示（${filteredRoots.length}件）`;
+      }
+
+      container.innerHTML = displayedRoots
+        .map((node, idx) => renderNodeCard(node, idx, displayedRoots.length, false))
+        .join('');
+    }
+
+    /**
+     * 1つの変数またはリスト要素ノードをカードHTMLへ変換
+     */
+    function renderNodeCard(node, index, siblingLength, isArrayItem) {
+      const isContainer = node.type === 'object' || node.type === 'array';
+      const isCollapsed = Boolean(node.collapsed);
+
+      const typeBadgeColor = {
+        string: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-300',
+        number: 'border-amber-500/35 bg-amber-500/10 text-amber-300',
+        boolean: 'border-purple-500/35 bg-purple-500/10 text-purple-300',
+        array: 'border-pink-500/35 bg-pink-500/10 text-pink-300',
+        object: 'border-cyan-500/35 bg-cyan-500/10 text-cyan-300',
+        null: 'border-slate-600 bg-slate-800/80 text-slate-300'
+      }[node.type] || 'border-slate-700 bg-slate-800 text-slate-200';
+
+      // 型セレクタのオプションHTML
+      const typeOptions = ['string', 'number', 'boolean', 'array', 'object', 'null']
+        .map((t) => `<option value="${t}" ${node.type === t ? 'selected' : ''}>${typeLabelJapanese(t)}</option>`)
+        .join('');
+
+      // 値入力UIの生成
+      let valueEditorHtml = '';
+      if (node.type === 'string') {
+        valueEditorHtml = `
+          <div class="flex-1 min-w-[180px]">
+            <label class="block text-[11px] font-bold text-emerald-300/90 mb-1">中身（もじ・文字列）</label>
+            <input
+              type="text"
+              value="${escapeHtml(node.value ?? '')}"
+              oninput="handleLeafValueChange('${node.id}', this.value, 'string')"
+              placeholder="もじを入力..."
+              class="w-full px-3 py-2 rounded-xl text-xs sm:text-sm bg-slate-950/90 border border-slate-700/80 focus:border-emerald-400 focus:outline-none text-slate-100 transition"
+            >
+          </div>
+        `;
+      } else if (node.type === 'number') {
+        const numVal = Number(node.value) || 0;
+        valueEditorHtml = `
+          <div class="flex-1 min-w-[200px]">
+            <label class="block text-[11px] font-bold text-amber-300/90 mb-1">中身（すうじ・数値）</label>
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                onclick="stepNumberValue('${node.id}', -1)"
+                class="px-2.5 py-2 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-200 transition active:scale-95"
+                title="1減らす"
+              >
+                -1
+              </button>
+              <input
+                type="number"
+                step="any"
+                value="${escapeHtml(numVal)}"
+                oninput="handleLeafValueChange('${node.id}', this.value, 'number')"
+                class="w-full px-3 py-2 rounded-xl text-xs sm:text-sm font-mono bg-slate-950/90 border border-slate-700/80 focus:border-amber-400 focus:outline-none text-amber-100 transition"
+              >
+              <button
+                type="button"
+                onclick="stepNumberValue('${node.id}', 1)"
+                class="px-2.5 py-2 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-200 transition active:scale-95"
+                title="1増やす"
+              >
+                +1
+              </button>
+            </div>
+          </div>
+        `;
+      } else if (node.type === 'boolean') {
+        const isOn = Boolean(node.value);
+        valueEditorHtml = `
+          <div class="flex-1 min-w-[180px]">
+            <label class="block text-[11px] font-bold text-purple-300/90 mb-1">中身（ON / OFF スイッチ）</label>
+            <button
+              type="button"
+              onclick="handleLeafValueChange('${node.id}', ${!isOn}, 'boolean')"
+              class="w-full sm:w-auto px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold border transition flex items-center justify-between gap-3 ${
+                isOn
+                  ? 'bg-purple-500/25 border-purple-400 text-purple-100 shadow-sm'
+                  : 'bg-slate-950/90 border-slate-700 text-slate-400'
+              }"
+            >
+              <span>${isOn ? '🟢 ON (true / 有効)' : '⚪ OFF (false / 無効)'}</span>
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-mono ${isOn ? 'bg-purple-400 text-slate-950' : 'bg-slate-800 text-slate-400'}">
+                ${isOn ? 'ON' : 'OFF'}
+              </span>
+            </button>
+          </div>
+        `;
+      } else if (node.type === 'null') {
+        valueEditorHtml = `
+          <div class="flex-1 min-w-[180px]">
+            <label class="block text-[11px] font-bold text-slate-400 mb-1">中身（空っぽ）</label>
+            <div class="px-3 py-2 rounded-xl text-xs sm:text-sm font-mono bg-slate-950/60 border border-slate-800 text-slate-400">
+              null（まだ何も入っていない状態）
+            </div>
+          </div>
+        `;
+      } else if (node.type === 'object') {
+        const childCount = Array.isArray(node.value) ? node.value.length : 0;
+        valueEditorHtml = `
+          <div class="flex-1 min-w-[200px] flex flex-wrap items-center justify-between gap-2 pt-1 sm:pt-4">
+            <span class="text-xs font-semibold text-cyan-300">
+              📦 グループ内の変数: <strong>${childCount}個</strong>
+            </span>
+            <button
+              type="button"
+              onclick="addChildVariableToObject('${node.id}')"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-500/40 transition flex items-center gap-1"
+            >
+              <span>＋</span> グループ内に変数を追加
+            </button>
+          </div>
+        `;
+      } else if (node.type === 'array') {
+        const itemCount = Array.isArray(node.value) ? node.value.length : 0;
+        valueEditorHtml = `
+          <div class="flex-1 min-w-[200px] flex flex-wrap items-center justify-between gap-2 pt-1 sm:pt-4">
+            <span class="text-xs font-semibold text-pink-300">
+              📋 リストの要素数: <strong>${itemCount}個</strong>
+            </span>
+            <button
+              type="button"
+              onclick="addItemToArray('${node.id}')"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold bg-pink-500/20 hover:bg-pink-500/30 text-pink-200 border border-pink-500/40 transition flex items-center gap-1"
+            >
+              <span>＋</span> リストに要素を追加
+            </button>
+          </div>
+        `;
+      }
+
+      // 入れ子子要素の描画
+      let childrenHtml = '';
+      if (isContainer && !isCollapsed) {
+        const children = Array.isArray(node.value) ? node.value : [];
+        const visibleChildren = state.searchQuery
+          ? children.filter((ch) => nodeMatchesSearch(ch, state.searchQuery))
+          : children;
+
+        if (visibleChildren.length === 0) {
+          childrenHtml = `
+            <div class="mt-3 ml-2 sm:ml-5 pl-3 sm:pl-4 border-l-2 ${node.type === 'object' ? 'border-cyan-500/35' : 'border-pink-500/35'} text-xs text-slate-400 italic py-2">
+              ${node.type === 'object' ? 'このグループの中にはまだ変数がありません。「＋ グループ内に変数を追加」を押してみよう！' : 'このリストはまだ空っぽです。「＋ リストに要素を追加」を押してみよう！'}
+            </div>
+          `;
+        } else {
+          const borderAccent = node.type === 'object' ? 'border-cyan-500/40' : 'border-pink-500/40';
+          childrenHtml = `
+            <div class="mt-3 ml-1.5 sm:ml-4 pl-2.5 sm:pl-4 border-l-2 ${borderAccent} flex flex-col gap-2.5">
+              ${visibleChildren.map((ch, cIdx) => renderNodeCard(ch, cIdx, visibleChildren.length, node.type === 'array')).join('')}
+            </div>
+          `;
+        }
+      }
+
+      // 変数名入力欄（リスト要素の場合は「#1」「#2」などの番号ラベルを表示）
+      const nameFieldHtml = isArrayItem
+        ? `
+          <div class="w-full sm:w-32 shrink-0">
+            <label class="block text-[11px] font-bold text-pink-300/90 mb-1">リストの順番</label>
+            <div class="px-3 py-2 rounded-xl text-xs font-mono font-bold bg-slate-950/80 border border-slate-800 text-pink-200">
+              #${index + 1} 番目
+            </div>
+          </div>
+        `
+        : `
+          <div class="w-full sm:w-52 shrink-0">
+            <label class="block text-[11px] font-bold text-sky-300/90 mb-1">変数の名前（キー）</label>
+            <input
+              type="text"
+              value="${escapeHtml(node.key ?? '')}"
+              oninput="handleVariableKeyChange('${node.id}', this.value)"
+              placeholder="例: たいりょく"
+              class="w-full px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-950/90 border border-slate-700/80 focus:border-sky-400 focus:outline-none text-white transition"
+            >
+          </div>
+        `;
+
+      return `
+        <div
+          data-node-id="${node.id}"
+          draggable="true"
+          ondragstart="handleDragStart(event, '${node.id}')"
+          ondragover="handleDragOver(event, '${node.id}')"
+          ondragleave="handleDragLeave('${node.id}')"
+          ondrop="handleDrop(event, '${node.id}')"
+          class="rounded-2xl border border-slate-800 bg-slate-950/65 hover:border-slate-700 p-3 sm:p-3.5 transition"
+        >
+          <div class="flex flex-col lg:flex-row lg:items-end gap-3">
+            <!-- 左側: 折りたたみ & ドラッグハンドル & 変数名 & 型 -->
+            <div class="flex flex-col sm:flex-row sm:items-end gap-2.5 flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 sm:pb-1.5 shrink-0">
+                <span
+                  class="cursor-grab active:cursor-grabbing px-1.5 py-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 select-none text-sm"
+                  title="ドラッグして並び替え"
+                >
+                  ⠿
+                </span>
+                ${
+                  isContainer
+                    ? `<button
+                        type="button"
+                        onclick="toggleNodeCollapse('${node.id}')"
+                        class="px-2 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition"
+                        title="${isCollapsed ? '中身を展開する' : '中身を折りたたむ'}"
+                      >
+                        ${isCollapsed ? '▶ 開く' : '▼ 閉じる'}
+                      </button>`
+                    : ''
+                }
+              </div>
+
+              ${nameFieldHtml}
+
+              <div class="w-full sm:w-44 shrink-0">
+                <label class="block text-[11px] font-bold text-slate-300 mb-1">変数の型</label>
+                <select
+                  onchange="handleNodeTypeChange('${node.id}', this.value)"
+                  class="w-full px-2.5 py-2 rounded-xl text-xs sm:text-sm font-bold border ${typeBadgeColor} bg-slate-950 focus:outline-none cursor-pointer transition"
+                >
+                  ${typeOptions}
+                </select>
+              </div>
+            </div>
+
+            <!-- 中央: 型に応じた直感的な値エディタ -->
+            ${valueEditorHtml}
+
+            <!-- 右側: 上下移動・複製・削除アクション -->
+            <div class="flex items-center justify-end gap-1.5 pt-1 lg:pt-0 lg:pb-0.5 shrink-0">
+              <button
+                type="button"
+                onclick="moveNode('${node.id}', -1)"
+                ${index === 0 ? 'disabled' : ''}
+                class="p-2 rounded-xl text-xs bg-slate-800/90 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-700/80 text-slate-200 transition"
+                title="上へ移動"
+              >
+                ⬆️
+              </button>
+              <button
+                type="button"
+                onclick="moveNode('${node.id}', 1)"
+                ${index === siblingLength - 1 ? 'disabled' : ''}
+                class="p-2 rounded-xl text-xs bg-slate-800/90 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-700/80 text-slate-200 transition"
+                title="下へ移動"
+              >
+                ⬇️
+              </button>
+              <button
+                type="button"
+                onclick="duplicateNode('${node.id}')"
+                class="p-2 rounded-xl text-xs bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/35 text-sky-200 transition"
+                title="複製する"
+              >
+                📄
+              </button>
+              <button
+                type="button"
+                onclick="deleteNode('${node.id}')"
+                class="p-2 rounded-xl text-xs bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/35 text-rose-200 transition"
+                title="削除する"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          ${childrenHtml}
+        </div>
+      `;
+    }
+
+    /**
+     * =========================================================================
+     * 探検ログ（ミッションログ）描画＆操作
+     * =========================================================================
+     */
+
+    function renderMissionLogs() {
+      const container = document.getElementById('mission-log-container');
+      const badge = document.getElementById('log-count-badge');
+      if (!container) return;
+
+      if (badge) {
+        badge.textContent = `${state.logs.length}件`;
+      }
+
+      const categoryColors = {
+        SYSTEM: 'text-sky-300 bg-sky-500/15 border-sky-500/30',
+        ACTION: 'text-emerald-300 bg-emerald-500/15 border-emerald-500/30',
+        VALUE: 'text-amber-300 bg-amber-500/15 border-amber-500/30',
+        ERROR: 'text-rose-300 bg-rose-500/20 border-rose-500/40'
+      };
+
+      container.innerHTML = state.logs
+        .map((entry) => {
+          const badgeCls = categoryColors[entry.category] || 'text-slate-300 bg-slate-800 border-slate-700';
+          return `
+            <div class="flex items-start gap-2 leading-snug">
+              <span class="text-slate-500 shrink-0">${escapeHtml(entry.time)}</span>
+              <span class="px-1.5 py-0.5 rounded border text-[10px] font-bold shrink-0 ${badgeCls}">[${escapeHtml(entry.category)}]</span>
+              <span class="text-slate-200 break-all">${escapeHtml(entry.message)}</span>
+            </div>
+          `;
+        })
+        .join('');
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function clearMissionLogs() {
+      state.logs = [];
+      renderMissionLogs();
+      logMission('SYSTEM', '探検ログをリセットしたぞ！ここからまた新しい記録を刻むぜ！');
+      showToast('ログを消去したぞ！🧹', 'info');
+    }
+
+    function copyMissionLogs() {
+      const text = state.logs
+        .map((e) => `[${e.category}] ${e.time} - ${e.message}`)
+        .join('\n');
+      copyTextWithFallback(text, '探検ログをクリップボードにコピーしたぞ！', '探検ログをコピーしたぞ！📋');
+    }
+
+    /**
+     * =========================================================================
+     * キーボードショートカット＆初期化
+     * =========================================================================
+     */
+
+    function setupKeyboardShortcuts() {
+      window.addEventListener('keydown', (e) => {
+        const isMod = e.metaKey || e.ctrlKey;
+        if (!isMod) return;
+
+        if (e.key.toLowerCase() === 'z' && !e.shiftKey) {
+          // テキストエリア内で通常のUndoを使いたい場合は、履歴スタックを優先
+          e.preventDefault();
+          undoAction();
+        } else if ((e.key.toLowerCase() === 'y') || (e.key.toLowerCase() === 'z' && e.shiftKey)) {
+          e.preventDefault();
+          redoAction();
+        } else if (e.key.toLowerCase() === 's') {
+          e.preventDefault();
+          manualSaveToStorage();
+        }
+      });
+    }
+
+    function initApp() {
+      logMission('SYSTEM', 'Gemini programming隊・カカオマメ隊専用 JSON＆変数コンソール起動中...');
+
+      // テーマ＆モードの復元
+      try {
+        const savedTheme = localStorage.getItem(STORAGE_KEY_THEME);
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+          state.theme = savedTheme;
+        }
+        applyTheme();
+
+        const savedMode = localStorage.getItem(STORAGE_KEY_MODE);
+        if (savedMode === 'visual' || savedMode === 'split' || savedMode === 'text') {
+          state.viewMode = savedMode;
+        }
+
+        const savedVarsJson = localStorage.getItem(STORAGE_KEY_DATA);
+        const savedRawText = localStorage.getItem(STORAGE_KEY_TEXT);
+        const savedFileName = localStorage.getItem(STORAGE_KEY_FILENAME);
+
+        if (savedFileName && savedFileName.trim()) {
+          state.currentFileName = savedFileName.trim();
+        }
+        updateFileNameBadge();
+
+        if (savedVarsJson) {
+          const parsedVars = JSON.parse(savedVarsJson);
+          if (Array.isArray(parsedVars)) {
+            state.variables = parsedVars;
+            state.rawText = savedRawText || serializeVariablesToJson(2);
+            logMission('SYSTEM', '前回のローカル保存データから変数ツリーを復元したぞ！');
+          } else {
+            state.variables = objectToVariableNodes(PRESETS.character.data);
+            syncVisualToText();
+          }
+        } else {
+          // 初回起動時は「ゲームキャラ設定」プリセットで即体験できるようにする
+          state.variables = objectToVariableNodes(PRESETS.character.data);
+          syncVisualToText();
+          logMission('SYSTEM', '初回プリセット「⚔️ ゲームキャラ設定」をロードしたぞ！');
+        }
+      } catch (err) {
+        logMission('ERROR', `初期データ復元時にエラー発生。デフォルトデータで起動: ${err.message}`);
+        state.variables = objectToVariableNodes(PRESETS.character.data);
+        syncVisualToText();
+      }
+
+      // 初期スナップショット登録
+      const initialSnapshot = JSON.stringify({
+        variables: state.variables,
+        rawText: state.rawText,
+        isJsonValid: state.isJsonValid
+      });
+      state.history = [initialSnapshot];
+      state.redoStack = [];
+
+      syncTextAreaFromState();
+      validateAndDiagnoseText(state.rawText);
+      setViewMode(state.viewMode);
+      renderAll();
+      setupKeyboardShortcuts();
+      setupGlobalDragAndDrop();
+      configurePaginationGuard(countTotalVariables(state.variables), new Blob([state.rawText || '']).size);
+      updateStreamingMonitorUI('巨大JSONストリーミング受信機スタンバイ完了！', 'idle');
+
+      logMission('SYSTEM', '準備完了だぜ、カカオマメ隊員！好きな変数をいじってみよう！🚀');
+    }
+
+    function validateAndDiagnoseText(text) {
+      try {
+        JSON.parse((text || '').trim() || '{}');
+        state.isJsonValid = true;
+        state.parseErrorInfo = null;
+      } catch (err) {
+        state.isJsonValid = false;
+        state.parseErrorInfo = buildFriendlyJsonErrorGuide(text || '', err.message);
+      }
+      updateParseStatusUI();
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
