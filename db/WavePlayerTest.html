@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CDNから kakaomame-wave-player@1.0.2 を読み込んでWPで波を鳴らすテストページ">
+  <meta name="keywords" content="kakaomame-wave-player, Web Audio API, CDN, jsDelivr, WP">
+  <meta name="author" content="カカオマメ">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#1e293b">
+  <meta property="og:title" content="kakaomame-wave-player CDN テスト">
+  <meta property="og:description" content="jsDelivr CDN 経由で kakaomame-wave-player@1.0.2 を読み込んで再生テスト">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kakaomames.github.io/">
+  <meta property="og:image" content="https://kakaomame.github.io/rei/logo.png">
+  <meta property="og:site_name" content="Gemini programming隊">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="kakaomame-wave-player CDN テスト">
+  <meta name="twitter:description" content="jsDelivr CDN 経由で kakaomame-wave-player@1.0.2 を読み込んで再生テスト">
+  <meta name="twitter:image" content="https://kakaomame.github.io/rei/logo.png">
+  <link rel="icon" href="https://kakaomame.github.io/rei/logo.png">
+  <title>kakaomame-wave-player CDN Test (v1.0.2)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      margin: 0;
+      padding: 24px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 1.6rem;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    button {
+      background: #38bdf8;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #7dd3fc;
+    }
+    .status-badge {
+      display: inline-block;
+      background: #0f172a;
+      border: 1px solid #475569;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+    #logArea {
+      background: #020617;
+      color: #a7f3d0;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎶 kakaomame-wave-player CDN テスト</h1>
+    <p>CDN から <code>kakaomame-wave-player@1.0.2</code> を読み込んで、<code>WP(...)</code> で波を鳴らすよ！🚀</p>
+
+    <div class="card">
+      <div id="wpStatus" class="status-badge">WP 状態: 読み込み確認中...</div>
+      <div class="btn-group">
+        <button id="btn440" type="button">🔊 440Hz (0.3s, vol 0.2)</button>
+        <button id="btn500" type="button">⚡ 500Hz (0.1s, vol 0.1)</button>
+        <button id="btn880" type="button">✨ 880Hz (0.25s, vol 0.2)</button>
+        <button id="btnClear" type="button">🧹 ログクリア</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top: 0; font-size: 1.1rem;">📋 実行ログ</h2>
+      <div id="logArea"></div>
+    </div>
+  </div>
+
+  <!-- jsDelivr CDN から 1.0.2 の main.js を読み込み（ミニファイ版を試すときは main.min.js に変更） -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/kakaomame-wave-player@1.0.2/main.js"></script>
+
+  <script type="module">
+    const logArea = document.getElementById("logArea");
+    const wpStatus = document.getElementById("wpStatus");
+
+    function writeLog(tag, message) {
+      const time = new Date().toLocaleTimeString("ja-JP");
+      const line = `[${time}] [${tag}] ${message}`;
+      console.log(line);
+      logArea.textContent += line + "\n";
+      logArea.scrollTop = logArea.scrollHeight;
+    }
+
+    function refreshWpStatus() {
+      const fn = typeof window.WP === "function" ? window.WP : (typeof WP === "function" ? WP : null);
+      if (fn) {
+        wpStatus.textContent = "WP 状態: 読み込みOK ✅ (function)";
+        writeLog("INIT", "WP 関数の検出に成功！");
+        return fn;
+      } else {
+        wpStatus.textContent = "WP 状態: 未検出 ⚠️";
+        writeLog("WARN", "WP がまだ見つからないよ。CDN パスや exports を確認しよう！");
+        return null;
+      }
+    }
+
+    // モジュール読み込み完了後に WP の存在を確認
+    window.addEventListener("DOMContentLoaded", () => {
+      setTimeout(refreshWpStatus, 100);
+    });
+    setTimeout(refreshWpStatus, 500);
+
+    async function triggerWave(freq, duration, volume) {
+      const fn = refreshWpStatus();
+      if (!fn) return;
+
+      writeLog("ACTION", `WP(${freq}, ${duration}, ${volume}) 呼び出し開始`);
+      try {
+        await fn(freq, duration, volume);
+        writeLog("DONE", `再生処理完了 -> freq=${freq}Hz, duration=${duration}s, volume=${volume}`);
+      } catch (err) {
+        writeLog("ERROR", `再生中にエラー発生 -> ${err}`);
+      }
+    }
+
+    document.getElementById("btn440").addEventListener("click", () => {
+      triggerWave(440, 0.3, 0.2);
+    });
+
+    document.getElementById("btn500").addEventListener("click", () => {
+      triggerWave(500, 0.1, 0.1);
+    });
+
+    document.getElementById("btn880").addEventListener("click", () => {
+      triggerWave(880, 0.25, 0.2);
+    });
+
+    document.getElementById("btnClear").addEventListener("click", () => {
+      logArea.textContent = "";
+      writeLog("LOG", "ログをクリアしました");
+    });
+
+    writeLog("BOOT", "テストページの初期化完了");
+  </script>
+</body>
+</html>
