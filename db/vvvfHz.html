@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="VVVF Driver Cab Simulator - Continuous 0.1s Accumulator Loop with Weather & Wheel Lock (Silent)" />
+  <meta name="keywords" content="VVVF, 運転台, 0.1sループ, 天気, 降り始め, 車輪ロック, 滑走, 電車シミュレータ" />
+  <meta name="author" content="カカオマメ (@kakaomames)" />
+  <meta property="og:title" content="VVVF 運転台シミュレータ（途切れない0.1sループ・天気＆滑走）" />
+  <meta property="og:description" content="経過時間ベースで0.1sステップが途切れず進み、晴れ・降り始め・本降り・止みかけと車輪ロックでy(Hz)変化をログ出力します。" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="https://kakaomames.github.io/rei/logo.png" />
+  <title>VVVF 運転台シミュレータ（途切れない0.1sループ・無音Hzログ）</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --panel: #111827;
+      --panel-2: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --power: #22c55e;
+      --brake: #f59e0b;
+      --lock: #ef4444;
+      --rain: #60a5fa;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Hiragino Kaku Gothic ProN", sans-serif;
+    }
+
+    .cab-wrap {
+      max-width: 1020px;
+      margin: 0 auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    .cab-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--panel-2);
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    select, button {
+      font-family: inherit;
+      font-size: 13px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+    }
+
+    .meters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .meter-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .meter-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .meter-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .meter-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge-coast { background: #334155; color: #e2e8f0; }
+    .badge-power { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; }
+    .badge-brake { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+    .badge-lock  { background: rgba(239, 68, 68, 0.25); color: #f87171; border: 1px solid #ef4444; }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .controls-full {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 720px) {
+      .controls {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .ctrl-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .ctrl-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-power.active {
+      background: #166534;
+      border-color: #4ade80;
+      color: #fff;
+    }
+
+    .btn-brake.active {
+      background: #92400e;
+      border-color: #fbbf24;
+      color: #fff;
+    }
+
+    .btn-lock.active {
+      background: #991b1b;
+      border-color: #f87171;
+      color: #fff;
+    }
+
+    .btn-weather.active {
+      background: #1e3a8a;
+      border-color: var(--rain);
+      color: #fff;
+    }
+
+    .btn-onset.active {
+      background: #7c2d12;
+      border-color: #fb923c;
+      color: #fff;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+    }
+
+    .log-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    pre#logOutput {
+      margin: 0;
+      height: 260px;
+      overflow-y: auto;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #cbd5e1;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="cab-wrap">
+    <header class="cab-header">
+      <div class="brand">
+        <img src="https://kakaomames.github.io/rei/logo.png" alt="Logo" />
+        <div>
+          <div class="brand-title">VVVF 運転台シミュレータ（途切れない0.1sループ・無音Hzログ）</div>
+          <div class="brand-sub">実経過時間ベースで 0.1s ステップを途切れず消化・天気＆滑走連動・y(Hz)変化時のみログ出力</div>
+        </div>
+      </div>
+      <div class="preset-row">
+        <label for="presetSelect">車両プリセット:</label>
+        <select id="presetSelect">
+          <option value="commuter_4p">普通・通勤電車（4極 / D=0.86 / G=6.5）</option>
+          <option value="express_4p_highspeed">特急・優等列車（4極 / D=0.86 / G=5.3）</option>
+          <option value="heavy_commuter_6p">通勤・郊外電車（6極 / D=0.86 / G=6.2）</option>
+          <option value="shinkansen_4p">新幹線・高速車両（4極 / D=0.91 / G=3.8）</option>
+          <option value="shinkansen_6p">新幹線・高速車両（6極 / D=0.91 / G=3.6）</option>
+        </select>
+        <button id="toggleRunBtn" type="button">0.1sループ稼働中（停止）</button>
+      </div>
+    </header>
+
+    <section class="meters">
+      <div class="meter-card">
+        <div class="meter-label">走行速度 v</div>
+        <div class="meter-value"><span id="speedVal">0.0</span> <span style="font-size:14px;">km/h</span></div>
+        <div class="meter-sub">経過時間: <span id="timeVal">0.0</span> s（ステップ: <span id="tickCountVal">0</span>）</div>
+      </div>
+      <div class="meter-card">
+        <div class="meter-label">VVVF 基本周波数 y</div>
+        <div class="meter-value"><span id="hzVal">0.000</span> <span style="font-size:14px;">Hz</span></div>
+        <div class="meter-sub">モーター回転数 x: <span id="rpmVal">0.0</span> rpm</div>
+      </div>
+      <div class="meter-card">
+        <div class="meter-label">運転状態 / 滑走率 λ</div>
+        <div class="meter-value" style="font-size:20px;">
+          <span id="stateBadge" class="badge badge-coast">惰行 / 停車</span>
+        </div>
+        <div class="meter-sub">滑走率 λ: <span id="lambdaVal">0.00</span></div>
+      </div>
+      <div class="meter-card">
+        <div class="meter-label">天候 / レール滑走度</div>
+        <div class="meter-value" style="font-size:20px; color: var(--rain);">
+          <span id="weatherVal">☀️ 晴れ</span>
+        </div>
+        <div class="meter-sub">滑走しやすさ倍率: <span id="slipFactorVal">1.00x</span></div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <div class="ctrl-box">
+        <div class="ctrl-title">マスコン / ブレーキ操作</div>
+        <div class="btn-group">
+          <button id="btnPower" class="btn-power" type="button">力行（加速 P）</button>
+          <button id="btnCoast" type="button">惰行（N）</button>
+          <button id="btnBrake" class="btn-brake" type="button">常用ブレーキ（B）</button>
+          <button id="btnStopReset" type="button">緊急停止 / 0km/h</button>
+        </div>
+        <div class="slider-row">
+          <span>目標速度:</span>
+          <input id="targetSpeedSlider" type="range" min="0" max="300" step="1" value="80" />
+          <span id="targetSpeedLabel">80 km/h</span>
+        </div>
+      </div>
+
+      <div class="ctrl-box">
+        <div class="ctrl-title">車輪ロック（滑走）操作</div>
+        <div class="btn-group">
+          <button id="btnLockToggle" class="btn-lock" type="button">車輪ロック 切替（押下で滑走！）</button>
+          <button id="btnReAdhere" type="button">再粘着（λ = 0）</button>
+        </div>
+        <div class="slider-row">
+          <span>基準滑走率 λ:</span>
+          <input id="lambdaSlider" type="range" min="0" max="0.95" step="0.05" value="0.55" />
+          <span id="lambdaSliderLabel">0.55</span>
+        </div>
+      </div>
+
+      <div class="ctrl-box controls-full">
+        <div class="ctrl-title">天気コントロール（自分で雨を降らせる・降り始めは一番滑りやすい！）</div>
+        <div class="btn-group">
+          <button id="btnWeatherSunny" class="btn-weather active" type="button">☀️ 晴れ（標準）</button>
+          <button id="btnWeatherOnset" class="btn-onset" type="button">🌦️ 降り始め（超滑りやすい・滑走2.2倍！）</button>
+          <button id="btnWeatherHeavy" class="btn-weather" type="button">🌧️ 本降り（濡れレール・滑走1.45倍）</button>
+          <button id="btnWeatherClearing" class="btn-weather" type="button">⛅ 止みかけ（やや滑りやすい・滑走1.15倍）</button>
+          <button id="btnTriggerRainNow" type="button">☔ 今すぐ雨を降らせる（降り始めからスタート）</button>
+        </div>
+        <div class="slider-row">
+          <span>降雨経過時間（降り始め→本降りへ自動遷移）:</span>
+          <input id="rainProgressSlider" type="range" min="0" max="100" step="1" value="0" />
+          <span id="rainProgressLabel">0%（乾燥）</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="log-panel">
+      <div class="log-header">
+        <div class="ctrl-title">Hz 変化ログ（値が変わったときだけ出力・無音）</div>
+        <button id="clearLogBtn" type="button">ログ消去</button>
+      </div>
+      <pre id="logOutput"></pre>
+    </section>
+  </div>
+
+  <script type="module">
+    import getHz, { calcMotorRpm } from "./vvvfHz.js";
+
+    const STEP_SEC = 0.1;
+    const STEP_MS = 100;
+    // 1回のループtickで最大何ステップまとめて追いつくか（極端な長時間放置時の固まり防止）
+    const MAX_CATCHUP_STEPS = 50;
+
+    const WEATHER_PROFILES = {
+      sunny: {
+        label: "☀️ 晴れ",
+        slipMultiplier: 1.0,
+        autoSlipChanceBrake: 0.0,
+        rainProgress: 0
+      },
+      onset: {
+        label: "🌦️ 降り始め",
+        slipMultiplier: 2.2,
+        autoSlipChanceBrake: 0.22,
+        rainProgress: 20
+      },
+      heavy: {
+        label: "🌧️ 本降り",
+        slipMultiplier: 1.45,
+        autoSlipChanceBrake: 0.08,
+        rainProgress: 80
+      },
+      clearing: {
+        label: "⛅ 止みかけ",
+        slipMultiplier: 1.15,
+        autoSlipChanceBrake: 0.03,
+        rainProgress: 100
+      }
+    };
+
+    const state = {
+      running: true,
+      elapsedSec: 0.0,
+      tickCount: 0,
+      presetId: "commuter_4p",
+      notch: "coast", // "power" | "coast" | "brake"
+      weather: "sunny", // "sunny" | "onset" | "heavy" | "clearing"
+      rainProgress: 0,
+      wheelLocked: false,
+      targetSpeed: 80,
+      v: 0.0,
+      lambda: 0.0,
+      lockTargetLambda: 0.55,
+      prevHz: null,
+      prevMode: null,
+      prevWeather: null
+    };
+
+    const el = {
+      presetSelect: document.getElementById("presetSelect"),
+      toggleRunBtn: document.getElementById("toggleRunBtn"),
+      speedVal: document.getElementById("speedVal"),
+      timeVal: document.getElementById("timeVal"),
+      tickCountVal: document.getElementById("tickCountVal"),
+      hzVal: document.getElementById("hzVal"),
+      rpmVal: document.getElementById("rpmVal"),
+      stateBadge: document.getElementById("stateBadge"),
+      lambdaVal: document.getElementById("lambdaVal"),
+      weatherVal: document.getElementById("weatherVal"),
+      slipFactorVal: document.getElementById("slipFactorVal"),
+      btnPower: document.getElementById("btnPower"),
+      btnCoast: document.getElementById("btnCoast"),
+      btnBrake: document.getElementById("btnBrake"),
+      btnStopReset: document.getElementById("btnStopReset"),
+      targetSpeedSlider: document.getElementById("targetSpeedSlider"),
+      targetSpeedLabel: document.getElementById("targetSpeedLabel"),
+      btnLockToggle: document.getElementById("btnLockToggle"),
+      btnReAdhere: document.getElementById("btnReAdhere"),
+      lambdaSlider: document.getElementById("lambdaSlider"),
+      lambdaSliderLabel: document.getElementById("lambdaSliderLabel"),
+      btnWeatherSunny: document.getElementById("btnWeatherSunny"),
+      btnWeatherOnset: document.getElementById("btnWeatherOnset"),
+      btnWeatherHeavy: document.getElementById("btnWeatherHeavy"),
+      btnWeatherClearing: document.getElementById("btnWeatherClearing"),
+      btnTriggerRainNow: document.getElementById("btnTriggerRainNow"),
+      rainProgressSlider: document.getElementById("rainProgressSlider"),
+      rainProgressLabel: document.getElementById("rainProgressLabel"),
+      clearLogBtn: document.getElementById("clearLogBtn"),
+      logOutput: document.getElementById("logOutput")
+    };
+
+    function appendLog(line) {
+      console.log(line);
+      el.logOutput.textContent += line + "\n";
+      el.logOutput.scrollTop = el.logOutput.scrollHeight;
+    }
+
+    function getSlipMultiplier() {
+      const base = WEATHER_PROFILES[state.weather]?.slipMultiplier ?? 1.0;
+      if (state.weather === "onset") {
+        return Number((base * (1.0 + (1.0 - state.rainProgress / 40) * 0.15)).toFixed(2));
+      }
+      return base;
+    }
+
+    function setWeather(weatherKey, customProgress = null) {
+      if (!WEATHER_PROFILES[weatherKey]) return;
+      state.weather = weatherKey;
+      if (typeof customProgress === "number") {
+        state.rainProgress = Math.max(0, Math.min(100, customProgress));
+      } else {
+        state.rainProgress = WEATHER_PROFILES[weatherKey].rainProgress;
+      }
+      el.rainProgressSlider.value = String(state.rainProgress);
+      updateWeatherUI();
+    }
+
+    function updateWeatherUI() {
+      const profile = WEATHER_PROFILES[state.weather];
+      const mult = getSlipMultiplier();
+      el.weatherVal.textContent = profile.label;
+      el.slipFactorVal.textContent = `${mult.toFixed(2)}x`;
+
+      el.btnWeatherSunny.classList.toggle("active", state.weather === "sunny");
+      el.btnWeatherOnset.classList.toggle("active", state.weather === "onset");
+      el.btnWeatherHeavy.classList.toggle("active", state.weather === "heavy");
+      el.btnWeatherClearing.classList.toggle("active", state.weather === "clearing");
+
+      let phaseText = "乾燥";
+      if (state.rainProgress > 0 && state.rainProgress <= 35) phaseText = "降り始め・超滑りやすい";
+      else if (state.rainProgress > 35 && state.rainProgress < 90) phaseText = "本降り・濡れレール";
+      else if (state.rainProgress >= 90 && state.weather !== "sunny") phaseText = "止みかけ";
+      el.rainProgressLabel.textContent = `${state.rainProgress}%（${phaseText}）`;
+    }
+
+    function updateButtonStyles() {
+      el.btnPower.classList.toggle("active", state.notch === "power");
+      el.btnBrake.classList.toggle("active", state.notch === "brake");
+      el.btnLockToggle.classList.toggle("active", state.wheelLocked);
+      el.toggleRunBtn.textContent = state.running ? "0.1sループ稼働中（停止）" : "ループ停止中（開始）";
+    }
+
+    function getActiveMode() {
+      if ((state.wheelLocked || state.lambda > 0.02) && state.v > 0.05) {
+        return "lock";
+      }
+      if (state.notch === "power") return "power";
+      if (state.notch === "brake") return "brake";
+      return "sync";
+    }
+
+    // 1ステップ（0.1s）分の物理・周波数計算（UI描画は最新ステップ後にまとめて反映）
+    function advanceOneStep01s() {
+      state.tickCount += 1;
+      state.elapsedSec = Number((state.tickCount * STEP_SEC).toFixed(1));
+
+      if (state.weather === "onset" && state.rainProgress < 35) {
+        state.rainProgress = Math.min(35, state.rainProgress + 1);
+      } else if (state.weather === "heavy" && state.rainProgress < 90) {
+        state.rainProgress = Math.min(90, state.rainProgress + 1);
+      }
+
+      const slipMult = getSlipMultiplier();
+      const profile = WEATHER_PROFILES[state.weather];
+
+      if (
+        !state.wheelLocked &&
+        state.notch === "brake" &&
+        state.v > 5.0 &&
+        profile.autoSlipChanceBrake > 0 &&
+        Math.random() < profile.autoSlipChanceBrake
+      ) {
+        state.wheelLocked = true;
+      }
+
+      if (state.wheelLocked && state.v > 0.05) {
+        const targetLambda = Math.min(0.95, Number((state.lockTargetLambda * slipMult).toFixed(2)));
+        const riseRate = 0.14 * slipMult;
+        state.lambda = Math.min(targetLambda, Number((state.lambda + riseRate).toFixed(2)));
+      } else {
+        const fallRate = Math.max(0.10, 0.28 / slipMult);
+        state.lambda = Math.max(0, Number((state.lambda - fallRate).toFixed(2)));
+        if (state.lambda <= 0.01) {
+          state.lambda = 0;
+          state.wheelLocked = false;
+        }
+      }
+
+      if (state.notch === "power") {
+        const accelPerStep = 0.35;
+        if (state.v < state.targetSpeed) {
+          state.v = Math.min(state.targetSpeed, Number((state.v + accelPerStep).toFixed(2)));
+        }
+      } else if (state.notch === "brake") {
+        const slipPenalty = Math.max(0.35, 1.0 - state.lambda * 0.65);
+        const decelPerStep = 0.42 * slipPenalty;
+        state.v = Math.max(0, Number((state.v - decelPerStep).toFixed(2)));
+      } else {
+        state.v = Math.max(0, Number((state.v - 0.02).toFixed(2)));
+      }
+
+      if (state.v <= 0.01) {
+        state.v = 0;
+        state.wheelLocked = false;
+        state.lambda = 0;
+      }
+
+      const mode = getActiveMode();
+      const hzRaw = getHz({
+        presetId: state.presetId,
+        mode,
+        v: state.v,
+        lambda: state.lambda
+      });
+      const hzRounded = Number(hzRaw.toFixed(3));
+      const rpm = calcMotorRpm({
+        presetId: state.presetId,
+        v: state.v,
+        lambda: mode === "lock" ? state.lambda : 0
+      });
+
+      const hzChanged = state.prevHz === null || Math.abs(hzRounded - state.prevHz) >= 0.001;
+      const modeChanged = state.prevMode !== mode;
+      const weatherChanged = state.prevWeather !== state.weather;
+
+      if (hzChanged || modeChanged || weatherChanged) {
+        const diff = state.prevHz === null ? 0 : Number((hzRounded - state.prevHz).toFixed(3));
+        const sign = diff >= 0 ? "+" : "";
+        appendLog(
+          `[t=${state.elapsedSec.toFixed(1)}s] weather=${state.weather}(${slipMult.toFixed(2)}x) | mode=${mode} | v=${state.v.toFixed(1)}km/h | lambda=${state.lambda.toFixed(2)} | y=${hzRounded.toFixed(3)}Hz (${sign}${diff.toFixed(3)}Hz)`
+        );
+        state.prevHz = hzRounded;
+        state.prevMode = mode;
+        state.prevWeather = state.weather;
+      }
+
+      return { hzRounded, rpm, mode };
+    }
+
+    function renderUi({ hzRounded, rpm, mode }) {
+      el.speedVal.textContent = state.v.toFixed(1);
+      el.timeVal.textContent = state.elapsedSec.toFixed(1);
+      el.tickCountVal.textContent = String(state.tickCount);
+      el.hzVal.textContent = hzRounded.toFixed(3);
+      el.rpmVal.textContent = rpm.toFixed(1);
+      el.lambdaVal.textContent = state.lambda.toFixed(2);
+      el.rainProgressSlider.value = String(state.rainProgress);
+      updateWeatherUI();
+
+      if (mode === "lock") {
+        el.stateBadge.className = "badge badge-lock";
+        el.stateBadge.textContent = "車輪ロック（滑走）";
+      } else if (mode === "power") {
+        el.stateBadge.className = "badge badge-power";
+        el.stateBadge.textContent = "力行（P）";
+      } else if (mode === "brake") {
+        el.stateBadge.className = "badge badge-brake";
+        el.stateBadge.textContent = "ブレーキ（B）";
+      } else {
+        el.stateBadge.className = "badge badge-coast";
+        el.stateBadge.textContent = state.v > 0 ? "惰行（N）" : "停車";
+      }
+
+      updateButtonStyles();
+    }
+
+    // 途切れない 0.1s ループ管理（実経過時間アキュムレータ + 保険のタイマー）
+    let lastFrameTime = performance.now();
+    let accumulatorMs = 0;
+    let rafId = null;
+    let backupTimerId = null;
+
+    function pumpTime(now) {
+      if (!state.running) {
+        lastFrameTime = now;
+        return;
+      }
+
+      const deltaMs = Math.max(0, now - lastFrameTime);
+      lastFrameTime = now;
+      accumulatorMs += deltaMs;
+
+      let stepsRun = 0;
+      let latestSnapshot = null;
+
+      while (accumulatorMs >= STEP_MS && stepsRun < MAX_CATCHUP_STEPS) {
+        accumulatorMs -= STEP_MS;
+        latestSnapshot = advanceOneStep01s();
+        stepsRun += 1;
+      }
+
+      if (stepsRun >= MAX_CATCHUP_STEPS) {
+        // 大幅な遅延後は余剰アキュムレータをリセットして追いつき暴走を防止
+        accumulatorMs = 0;
+      }
+
+      if (latestSnapshot) {
+        renderUi(latestSnapshot);
+      }
+    }
+
+    function onFrame(now) {
+      pumpTime(now);
+      if (state.running) {
+        rafId = requestAnimationFrame(onFrame);
+      }
+    }
+
+    function startContinuousLoop() {
+      lastFrameTime = performance.now();
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      if (backupTimerId !== null) clearInterval(backupTimerId);
+
+      rafId = requestAnimationFrame(onFrame);
+      // バックグラウンドタブなどで rAF が間引かれても 0.1s ステップが途切れない保険タイマー
+      backupTimerId = setInterval(() => {
+        pumpTime(performance.now());
+      }, STEP_MS);
+    }
+
+    function stopContinuousLoop() {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      if (backupTimerId !== null) {
+        clearInterval(backupTimerId);
+        backupTimerId = null;
+      }
+    }
+
+    // イベント登録
+    el.presetSelect.addEventListener("change", (e) => {
+      state.presetId = e.target.value;
+      state.prevHz = null;
+      appendLog(`[PRESET_CHANGE] -> ${state.presetId}`);
+    });
+
+    el.toggleRunBtn.addEventListener("click", () => {
+      state.running = !state.running;
+      if (state.running) {
+        startContinuousLoop();
+        appendLog("[LOOP] 再開（0.1s連続ループ）");
+      } else {
+        stopContinuousLoop();
+        updateButtonStyles();
+        appendLog("[LOOP] 一時停止");
+      }
+    });
+
+    el.btnPower.addEventListener("click", () => {
+      state.notch = "power";
+      state.wheelLocked = false;
+      updateButtonStyles();
+    });
+
+    el.btnCoast.addEventListener("click", () => {
+      state.notch = "coast";
+      updateButtonStyles();
+    });
+
+    el.btnBrake.addEventListener("click", () => {
+      state.notch = "brake";
+      updateButtonStyles();
+    });
+
+    el.btnStopReset.addEventListener("click", () => {
+      state.notch = "coast";
+      state.wheelLocked = false;
+      state.lambda = 0;
+      state.v = 0;
+      updateButtonStyles();
+    });
+
+    el.targetSpeedSlider.addEventListener("input", (e) => {
+      state.targetSpeed = Number(e.target.value);
+      el.targetSpeedLabel.textContent = `${state.targetSpeed} km/h`;
+    });
+
+    el.btnLockToggle.addEventListener("click", () => {
+      state.wheelLocked = !state.wheelLocked;
+      if (state.wheelLocked && state.notch !== "brake") {
+        state.notch = "brake";
+      }
+      updateButtonStyles();
+    });
+
+    el.btnReAdhere.addEventListener("click", () => {
+      state.wheelLocked = false;
+      state.lambda = 0;
+      updateButtonStyles();
+    });
+
+    el.lambdaSlider.addEventListener("input", (e) => {
+      state.lockTargetLambda = Number(e.target.value);
+      el.lambdaSliderLabel.textContent = state.lockTargetLambda.toFixed(2);
+    });
+
+    el.btnWeatherSunny.addEventListener("click", () => {
+      setWeather("sunny", 0);
+    });
+
+    el.btnWeatherOnset.addEventListener("click", () => {
+      setWeather("onset", 15);
+    });
+
+    el.btnWeatherHeavy.addEventListener("click", () => {
+      setWeather("heavy", 75);
+    });
+
+    el.btnWeatherClearing.addEventListener("click", () => {
+      setWeather("clearing", 100);
+    });
+
+    el.btnTriggerRainNow.addEventListener("click", () => {
+      setWeather("onset", 5);
+      appendLog(`[WEATHER_RAIN_START] t=${state.elapsedSec.toFixed(1)}s 雨降り始め発生！レール粘着低下中`);
+    });
+
+    el.rainProgressSlider.addEventListener("input", (e) => {
+      const p = Number(e.target.value);
+      state.rainProgress = p;
+      if (p === 0) state.weather = "sunny";
+      else if (p <= 35) state.weather = "onset";
+      else if (p < 90) state.weather = "heavy";
+      else state.weather = "clearing";
+      updateWeatherUI();
+    });
+
+    el.clearLogBtn.addEventListener("click", () => {
+      el.logOutput.textContent = "";
+      state.prevHz = null;
+      state.prevMode = null;
+      state.prevWeather = null;
+    });
+
+    // 初期起動
+    updateWeatherUI();
+    updateButtonStyles();
+    appendLog("[INIT] 運転台シミュレータ起動（途切れない0.1sループ・無音Hzログ）");
+    const initSnapshot = advanceOneStep01s();
+    renderUi(initSnapshot);
+    startContinuousLoop();
+  </script>
+</body>
+</html>
