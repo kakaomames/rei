@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="CDNから kakaomame-wave-player@1.0.2 を読み込んでWPで波を鳴らすテストページ">
-  <meta name="keywords" content="kakaomame-wave-player, Web Audio API, CDN, jsDelivr, WP">
+  <meta name="description" content="スライダーでHz・秒数・音量を調整してkakaomame-wave-playerのWP()を鳴らすテストページ">
+  <meta name="keywords" content="kakaomame-wave-player, Web Audio API, スライダー, 周波数, 音量, WP">
   <meta name="author" content="カカオマメ">
   <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#1e293b">
-  <meta property="og:title" content="kakaomame-wave-player CDN テスト">
-  <meta property="og:description" content="jsDelivr CDN 経由で kakaomame-wave-player@1.0.2 を読み込んで再生テスト">
+  <meta name="theme-color" content="#0f172a">
+  <meta property="og:title" content="kakaomame-wave-player スライダー操作テスト">
+  <meta property="og:description" content="周波数・再生秒数・音量をスライダーで選んでWP()で音を鳴らそう！">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://kakaomames.github.io/">
   <meta property="og:image" content="https://kakaomame.github.io/rei/logo.png">
   <meta property="og:site_name" content="Gemini programming隊">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="kakaomame-wave-player CDN テスト">
-  <meta name="twitter:description" content="jsDelivr CDN 経由で kakaomame-wave-player@1.0.2 を読み込んで再生テスト">
+  <meta name="twitter:title" content="kakaomame-wave-player スライダー操作テスト">
+  <meta name="twitter:description" content="周波数・再生秒数・音量をスライダーで選んでWP()で音を鳴らそう！">
   <meta name="twitter:image" content="https://kakaomame.github.io/rei/logo.png">
   <link rel="icon" href="https://kakaomame.github.io/rei/logo.png">
-  <title>kakaomame-wave-player CDN Test (v1.0.2)</title>
+  <title>kakaomame-wave-player スライダーテスト</title>
   <style>
     * {
       box-sizing: border-box;
@@ -33,7 +33,7 @@
       line-height: 1.6;
     }
     .container {
-      max-width: 760px;
+      max-width: 780px;
       margin: 0 auto;
     }
     h1 {
@@ -47,11 +47,43 @@
       padding: 18px;
       margin-bottom: 18px;
     }
+    .status-badge {
+      display: inline-block;
+      background: #0f172a;
+      border: 1px solid #475569;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.85rem;
+      margin-bottom: 14px;
+    }
+    .slider-row {
+      margin-bottom: 16px;
+    }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .slider-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #38bdf8;
+      background: #0f172a;
+      padding: 2px 10px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: #38bdf8;
+      cursor: pointer;
+    }
     .btn-group {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 14px;
     }
     button {
       background: #38bdf8;
@@ -60,20 +92,18 @@
       font-size: 0.95rem;
       border: none;
       border-radius: 8px;
-      padding: 10px 16px;
+      padding: 10px 18px;
       cursor: pointer;
     }
     button:hover {
       background: #7dd3fc;
     }
-    .status-badge {
-      display: inline-block;
-      background: #0f172a;
-      border: 1px solid #475569;
-      border-radius: 999px;
-      padding: 4px 12px;
-      font-size: 0.85rem;
-      margin-bottom: 8px;
+    button.secondary {
+      background: #334155;
+      color: #f8fafc;
+    }
+    button.secondary:hover {
+      background: #475569;
     }
     #logArea {
       background: #020617;
@@ -84,23 +114,47 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 0.85rem;
       white-space: pre-wrap;
-      max-height: 320px;
+      max-height: 340px;
       overflow-y: auto;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🎶 kakaomame-wave-player CDN テスト</h1>
-    <p>CDN から <code>kakaomame-wave-player@1.0.2</code> を読み込んで、<code>WP(...)</code> で波を鳴らすよ！🚀</p>
+    <h1>🎛️ kakaomame-wave-player スライダー操作テスト</h1>
+    <p>スライダーで <strong>周波数（Hz）</strong>・<strong>秒数（s）</strong>・<strong>音量</strong> を決めて、ボタンを押して鳴らしてみよう！🔊✨</p>
 
     <div class="card">
       <div id="wpStatus" class="status-badge">WP 状態: 読み込み確認中...</div>
+
+      <div class="slider-row">
+        <div class="slider-header">
+          <label for="freqSlider">🎵 周波数 (Hz)</label>
+          <span id="freqValue" class="slider-val">440 Hz</span>
+        </div>
+        <input id="freqSlider" type="range" min="20" max="2000" step="1" value="440">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-header">
+          <label for="durationSlider">⏱️ 再生秒数 (秒)</label>
+          <span id="durationValue" class="slider-val">0.30 s</span>
+        </div>
+        <input id="durationSlider" type="range" min="0.05" max="2.00" step="0.05" value="0.30">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-header">
+          <label for="volumeSlider">🔊 音量 (0.00 〜 1.00)</label>
+          <span id="volumeValue" class="slider-val">0.20</span>
+        </div>
+        <input id="volumeSlider" type="range" min="0.00" max="1.00" step="0.01" value="0.20">
+      </div>
+
       <div class="btn-group">
-        <button id="btn440" type="button">🔊 440Hz (0.3s, vol 0.2)</button>
-        <button id="btn500" type="button">⚡ 500Hz (0.1s, vol 0.1)</button>
-        <button id="btn880" type="button">✨ 880Hz (0.25s, vol 0.2)</button>
-        <button id="btnClear" type="button">🧹 ログクリア</button>
+        <button id="btnPlay" type="button">▶️ この設定で再生 (WP)</button>
+        <button id="btnReset" class="secondary" type="button">🔄 初期値に戻す</button>
+        <button id="btnClear" class="secondary" type="button">🧹 ログクリア</button>
       </div>
     </div>
 
@@ -110,12 +164,20 @@
     </div>
   </div>
 
-  <!-- jsDelivr CDN から 1.0.2 の main.js を読み込み（ミニファイ版を試すときは main.min.js に変更） -->
+  <!-- jsDelivr CDN から 1.0.2 の main.js を読み込み -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/kakaomame-wave-player@1.0.3/main.js"></script>
 
   <script type="module">
     const logArea = document.getElementById("logArea");
     const wpStatus = document.getElementById("wpStatus");
+
+    const freqSlider = document.getElementById("freqSlider");
+    const durationSlider = document.getElementById("durationSlider");
+    const volumeSlider = document.getElementById("volumeSlider");
+
+    const freqValue = document.getElementById("freqValue");
+    const durationValue = document.getElementById("durationValue");
+    const volumeValue = document.getElementById("volumeValue");
 
     function writeLog(tag, message) {
       const time = new Date().toLocaleTimeString("ja-JP");
@@ -123,6 +185,18 @@
       console.log(line);
       logArea.textContent += line + "\n";
       logArea.scrollTop = logArea.scrollHeight;
+    }
+
+    function updateDisplays() {
+      const freq = Number(freqSlider.value);
+      const duration = Number(durationSlider.value);
+      const volume = Number(volumeSlider.value);
+
+      freqValue.textContent = `${freq} Hz`;
+      durationValue.textContent = `${duration.toFixed(2)} s`;
+      volumeValue.textContent = volume.toFixed(2);
+
+      return { freq, duration, volume };
     }
 
     function refreshWpStatus() {
@@ -133,40 +207,46 @@
         return fn;
       } else {
         wpStatus.textContent = "WP 状態: 未検出 ⚠️";
-        writeLog("WARN", "WP がまだ見つからないよ。CDN パスや exports を確認しよう！");
+        writeLog("WARN", "WP がまだ見つからないよ！");
         return null;
       }
     }
 
-    // モジュール読み込み完了後に WP の存在を確認
-    window.addEventListener("DOMContentLoaded", () => {
-      setTimeout(refreshWpStatus, 100);
-    });
-    setTimeout(refreshWpStatus, 500);
-
-    async function triggerWave(freq, duration, volume) {
-  const fn = refreshWpStatus();
-  if (!fn) return;
-
-  writeLog("ACTION", `WP(${freq}, ${duration}, ${volume}) 呼び出し開始`);
-  try {
-    const res = await fn(freq, duration, volume);
-    writeLog("DONE", `再生処理完了 -> result=${String(res)}`);
-  } catch (err) {
-    writeLog("ERROR", `例外キャッチ -> ${err && err.stack ? err.stack : err}`);
-  }
-}
-
-    document.getElementById("btn440").addEventListener("click", () => {
-      triggerWave(440, 0.3, 0.2);
+    freqSlider.addEventListener("input", () => {
+      const { freq } = updateDisplays();
+      writeLog("SLIDER", `周波数変更 -> freq=${freq}Hz`);
     });
 
-    document.getElementById("btn500").addEventListener("click", () => {
-      triggerWave(500, 0.1, 0.1);
+    durationSlider.addEventListener("input", () => {
+      const { duration } = updateDisplays();
+      writeLog("SLIDER", `秒数変更 -> duration=${duration.toFixed(2)}s`);
     });
 
-    document.getElementById("btn880").addEventListener("click", () => {
-      triggerWave(880, 0.25, 0.2);
+    volumeSlider.addEventListener("input", () => {
+      const { volume } = updateDisplays();
+      writeLog("SLIDER", `音量変更 -> volume=${volume.toFixed(2)}`);
+    });
+
+    document.getElementById("btnPlay").addEventListener("click", async () => {
+      const fn = refreshWpStatus();
+      if (!fn) return;
+
+      const { freq, duration, volume } = updateDisplays();
+      writeLog("ACTION", `WP(${freq}, ${duration}, ${volume}) 呼び出し開始`);
+      try {
+        const res = await fn(freq, duration, volume);
+        writeLog("DONE", `再生処理完了 -> freq=${freq}Hz, duration=${duration}s, volume=${volume}, result=${String(res)}`);
+      } catch (err) {
+        writeLog("ERROR", `再生中にエラー発生 -> ${err}`);
+      }
+    });
+
+    document.getElementById("btnReset").addEventListener("click", () => {
+      freqSlider.value = "440";
+      durationSlider.value = "0.30";
+      volumeSlider.value = "0.20";
+      const { freq, duration, volume } = updateDisplays();
+      writeLog("RESET", `初期値にリセット -> freq=${freq}Hz, duration=${duration}s, volume=${volume}`);
     });
 
     document.getElementById("btnClear").addEventListener("click", () => {
@@ -174,7 +254,10 @@
       writeLog("LOG", "ログをクリアしました");
     });
 
-    writeLog("BOOT", "テストページの初期化完了");
+    updateDisplays();
+    setTimeout(refreshWpStatus, 100);
+    setTimeout(refreshWpStatus, 500);
+    writeLog("BOOT", "スライダーテストページの初期化完了");
   </script>
 </body>
 </html>
