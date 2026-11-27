@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#121316">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="超省エネ0FPS設計・Lv1〜100対応（9x9〜27x27 / 3x3ブロック81個）の探検隊ナンプレ">
+  <meta name="author" content="Gemini programming隊">
+  <meta name="keywords" content="ナンプレ,数独,27x27,省エネ,Webゲーム,PWA,0FPS">
+  <link rel="icon" href="https://kakaomames.github.io/rei/logo.png">
+  <link rel="apple-touch-icon" href="https://kakaomames.github.io/rei/logo.png">
+  <title>🔋 超省エネナンプレ Lv.1〜100 (9x9〜27x27)</title>
+  <style>
+    :root {
+      --bg: #121316;
+      --panel: #1c1e24;
+      --border: #343946;
+      --border-bold: #7c879c;
+      --border-super: #d0d7e5;
+      --text: #e6e8ec;
+      --text-dim: #8b92a2;
+      --accent: #4dabf7;
+      --accent-bg: rgba(77, 171, 247, 0.25);
+      --same-bg: rgba(77, 171, 247, 0.15);
+      --peer-bg: rgba(255, 255, 255, 0.045);
+      --fixed-text: #ffffff;
+      --user-text: #69db7c;
+      --error-text: #ff6b6b;
+      --error-bg: rgba(255, 107, 107, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    header {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--panel);
+      padding: 8px 12px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-group img {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+    }
+
+    .badge {
+      background: #2b303b;
+      color: var(--accent);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .controls-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    select, button {
+      background: #262932;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button.active {
+      background: var(--accent);
+      color: #0b0c0e;
+      border-color: var(--accent);
+    }
+
+    #tutorial-banner {
+      width: 100%;
+      max-width: 760px;
+      background: rgba(77, 171, 247, 0.12);
+      border: 1px solid var(--accent);
+      color: #cce7ff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 8px;
+      display: none;
+      line-height: 1.4;
+    }
+
+    #board-wrapper {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: auto;
+      margin-bottom: 8px;
+    }
+
+    #board {
+      display: grid;
+      background: var(--panel);
+      border: 2px solid var(--border-super);
+      width: min(94vw, 62vh);
+      height: min(94vw, 62vh);
+    }
+
+    #board.large-grid {
+      width: min(96vw, 68vh);
+      height: min(96vw, 68vh);
+    }
+
+    .cell {
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+      line-height: 1;
+    }
+
+    /* 3x3 などの基本ブロック境界 */
+    .cell.block-right {
+      border-right: 2px solid var(--border-bold);
+    }
+
+    .cell.block-bottom {
+      border-bottom: 2px solid var(--border-bold);
+    }
+
+    /* 27x27時の9x9大ブロック境界（視認性アップ） */
+    .cell.super-right {
+      border-right: 2px solid var(--border-super);
+    }
+
+    .cell.super-bottom {
+      border-bottom: 2px solid var(--border-super);
+    }
+
+    .cell.fixed {
+      color: var(--fixed-text);
+    }
+
+    .cell.user {
+      color: var(--user-text);
+    }
+
+    .cell.peer {
+      background: var(--peer-bg);
+    }
+
+    .cell.same {
+      background: var(--same-bg);
+    }
+
+    .cell.selected {
+      background: var(--accent-bg) !important;
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      z-index: 2;
+    }
+
+    .cell.error {
+      color: var(--error-text) !important;
+      background: var(--error-bg);
+    }
+
+    .notes-grid {
+      display: grid;
+      width: 100%;
+      height: 100%;
+      padding: 1px;
+      pointer-events: none;
+    }
+
+    .note-item {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-dim);
+      font-weight: normal;
+      line-height: 1;
+    }
+
+    .toolbar {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    #numpad {
+      width: 100%;
+      max-width: 760px;
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .num-btn {
+      padding: 9px 0;
+      font-size: 14px;
+      text-align: center;
+      background: var(--panel);
+    }
+
+    .num-btn.completed {
+      opacity: 0.3;
+    }
+
+    #log-box {
+      width: 100%;
+      max-width: 760px;
+      background: #0d0e11;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      color: #98a2b3;
+      max-height: 64px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title-group">
+      <img src="https://kakaomames.github.io/rei/logo.png" alt="logo">
+      <strong>🔋 0FPSナンプレ</strong>
+      <span id="grid-badge" class="badge">9×9</span>
+    </div>
+    <div class="controls-top">
+      <button id="prev-lv-btn">◀</button>
+      <select id="level-select"></select>
+      <button id="next-lv-btn">▶</button>
+    </div>
+  </header>
+
+  <div id="tutorial-banner"></div>
+
+  <div id="board-wrapper">
+    <div id="board"></div>
+  </div>
+
+  <div class="toolbar">
+    <button id="memo-btn">✏️ メモ: OFF</button>
+    <button id="erase-btn">🧹 消去</button>
+    <button id="hint-btn">💡 ヒント</button>
+    <button id="reset-btn">🔄 やり直し</button>
+  </div>
+
+  <div id="numpad"></div>
+
+  <div id="log-box"></div>
+
+  <script>
+    // ==========================================
+    // 🔋 省エネ0FPS設計：タイマー・アニメーションループ一切なし！
+    // ユーザー操作イベント時のみ最小限のDOM更新を実施
+    // ==========================================
+
+    const state = {
+      level: 1,
+      size: 9,
+      boxR: 3,
+      boxC: 3,
+      solution: [],
+      puzzle: [],
+      userGrid: [],
+      notes: [],
+      selected: null, // { r, c }
+      memoMode: false,
+      cleared: false
+    };
+
+    const boardEl = document.getElementById("board");
+    const numpadEl = document.getElementById("numpad");
+    const levelSelectEl = document.getElementById("level-select");
+    const gridBadgeEl = document.getElementById("grid-badge");
+    const tutorialBannerEl = document.getElementById("tutorial-banner");
+    const memoBtn = document.getElementById("memo-btn");
+    const logBoxEl = document.getElementById("log-box");
+
+    // 状態変化ログ出力関数
+    function missionLog(tag, message) {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(" ")[0];
+      const line = `[${timeStr}] [${tag}] ${message}`;
+      console.log(line);
+      const div = document.createElement("div");
+      div.textContent = line;
+      logBoxEl.prepend(div);
+      if (logBoxEl.children.length > 25) {
+        logBoxEl.removeChild(logBoxEl.lastChild);
+      }
+    }
+
+    // レベルごとの盤面仕様と難易度設定 (Lv.1〜100)
+    // 9x9 = 3x3ブロックが9個 / 16x16 = 4x4ブロックが16個 / 27x27 = 3x3ブロックが81個
+    function getLevelConfig(lv) {
+      if (lv === 1) {
+        return {
+          size: 4, boxR: 2, boxC: 2, holes: 4,
+          tutorial: "🔰 【チュートリアル Lv.1】まずは 4×4 マス（2×2ブロック×4個）！縦・横・太枠の中に「1〜4」が1つずつ入るように数字を入れよう！"
+        };
+      }
+      if (lv === 2) {
+        return {
+          size: 6, boxR: 2, boxC: 3, holes: 10,
+          tutorial: "🔰 【チュートリアル Lv.2】次は 6×6 マス（2×3ブロック×6個）！迷ったら「✏️ メモ」ボタンで候補数字を書き込めるぞ！"
+        };
+      }
+      if (lv === 3) {
+        return {
+          size: 9, boxR: 3, boxC: 3, holes: 24,
+          tutorial: "🔰 【チュートリアル Lv.3】いよいよ標準の 9×9 マス（3×3ブロック×9個）！同じ数字をタップするとハイライトされるから、それをヒントに埋めよう！"
+        };
+      }
+      if (lv <= 45) {
+        // Lv.4〜45: 9x9 (3x3ブロックが9個, 空きマス 30〜56)
+        const progress = (lv - 4) / 41;
+        const holes = Math.round(30 + progress * 26);
+        return { size: 9, boxR: 3, boxC: 3, holes, tutorial: null };
+      }
+      if (lv <= 75) {
+        // Lv.46〜75: 16x16 (4x4ブロックが16個, 空きマス 90〜155)
+        const progress = (lv - 46) / 29;
+        const holes = Math.round(90 + progress * 65);
+        return { size: 16, boxR: 4, boxC: 4, holes, tutorial: null };
+      }
+      // Lv.76〜100: 27x27 (3x3ブロックが81個！数字1〜27, 空きマス 260〜420)
+      const progress = (lv - 76) / 24;
+      const holes = Math.round(260 + progress * 160);
+      return { size: 27, boxR: 3, boxC: 3, holes, tutorial: null };
+    }
+
+    // 決定論的シャッフル用PRNG（同じレベルなら再現可能＆高速生成）
+    function createRng(seed) {
+      let s = seed >>> 0;
+      return function() {
+        s = (s * 1664525 + 1013904223) >>> 0;
+        return s / 4294967296;
+      };
+    }
+
+    function shuffleArray(arr, rng) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // 27x27（3x3ブロックが81個）にも完全対応した有効盤面ジェネレーター
+    // 縦・横・3x3ブロックすべての重複を完全に排除した正規解を高速生成！
+    function generateValidBaseGrid(size, boxR, boxC) {
+      // 27x27 (boxR=3, boxC=3) の場合：
+      // 3x3のブロック単位のシフト + 9x9バンド単位のシフトで 1..27 が縦・横・全81個の3x3ブロックで一意になる
+      if (size === 27 && boxR === 3 && boxC === 3) {
+        return Array.from({ length: 27 }, (_, r) =>
+          Array.from({ length: 27 }, (_, c) => {
+            const val = (c + (r % 3) * 3 + Math.floor(r / 3) * 9 + Math.floor(r / 9)) % 27;
+            return val + 1;
+          })
+        );
+      }
+
+      // 4x4, 6x6, 9x9, 16x16 (size === boxR * boxC) の標準シフト式
+      return Array.from({ length: size }, (_, r) =>
+        Array.from({ length: size }, (_, c) =>
+          ((r * boxC + Math.floor(r / boxR) + c) % size) + 1
+        )
+      );
+    }
+
+    function generateSudoku(size, boxR, boxC, holes, seed) {
+      const rng = createRng(seed * 7919 + size * 131);
+      const base = generateValidBaseGrid(size, boxR, boxC);
+
+      // 1. 数字ラベル（1..size）のランダム置換
+      const numMap = shuffleArray(
+        Array.from({ length: size }, (_, i) => i + 1),
+        rng
+      );
+
+      // 2. 行のシャッフル（ブロック帯ごと＋ブロック帯内の行ごと）
+      // ※27x27の時は9行ずつの大バンド構造を保ったまま3行バンド・1行単位をシャッフル
+      let rowOrder = [];
+      if (size === 27) {
+        const superBands = shuffleArray([0, 1, 2], rng);
+        for (const sb of superBands) {
+          const subBands = shuffleArray([0, 1, 2], rng);
+          for (const b of subBands) {
+            const rows = shuffleArray([0, 1, 2], rng);
+            for (const r of rows) {
+              rowOrder.push(sb * 9 + b * 3 + r);
+            }
+          }
+        }
+      } else {
+        const numRowBands = size / boxR;
+        const bandOrder = shuffleArray(Array.from({ length: numRowBands }, (_, i) => i), rng);
+        for (const b of bandOrder) {
+          const innerRows = shuffleArray(Array.from({ length: boxR }, (_, i) => b * boxR + i), rng);
+          rowOrder.push(...innerRows);
+        }
+      }
+
+      // 3. 列のシャッフル（ブロックスタックごと＋ブロックスタック内の列ごと）
+      let colOrder = [];
+      if (size === 27) {
+        const superStacks = shuffleArray([0, 1, 2], rng);
+        for (const ss of superStacks) {
+          const subStacks = shuffleArray([0, 1, 2], rng);
+          for (const s of subStacks) {
+            const cols = shuffleArray([0, 1, 2], rng);
+            for (const c of cols) {
+              colOrder.push(ss * 9 + s * 3 + c);
+            }
+          }
+        }
+      } else {
+        const numColStacks = size / boxC;
+        const stackOrder = shuffleArray(Array.from({ length: numColStacks }, (_, i) => i), rng);
+        for (const s of stackOrder) {
+          const innerCols = shuffleArray(Array.from({ length: boxC }, (_, i) => s * boxC + i), rng);
+          colOrder.push(...innerCols);
+        }
+      }
+
+      // 完成盤面（solution）を構築
+      const solution = Array.from({ length: size }, (_, r) =>
+        Array.from({ length: size }, (_, c) =>
+          numMap[base[rowOrder[r]][colOrder[c]] - 1]
+        )
+      );
+
+      // 指定数のマスを空けて問題盤面（puzzle）を作成
+      const puzzle = solution.map(row => row.slice());
+      const allPositions = [];
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          allPositions.push([r, c]);
+        }
+      }
+      const shuffledPos = shuffleArray(allPositions, rng);
+      const actualHoles = Math.min(holes, size * size - size);
+      for (let i = 0; i < actualHoles; i++) {
+        const [r, c] = shuffledPos[i];
+        puzzle[r][c] = 0;
+      }
+
+      return { solution, puzzle };
+    }
+
+    // レベルセレクター初期化（Lv.1〜100）
+    function initLevelSelect() {
+      levelSelectEl.innerHTML = "";
+      for (let lv = 1; lv <= 100; lv++) {
+        const cfg = getLevelConfig(lv);
+        const blockCount = (cfg.size / cfg.boxR) * (cfg.size / cfg.boxC);
+        const opt = document.createElement("option");
+        opt.value = lv;
+        const label = lv <= 3
+          ? `Lv.${lv} [チュートリアル ${cfg.size}×${cfg.size}]`
+          : `Lv.${lv} [${cfg.size}×${cfg.size} / ${cfg.boxR}×${cfg.boxC}枠×${blockCount}]`;
+        opt.textContent = label;
+        levelSelectEl.appendChild(opt);
+      }
+    }
+
+    // レベル開始処理
+    function loadLevel(lv) {
+      const targetLv = Math.max(1, Math.min(100, lv));
+      const cfg = getLevelConfig(targetLv);
+      const blockCount = (cfg.size / cfg.boxR) * (cfg.size / cfg.boxC);
+
+      state.level = targetLv;
+      state.size = cfg.size;
+      state.boxR = cfg.boxR;
+      state.boxC = cfg.boxC;
+      state.selected = null;
+      state.cleared = false;
+
+      const { solution, puzzle } = generateSudoku(cfg.size, cfg.boxR, cfg.boxC, cfg.holes, targetLv);
+      state.solution = solution;
+      state.puzzle = puzzle;
+      state.userGrid = puzzle.map(row => row.slice());
+      state.notes = Array.from({ length: cfg.size }, () =>
+        Array.from({ length: cfg.size }, () => new Set())
+      );
+
+      levelSelectEl.value = targetLv;
+      gridBadgeEl.textContent = `${cfg.size}×${cfg.size} (${cfg.boxR}×${cfg.boxC}枠×${blockCount}個)`;
+
+      if (cfg.tutorial) {
+        tutorialBannerEl.style.display = "block";
+        tutorialBannerEl.textContent = cfg.tutorial;
+      } else {
+        tutorialBannerEl.style.display = "none";
+      }
+
+      try {
+        localStorage.setItem("eco_sudoku_lv", String(targetLv));
+      } catch (e) {}
+
+      missionLog("LEVEL", `Lv.${targetLv} (${cfg.size}×${cfg.size}, ${cfg.boxR}×${cfg.boxC}ブロック×${blockCount}個, 空き${cfg.holes}マス) をロード`);
+      buildBoardDOM();
+      buildNumpadDOM();
+      renderAll();
+    }
+
+    // 盤面DOMの構築（レベル変更時のみ実行）
+    function buildBoardDOM() {
+      const { size, boxR, boxC } = state;
+      boardEl.innerHTML = "";
+      boardEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+      boardEl.style.gridTemplateRows = `repeat(${size}, 1fr)`;
+
+      if (size >= 16) {
+        boardEl.classList.add("large-grid");
+      } else {
+        boardEl.classList.remove("large-grid");
+      }
+
+      // マスサイズに応じたフォントサイズ自動調整
+      let fontSize = "18px";
+      let noteFontSize = "8px";
+      if (size === 4) { fontSize = "28px"; noteFontSize = "11px"; }
+      else if (size === 6) { fontSize = "22px"; noteFontSize = "9px"; }
+      else if (size === 9) { fontSize = "18px"; noteFontSize = "8px"; }
+      else if (size === 16) { fontSize = "11px"; noteFontSize = "5px"; }
+      else if (size === 27) { fontSize = "8px"; noteFontSize = "4px"; }
+
+      const noteCols = Math.ceil(Math.sqrt(size));
+
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.dataset.r = r;
+          cell.dataset.c = c;
+          cell.style.fontSize = fontSize;
+
+          if ((c + 1) % boxC === 0 && c !== size - 1) {
+            cell.classList.add("block-right");
+            if (size === 27 && (c + 1) % 9 === 0) {
+              cell.classList.add("super-right");
+            }
+          }
+          if ((r + 1) % boxR === 0 && r !== size - 1) {
+            cell.classList.add("block-bottom");
+            if (size === 27 && (r + 1) % 9 === 0) {
+              cell.classList.add("super-bottom");
+            }
+          }
+
+          // メモ表示用コンテナ
+          const notesDiv = document.createElement("div");
+          notesDiv.className = "notes-grid";
+          notesDiv.style.gridTemplateColumns = `repeat(${noteCols}, 1fr)`;
+          notesDiv.style.fontSize = noteFontSize;
+          cell.appendChild(notesDiv);
+
+          cell.addEventListener("click", () => {
+            selectCell(r, c);
+          });
+
+          boardEl.appendChild(cell);
+        }
+      }
+    }
+
+    // 数字キーパッドDOM構築（9列×3段＝27個まで綺麗に整列）
+    function buildNumpadDOM() {
+      const { size } = state;
+      numpadEl.innerHTML = "";
+      const cols = size <= 9 ? size : (size === 16 ? 8 : 9);
+      numpadEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+      for (let n = 1; n <= size; n++) {
+        const btn = document.createElement("button");
+        btn.className = "num-btn";
+        btn.textContent = n;
+        btn.dataset.num = n;
+        btn.addEventListener("click", () => inputNumber(n));
+        numpadEl.appendChild(btn);
+      }
+    }
+
+    // セル選択
+    function selectCell(r, c) {
+      state.selected = { r, c };
+      renderAll();
+    }
+
+    // 数値の矛盾チェック（縦・横・3x3等のブロック内）
+    function hasConflict(r, c, val) {
+      if (val === 0) return false;
+      const { size, boxR, boxC, userGrid } = state;
+
+      for (let i = 0; i < size; i++) {
+        if (i !== c && userGrid[r][i] === val) return true;
+        if (i !== r && userGrid[i][c] === val) return true;
+      }
+
+      const startR = Math.floor(r / boxR) * boxR;
+      const startC = Math.floor(c / boxC) * boxC;
+      for (let rr = startR; rr < startR + boxR; rr++) {
+        for (let cc = startC; cc < startC + boxC; cc++) {
+          if ((rr !== r || cc !== c) && userGrid[rr][cc] === val) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // 数字入力処理
+    function inputNumber(num) {
+      if (!state.selected || state.cleared) return;
+      const { r, c } = state.selected;
+
+      if (state.puzzle[r][c] !== 0) {
+        missionLog("INFO", `固定マス (${r + 1},${c + 1}) は変更できません`);
+        return;
+      }
+
+      if (state.memoMode) {
+        state.userGrid[r][c] = 0;
+        const cellNotes = state.notes[r][c];
+        if (cellNotes.has(num)) {
+          cellNotes.delete(num);
+        } else {
+          cellNotes.add(num);
+        }
+        missionLog("MEMO", `(${r + 1},${c + 1}) メモ更新: [${Array.from(cellNotes).sort((a,b)=>a-b).join(",")}]`);
+      } else {
+        const prev = state.userGrid[r][c];
+        const nextVal = prev === num ? 0 : num;
+        state.userGrid[r][c] = nextVal;
+        state.notes[r][c].clear();
+        missionLog("INPUT", `(${r + 1},${c + 1}) : ${prev} -> ${nextVal}`);
+      }
+
+      renderAll();
+      checkWin();
+    }
+
+    // 全体描画更新（イベント時のみ呼ばれる）
+    function renderAll() {
+      const { size, boxR, boxC, puzzle, userGrid, notes, selected } = state;
+      const cells = boardEl.children;
+
+      let selectedVal = 0;
+      let selBoxR = -1;
+      let selBoxC = -1;
+      if (selected) {
+        selectedVal = userGrid[selected.r][selected.c];
+        selBoxR = Math.floor(selected.r / boxR);
+        selBoxC = Math.floor(selected.c / boxC);
+      }
+
+      const counts = new Array(size + 1).fill(0);
+
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const idx = r * size + c;
+          const cell = cells[idx];
+          const val = userGrid[r][c];
+          const isFixed = puzzle[r][c] !== 0;
+
+          if (val > 0) counts[val]++;
+
+          cell.classList.remove("fixed", "user", "peer", "same", "selected", "error");
+          if (isFixed) cell.classList.add("fixed");
+          else if (val > 0) cell.classList.add("user");
+
+          if (selected) {
+            const isSelf = selected.r === r && selected.c === c;
+            const inSameBox = Math.floor(r / boxR) === selBoxR && Math.floor(c / boxC) === selBoxC;
+            if (isSelf) {
+              cell.classList.add("selected");
+            } else if (selectedVal > 0 && val === selectedVal) {
+              cell.classList.add("same");
+            } else if (selected.r === r || selected.c === c || inSameBox) {
+              cell.classList.add("peer");
+            }
+          }
+
+          if (val > 0 && hasConflict(r, c, val)) {
+            cell.classList.add("error");
+          }
+
+          const notesDiv = cell.firstElementChild;
+          if (val > 0) {
+            notesDiv.style.display = "none";
+            if (cell.lastChild !== notesDiv) {
+              cell.lastChild.textContent = val;
+            } else {
+              cell.appendChild(document.createTextNode(String(val)));
+            }
+          } else {
+            if (cell.lastChild !== notesDiv) {
+              cell.removeChild(cell.lastChild);
+            }
+            const cellNotes = notes[r][c];
+            if (cellNotes.size > 0) {
+              notesDiv.style.display = "grid";
+              notesDiv.innerHTML = "";
+              const sorted = Array.from(cellNotes).sort((a, b) => a - b);
+              for (const n of sorted) {
+                const span = document.createElement("span");
+                span.className = "note-item";
+                span.textContent = n;
+                notesDiv.appendChild(span);
+              }
+            } else {
+              notesDiv.style.display = "none";
+            }
+          }
+        }
+      }
+
+      const numBtns = numpadEl.children;
+      for (let i = 0; i < numBtns.length; i++) {
+        const n = i + 1;
+        if (counts[n] >= size) {
+          numBtns[i].classList.add("completed");
+        } else {
+          numBtns[i].classList.remove("completed");
+        }
+      }
+    }
+
+    // クリア判定
+    function checkWin() {
+      const { size, userGrid } = state;
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const val = userGrid[r][c];
+          if (val === 0 || hasConflict(r, c, val)) return;
+        }
+      }
+
+      state.cleared = true;
+      missionLog("CLEAR", `🎉 Lv.${state.level} (${size}×${size}) クリア達成！`);
+      setTimeout(() => {
+        if (state.level < 100) {
+          if (confirm(`🎉 Lv.${state.level} クリアおめでとう！\n次の Lv.${state.level + 1} に進みますか？`)) {
+            loadLevel(state.level + 1);
+          }
+        } else {
+          alert("🏆 全100レベル（27×27・81ブロックまで）完全制覇おめでとうございます！！");
+        }
+      }, 50);
+    }
+
+    // ボタンイベント登録
+    levelSelectEl.addEventListener("change", (e) => {
+      loadLevel(Number(e.target.value));
+    });
+
+    document.getElementById("prev-lv-btn").addEventListener("click", () => {
+      if (state.level > 1) loadLevel(state.level - 1);
+    });
+
+    document.getElementById("next-lv-btn").addEventListener("click", () => {
+      if (state.level < 100) loadLevel(state.level + 1);
+    });
+
+    memoBtn.addEventListener("click", () => {
+      state.memoMode = !state.memoMode;
+      memoBtn.classList.toggle("active", state.memoMode);
+      memoBtn.textContent = state.memoMode ? "✏️ メモ: ON" : "✏️ メモ: OFF";
+      missionLog("MODE", `メモモードを ${state.memoMode ? "ON" : "OFF"} に変更`);
+    });
+
+    document.getElementById("erase-btn").addEventListener("click", () => {
+      if (!state.selected || state.cleared) return;
+      const { r, c } = state.selected;
+      if (state.puzzle[r][c] !== 0) return;
+      const prev = state.userGrid[r][c];
+      state.userGrid[r][c] = 0;
+      state.notes[r][c].clear();
+      missionLog("ERASE", `(${r + 1},${c + 1}) の値(${prev})とメモを消去`);
+      renderAll();
+    });
+
+    document.getElementById("hint-btn").addEventListener("click", () => {
+      if (state.cleared) return;
+      let target = null;
+      if (state.selected && state.userGrid[state.selected.r][state.selected.c] !== state.solution[state.selected.r][state.selected.c]) {
+        target = state.selected;
+      } else {
+        for (let r = 0; r < state.size && !target; r++) {
+          for (let c = 0; c < state.size; c++) {
+            if (state.userGrid[r][c] !== state.solution[r][c]) {
+              target = { r, c };
+              break;
+            }
+          }
+        }
+      }
+      if (!target) return;
+      const ans = state.solution[target.r][target.c];
+      state.userGrid[target.r][target.c] = ans;
+      state.notes[target.r][target.c].clear();
+      state.selected = target;
+      missionLog("HINT", `💡 (${target.r + 1},${target.c + 1}) に正解 [${ans}] を入力`);
+      renderAll();
+      checkWin();
+    });
+
+    document.getElementById("reset-btn").addEventListener("click", () => {
+      if (!confirm("現在のレベルの入力をリセットしますか？")) return;
+      state.userGrid = state.puzzle.map(row => row.slice());
+      state.notes = Array.from({ length: state.size }, () =>
+        Array.from({ length: state.size }, () => new Set())
+      );
+      state.cleared = false;
+      missionLog("RESET", `Lv.${state.level} の盤面をリセットしました`);
+      renderAll();
+    });
+
+    // キーボード操作サポート
+    document.addEventListener("keydown", (e) => {
+      if (!state.selected) return;
+      const { r, c } = state.selected;
+      if (e.key === "ArrowUp") selectCell((r - 1 + state.size) % state.size, c);
+      else if (e.key === "ArrowDown") selectCell((r + 1) % state.size, c);
+      else if (e.key === "ArrowLeft") selectCell(r, (c - 1 + state.size) % state.size);
+      else if (e.key === "ArrowRight") selectCell(r, (c + 1) % state.size);
+      else if (e.key === "Backspace" || e.key === "Delete") {
+        document.getElementById("erase-btn").click();
+      } else if (/^[1-9]$/.test(e.key)) {
+        const n = Number(e.key);
+        if (n <= state.size) inputNumber(n);
+      }
+    });
+
+    // 起動処理
+    initLevelSelect();
+    let savedLv = 1;
+    try {
+      const raw = localStorage.getItem("eco_sudoku_lv");
+      if (raw) savedLv = Number(raw) || 1;
+    } catch (e) {}
+    loadLevel(savedLv);
+  </script>
+</body>
+</html>
