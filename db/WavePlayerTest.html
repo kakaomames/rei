@@ -145,17 +145,17 @@
     setTimeout(refreshWpStatus, 500);
 
     async function triggerWave(freq, duration, volume) {
-      const fn = refreshWpStatus();
-      if (!fn) return;
+  const fn = refreshWpStatus();
+  if (!fn) return;
 
-      writeLog("ACTION", `WP(${freq}, ${duration}, ${volume}) 呼び出し開始`);
-      try {
-        await fn(freq, duration, volume);
-        writeLog("DONE", `再生処理完了 -> freq=${freq}Hz, duration=${duration}s, volume=${volume}`);
-      } catch (err) {
-        writeLog("ERROR", `再生中にエラー発生 -> ${err}`);
-      }
-    }
+  writeLog("ACTION", `WP(${freq}, ${duration}, ${volume}) 呼び出し開始`);
+  try {
+    const res = await fn(freq, duration, volume);
+    writeLog("DONE", `再生処理完了 -> result=${String(res)}`);
+  } catch (err) {
+    writeLog("ERROR", `例外キャッチ -> ${err && err.stack ? err.stack : err}`);
+  }
+}
 
     document.getElementById("btn440").addEventListener("click", () => {
       triggerWave(440, 0.3, 0.2);
